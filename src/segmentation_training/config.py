@@ -56,7 +56,12 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ValueError("Validation split must be used for route selection")
     training = config.get("training", {})
     loss = training.get("loss")
-    if loss is not None and loss not in {"cross_entropy", "weighted_cross_entropy", "cross_entropy_dice"}:
+    if loss is not None and loss not in {
+        "cross_entropy",
+        "weighted_cross_entropy",
+        "cross_entropy_dice",
+        "weighted_cross_entropy_dice",
+    }:
         raise ValueError(f"Unsupported training.loss {loss!r}")
     sampler = training.get("sampler", {})
     train_policy = sampler.get("train_policy")
@@ -68,6 +73,15 @@ def validate_config(config: dict[str, Any]) -> None:
     probability = sampler.get("foreground_probability")
     if probability is not None and not 0.0 <= float(probability) <= 1.0:
         raise ValueError("sampler foreground_probability must be between 0 and 1")
+    min_foreground_pixels = sampler.get("min_foreground_pixels")
+    if min_foreground_pixels is not None and int(min_foreground_pixels) < 0:
+        raise ValueError("sampler min_foreground_pixels must be non-negative")
+    min_foreground_fraction = sampler.get("min_foreground_fraction")
+    if min_foreground_fraction is not None and not 0.0 <= float(min_foreground_fraction) <= 1.0:
+        raise ValueError("sampler min_foreground_fraction must be between 0 and 1")
+    max_attempts = sampler.get("max_attempts")
+    if max_attempts is not None and int(max_attempts) < 1:
+        raise ValueError("sampler max_attempts must be at least 1")
     diagnostics = config.get("diagnostics")
     if diagnostics is not None:
         if not diagnostics.get("parent_experiment_id"):

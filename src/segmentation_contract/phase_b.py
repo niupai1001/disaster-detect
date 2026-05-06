@@ -119,7 +119,12 @@ def build_phase_b_preflight(contract_dir: Path) -> PhaseBPreflightResult:
     )
 
 
-def build_phase_b_masks(contract_dir: Path, *, limit: int | None = None) -> PhaseBMaskResult:
+def build_phase_b_masks(
+    contract_dir: Path,
+    *,
+    limit: int | None = None,
+    reference_channels: list[str] | tuple[str, ...] = ("F16", "F17"),
+) -> PhaseBMaskResult:
     _require_module("shapely")
     _require_module("rasterio")
     import rasterio
@@ -160,7 +165,7 @@ def build_phase_b_masks(contract_dir: Path, *, limit: int | None = None) -> Phas
 
         geometry_rows.append(_geometry_report_row(row, geometry, geometry_status, geometry_blocker))
 
-        reference_raster = _reference_raster_path(row)
+        reference_raster = _reference_raster_path(row, reference_channels=reference_channels)
         if not reference_raster:
             alignment_rows.append(
                 _alignment_report_row(row, "", "", "", "", "", "", "0", "blocked_missing_reference_raster")
@@ -200,7 +205,7 @@ def build_phase_b_masks(contract_dir: Path, *, limit: int | None = None) -> Phas
                 all_touched=False,
             )
             profile = src.profile.copy()
-            profile.update(count=1, dtype="uint8", nodata=0, compress="lzw")
+            profile.update(count=1, dtype="uint8", nodata=255, compress="lzw")
             with rasterio.open(mask_path, "w", **profile) as dst:
                 dst.write(mask, 1)
             foreground_pixels = str(int((mask == int(row.get("class_id") or 0)).sum()))
@@ -210,7 +215,7 @@ def build_phase_b_masks(contract_dir: Path, *, limit: int | None = None) -> Phas
                 "transform": str(src.transform),
                 "height": str(src.height),
                 "width": str(src.width),
-                "nodata_policy": "mask_nodata_0_background",
+                "nodata_policy": "mask_nodata_255_background_0",
             }
             alignment_rows.append(
                 _alignment_report_row(
@@ -368,7 +373,38 @@ def build_channel_alignment_audit(
             )
             continue
 
-        _crs, _transform, height, width = next(iter(shape_key))
+        band_grid = next(iter(shape_key))
+        mask_path = Path(row.get("mask_path", ""))
+        if not mask_path.is_absolute():
+            mask_path = contract_dir / mask_path
+        if not mask_path.exists():
+            audit_rows.append(
+                _channel_audit_row(row, required, available, "blocked_missing_mask", "", str(mask_path), "missing_mask")
+            )
+            continue
+        with rasterio.open(mask_path) as mask_ds:
+            mask_grid = (
+                str(mask_ds.crs),
+                tuple(round(value, 12) for value in tuple(mask_ds.transform)[:6]),
+                mask_ds.height,
+                mask_ds.width,
+            )
+        if mask_grid != band_grid:
+            detail = f"mask:{mask_grid[2]}x{mask_grid[3]}; bands:{band_grid[2]}x{band_grid[3]}"
+            audit_rows.append(
+                _channel_audit_row(
+                    row,
+                    required,
+                    available,
+                    "blocked_mask_grid_mismatch",
+                    "",
+                    detail,
+                    "mask_grid_mismatch",
+                )
+            )
+            continue
+
+        _crs, _transform, height, width = band_grid
         input_band_paths = ";".join(f"{band}:{band_paths[band]}" for band in required)
         audit_rows.append(
             _channel_audit_row(row, required, available, "aligned", f"{height}x{width}", "", "")
@@ -495,6 +531,7 @@ def _normalize_to_uint8(numpy, image):
         high = low + 1
     scaled = (array - low) / (high - low)
     scaled = numpy.clip(scaled, 0, 1)
+    scaled = numpy.nan_to_num(scaled, nan=0.0, posinf=1.0, neginf=0.0)
     return (scaled * 255).astype("uint8")
 
 
@@ -566,7 +603,11 @@ def _read_source_row(path: Path, source_row_number: int) -> dict[str, str]:
     raise ValueError(f"source row {source_row_number} not found in {path}")
 
 
-def _reference_raster_path(row: dict[str, str]) -> Path | None:
+def _reference_raster_path(
+    row: dict[str, str],
+    *,
+    reference_channels: list[str] | tuple[str, ...] = ("F16", "F17"),
+) -> Path | None:
     band_paths = row.get("source_band_paths", "")
     parsed = []
     for item in band_paths.split(";"):
@@ -574,6 +615,11 @@ def _reference_raster_path(row: dict[str, str]) -> Path | None:
             continue
         band, path = item.split(":", 1)
         parsed.append((band, Path(path)))
+    by_band = {band: path for band, path in parsed}
+    for band in reference_channels:
+        path = by_band.get(band)
+        if path is not None and path.exists():
+            return path
     for _band, path in sorted(parsed):
         if path.exists():
             return path

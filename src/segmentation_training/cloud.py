@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import load_config
-from .manifest import filter_records, load_model_input_manifest
+from .manifest import filter_records, load_model_input_manifest, validate_record_raster_grids
 from .metrics import (
     compute_confusion_matrix,
     decode_prediction,
@@ -111,6 +111,13 @@ def run_cloud_training(
     validation_records = [record for record in scoped_records if record.split == "validation"]
     if not validation_records:
         raise ValueError("No validation records available for cloud training")
+    grid_errors = validate_record_raster_grids(
+        [*train_records, *validation_records],
+        contract_dir=bundle_dir,
+        required_channels=tuple(config["input_channels"]),
+    )
+    if grid_errors:
+        raise ValueError("Raster grid validation failed:\n" + "\n".join(grid_errors[:20]))
     progress = _TrainingProgressLogger(run_dir)
 
     source_class_ids = _source_class_ids(config)

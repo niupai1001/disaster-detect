@@ -3,6 +3,7 @@ import json
 import sys
 import tempfile
 import unittest
+import warnings
 from pathlib import Path
 
 import numpy
@@ -13,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from segmentation_contract import build_phase_a_contract  # noqa: E402
 from segmentation_contract.phase_b import (
+    _normalize_to_uint8,
     build_channel_alignment_audit,
     build_phase_b_masks,
     build_phase_b_preflight,
@@ -265,10 +267,54 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         self.assertEqual(manifest_rows[0]["crs"], "EPSG:4326")
         self.assertEqual(manifest_rows[0]["height"], "10")
         self.assertEqual(manifest_rows[0]["width"], "10")
+        self.assertEqual(manifest_rows[0]["nodata_policy"], "mask_nodata_255_background_0")
         geometry_rows = self.read_csv_rows(phase_a.output_dir / "reports" / "geometry_validity_report.csv")
         alignment_rows = self.read_csv_rows(phase_a.output_dir / "reports" / "wkt_mask_alignment_report.csv")
         self.assertEqual(geometry_rows[0]["geometry_status"], "valid")
         self.assertEqual(alignment_rows[0]["alignment_status"], "mask_written")
+
+    def test_phase_b_uses_required_channel_grid_for_mask_reference(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "405",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+            ]
+        )
+        raster_specs = {
+            "F13": (4, 4, from_origin(0, 1, 0.3, 0.3)),
+            "F16": (10, 10, from_origin(0, 1, 0.1, 0.1)),
+            "F17": (10, 10, from_origin(0, 1, 0.1, 0.1)),
+        }
+        raster_paths = []
+        for band, (height, width, transform) in raster_specs.items():
+            raster_path = root / f"T_C5_46RGT_405_EV20220707_IM20220731_{band}.tif"
+            with rasterio.open(
+                raster_path,
+                "w",
+                driver="GTiff",
+                height=height,
+                width=width,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=transform,
+            ) as dst:
+                dst.write(numpy.ones((1, height, width), dtype="uint16"))
+            raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+
+        build_phase_b_masks(phase_a.output_dir)
+
+        with rasterio.open(phase_a.output_dir / "masks" / "sample-000001.tif") as mask_ds:
+            self.assertEqual((mask_ds.height, mask_ds.width), (10, 10))
+            self.assertEqual(tuple(mask_ds.transform)[:6], tuple(raster_specs["F16"][2])[:6])
+            self.assertEqual(mask_ds.nodata, 255)
 
     def test_phase_b_reports_missing_reference_raster_without_mask(self):
         root, csv_path = self.make_label_csv(
@@ -339,6 +385,16 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         self.assertTrue((phase_a.output_dir / "previews" / "contact_sheet.png").exists())
         self.assertTrue((phase_a.output_dir / "reports" / "visual_qa_summary.md").exists())
 
+    def test_visual_qa_normalization_handles_nonfinite_values_without_warning(self):
+        image = numpy.array([[numpy.nan, numpy.inf], [-numpy.inf, 1.0]], dtype="float32")
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            normalized = _normalize_to_uint8(numpy, image)
+
+        self.assertEqual(normalized.dtype, numpy.uint8)
+        self.assertTrue(numpy.isfinite(normalized).all())
+
     def test_channel_alignment_audit_keeps_only_required_aligned_channels(self):
         root, csv_path = self.make_label_csv(
             [
@@ -379,6 +435,50 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         self.assertEqual(result.model_input_rows, 1)
         self.assertEqual(model_rows[0]["input_channels"], "F16;F17")
         self.assertEqual(audit_rows[0]["channel_alignment_status"], "aligned")
+
+    def test_channel_alignment_audit_blocks_mask_grid_mismatch(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "405",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+            ]
+        )
+        raster_paths = []
+        for band in ["F13", "F16", "F17"]:
+            height = 4 if band == "F13" else 10
+            width = 4 if band == "F13" else 10
+            pixel_size = 0.3 if band == "F13" else 0.1
+            raster_path = root / f"T_C5_46RGT_405_EV20220707_IM20220731_{band}.tif"
+            with rasterio.open(
+                raster_path,
+                "w",
+                driver="GTiff",
+                height=height,
+                width=width,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, pixel_size, pixel_size),
+            ) as dst:
+                dst.write(numpy.ones((1, height, width), dtype="uint16"))
+            raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F13"])
+        build_visual_qa(phase_a.output_dir, max_items=1)
+
+        result = build_channel_alignment_audit(phase_a.output_dir, required_channels=["F16", "F17"])
+
+        audit_rows = self.read_csv_rows(phase_a.output_dir / "reports" / "channel_alignment_report.csv")
+        model_rows = self.read_csv_rows(phase_a.output_dir / "model_input_manifest.csv")
+        self.assertEqual(result.model_input_rows, 0)
+        self.assertEqual(model_rows, [])
+        self.assertEqual(audit_rows[0]["channel_alignment_status"], "blocked_mask_grid_mismatch")
 
 
 if __name__ == "__main__":

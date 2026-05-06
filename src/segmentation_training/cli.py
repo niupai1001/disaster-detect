@@ -7,7 +7,7 @@ from pathlib import Path
 from .bundle import build_training_bundle
 from .cloud import refuse_local_training, run_cloud_training
 from .config import load_config
-from .manifest import class_split_counts, load_model_input_manifest, validate_record_paths
+from .manifest import class_split_counts, load_model_input_manifest, validate_record_paths, validate_record_raster_grids
 from .training_curves import write_training_curves
 
 
@@ -84,6 +84,14 @@ def _validate_manifest(args) -> int:
         contract_dir=contract_dir,
         require_bands=not args.skip_band_existence,
     )
+    if not args.skip_band_existence:
+        errors.extend(
+            validate_record_raster_grids(
+                records,
+                contract_dir=contract_dir,
+                required_channels=tuple(args.required_channel or ["F16", "F17"]),
+            )
+        )
     if errors:
         raise ValueError("\n".join(errors[:20]))
     result = {
@@ -120,17 +128,26 @@ def _dry_run(args) -> int:
         manifest_path = root / "model_input_manifest.csv"
         contract_dir = root
     records = load_model_input_manifest(manifest_path, required_channels=tuple(config["input_channels"]))
+    selection_records = [record for record in records if record.split != "test"]
+    checked_records = selection_records[: args.max_samples]
     errors = validate_record_paths(
-        records[: args.max_samples],
+        checked_records,
         contract_dir=contract_dir,
         require_bands=bool(args.bundle_dir),
+    )
+    errors.extend(
+        validate_record_raster_grids(
+            checked_records,
+            contract_dir=contract_dir,
+            required_channels=tuple(config["input_channels"]),
+        )
     )
     if errors:
         raise ValueError("\n".join(errors[:20]))
     result = {
         "experiment_id": config["experiment_id"],
         "class_scope": config["class_scope"],
-        "checked_samples": min(args.max_samples, len(records)),
+        "checked_samples": len(checked_records),
         "test_split_read": False,
         "status": "dry_run_passed",
     }
