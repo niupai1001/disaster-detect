@@ -8,7 +8,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from segmentation_training.cloud import _pad_window  # noqa: E402
+from segmentation_training.cloud import _TrainingProgressLogger, _pad_window  # noqa: E402
 from segmentation_training.cli import main as training_main  # noqa: E402
 
 
@@ -50,6 +50,19 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
         self.assertEqual(padded_label.shape, (256, 256))
         self.assertEqual(float(padded_channels[:, :148, :152].sum()), float(channels.sum()))
         self.assertTrue((padded_label[148:, :] == 255).all())
+
+    def test_progress_logger_prints_and_writes_metrics(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            messages = []
+            logger = _TrainingProgressLogger(Path(tmp_name), emit=messages.append)
+
+            logger.log_epoch_metrics(epoch=2, max_epochs=5, train_loss=0.25, mean_iou=0.4, foreground_recall=0.5)
+
+            self.assertIn("epoch 2/5", messages[0])
+            self.assertIn("loss=0.2500", messages[0])
+            self.assertIn("mean_iou=0.4000", messages[0])
+            self.assertIn("foreground_recall=0.5000", messages[0])
+            self.assertIn("epoch 2/5", (Path(tmp_name) / "logs" / "training_progress.log").read_text())
 
 
 if __name__ == "__main__":

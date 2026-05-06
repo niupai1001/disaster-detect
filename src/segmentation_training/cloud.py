@@ -7,6 +7,7 @@ import sys
 import csv
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 from .config import load_config
 from .manifest import filter_records, load_model_input_manifest
@@ -99,12 +100,18 @@ def run_cloud_training(
     validation_records = [record for record in scoped_records if record.split == "validation"]
     if not validation_records:
         raise ValueError("No validation records available for cloud training")
+    progress = _TrainingProgressLogger(run_dir)
 
     source_class_ids = _source_class_ids(config)
     encoded_class_ids = list(range(len(source_class_ids)))
     max_samples = int(config.get("cloud", {}).get("max_validation_samples", 32))
 
     model_family = config["model"]["family"]
+    progress.log(
+        f"starting experiment={config['experiment_id']} model={model_family} "
+        f"train_records={len(train_records)} validation_records={len(validation_records)} "
+        f"max_validation_samples={max_samples}"
+    )
     if model_family == "trivial":
         metrics_payload = _evaluate_trivial(
             validation_records[:max_samples],
@@ -116,6 +123,13 @@ def run_cloud_training(
             np=np,
         )
         _write_run_outputs(run_dir, metrics_payload, source_class_ids)
+        progress.log_epoch_metrics(
+            epoch=1,
+            max_epochs=1,
+            train_loss=0.0,
+            mean_iou=metrics_payload["mean_iou"],
+            foreground_recall=metrics_payload["foreground_recall"],
+        )
         manifest["status"] = "completed_trivial_baseline"
         _write_manifest(run_dir, manifest)
         return manifest
@@ -144,13 +158,19 @@ def run_cloud_training(
     max_epochs = int(config.get("training", {}).get("max_epochs", 1))
     batch_size = int(config.get("training", {}).get("batch_size", 4))
     window_size = int(config.get("training", {}).get("window_size", 256))
+    log_interval = int(config.get("cloud", {}).get("log_interval_batches", 10))
+    validation_interval = int(config.get("cloud", {}).get("validation_interval_epochs", 1))
     rng = np.random.default_rng(int(config.get("seed", 20260505)))
+    total_batches = (len(train_records) + batch_size - 1) // batch_size
 
     losses: list[float] = []
-    for _epoch in range(max_epochs):
+    for epoch in range(1, max_epochs + 1):
         rng.shuffle(train_records)
         batch_x = []
         batch_y = []
+        epoch_losses: list[float] = []
+        batch_index = 0
+        progress.log(f"epoch {epoch}/{max_epochs} started")
         for record in train_records:
             channels, label = _read_training_window(
                 record,
@@ -166,11 +186,40 @@ def run_cloud_training(
             batch_x.append(torch.from_numpy(channels.astype("float32")))
             batch_y.append(torch.from_numpy(encoded_label.astype("int64")))
             if len(batch_x) == batch_size:
-                losses.append(_train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch))
+                loss_value = _train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch)
+                losses.append(loss_value)
+                epoch_losses.append(loss_value)
+                batch_index += 1
+                if batch_index == 1 or batch_index % log_interval == 0 or batch_index == total_batches:
+                    progress.log_batch(epoch, max_epochs, batch_index, total_batches, loss_value, epoch_losses)
                 batch_x = []
                 batch_y = []
         if batch_x:
-            losses.append(_train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch))
+            loss_value = _train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch)
+            losses.append(loss_value)
+            epoch_losses.append(loss_value)
+            batch_index += 1
+            progress.log_batch(epoch, max_epochs, batch_index, total_batches, loss_value, epoch_losses)
+        if epoch % validation_interval == 0 or epoch == max_epochs:
+            epoch_metrics = _evaluate_model(
+                model,
+                validation_records[:max_samples],
+                bundle_dir=bundle_dir,
+                config=config,
+                source_class_ids=source_class_ids,
+                device=device,
+                rasterio=rasterio,
+                RasterWindow=RasterWindow,
+                torch=torch,
+                np=np,
+            )
+            progress.log_epoch_metrics(
+                epoch=epoch,
+                max_epochs=max_epochs,
+                train_loss=float(np.mean(epoch_losses)) if epoch_losses else 0.0,
+                mean_iou=epoch_metrics["mean_iou"],
+                foreground_recall=epoch_metrics["foreground_recall"],
+            )
 
     metrics_payload = _evaluate_model(
         model,
@@ -195,6 +244,49 @@ def run_cloud_training(
     }
     _write_manifest(run_dir, manifest)
     return manifest
+
+
+class _TrainingProgressLogger:
+    def __init__(self, run_dir: Path, *, emit: Callable[[str], None] = print):
+        self.emit = emit
+        self.path = run_dir / "logs" / "training_progress.log"
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+
+    def log(self, message: str) -> None:
+        line = f"[{datetime.now(timezone.utc).isoformat()}] {message}"
+        self.emit(line)
+        with self.path.open("a", encoding="utf-8") as fh:
+            fh.write(line + "\n")
+
+    def log_batch(
+        self,
+        epoch: int,
+        max_epochs: int,
+        batch_index: int,
+        total_batches: int,
+        loss_value: float,
+        epoch_losses: list[float],
+    ) -> None:
+        avg_loss = sum(epoch_losses) / len(epoch_losses)
+        pct = batch_index / max(1, total_batches) * 100
+        self.log(
+            f"epoch {epoch}/{max_epochs} batch {batch_index}/{total_batches} "
+            f"({pct:.1f}%) loss={loss_value:.4f} avg_loss={avg_loss:.4f}"
+        )
+
+    def log_epoch_metrics(
+        self,
+        *,
+        epoch: int,
+        max_epochs: int,
+        train_loss: float,
+        mean_iou: float,
+        foreground_recall: float,
+    ) -> None:
+        self.log(
+            f"epoch {epoch}/{max_epochs} validation "
+            f"loss={train_loss:.4f} mean_iou={mean_iou:.4f} foreground_recall={foreground_recall:.4f}"
+        )
 
 
 def _source_class_ids(config: dict) -> list[int]:
