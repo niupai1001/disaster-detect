@@ -1,0 +1,41 @@
+task_id: task-afc7f2c25f8f
+experiment_id: E1_binary_c5_unet
+seed: 20260505
+class_scope: binary_c5
+input_channels:
+  - F16
+  - F17
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits:
+    - validation
+  allow_test_split_for_selection: false
+model:
+  family: unet
+  variant: baseline
+  input_channels: 2
+  output_classes: 2
+  base_channels: 32
+  ignore_index: 255
+training:
+  batch_size: 8
+  max_epochs: 60
+  window_size: 256
+  loss: cross_entropy
+metrics:
+  class_ids:
+    - 0
+    - 2
+  ignore_index: 255
+  required_outputs:
+    - metrics.json
+    - per_class_metrics.csv
+    - event_metrics.csv
+    - confusion_matrix.csv
+    - mask_area_summary.csv
+cloud:
+  local_full_training_allowed: false
+  expected_accelerator: cuda
+
