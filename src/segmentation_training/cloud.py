@@ -11,7 +11,16 @@ from typing import Callable
 
 from .config import load_config
 from .manifest import filter_records, load_model_input_manifest
-from .metrics import compute_confusion_matrix, per_class_metrics, summarize_area
+from .metrics import (
+    compute_confusion_matrix,
+    decode_prediction,
+    encode_label,
+    per_class_metrics,
+    prediction_summary_rows,
+    probability_summary,
+    summarize_area,
+    threshold_sweep,
+)
 from .preview import write_contact_sheet, write_prediction_preview
 
 
@@ -35,6 +44,7 @@ def prepare_cloud_run(
         raise FileNotFoundError(f"Cloud manifest not found: {manifest_path}")
     records = load_model_input_manifest(manifest_path, required_channels=tuple(config["input_channels"]))
     scoped_records = filter_records(records, class_scope=config["class_scope"])
+    selection_records = [record for record in scoped_records if record.split != "test"]
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "logs").mkdir(exist_ok=True)
     (run_dir / "checkpoints").mkdir(exist_ok=True)
@@ -53,7 +63,8 @@ def prepare_cloud_run(
         "model": config["model"],
         "input_channels": config["input_channels"],
         "class_scope": config["class_scope"],
-        "split_counts": _split_counts(scoped_records),
+        "split_counts": _split_counts(selection_records),
+        "test_split_read": False,
         "command_line": command_line,
         "git_commit": _git_commit(),
         "python": sys.version,
@@ -81,7 +92,7 @@ def run_cloud_training(
     from rasterio.windows import Window as RasterWindow
 
     from .experiments import trivial_background_prediction
-    from .losses import build_cross_entropy_loss
+    from .losses import build_segmentation_loss, class_weights_from_counts
     from .models import build_resunet, build_unet
 
     config = load_config(config_path)
@@ -122,6 +133,14 @@ def run_cloud_training(
             trivial_background_prediction=trivial_background_prediction,
             np=np,
         )
+        metrics_payload["foreground_window_coverage"] = _foreground_window_coverage_rows(
+            [*train_records, *validation_records],
+            bundle_dir=bundle_dir,
+            foreground_class_ids=[class_id for class_id in source_class_ids if class_id != 0],
+            window_size=int(config.get("training", {}).get("window_size", 256)),
+            rasterio=rasterio,
+            np=np,
+        )
         _write_run_outputs(run_dir, metrics_payload, source_class_ids)
         progress.log_epoch_metrics(
             epoch=1,
@@ -154,7 +173,26 @@ def run_cloud_training(
         raise ValueError(f"Unsupported cloud model family {model_family!r}")
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=float(config.get("training", {}).get("learning_rate", 0.001)))
-    loss_fn = build_cross_entropy_loss(ignore_index=int(config["metrics"].get("ignore_index", 255)))
+    class_weights = None
+    if config.get("training", {}).get("loss") == "weighted_cross_entropy":
+        class_weights = class_weights_from_counts(
+            _encoded_label_counts(
+                train_records,
+                bundle_dir=bundle_dir,
+                source_class_ids=source_class_ids,
+                rasterio=rasterio,
+                np=np,
+            ),
+            max_weight=float(config.get("training", {}).get("class_weights", {}).get("max_weight", 20.0)),
+        )
+    loss_fn = build_segmentation_loss(
+        loss_name=config.get("training", {}).get("loss", "cross_entropy"),
+        ignore_index=int(config["metrics"].get("ignore_index", 255)),
+        class_weights=class_weights,
+        dice_weight=float(config.get("training", {}).get("dice_weight", 1.0)),
+    )
+    if hasattr(loss_fn, "to"):
+        loss_fn = loss_fn.to(device)
     max_epochs = int(config.get("training", {}).get("max_epochs", 1))
     batch_size = int(config.get("training", {}).get("batch_size", 4))
     window_size = int(config.get("training", {}).get("window_size", 256))
@@ -177,6 +215,8 @@ def run_cloud_training(
                 bundle_dir=bundle_dir,
                 channels=tuple(config["input_channels"]),
                 window_size=window_size,
+                sampler_config=config.get("training", {}).get("sampler", {}),
+                foreground_class_ids=[class_id for class_id in source_class_ids if class_id != 0],
                 rng=rng,
                 rasterio=rasterio,
                 RasterWindow=RasterWindow,
@@ -233,6 +273,14 @@ def run_cloud_training(
         rasterio=rasterio,
         RasterWindow=RasterWindow,
         torch=torch,
+        np=np,
+    )
+    metrics_payload["foreground_window_coverage"] = _foreground_window_coverage_rows(
+        [*train_records, *validation_records],
+        bundle_dir=bundle_dir,
+        foreground_class_ids=[class_id for class_id in source_class_ids if class_id != 0],
+        window_size=window_size,
+        rasterio=rasterio,
         np=np,
     )
     metrics_payload["train_loss_last"] = losses[-1] if losses else None
@@ -321,19 +369,37 @@ def _read_training_window(
     bundle_dir: Path,
     channels: tuple[str, ...],
     window_size: int,
+    sampler_config: dict | None = None,
+    foreground_class_ids: list[int] | None = None,
     rng,
     rasterio,
     RasterWindow,
     np,
 ):
+    from .sampler import choose_training_window
+
+    sampler_config = sampler_config or {}
+    foreground_class_ids = foreground_class_ids or []
     mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
     with rasterio.open(mask_path) as mask_ds:
         height = mask_ds.height
         width = mask_ds.width
         size = _safe_window_size(height, width, window_size)
-        row = int(rng.integers(0, max(1, height - size + 1)))
-        col = int(rng.integers(0, max(1, width - size + 1)))
-        window = RasterWindow(col, row, size, size)
+        if sampler_config.get("train_policy") == "foreground_biased":
+            full_label = mask_ds.read(1)
+            selected = choose_training_window(
+                full_label,
+                size=size,
+                rng=rng,
+                foreground_class_ids=foreground_class_ids,
+                foreground_probability=float(sampler_config.get("foreground_probability", 0.75)),
+                min_foreground_pixels=int(sampler_config.get("min_foreground_pixels", 1)),
+            )
+            window = RasterWindow(selected.col, selected.row, selected.width, selected.height)
+        else:
+            row = int(rng.integers(0, max(1, height - size + 1)))
+            col = int(rng.integers(0, max(1, width - size + 1)))
+            window = RasterWindow(col, row, size, size)
         label = mask_ds.read(1, window=window)
     band_arrays = []
     for channel in channels:
@@ -346,13 +412,33 @@ def _read_training_window(
     )
 
 
-def _read_validation_window(record, *, bundle_dir, channels, window_size, rasterio, RasterWindow, np):
+def _read_validation_window(
+    record,
+    *,
+    bundle_dir,
+    channels,
+    window_size,
+    sampler_config: dict | None = None,
+    foreground_class_ids: list[int] | None = None,
+    rasterio,
+    RasterWindow,
+    np,
+):
+    from .sampler import choose_validation_window
+
+    sampler_config = sampler_config or {}
+    foreground_class_ids = foreground_class_ids or []
     mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
     with rasterio.open(mask_path) as mask_ds:
         size = _safe_window_size(mask_ds.height, mask_ds.width, window_size)
-        row = max(0, (mask_ds.height - size) // 2)
-        col = max(0, (mask_ds.width - size) // 2)
-        window = RasterWindow(col, row, size, size)
+        full_label = mask_ds.read(1)
+        selected = choose_validation_window(
+            full_label,
+            size=size,
+            foreground_class_ids=foreground_class_ids,
+            policy=str(sampler_config.get("validation_policy", "center")),
+        )
+        window = RasterWindow(selected.col, selected.row, selected.width, selected.height)
         label = mask_ds.read(1, window=window)
     band_arrays = []
     for channel in channels:
@@ -407,19 +493,11 @@ def _target_has_valid_pixels(target, *, np, ignore_index: int = 255) -> bool:
 
 
 def _encode_label(label, source_class_ids: list[int], *, np):
-    encoded = np.full(label.shape, 255, dtype="uint8")
-    encoded[label == 255] = 255
-    for index, class_id in enumerate(source_class_ids):
-        encoded[label == class_id] = index
-    encoded[(encoded == 255) & (label == 0)] = 0
-    return encoded
+    return encode_label(label, source_class_ids)
 
 
 def _decode_prediction(encoded_prediction, source_class_ids: list[int], *, np):
-    decoded = np.zeros(encoded_prediction.shape, dtype="uint8")
-    for index, class_id in enumerate(source_class_ids):
-        decoded[encoded_prediction == index] = class_id
-    return decoded
+    return decode_prediction(encoded_prediction, source_class_ids)
 
 
 def _evaluate_model(
@@ -438,7 +516,10 @@ def _evaluate_model(
     model.eval()
     labels = []
     predictions = []
+    probabilities = []
+    sample_ids = []
     preview_paths = []
+    foreground_class_ids = [class_id for class_id in source_class_ids if class_id != 0]
     with torch.no_grad():
         for record in records:
             channels, label = _read_validation_window(
@@ -446,18 +527,34 @@ def _evaluate_model(
                 bundle_dir=bundle_dir,
                 channels=tuple(config["input_channels"]),
                 window_size=int(config.get("training", {}).get("window_size", 256)),
+                sampler_config=config.get("training", {}).get("sampler", {}),
+                foreground_class_ids=foreground_class_ids,
                 rasterio=rasterio,
                 RasterWindow=RasterWindow,
                 np=np,
             )
             logits = model(torch.from_numpy(channels[None, ...].astype("float32")).to(device))
+            foreground_probability = torch.softmax(logits, dim=1).squeeze(0).cpu().numpy()
             encoded_prediction = torch.argmax(logits, dim=1).squeeze(0).cpu().numpy().astype("uint8")
             prediction = _decode_prediction(encoded_prediction, source_class_ids, np=np)
             labels.append(label)
             predictions.append(prediction)
+            sample_ids.append(record.sample_id)
+            probabilities.append(
+                foreground_probability[1] if foreground_probability.shape[0] > 1 else foreground_probability[0]
+            )
             if len(preview_paths) < 12:
                 preview_paths.append((record.sample_id, channels, label, prediction))
-    return _build_metrics_payload(labels, predictions, source_class_ids, preview_paths, np=np)
+    return _build_metrics_payload(
+        labels,
+        predictions,
+        source_class_ids,
+        preview_paths,
+        sample_ids=sample_ids,
+        foreground_probabilities=probabilities,
+        thresholds=list(config.get("metrics", {}).get("threshold_sweep", [0.5])),
+        np=np,
+    )
 
 
 def _evaluate_trivial(
@@ -472,6 +569,7 @@ def _evaluate_trivial(
 ):
     labels = []
     predictions = []
+    sample_ids = []
     preview_paths = []
     for record in records:
         mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
@@ -480,12 +578,23 @@ def _evaluate_trivial(
         prediction = trivial_background_prediction(label)
         labels.append(label)
         predictions.append(prediction)
+        sample_ids.append(record.sample_id)
         if len(preview_paths) < 12:
             preview_paths.append((record.sample_id, np.stack([label, label], axis=0), label, prediction))
-    return _build_metrics_payload(labels, predictions, source_class_ids, preview_paths, np=np)
+    return _build_metrics_payload(labels, predictions, source_class_ids, preview_paths, sample_ids=sample_ids, np=np)
 
 
-def _build_metrics_payload(labels, predictions, source_class_ids, preview_items, *, np):
+def _build_metrics_payload(
+    labels,
+    predictions,
+    source_class_ids,
+    preview_items,
+    *,
+    sample_ids=None,
+    foreground_probabilities=None,
+    thresholds=None,
+    np,
+):
     label_array = np.concatenate([label.ravel() for label in labels])
     prediction_array = np.concatenate([prediction.ravel() for prediction in predictions])
     matrix = compute_confusion_matrix(label_array, prediction_array, class_ids=source_class_ids)
@@ -493,6 +602,32 @@ def _build_metrics_payload(labels, predictions, source_class_ids, preview_items,
     mean_iou = float(np.mean([metric.iou for metric in class_metrics[1:]])) if len(class_metrics) > 1 else 0.0
     foreground = [metric for metric in class_metrics if metric.class_id != 0]
     foreground_recall = float(np.mean([metric.recall for metric in foreground])) if foreground else 0.0
+    sample_ids = sample_ids or [f"sample-{idx:04d}" for idx in range(len(labels))]
+    foreground_class_ids = [class_id for class_id in source_class_ids if class_id != 0]
+    prediction_summary = prediction_summary_rows(
+        labels,
+        predictions,
+        sample_ids=sample_ids,
+        foreground_class_ids=foreground_class_ids,
+    )
+    threshold_rows = []
+    probability_rows = []
+    if foreground_probabilities and len(foreground_class_ids) == 1:
+        foreground_class_id = foreground_class_ids[0]
+        for sample_id, label, probability in zip(sample_ids, labels, foreground_probabilities):
+            probability_rows.append(
+                {
+                    "sample_id": sample_id,
+                    **probability_summary(label, probability, foreground_class_id=foreground_class_id),
+                }
+            )
+            for row in threshold_sweep(
+                label,
+                probability,
+                foreground_class_id=foreground_class_id,
+                thresholds=thresholds or [0.5],
+            ):
+                threshold_rows.append({"sample_id": sample_id, **row})
     return {
         "confusion_matrix": matrix,
         "per_class": class_metrics,
@@ -500,6 +635,9 @@ def _build_metrics_payload(labels, predictions, source_class_ids, preview_items,
         "foreground_recall": foreground_recall,
         "area": summarize_area(label_array, prediction_array, class_ids=source_class_ids),
         "preview_items": preview_items,
+        "prediction_summary": prediction_summary,
+        "threshold_sweep": threshold_rows,
+        "foreground_probability_summary": probability_rows,
     }
 
 
@@ -516,6 +654,15 @@ def _write_run_outputs(run_dir: Path, payload: dict, source_class_ids: list[int]
     _write_confusion_matrix(run_dir / "confusion_matrix.csv", payload["confusion_matrix"], source_class_ids)
     _write_area_summary(run_dir / "mask_area_summary.csv", payload["area"])
     _write_event_metrics_placeholder(run_dir / "event_metrics.csv", metrics)
+    diagnostics_dir = run_dir / "diagnostics"
+    _write_dict_rows(diagnostics_dir / "validation_prediction_summary.csv", payload.get("prediction_summary", []))
+    _write_dict_rows(diagnostics_dir / "threshold_sweep.csv", payload.get("threshold_sweep", []))
+    _write_dict_rows(
+        diagnostics_dir / "foreground_probability_summary.csv", payload.get("foreground_probability_summary", [])
+    )
+    _write_dict_rows(diagnostics_dir / "foreground_window_coverage.csv", payload.get("foreground_window_coverage", []))
+    _write_binary_encode_decode_audit(diagnostics_dir / "binary_c5_encode_decode_audit.json", source_class_ids)
+    _write_artifact_inventory(diagnostics_dir / "artifact_inventory.json", run_dir)
     preview_paths = []
     per_sample_dir = run_dir / "predictions" / "per_sample"
     for sample_id, channels, label, prediction in payload["preview_items"]:
@@ -568,6 +715,96 @@ def _write_event_metrics_placeholder(path: Path, metrics: dict) -> None:
                 "foreground_recall": metrics["foreground_recall"],
             }
         )
+
+
+def _write_dict_rows(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = sorted({key for row in rows for key in row.keys()})
+    with path.open("w", encoding="utf-8", newline="") as fh:
+        if not fieldnames:
+            return
+        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def _write_artifact_inventory(path: Path, run_dir: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    expected = [
+        "run_manifest.json",
+        "resolved_config.yaml",
+        "metrics.json",
+        "per_class_metrics.csv",
+        "confusion_matrix.csv",
+        "mask_area_summary.csv",
+        "event_metrics.csv",
+        "diagnostics/validation_prediction_summary.csv",
+        "diagnostics/threshold_sweep.csv",
+        "diagnostics/foreground_probability_summary.csv",
+        "diagnostics/foreground_window_coverage.csv",
+        "diagnostics/binary_c5_encode_decode_audit.json",
+    ]
+    payload = {
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "test_split_read": False,
+        "artifacts": [{"path": item, "exists": (run_dir / item).exists()} for item in expected],
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _write_binary_encode_decode_audit(path: Path, source_class_ids: list[int]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "source_class_ids": source_class_ids,
+        "ignore_index": 255,
+        "status": "not_binary_c5",
+    }
+    if source_class_ids == [0, 2]:
+        import numpy as np
+
+        source = np.array([[0, 2, 255], [1, 2, 0]], dtype=np.uint8)
+        encoded = encode_label(source, source_class_ids).tolist()
+        decoded = decode_prediction(np.array(encoded, dtype=np.uint8), source_class_ids).tolist()
+        payload.update(
+            {
+                "status": "passed",
+                "source_example": source.tolist(),
+                "encoded_example": encoded,
+                "decoded_example": decoded,
+                "out_of_scope_source_class_becomes_ignore": encoded[1][0] == 255,
+            }
+        )
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _encoded_label_counts(records, *, bundle_dir, source_class_ids: list[int], rasterio, np) -> list[int]:
+    counts = [0 for _ in source_class_ids]
+    for record in records:
+        mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
+        with rasterio.open(mask_path) as mask_ds:
+            encoded = _encode_label(mask_ds.read(1), source_class_ids, np=np)
+        valid = encoded != 255
+        for index in range(len(source_class_ids)):
+            counts[index] += int(np.logical_and(valid, encoded == index).sum())
+    return counts
+
+
+def _foreground_window_coverage_rows(records, *, bundle_dir, foreground_class_ids: list[int], window_size: int, rasterio, np):
+    from .sampler import foreground_window_coverage
+
+    samples = []
+    split_by_sample_id = {}
+    for record in records:
+        if record.split == "test":
+            continue
+        mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
+        with rasterio.open(mask_path) as mask_ds:
+            samples.append((record.sample_id, mask_ds.read(1)))
+        split_by_sample_id[record.sample_id] = record.split
+    rows = foreground_window_coverage(samples, foreground_class_ids=foreground_class_ids, size=window_size)
+    for row in rows:
+        row["split"] = split_by_sample_id.get(row["sample_id"], "")
+    return rows
 
 
 def _resolve_cloud_or_bundle_path(bundle_dir: Path, value: str, *, subdir: str | None = None) -> Path:

@@ -1,10 +1,13 @@
 task_id: task-afc7f2c25f8f
-experiment_id: E1_binary_c5_unet
+experiment_id: E1b_binary_c5_unet_foreground_sampler
 seed: 20260505
 class_scope: binary_c5
 input_channels:
   - F16
   - F17
+diagnostics:
+  parent_experiment_id: E1_binary_c5_unet
+  changed_factor: sampler
 split_policy:
   train: train
   validation: validation
@@ -25,10 +28,10 @@ training:
   window_size: 256
   loss: cross_entropy
   sampler:
-    train_policy: random
-    foreground_probability: 0.0
-    min_foreground_pixels: 1
-    validation_policy: center
+    train_policy: foreground_biased
+    foreground_probability: 0.75
+    min_foreground_pixels: 16
+    validation_policy: foreground_center
 metrics:
   class_ids:
     - 0

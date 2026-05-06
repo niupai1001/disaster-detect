@@ -8,7 +8,16 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from segmentation_training.cloud import _TrainingProgressLogger, _normalize_band, _pad_window, _target_has_valid_pixels  # noqa: E402
+from segmentation_training.cloud import (  # noqa: E402
+    _TrainingProgressLogger,
+    _build_metrics_payload,
+    _foreground_window_coverage_rows,
+    _normalize_band,
+    _pad_window,
+    _target_has_valid_pixels,
+    _write_run_outputs,
+    prepare_cloud_run,
+)
 from segmentation_training.cli import main as training_main  # noqa: E402
 
 
@@ -74,6 +83,190 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
     def test_target_has_valid_pixels_rejects_all_ignore(self):
         self.assertFalse(_target_has_valid_pixels(np.full((8, 8), 255, dtype=np.uint8), np=np))
         self.assertTrue(_target_has_valid_pixels(np.array([[255, 1]], dtype=np.uint8), np=np))
+
+    def test_metrics_payload_includes_prediction_summary_and_threshold_sweep(self):
+        labels = [np.array([[0, 2], [2, 255]], dtype=np.uint8)]
+        predictions = [np.array([[0, 0], [2, 0]], dtype=np.uint8)]
+        probabilities = [np.array([[0.01, 0.25], [0.75, 0.0]], dtype=np.float32)]
+
+        payload = _build_metrics_payload(
+            labels,
+            predictions,
+            [0, 2],
+            preview_items=[],
+            sample_ids=["s1"],
+            foreground_probabilities=probabilities,
+            thresholds=[0.5, 0.2],
+            np=np,
+        )
+
+        self.assertEqual(payload["prediction_summary"][0]["sample_id"], "s1")
+        self.assertEqual(payload["prediction_summary"][0]["label_foreground_pixels"], 2)
+        self.assertEqual(payload["threshold_sweep"][0]["threshold"], 0.5)
+        self.assertEqual(payload["threshold_sweep"][1]["recall"], 1.0)
+
+    def test_write_run_outputs_writes_diagnostics_files(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            run_dir = Path(tmp_name)
+            payload = {
+                "mean_iou": 0.25,
+                "foreground_recall": 0.5,
+                "per_class": [],
+                "confusion_matrix": np.zeros((2, 2), dtype=np.int64),
+                "area": {0: {"label_pixels": 3, "predicted_pixels": 4}, 2: {"label_pixels": 2, "predicted_pixels": 1}},
+                "preview_items": [],
+                "prediction_summary": [
+                    {
+                        "sample_id": "s1",
+                        "label_foreground_pixels": 2,
+                        "predicted_foreground_pixels": 1,
+                        "predicted_label_area_ratio": 0.5,
+                        "tp": 1,
+                        "fp": 0,
+                        "fn": 1,
+                        "foreground_precision": 1.0,
+                        "foreground_recall": 0.5,
+                        "foreground_iou": 0.5,
+                        "foreground_dice": 0.666,
+                        "all_background_prediction": False,
+                    }
+                ],
+                "threshold_sweep": [
+                    {
+                        "threshold": 0.5,
+                        "label_foreground_pixels": 2,
+                        "predicted_foreground_pixels": 1,
+                        "predicted_label_area_ratio": 0.5,
+                        "precision": 1.0,
+                        "recall": 0.5,
+                        "iou": 0.5,
+                        "dice": 0.666,
+                    }
+                ],
+                "foreground_probability_summary": [{"sample_id": "s1", "foreground_probability_max": 0.75}],
+                "foreground_window_coverage": [{"sample_id": "s1", "full_mask_foreground_pixels": 2}],
+            }
+
+            _write_run_outputs(run_dir, payload, [0, 2])
+
+            self.assertTrue((run_dir / "diagnostics" / "validation_prediction_summary.csv").exists())
+            self.assertTrue((run_dir / "diagnostics" / "threshold_sweep.csv").exists())
+            self.assertTrue((run_dir / "diagnostics" / "foreground_probability_summary.csv").exists())
+            self.assertTrue((run_dir / "diagnostics" / "foreground_window_coverage.csv").exists())
+            self.assertTrue((run_dir / "diagnostics" / "artifact_inventory.json").exists())
+            self.assertTrue((run_dir / "diagnostics" / "binary_c5_encode_decode_audit.json").exists())
+
+    def test_prepare_cloud_run_manifest_does_not_summarize_test_split(self):
+        import csv
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            bundle = root / "bundle"
+            (bundle / "manifests").mkdir(parents=True)
+            config = root / "e1.yaml"
+            config.write_text(
+                """
+task_id: task-afc7f2c25f8f
+experiment_id: E1_binary_c5_unet
+seed: 20260505
+class_scope: binary_c5
+input_channels: [F16, F17]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: unet
+  input_channels: 2
+  output_classes: 2
+metrics:
+  class_ids: [0, 2]
+  ignore_index: 255
+cloud:
+  local_full_training_allowed: false
+""",
+                encoding="utf-8",
+            )
+            with (bundle / "manifests" / "cloud_model_input_manifest.csv").open("w", encoding="utf-8", newline="") as fh:
+                writer = csv.DictWriter(
+                    fh,
+                    fieldnames=[
+                        "sample_id",
+                        "event_id",
+                        "class_id",
+                        "class_name",
+                        "split",
+                        "mask_path",
+                        "input_channels",
+                        "input_band_paths",
+                    ],
+                )
+                writer.writeheader()
+                for split in ["train", "validation", "test"]:
+                    writer.writerow(
+                        {
+                            "sample_id": split,
+                            "event_id": split,
+                            "class_id": "2",
+                            "class_name": "C5_fire",
+                            "split": split,
+                            "mask_path": f"masks/{split}.tif",
+                            "input_channels": "F16;F17",
+                            "input_band_paths": "F16:database/a.tif;F17:database/b.tif",
+                        }
+                    )
+
+            manifest = prepare_cloud_run(
+                config_path=config,
+                bundle_dir=bundle,
+                run_dir=root / "run",
+                command_line=["python", "-m", "segmentation_training", "train"],
+            )
+
+        self.assertEqual(manifest["split_counts"], {"train": 1, "validation": 1})
+        self.assertFalse(manifest["test_split_read"])
+
+    def test_foreground_window_coverage_rows_exclude_test_split(self):
+        import rasterio
+        from rasterio.transform import from_origin
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            bundle_dir = Path(tmp_name)
+            masks_dir = bundle_dir / "masks"
+            masks_dir.mkdir()
+            positive = np.zeros((8, 8), dtype=np.uint8)
+            positive[1:3, 1:3] = 2
+            for name, array in {"train.tif": positive, "test.tif": positive}.items():
+                with rasterio.open(
+                    masks_dir / name,
+                    "w",
+                    driver="GTiff",
+                    height=8,
+                    width=8,
+                    count=1,
+                    dtype="uint8",
+                    transform=from_origin(0, 8, 1, 1),
+                ) as ds:
+                    ds.write(array, 1)
+            records = [
+                SimpleNamespace(sample_id="train", split="train", mask_path="masks/train.tif"),
+                SimpleNamespace(sample_id="test", split="test", mask_path="masks/test.tif"),
+            ]
+
+            rows = _foreground_window_coverage_rows(
+                records,
+                bundle_dir=bundle_dir,
+                foreground_class_ids=[2],
+                window_size=4,
+                rasterio=rasterio,
+                np=np,
+            )
+
+        self.assertEqual([row["sample_id"] for row in rows], ["train"])
+        self.assertGreater(rows[0]["full_mask_foreground_pixels"], 0)
 
 
 if __name__ == "__main__":

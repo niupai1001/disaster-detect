@@ -46,11 +46,34 @@ def validate_config(config: dict[str, Any]) -> None:
     if list(config["input_channels"]) != ["F16", "F17"]:
         raise ValueError("v0.1 configs must use input_channels [F16, F17]")
     split_policy = config["split_policy"]
+    if split_policy.get("test") != "sealed":
+        raise ValueError("Test split must remain sealed")
     if split_policy.get("allow_test_split_for_selection") is True:
+        raise ValueError("Test split may not be used for model selection")
+    if "test" in split_policy.get("selection_splits", []):
         raise ValueError("Test split may not be used for model selection")
     if "validation" not in split_policy.get("selection_splits", []):
         raise ValueError("Validation split must be used for route selection")
+    training = config.get("training", {})
+    loss = training.get("loss")
+    if loss is not None and loss not in {"cross_entropy", "weighted_cross_entropy", "cross_entropy_dice"}:
+        raise ValueError(f"Unsupported training.loss {loss!r}")
+    sampler = training.get("sampler", {})
+    train_policy = sampler.get("train_policy")
+    if train_policy is not None and train_policy not in {"random", "foreground_biased"}:
+        raise ValueError(f"Unsupported sampler train_policy {train_policy!r}")
+    validation_policy = sampler.get("validation_policy")
+    if validation_policy is not None and validation_policy not in {"center", "foreground_center"}:
+        raise ValueError(f"Unsupported sampler validation_policy {validation_policy!r}")
+    probability = sampler.get("foreground_probability")
+    if probability is not None and not 0.0 <= float(probability) <= 1.0:
+        raise ValueError("sampler foreground_probability must be between 0 and 1")
+    diagnostics = config.get("diagnostics")
+    if diagnostics is not None:
+        if not diagnostics.get("parent_experiment_id"):
+            raise ValueError("diagnostics.parent_experiment_id is required")
+        if diagnostics.get("changed_factor") not in {"sampler", "loss_weighting", "loss_family", "observability"}:
+            raise ValueError("diagnostics.changed_factor is unsupported")
     cloud = config["cloud"]
     if cloud.get("local_full_training_allowed") is True:
         raise ValueError("Local full training must remain disabled")
-

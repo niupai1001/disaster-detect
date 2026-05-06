@@ -17,6 +17,22 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
                 self.assertEqual(config["task_id"], "task-afc7f2c25f8f")
                 self.assertEqual(config["input_channels"], ["F16", "F17"])
 
+    def test_e1b_e1c_configs_are_one_factor_diagnostics(self):
+        config_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training"
+        control = load_config(config_dir / "e1_binary_c5_unet.yaml")
+        sampler = load_config(config_dir / "e1b_binary_c5_unet_foreground_sampler.yaml")
+        weighted_ce = load_config(config_dir / "e1c_binary_c5_unet_weighted_ce.yaml")
+        ce_dice = load_config(config_dir / "e1c_binary_c5_unet_ce_dice.yaml")
+
+        self.assertEqual(sampler["diagnostics"]["changed_factor"], "sampler")
+        self.assertEqual(weighted_ce["diagnostics"]["changed_factor"], "loss_weighting")
+        self.assertEqual(ce_dice["diagnostics"]["changed_factor"], "loss_family")
+        self.assertEqual(sampler["training"]["loss"], control["training"]["loss"])
+        self.assertEqual(weighted_ce["training"]["sampler"], sampler["training"]["sampler"])
+        self.assertEqual(ce_dice["training"]["sampler"], sampler["training"]["sampler"])
+        self.assertEqual(weighted_ce["training"]["loss"], "weighted_cross_entropy")
+        self.assertEqual(ce_dice["training"]["loss"], "cross_entropy_dice")
+
     def test_test_split_selection_is_rejected(self):
         config = load_config(
             Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"
@@ -26,7 +42,24 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Test split"):
             validate_config(config)
 
+    def test_test_split_in_selection_splits_is_rejected(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"
+        )
+        config["split_policy"]["selection_splits"].append("test")
+
+        with self.assertRaisesRegex(ValueError, "Test split"):
+            validate_config(config)
+
+    def test_invalid_sampler_policy_is_rejected(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"
+        )
+        config["training"]["sampler"]["train_policy"] = "mystery"
+
+        with self.assertRaisesRegex(ValueError, "train_policy"):
+            validate_config(config)
+
 
 if __name__ == "__main__":
     unittest.main()
-
