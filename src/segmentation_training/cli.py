@@ -8,6 +8,7 @@ from .bundle import build_training_bundle
 from .cloud import refuse_local_training, run_cloud_training
 from .config import load_config
 from .manifest import class_split_counts, load_model_input_manifest, validate_record_paths
+from .training_curves import write_training_curves
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -43,6 +44,11 @@ def main(argv: list[str] | None = None) -> int:
     summarize_parser.add_argument("--runs-dir", required=True)
     summarize_parser.add_argument("--output", required=True)
 
+    plot_parser = subparsers.add_parser("plot-run")
+    plot_parser.add_argument("--run-dir", required=True)
+    plot_parser.add_argument("--output-png")
+    plot_parser.add_argument("--output-csv")
+
     args = parser.parse_args(argv)
 
     try:
@@ -56,6 +62,8 @@ def main(argv: list[str] | None = None) -> int:
             return _train(args, argv)
         if args.command == "summarize-runs":
             return _summarize_runs(args)
+        if args.command == "plot-run":
+            return _plot_run(args)
     except Exception as exc:
         parser.exit(2, f"segmentation_training: error: {exc}\n")
     parser.error("unsupported command")
@@ -173,4 +181,14 @@ def _summarize_runs(args) -> int:
         lines.append("| no runs found |  |  |  |  |")
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(str(output))
+    return 0
+
+
+def _plot_run(args) -> int:
+    result = write_training_curves(
+        Path(args.run_dir),
+        output_png=Path(args.output_png) if args.output_png else None,
+        output_csv=Path(args.output_csv) if args.output_csv else None,
+    )
+    print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
