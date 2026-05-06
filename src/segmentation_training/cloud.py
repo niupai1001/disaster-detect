@@ -183,6 +183,8 @@ def run_cloud_training(
                 np=np,
             )
             encoded_label = _encode_label(label, source_class_ids, np=np)
+            if not _target_has_valid_pixels(encoded_label, np=np):
+                continue
             batch_x.append(torch.from_numpy(channels.astype("float32")))
             batch_y.append(torch.from_numpy(encoded_label.astype("int64")))
             if len(batch_x) == batch_size:
@@ -302,8 +304,12 @@ def _train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch) -> 
     model.train()
     inputs = torch.stack(batch_x).to(device)
     labels = torch.stack(batch_y).to(device)
+    if not bool((labels != 255).any().item()):
+        return 0.0
     optimizer.zero_grad()
     loss = loss_fn(model(inputs), labels)
+    if not bool(torch.isfinite(loss).item()):
+        raise ValueError("Non-finite training loss detected; check raster normalization and labels")
     loss.backward()
     optimizer.step()
     return float(loss.detach().cpu().item())
@@ -392,7 +398,12 @@ def _normalize_band(array, *, np):
     hi = float(np.percentile(arr[finite], 98))
     if hi <= lo:
         hi = lo + 1.0
-    return np.clip((arr - lo) / (hi - lo), 0, 1).astype("float32")
+    scaled = np.clip((arr - lo) / (hi - lo), 0, 1).astype("float32")
+    return np.nan_to_num(scaled, nan=0.0, posinf=1.0, neginf=0.0).astype("float32")
+
+
+def _target_has_valid_pixels(target, *, np, ignore_index: int = 255) -> bool:
+    return bool(np.any(target != ignore_index))
 
 
 def _encode_label(label, source_class_ids: list[int], *, np):

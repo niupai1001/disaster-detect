@@ -8,7 +8,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from segmentation_training.cloud import _TrainingProgressLogger, _pad_window  # noqa: E402
+from segmentation_training.cloud import _TrainingProgressLogger, _normalize_band, _pad_window, _target_has_valid_pixels  # noqa: E402
 from segmentation_training.cli import main as training_main  # noqa: E402
 
 
@@ -63,6 +63,17 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
             self.assertIn("mean_iou=0.4000", messages[0])
             self.assertIn("foreground_recall=0.5000", messages[0])
             self.assertIn("epoch 2/5", (Path(tmp_name) / "logs" / "training_progress.log").read_text())
+
+    def test_normalize_band_replaces_nan_and_inf(self):
+        array = np.array([[0.0, np.nan], [np.inf, -np.inf]], dtype=np.float32)
+
+        normalized = _normalize_band(array, np=np)
+
+        self.assertTrue(np.isfinite(normalized).all())
+
+    def test_target_has_valid_pixels_rejects_all_ignore(self):
+        self.assertFalse(_target_has_valid_pixels(np.full((8, 8), 255, dtype=np.uint8), np=np))
+        self.assertTrue(_target_has_valid_pixels(np.array([[255, 1]], dtype=np.uint8), np=np))
 
 
 if __name__ == "__main__":
