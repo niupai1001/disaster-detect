@@ -4,8 +4,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from segmentation_training.cloud import _pad_window  # noqa: E402
 from segmentation_training.cli import main as training_main  # noqa: E402
 
 
@@ -36,7 +39,18 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             runner.assert_called_once()
 
+    def test_pad_window_makes_small_training_samples_batchable(self):
+        channels = np.ones((2, 148, 152), dtype=np.float32)
+        label = np.ones((148, 152), dtype=np.uint8)
+
+        padded_channels = _pad_window(channels, 256, fill_value=0, np=np)
+        padded_label = _pad_window(label, 256, fill_value=255, np=np)
+
+        self.assertEqual(padded_channels.shape, (2, 256, 256))
+        self.assertEqual(padded_label.shape, (256, 256))
+        self.assertEqual(float(padded_channels[:, :148, :152].sum()), float(channels.sum()))
+        self.assertTrue((padded_label[148:, :] == 255).all())
+
 
 if __name__ == "__main__":
     unittest.main()
-

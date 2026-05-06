@@ -242,7 +242,10 @@ def _read_training_window(
         band_path = _resolve_cloud_or_bundle_path(bundle_dir, record.input_band_paths[channel])
         with rasterio.open(band_path) as band_ds:
             band_arrays.append(_normalize_band(band_ds.read(1, window=window), np=np))
-    return np.stack(band_arrays, axis=0), label
+    channels_array = np.stack(band_arrays, axis=0)
+    return _pad_window(channels_array, window_size, fill_value=0, np=np), _pad_window(
+        label, window_size, fill_value=255, np=np
+    )
 
 
 def _read_validation_window(record, *, bundle_dir, channels, window_size, rasterio, RasterWindow, np):
@@ -258,13 +261,34 @@ def _read_validation_window(record, *, bundle_dir, channels, window_size, raster
         band_path = _resolve_cloud_or_bundle_path(bundle_dir, record.input_band_paths[channel])
         with rasterio.open(band_path) as band_ds:
             band_arrays.append(_normalize_band(band_ds.read(1, window=window), np=np))
-    return np.stack(band_arrays, axis=0), label
+    channels_array = np.stack(band_arrays, axis=0)
+    return _pad_window(channels_array, window_size, fill_value=0, np=np), _pad_window(
+        label, window_size, fill_value=255, np=np
+    )
 
 
 def _safe_window_size(height: int, width: int, requested: int) -> int:
     size = min(height, width, requested)
     size = max(4, size - (size % 4))
     return size
+
+
+def _pad_window(array, target_size: int, *, fill_value: int | float, np):
+    if array.ndim == 2:
+        height, width = array.shape
+        output = np.full((target_size, target_size), fill_value, dtype=array.dtype)
+        copy_h = min(height, target_size)
+        copy_w = min(width, target_size)
+        output[:copy_h, :copy_w] = array[:copy_h, :copy_w]
+        return output
+    if array.ndim == 3:
+        channels, height, width = array.shape
+        output = np.full((channels, target_size, target_size), fill_value, dtype=array.dtype)
+        copy_h = min(height, target_size)
+        copy_w = min(width, target_size)
+        output[:, :copy_h, :copy_w] = array[:, :copy_h, :copy_w]
+        return output
+    raise ValueError(f"Unsupported window array shape {array.shape}")
 
 
 def _normalize_band(array, *, np):
