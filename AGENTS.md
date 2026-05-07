@@ -6,6 +6,12 @@ This project includes a persistent local multi-agent team framework in `src/agen
 
 Departments and agents do nothing until the user or coordinator gives an explicit assignment. Visible context is not an assignment.
 
+## Provider Rule
+
+- Do not use external provider services for department artifacts in this project.
+- Codex should dispatch and coordinate its own subagents for real research, technical, implementation, QA, and review work.
+- `.agent-team/config/provider.json` should remain on the no-network `mock` provider as a ledger/dry-run fallback only; mock artifacts are not acceptable as final department outputs.
+
 ## CLI
 
 Run commands from the project root:

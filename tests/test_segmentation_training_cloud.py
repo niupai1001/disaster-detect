@@ -12,6 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from segmentation_training.cloud import (  # noqa: E402
     _BestCheckpointTracker,
     _TrainingProgressLogger,
+    _build_trainable_model,
+    _limit_records,
     _build_metrics_payload,
     _configure_torch_runtime,
     _foreground_window_coverage_rows,
@@ -108,6 +110,30 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
             metadata = (run_dir / "checkpoints" / "best_mean_iou.json").read_text(encoding="utf-8")
             self.assertIn('"epoch": 3', metadata)
             self.assertEqual([name for _, name in FakeTorch.saves], ["best_mean_iou.pt", "best_mean_iou.pt"])
+
+    def test_trainable_model_builder_uses_model_registry(self):
+        calls = []
+
+        def fake_build_model(model_config, *, input_channels, output_classes):
+            calls.append((model_config, input_channels, output_classes))
+            return "registered-model"
+
+        config = {
+            "input_channels": ["F01", "F02", "F03"],
+            "model": {"family": "attention_unet", "base_channels": 4},
+        }
+        with patch("segmentation_training.cloud.build_model", fake_build_model):
+            model = _build_trainable_model(config, source_class_ids=[0, 2])
+
+        self.assertEqual(model, "registered-model")
+        self.assertEqual(calls, [(config["model"], 3, 2)])
+
+    def test_limit_records_applies_positive_cloud_smoke_limit_only(self):
+        records = ["a", "b", "c"]
+
+        self.assertEqual(_limit_records(records, None), records)
+        self.assertEqual(_limit_records(records, 0), records)
+        self.assertEqual(_limit_records(records, 2), ["a", "b"])
 
     def test_cloud_confirm_train_calls_training_runner(self):
         with tempfile.TemporaryDirectory() as tmp_name:

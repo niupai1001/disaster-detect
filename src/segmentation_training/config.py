@@ -21,6 +21,19 @@ REQUIRED_CONFIG_KEYS = {
     "cloud",
 }
 
+SUPPORTED_MODEL_FAMILIES = {
+    "trivial",
+    "unet",
+    "resunet",
+    "attention_unet",
+    "unet_plus_plus",
+    "unetpp",
+    "unet++",
+    "deeplabv3_plus",
+    "deeplabv3plus",
+    "transformer_unet",
+}
+
 
 def load_config(path: Path | str) -> dict[str, Any]:
     config_path = Path(path)
@@ -46,7 +59,13 @@ def validate_config(config: dict[str, Any]) -> None:
     input_channels = list(config["input_channels"])
     if not input_channels or not all(str(channel).strip() for channel in input_channels):
         raise ValueError("input_channels must contain at least one channel")
-    model_input_channels = config.get("model", {}).get("input_channels")
+    model = config.get("model", {})
+    if not isinstance(model, dict):
+        raise ValueError("Config model must contain a mapping")
+    model_family = model.get("family")
+    if model_family not in SUPPORTED_MODEL_FAMILIES:
+        raise ValueError(f"Unsupported model.family {model_family!r}")
+    model_input_channels = model.get("input_channels")
     if model_input_channels is not None and int(model_input_channels) != len(input_channels):
         raise ValueError("model.input_channels must match len(input_channels)")
     split_policy = config["split_policy"]
@@ -95,3 +114,6 @@ def validate_config(config: dict[str, Any]) -> None:
     cloud = config["cloud"]
     if cloud.get("local_full_training_allowed") is True:
         raise ValueError("Local full training must remain disabled")
+    max_train_samples = cloud.get("max_train_samples")
+    if max_train_samples is not None and int(max_train_samples) < 1:
+        raise ValueError("cloud.max_train_samples must be at least 1 when set")

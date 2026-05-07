@@ -1,0 +1,84 @@
+task_id: task-2ba5416843b1
+experiment_id: V4_smoke_binary_c5_transformer_unet_post_optical_indices
+seed: 20260507
+class_scope: binary_c5
+input_channels:
+  - F01
+  - F02
+  - F03
+  - F04
+  - F07
+  - F11
+  - F12
+  - NDVI
+  - NBR
+  - NDMI
+  - BRIGHTNESS
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits:
+    - validation
+  allow_test_split_for_selection: false
+model:
+  family: transformer_unet
+  variant: post_disaster_optical_indices_v0_4_cloud_smoke
+  input_channels: 11
+  output_classes: 2
+  base_channels: 16
+  token_grid: 8
+  transformer_layers: 1
+  num_heads: 4
+  ignore_index: 255
+training:
+  batch_size: 2
+  max_epochs: 1
+  window_size: 256
+  loss: weighted_cross_entropy_dice
+  dice_weight: 0.5
+  learning_rate: 0.0003
+  class_weights:
+    max_weight: 10.0
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.7
+    min_foreground_pixels: 1
+    validation_policy: foreground_center
+  performance:
+    mixed_precision: true
+    channels_last: true
+    cudnn_benchmark: true
+    cache_records: false
+metrics:
+  class_ids:
+    - 0
+    - 2
+  ignore_index: 255
+  threshold_sweep:
+    - 0.3
+    - 0.5
+    - 0.7
+    - 0.9
+  required_outputs:
+    - metrics.json
+    - per_class_metrics.csv
+    - event_metrics.csv
+    - confusion_matrix.csv
+    - mask_area_summary.csv
+    - diagnostics/artifact_inventory.json
+    - diagnostics/validation_prediction_summary.csv
+    - diagnostics/threshold_sweep.csv
+    - diagnostics/foreground_window_coverage.csv
+    - predictions/validation_contact_sheet.png
+    - training_curves.png
+    - training_curves.csv
+    - checkpoints/best_mean_iou.pt
+    - checkpoints/best_mean_iou.json
+cloud:
+  local_full_training_allowed: false
+  expected_accelerator: cuda
+  max_train_samples: 8
+  max_validation_samples: 4
+  log_interval_batches: 1
+  validation_interval_epochs: 1

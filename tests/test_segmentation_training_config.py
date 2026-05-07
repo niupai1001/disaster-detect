@@ -125,6 +125,67 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "model.input_channels"):
             validate_config(config)
 
+    def test_unknown_model_family_is_rejected(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "v3_binary_c5_unet_post_optical_indices_rtx4080_stable.yaml"
+        )
+        config["model"]["family"] = "mystery"
+
+        with self.assertRaisesRegex(ValueError, "Unsupported model.family"):
+            validate_config(config)
+
+    def test_architecture_benchmark_configs_validate_and_preserve_shared_protocol(self):
+        config_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training"
+        baseline = load_config(config_dir / "v3_binary_c5_unet_post_optical_indices_rtx4080_stable.yaml")
+        architecture_dir = config_dir / "architectures"
+        expected = {
+            "c5_11ch_resunet_rtx4080.yaml": "resunet",
+            "c5_11ch_attention_unet_rtx4080.yaml": "attention_unet",
+            "c5_11ch_unetpp_rtx4080.yaml": "unet_plus_plus",
+            "c5_11ch_deeplabv3plus_rtx4080.yaml": "deeplabv3_plus",
+            "c5_11ch_transformer_unet_rtx4080.yaml": "transformer_unet",
+        }
+
+        for filename, family in expected.items():
+            with self.subTest(filename=filename):
+                config = load_config(architecture_dir / filename)
+                self.assertEqual(config["model"]["family"], family)
+                self.assertEqual(config["task_id"], baseline["task_id"])
+                self.assertEqual(config["class_scope"], baseline["class_scope"])
+                self.assertEqual(config["input_channels"], baseline["input_channels"])
+                self.assertEqual(config["split_policy"], baseline["split_policy"])
+                self.assertEqual(config["training"], baseline["training"])
+                self.assertEqual(config["metrics"], baseline["metrics"])
+                self.assertEqual(config["cloud"], baseline["cloud"])
+
+    def test_architecture_smoke_configs_are_short_validation_only_preflights(self):
+        config_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training"
+        smoke_dir = config_dir / "architecture_smoke"
+        expected_families = {
+            "unet",
+            "resunet",
+            "attention_unet",
+            "unet_plus_plus",
+            "deeplabv3_plus",
+            "transformer_unet",
+        }
+        seen = set()
+
+        for path in sorted(smoke_dir.glob("*.yaml")):
+            config = load_config(path)
+            seen.add(config["model"]["family"])
+            self.assertEqual(config["training"]["max_epochs"], 1)
+            self.assertLessEqual(config["training"]["batch_size"], 2)
+            self.assertLessEqual(config["cloud"]["max_train_samples"], 8)
+            self.assertLessEqual(config["cloud"]["max_validation_samples"], 4)
+            self.assertEqual(config["split_policy"]["test"], "sealed")
+            self.assertNotIn("test", config["split_policy"]["selection_splits"])
+
+        self.assertEqual(seen, expected_families)
+
 
 if __name__ == "__main__":
     unittest.main()

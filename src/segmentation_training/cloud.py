@@ -22,6 +22,7 @@ from .metrics import (
     summarize_area,
     threshold_sweep,
 )
+from .models import build_model
 from .preview import write_contact_sheet, write_prediction_preview
 
 
@@ -94,8 +95,6 @@ def run_cloud_training(
 
     from .experiments import trivial_background_prediction
     from .losses import build_segmentation_loss, class_weights_from_counts
-    from .models import build_resunet, build_unet
-
     config = load_config(config_path)
     manifest = prepare_cloud_run(
         config_path=config_path,
@@ -108,7 +107,10 @@ def run_cloud_training(
         required_channels=tuple(config["input_channels"]),
     )
     scoped_records = filter_records(records, class_scope=config["class_scope"])
-    train_records = [record for record in scoped_records if record.split == "train"]
+    train_records = _limit_records(
+        [record for record in scoped_records if record.split == "train"],
+        config.get("cloud", {}).get("max_train_samples"),
+    )
     validation_records = [record for record in scoped_records if record.split == "validation"]
     if not validation_records:
         raise ValueError("No validation records available for cloud training")
@@ -184,20 +186,7 @@ def run_cloud_training(
         raise ValueError("No training records available for cloud training")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if model_family == "unet":
-        model = build_unet(
-            input_channels=len(config["input_channels"]),
-            output_classes=len(source_class_ids),
-            base_channels=int(config["model"].get("base_channels", 32)),
-        )
-    elif model_family == "resunet":
-        model = build_resunet(
-            input_channels=len(config["input_channels"]),
-            output_classes=len(source_class_ids),
-            base_channels=int(config["model"].get("base_channels", 32)),
-        )
-    else:
-        raise ValueError(f"Unsupported cloud model family {model_family!r}")
+    model = _build_trainable_model(config, source_class_ids=source_class_ids)
     model.to(device)
     runtime = _configure_torch_runtime(torch, device=device, performance_config=performance_config)
     if runtime["channels_last"]:
@@ -361,6 +350,20 @@ def run_cloud_training(
     }
     _write_manifest(run_dir, manifest)
     return manifest
+
+
+def _build_trainable_model(config: dict, *, source_class_ids: list[int]):
+    return build_model(
+        config["model"],
+        input_channels=len(config["input_channels"]),
+        output_classes=len(source_class_ids),
+    )
+
+
+def _limit_records(records, max_samples):
+    if max_samples is None or int(max_samples) <= 0:
+        return records
+    return records[: int(max_samples)]
 
 
 class _TrainingProgressLogger:
