@@ -24,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     bundle_parser.add_argument("--contract-dir", required=True)
     bundle_parser.add_argument("--bundle-dir", required=True)
     bundle_parser.add_argument("--required-channel", action="append")
+    bundle_parser.add_argument("--bundle-version", default="0.1")
     bundle_parser.add_argument("--mode", default="manifest-only")
     bundle_parser.add_argument("--class-scope", default="multiclass_c2_c5")
     bundle_parser.add_argument("--cloud-data-root", default="/data/training_bundle_v0_1")
@@ -108,6 +109,7 @@ def _bundle(args) -> int:
         contract_dir=Path(args.contract_dir),
         bundle_dir=Path(args.bundle_dir),
         required_channels=tuple(args.required_channel or ["F16", "F17"]),
+        bundle_version=args.bundle_version,
         mode=args.mode,
         class_scope=args.class_scope,
         cloud_data_root=Path(args.cloud_data_root),

@@ -33,7 +33,7 @@ def build_segmentation_loss(
 ):
     if loss_name in {"cross_entropy", "weighted_cross_entropy"}:
         return build_cross_entropy_loss(ignore_index=ignore_index, class_weights=class_weights)
-    if loss_name == "cross_entropy_dice":
+    if loss_name in {"cross_entropy_dice", "weighted_cross_entropy_dice"}:
         return _CrossEntropyDiceLoss(ignore_index=ignore_index, class_weights=class_weights, dice_weight=dice_weight)
     raise ValueError(f"Unsupported loss {loss_name!r}")
 

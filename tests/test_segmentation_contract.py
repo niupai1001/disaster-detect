@@ -13,9 +13,12 @@ from rasterio.transform import from_origin
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from segmentation_contract import build_phase_a_contract  # noqa: E402
+from segmentation_contract.post_scene import select_post_disaster_scene  # noqa: E402
 from segmentation_contract.phase_b import (
     _normalize_to_uint8,
     build_channel_alignment_audit,
+    build_model_input_previews,
+    build_post_disaster_model_input_manifest,
     build_phase_b_masks,
     build_phase_b_preflight,
     build_visual_qa,
@@ -166,6 +169,162 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         self.assertEqual(manifest_rows[0]["source_raster_id"], "C2_46RGT_405_EV20220707")
         self.assertIn("F17:", manifest_rows[0]["source_band_paths"])
         self.assertIn(str(raster_path), manifest_rows[0]["source_band_paths"])
+
+    def test_phase_a_candidate_scenes_do_not_mix_bands_across_image_dates(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "405",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0 0, 1 0, 1 1, 0 0))",
+                }
+            ]
+        )
+        raster_paths = [
+            root / "T_C5_46RGT_405_EV20220707_IM20220708_F01.tif",
+            root / "T_C5_46RGT_405_EV20220707_IM20220709_F02.tif",
+        ]
+        for path in raster_paths:
+            path.write_text("fake raster placeholder", encoding="utf-8")
+
+        result = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+
+        manifest_rows = self.read_csv_rows(result.output_dir / "samples_manifest.csv")
+        candidate_scenes = json.loads(manifest_rows[0]["candidate_scenes"])
+
+        self.assertEqual([scene["image_date"] for scene in candidate_scenes], ["20220708", "20220709"])
+        self.assertEqual(set(candidate_scenes[0]["band_paths"]), {"F01"})
+        self.assertEqual(set(candidate_scenes[1]["band_paths"]), {"F02"})
+        self.assertNotIn("F02:", manifest_rows[0]["source_band_paths"])
+
+    def test_select_post_disaster_scene_requires_same_date_required_channels(self):
+        row = {
+            "sample_id": "s1",
+            "event_date": "20220707",
+            "split": "train",
+            "candidate_scenes": json.dumps(
+                [
+                    {
+                        "scene_id": "IM20220708",
+                        "image_date": "20220708",
+                        "days_after_event": "1",
+                        "temporal_role": "post",
+                        "band_paths": {"F01": "/tmp/f01.tif"},
+                    },
+                    {
+                        "scene_id": "IM20220709",
+                        "image_date": "20220709",
+                        "days_after_event": "2",
+                        "temporal_role": "post",
+                        "band_paths": {"F02": "/tmp/f02.tif"},
+                    },
+                ]
+            ),
+        }
+
+        result = select_post_disaster_scene(row, required_channels=("F01", "F02"))
+
+        self.assertEqual(result["selection_status"], "blocked_missing_same_date_required_channels")
+        self.assertEqual(result["selected_image_date"], "")
+
+    def test_select_post_disaster_scene_blocks_pre_event_and_selects_earliest_valid_post_scene(self):
+        row = {
+            "sample_id": "s1",
+            "event_date": "20220707",
+            "split": "validation",
+            "candidate_scenes": json.dumps(
+                [
+                    {
+                        "scene_id": "IM20220701",
+                        "image_date": "20220701",
+                        "days_after_event": "-6",
+                        "temporal_role": "pre",
+                        "band_paths": {"F01": "/tmp/pre_f01.tif", "F02": "/tmp/pre_f02.tif"},
+                    },
+                    {
+                        "scene_id": "IM20220710",
+                        "image_date": "20220710",
+                        "days_after_event": "3",
+                        "temporal_role": "post",
+                        "band_paths": {"F01": "/tmp/post_f01.tif", "F02": "/tmp/post_f02.tif"},
+                    },
+                ]
+            ),
+        }
+
+        result = select_post_disaster_scene(row, required_channels=("F01", "F02"))
+
+        self.assertEqual(result["selection_status"], "selected")
+        self.assertEqual(result["selected_image_date"], "20220710")
+        self.assertEqual(result["days_after_event"], "3")
+        self.assertEqual(result["temporal_role"], "post")
+        self.assertEqual(result["input_band_paths"], "F01:/tmp/post_f01.tif;F02:/tmp/post_f02.tif")
+
+    def test_select_post_disaster_scene_can_rank_by_cloud_proxy_quality(self):
+        row = {
+            "sample_id": "s1",
+            "event_date": "20220707",
+            "split": "train",
+            "candidate_scenes": json.dumps(
+                [
+                    {
+                        "scene_id": "cloudy",
+                        "image_date": "20220708",
+                        "days_after_event": "1",
+                        "temporal_role": "post",
+                        "band_paths": {"F02": "cloudy_f02.tif", "F03": "cloudy_f03.tif", "F04": "cloudy_f04.tif"},
+                    },
+                    {
+                        "scene_id": "clear",
+                        "image_date": "20220710",
+                        "days_after_event": "3",
+                        "temporal_role": "post",
+                        "band_paths": {"F02": "clear_f02.tif", "F03": "clear_f03.tif", "F04": "clear_f04.tif"},
+                    },
+                ]
+            ),
+        }
+
+        result = select_post_disaster_scene(
+            row,
+            required_channels=("F02", "F03", "F04"),
+            selection_strategy="quality_then_earliest",
+            scene_quality_scores={
+                "cloudy": {"quality_score": "0.9", "quality_score_status": "scored", "quality_score_detail": "cloudy"},
+                "clear": {"quality_score": "0.1", "quality_score_status": "scored", "quality_score_detail": "clear"},
+            },
+        )
+
+        self.assertEqual(result["selection_status"], "selected")
+        self.assertEqual(result["selected_scene_id"], "clear")
+        self.assertEqual(result["selected_image_date"], "20220710")
+        self.assertEqual(result["quality_score"], "0.1")
+        self.assertIn("quality_ranked_cloud_proxy", result["temporal_qa_flags"])
+
+    def test_select_post_disaster_scene_blocks_test_split(self):
+        row = {
+            "sample_id": "s1",
+            "event_date": "20220707",
+            "split": "test",
+            "candidate_scenes": json.dumps(
+                [
+                    {
+                        "scene_id": "IM20220710",
+                        "image_date": "20220710",
+                        "days_after_event": "3",
+                        "temporal_role": "post",
+                        "band_paths": {"F01": "/tmp/post_f01.tif"},
+                    }
+                ]
+            ),
+        }
+
+        result = select_post_disaster_scene(row, required_channels=("F01",))
+
+        self.assertEqual(result["selection_status"], "blocked_sealed_test_split")
 
     def test_phase_b_preflight_creates_reports_with_dependency_status(self):
         root, csv_path = self.make_label_csv(
@@ -385,6 +544,47 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         self.assertTrue((phase_a.output_dir / "previews" / "contact_sheet.png").exists())
         self.assertTrue((phase_a.output_dir / "reports" / "visual_qa_summary.md").exists())
 
+    def test_visual_qa_training_manifest_excludes_test_split(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": f"46RG{idx}",
+                    "poly_id": str(500 + idx),
+                    "evt_date": f"2022/7/{idx + 1}",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+                for idx in range(10)
+            ]
+        )
+        raster_paths = []
+        for idx in range(10):
+            event_date = f"202207{idx + 1:02d}"
+            grid = f"46RG{idx}"
+            polygon = str(500 + idx)
+            raster_path = root / f"T_C5_{grid}_{polygon}_EV{event_date}_IM20220731_F01.tif"
+            with rasterio.open(
+                raster_path,
+                "w",
+                driver="GTiff",
+                height=10,
+                width=10,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, 0.1, 0.1),
+            ) as dst:
+                dst.write(numpy.ones((1, 10, 10), dtype="uint16"))
+            raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F01"])
+
+        build_visual_qa(phase_a.output_dir, max_items=10)
+
+        training_rows = self.read_csv_rows(phase_a.output_dir / "training_manifest.csv")
+        self.assertNotIn("test", {row["split"] for row in training_rows})
+
     def test_visual_qa_normalization_handles_nonfinite_values_without_warning(self):
         image = numpy.array([[numpy.nan, numpy.inf], [-numpy.inf, 1.0]], dtype="float32")
 
@@ -435,6 +635,295 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         self.assertEqual(result.model_input_rows, 1)
         self.assertEqual(model_rows[0]["input_channels"], "F16;F17")
         self.assertEqual(audit_rows[0]["channel_alignment_status"], "aligned")
+
+    def test_post_disaster_model_input_manifest_selects_same_date_train_validation_channels(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "405",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+            ]
+        )
+        raster_paths = []
+        for band in ["F01", "F02"]:
+            raster_path = root / f"T_C5_46RGT_405_EV20220707_IM20220710_{band}.tif"
+            with rasterio.open(
+                raster_path,
+                "w",
+                driver="GTiff",
+                height=10,
+                width=10,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, 0.1, 0.1),
+            ) as dst:
+                dst.write(numpy.ones((1, 10, 10), dtype="uint16"))
+            raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F01"])
+        build_visual_qa(phase_a.output_dir, max_items=1)
+
+        result = build_post_disaster_model_input_manifest(phase_a.output_dir, required_channels=["F01", "F02"])
+
+        model_rows = self.read_csv_rows(phase_a.output_dir / "model_input_manifest.csv")
+        audit_rows = self.read_csv_rows(phase_a.output_dir / "reports" / "post_disaster_channel_audit.csv")
+        self.assertEqual(result.model_input_rows, 1)
+        self.assertEqual(model_rows[0]["input_channels"], "F01;F02")
+        self.assertEqual(model_rows[0]["selected_image_date"], "20220710")
+        self.assertEqual(model_rows[0]["days_after_event"], "3")
+        self.assertEqual(model_rows[0]["selection_status"], "selected")
+        self.assertEqual(audit_rows[0]["selection_status"], "selected")
+
+    def test_post_disaster_model_input_manifest_prefers_lower_cloud_proxy_scene(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "411",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+            ]
+        )
+        raster_paths = []
+        for image_date, value in [("20220708", 9000), ("20220710", 1200)]:
+            for band in ["F02", "F03", "F04"]:
+                raster_path = root / f"T_C5_46RGT_411_EV20220707_IM{image_date}_{band}.tif"
+                with rasterio.open(
+                    raster_path,
+                    "w",
+                    driver="GTiff",
+                    height=10,
+                    width=10,
+                    count=1,
+                    dtype="uint16",
+                    crs="EPSG:4326",
+                    transform=from_origin(0, 1, 0.1, 0.1),
+                ) as dst:
+                    dst.write(numpy.full((1, 10, 10), value, dtype="uint16"))
+                raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F04"])
+        build_visual_qa(phase_a.output_dir, max_items=1)
+
+        build_post_disaster_model_input_manifest(
+            phase_a.output_dir,
+            required_channels=["F02", "F03", "F04"],
+            selection_strategy="quality_then_earliest",
+        )
+
+        model_rows = self.read_csv_rows(phase_a.output_dir / "model_input_manifest.csv")
+        quality_rows = self.read_csv_rows(phase_a.output_dir / "reports" / "post_disaster_scene_quality_report.csv")
+        self.assertEqual(model_rows[0]["selected_image_date"], "20220710")
+        self.assertEqual(model_rows[0]["selection_strategy"], "quality_then_earliest")
+        self.assertEqual(model_rows[0]["quality_score_status"], "scored")
+        self.assertIn("bright_fraction", model_rows[0]["quality_score_detail"])
+        self.assertEqual(len(quality_rows), 2)
+        self.assertEqual([row["selected"] for row in quality_rows], ["false", "true"])
+
+    def test_post_disaster_model_input_manifest_resamples_channels_to_mask_grid(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "412",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+            ]
+        )
+        raster_paths = []
+        for band, height, width, pixel_size in [
+            ("F01", 10, 10, 0.1),
+            ("F11", 5, 5, 0.2),
+        ]:
+            raster_path = root / f"T_C5_46RGT_412_EV20220707_IM20220731_{band}.tif"
+            with rasterio.open(
+                raster_path,
+                "w",
+                driver="GTiff",
+                height=height,
+                width=width,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, pixel_size, pixel_size),
+            ) as dst:
+                dst.write(numpy.ones((1, height, width), dtype="uint16"))
+            raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F01"])
+        build_visual_qa(phase_a.output_dir, max_items=1)
+
+        build_post_disaster_model_input_manifest(phase_a.output_dir, required_channels=["F01", "F11"])
+
+        model_rows = self.read_csv_rows(phase_a.output_dir / "model_input_manifest.csv")
+        input_paths = dict(item.split(":", 1) for item in model_rows[0]["input_band_paths"].split(";"))
+        self.assertIn("model_inputs", input_paths["F11"])
+        with rasterio.open(phase_a.output_dir / "masks" / "sample-000001.tif") as mask_ds:
+            mask_grid = (mask_ds.crs, mask_ds.transform, mask_ds.height, mask_ds.width)
+        with rasterio.open(input_paths["F01"]) as f01_ds, rasterio.open(input_paths["F11"]) as f11_ds:
+            self.assertEqual((f01_ds.crs, f01_ds.transform, f01_ds.height, f01_ds.width), mask_grid)
+            self.assertEqual((f11_ds.crs, f11_ds.transform, f11_ds.height, f11_ds.width), mask_grid)
+        self.assertIn("F11:", model_rows[0]["resampled_channel_paths"])
+        self.assertEqual(model_rows[0]["resampling_policy"], "bilinear_to_mask_grid")
+
+    def test_post_disaster_model_input_manifest_writes_derived_index_channels(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "414",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+            ]
+        )
+        raster_paths = []
+        values = {"F02": 1000, "F03": 2000, "F04": 2000, "F07": 8000, "F11": 3000, "F12": 1000}
+        for band, value in values.items():
+            raster_path = root / f"T_C5_46RGT_414_EV20220707_IM20220731_{band}.tif"
+            with rasterio.open(
+                raster_path,
+                "w",
+                driver="GTiff",
+                height=10,
+                width=10,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, 0.1, 0.1),
+            ) as dst:
+                dst.write(numpy.full((1, 10, 10), value, dtype="uint16"))
+            raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F04"])
+        build_visual_qa(phase_a.output_dir, max_items=1)
+
+        build_post_disaster_model_input_manifest(
+            phase_a.output_dir,
+            required_channels=["F02", "F03", "F04", "F07", "F11", "F12"],
+            derived_indices=["NDVI", "NBR", "NDMI", "BRIGHTNESS"],
+        )
+
+        model_rows = self.read_csv_rows(phase_a.output_dir / "model_input_manifest.csv")
+        input_paths = dict(item.split(":", 1) for item in model_rows[0]["input_band_paths"].split(";"))
+        self.assertEqual(
+            model_rows[0]["input_channels"],
+            "F02;F03;F04;F07;F11;F12;NDVI;NBR;NDMI;BRIGHTNESS",
+        )
+        self.assertIn("NDVI:", model_rows[0]["derived_index_paths"])
+        self.assertIn("BRIGHTNESS:", model_rows[0]["derived_index_paths"])
+        with rasterio.open(input_paths["NDVI"]) as ndvi_ds:
+            ndvi = ndvi_ds.read(1)
+            self.assertAlmostEqual(float(ndvi[0, 0]), 0.6, places=4)
+        with rasterio.open(input_paths["BRIGHTNESS"]) as brightness_ds:
+            brightness = brightness_ds.read(1)
+            self.assertAlmostEqual(float(brightness[0, 0]), 0.166666, places=4)
+
+    def test_model_input_previews_render_multichannel_composites(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": "46RGT",
+                    "poly_id": "413",
+                    "evt_date": "2022/7/7",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+            ]
+        )
+        raster_paths = []
+        base = numpy.arange(100, dtype="uint16").reshape(10, 10)
+        for band, offset in [("F02", 0), ("F03", 100), ("F04", 200), ("F07", 300), ("F11", 400)]:
+            raster_path = root / f"T_C5_46RGT_413_EV20220707_IM20220731_{band}.tif"
+            with rasterio.open(
+                raster_path,
+                "w",
+                driver="GTiff",
+                height=10,
+                width=10,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, 0.1, 0.1),
+            ) as dst:
+                dst.write((base + offset)[None, :, :])
+            raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F04"])
+        build_visual_qa(phase_a.output_dir, max_items=1)
+        build_post_disaster_model_input_manifest(
+            phase_a.output_dir,
+            required_channels=["F02", "F03", "F04", "F07", "F11"],
+        )
+
+        result = build_model_input_previews(phase_a.output_dir, max_items=1)
+
+        self.assertEqual(result.preview_items, 1)
+        self.assertTrue((phase_a.output_dir / "previews" / "model_input_contact_sheet.png").exists())
+        self.assertTrue((phase_a.output_dir / "previews" / "model_input_sample-000001_composite.png").exists())
+        summary = (phase_a.output_dir / "reports" / "model_input_visual_qa_summary.md").read_text(encoding="utf-8")
+        self.assertIn("rgb_channels: F04;F03;F02", summary)
+        self.assertIn("false_color_channels: F11;F07;F04", summary)
+
+    def test_post_disaster_model_input_manifest_excludes_test_split(self):
+        root, csv_path = self.make_label_csv(
+            [
+                {
+                    "grid_id": f"46RG{idx}",
+                    "poly_id": str(400 + idx),
+                    "evt_date": f"2022/7/{idx + 1}",
+                    "category": "5",
+                    "conf_lvl": "3",
+                    "geometry_wkt": "POLYGON ((0.2 0.2, 0.8 0.2, 0.8 0.8, 0.2 0.8, 0.2 0.2))",
+                }
+                for idx in range(10)
+            ]
+        )
+        raster_paths = []
+        for idx in range(10):
+            event_date = f"202207{idx + 1:02d}"
+            polygon = str(400 + idx)
+            grid = f"46RG{idx}"
+            for band in ["F01"]:
+                raster_path = root / f"T_C5_{grid}_{polygon}_EV{event_date}_IM20220731_{band}.tif"
+                with rasterio.open(
+                    raster_path,
+                    "w",
+                    driver="GTiff",
+                    height=10,
+                    width=10,
+                    count=1,
+                    dtype="uint16",
+                    crs="EPSG:4326",
+                    transform=from_origin(0, 1, 0.1, 0.1),
+                ) as dst:
+                    dst.write(numpy.ones((1, 10, 10), dtype="uint16"))
+                raster_paths.append(raster_path)
+        phase_a = build_phase_a_contract([csv_path], root / "contract", raster_paths=raster_paths)
+        build_phase_b_masks(phase_a.output_dir, reference_channels=["F01"])
+        build_visual_qa(phase_a.output_dir, max_items=1)
+
+        build_post_disaster_model_input_manifest(phase_a.output_dir, required_channels=["F01"])
+
+        audit_rows = self.read_csv_rows(phase_a.output_dir / "reports" / "post_disaster_channel_audit.csv")
+        model_rows = self.read_csv_rows(phase_a.output_dir / "model_input_manifest.csv")
+        self.assertNotIn("test", {row["split"] for row in audit_rows})
+        self.assertNotIn("test", {row["split"] for row in model_rows})
 
     def test_channel_alignment_audit_blocks_mask_grid_mismatch(self):
         root, csv_path = self.make_label_csv(

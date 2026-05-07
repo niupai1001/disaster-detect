@@ -148,7 +148,6 @@ def run_cloud_training(
             rasterio=rasterio,
             np=np,
         )
-        _write_run_outputs(run_dir, metrics_payload, source_class_ids)
         progress.log_epoch_metrics(
             epoch=1,
             max_epochs=1,
@@ -156,6 +155,8 @@ def run_cloud_training(
             mean_iou=metrics_payload["mean_iou"],
             foreground_recall=metrics_payload["foreground_recall"],
         )
+        _write_run_outputs(run_dir, metrics_payload, source_class_ids)
+        _maybe_write_training_curves(run_dir)
         manifest["status"] = "completed_trivial_baseline"
         _write_manifest(run_dir, manifest)
         return manifest
@@ -181,7 +182,7 @@ def run_cloud_training(
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=float(config.get("training", {}).get("learning_rate", 0.001)))
     class_weights = None
-    if config.get("training", {}).get("loss") == "weighted_cross_entropy":
+    if config.get("training", {}).get("loss") in {"weighted_cross_entropy", "weighted_cross_entropy_dice"}:
         class_weights = class_weights_from_counts(
             _encoded_label_counts(
                 train_records,
@@ -292,6 +293,7 @@ def run_cloud_training(
     )
     metrics_payload["train_loss_last"] = losses[-1] if losses else None
     _write_run_outputs(run_dir, metrics_payload, source_class_ids)
+    _maybe_write_training_curves(run_dir)
     torch.save(model.state_dict(), run_dir / "checkpoints" / "last.pt")
     manifest["status"] = "completed_cloud_training"
     manifest["cloud_hardware_summary"] = {
@@ -669,7 +671,6 @@ def _write_run_outputs(run_dir: Path, payload: dict, source_class_ids: list[int]
     )
     _write_dict_rows(diagnostics_dir / "foreground_window_coverage.csv", payload.get("foreground_window_coverage", []))
     _write_binary_encode_decode_audit(diagnostics_dir / "binary_c5_encode_decode_audit.json", source_class_ids)
-    _write_artifact_inventory(diagnostics_dir / "artifact_inventory.json", run_dir)
     preview_paths = []
     per_sample_dir = run_dir / "predictions" / "per_sample"
     for sample_id, channels, label, prediction in payload["preview_items"]:
@@ -685,6 +686,23 @@ def _write_run_outputs(run_dir: Path, payload: dict, source_class_ids: list[int]
     if preview_paths:
         write_contact_sheet(preview_paths, run_dir / "predictions" / "validation_contact_sheet.png", columns=2)
         write_contact_sheet(preview_paths[: min(6, len(preview_paths))], run_dir / "predictions" / "failures_contact_sheet.png", columns=2)
+    _write_artifact_inventory(diagnostics_dir / "artifact_inventory.json", run_dir)
+
+
+def _maybe_write_training_curves(run_dir: Path) -> dict:
+    from .training_curves import write_training_curves
+
+    log_path = run_dir / "logs" / "training_progress.log"
+    if not log_path.exists():
+        return {"status": "skipped", "reason": "missing_training_progress_log"}
+    try:
+        result = write_training_curves(run_dir)
+    except ValueError as exc:
+        return {"status": "skipped", "reason": str(exc)}
+    inventory_path = run_dir / "diagnostics" / "artifact_inventory.json"
+    if inventory_path.exists():
+        _write_artifact_inventory(inventory_path, run_dir)
+    return {"status": "written", **result}
 
 
 def _write_per_class_metrics(path: Path, metrics) -> None:
@@ -750,6 +768,9 @@ def _write_artifact_inventory(path: Path, run_dir: Path) -> None:
         "diagnostics/foreground_probability_summary.csv",
         "diagnostics/foreground_window_coverage.csv",
         "diagnostics/binary_c5_encode_decode_audit.json",
+        "training_curves.png",
+        "training_curves.csv",
+        "predictions/validation_contact_sheet.png",
     ]
     payload = {
         "created_at": datetime.now(timezone.utc).isoformat(),

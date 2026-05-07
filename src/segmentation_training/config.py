@@ -39,12 +39,16 @@ def validate_config(config: dict[str, Any]) -> None:
     missing = sorted(REQUIRED_CONFIG_KEYS - set(config))
     if missing:
         raise ValueError(f"Config missing required keys: {', '.join(missing)}")
-    if config["task_id"] != "task-afc7f2c25f8f":
-        raise ValueError("Config task_id must remain task-afc7f2c25f8f")
+    if not str(config.get("task_id", "")).strip():
+        raise ValueError("Config task_id is required")
     if config["class_scope"] not in {"binary_c2", "binary_c5", "multiclass_c2_c5"}:
         raise ValueError(f"Unsupported class_scope {config['class_scope']!r}")
-    if list(config["input_channels"]) != ["F16", "F17"]:
-        raise ValueError("v0.1 configs must use input_channels [F16, F17]")
+    input_channels = list(config["input_channels"])
+    if not input_channels or not all(str(channel).strip() for channel in input_channels):
+        raise ValueError("input_channels must contain at least one channel")
+    model_input_channels = config.get("model", {}).get("input_channels")
+    if model_input_channels is not None and int(model_input_channels) != len(input_channels):
+        raise ValueError("model.input_channels must match len(input_channels)")
     split_policy = config["split_policy"]
     if split_policy.get("test") != "sealed":
         raise ValueError("Test split must remain sealed")
