@@ -96,6 +96,7 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         self.assertTrue(config["training"]["performance"]["mixed_precision"])
         self.assertTrue(config["training"]["performance"]["channels_last"])
         self.assertTrue(config["training"]["performance"]["cudnn_benchmark"])
+        self.assertTrue(config["training"]["performance"]["cache_records"])
 
     def test_model_input_channel_count_must_match_input_channels(self):
         config = load_config(

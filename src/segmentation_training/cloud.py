@@ -119,6 +119,24 @@ def run_cloud_training(
     if grid_errors:
         raise ValueError("Raster grid validation failed:\n" + "\n".join(grid_errors[:20]))
     progress = _TrainingProgressLogger(run_dir)
+    performance_config = config.get("training", {}).get("performance", {})
+    record_cache = None
+    if bool(performance_config.get("cache_records", False)):
+        progress.log(
+            "caching train/validation rasters in memory "
+            f"record_count={len(train_records) + len(validation_records)} channels={len(config['input_channels'])}"
+        )
+        record_cache = _build_record_cache(
+            [*train_records, *validation_records],
+            bundle_dir=bundle_dir,
+            channels=tuple(config["input_channels"]),
+            rasterio=rasterio,
+            np=np,
+        )
+        cached_bytes = sum(
+            int(item["channels"].nbytes) + int(item["label"].nbytes) for item in record_cache.values()
+        )
+        progress.log(f"cached records ready approx_bytes={cached_bytes}")
 
     source_class_ids = _source_class_ids(config)
     encoded_class_ids = list(range(len(source_class_ids)))
@@ -180,7 +198,6 @@ def run_cloud_training(
     else:
         raise ValueError(f"Unsupported cloud model family {model_family!r}")
     model.to(device)
-    performance_config = config.get("training", {}).get("performance", {})
     runtime = _configure_torch_runtime(torch, device=device, performance_config=performance_config)
     if runtime["channels_last"]:
         model = model.to(memory_format=torch.channels_last)
@@ -233,6 +250,7 @@ def run_cloud_training(
                 rasterio=rasterio,
                 RasterWindow=RasterWindow,
                 np=np,
+                record_cache=record_cache,
             )
             encoded_label = _encode_label(label, source_class_ids, np=np)
             if not _target_has_valid_pixels(encoded_label, np=np):
@@ -288,6 +306,7 @@ def run_cloud_training(
                 np=np,
                 use_amp=runtime["mixed_precision"],
                 channels_last=runtime["channels_last"],
+                record_cache=record_cache,
             )
             progress.log_epoch_metrics(
                 epoch=epoch,
@@ -310,6 +329,7 @@ def run_cloud_training(
         np=np,
         use_amp=runtime["mixed_precision"],
         channels_last=runtime["channels_last"],
+        record_cache=record_cache,
     )
     metrics_payload["foreground_window_coverage"] = _foreground_window_coverage_rows(
         [*train_records, *validation_records],
@@ -430,6 +450,24 @@ def _train_batch(
     return float(loss.detach().cpu().item())
 
 
+def _build_record_cache(records, *, bundle_dir: Path, channels: tuple[str, ...], rasterio, np) -> dict:
+    cache = {}
+    for record in records:
+        mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
+        with rasterio.open(mask_path) as mask_ds:
+            label = mask_ds.read(1)
+        band_arrays = []
+        for channel in channels:
+            band_path = _resolve_cloud_or_bundle_path(bundle_dir, record.input_band_paths[channel])
+            with rasterio.open(band_path) as band_ds:
+                band_arrays.append(_normalize_band(band_ds.read(1), np=np))
+        cache[record.sample_id] = {
+            "channels": np.stack(band_arrays, axis=0),
+            "label": label,
+        }
+    return cache
+
+
 def _read_training_window(
     record,
     *,
@@ -442,11 +480,36 @@ def _read_training_window(
     rasterio,
     RasterWindow,
     np,
+    record_cache: dict | None = None,
 ):
     from .sampler import choose_training_window
 
     sampler_config = sampler_config or {}
     foreground_class_ids = foreground_class_ids or []
+    cached = record_cache.get(record.sample_id) if record_cache else None
+    if cached is not None:
+        label = cached["label"]
+        height, width = label.shape
+        size = _safe_window_size(height, width, window_size)
+        if sampler_config.get("train_policy") == "foreground_biased":
+            selected = choose_training_window(
+                label,
+                size=size,
+                rng=rng,
+                foreground_class_ids=foreground_class_ids,
+                foreground_probability=float(sampler_config.get("foreground_probability", 0.75)),
+                min_foreground_pixels=int(sampler_config.get("min_foreground_pixels", 1)),
+            )
+        else:
+            selected = choose_training_window(
+                label,
+                size=size,
+                rng=rng,
+                foreground_class_ids=[],
+                foreground_probability=0.0,
+                min_foreground_pixels=0,
+            )
+        return _slice_cached_window(cached, selected, window_size, np=np)
     mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
     with rasterio.open(mask_path) as mask_ds:
         height = mask_ds.height
@@ -490,11 +553,23 @@ def _read_validation_window(
     rasterio,
     RasterWindow,
     np,
+    record_cache: dict | None = None,
 ):
     from .sampler import choose_validation_window
 
     sampler_config = sampler_config or {}
     foreground_class_ids = foreground_class_ids or []
+    cached = record_cache.get(record.sample_id) if record_cache else None
+    if cached is not None:
+        label = cached["label"]
+        size = _safe_window_size(label.shape[0], label.shape[1], window_size)
+        selected = choose_validation_window(
+            label,
+            size=size,
+            foreground_class_ids=foreground_class_ids,
+            policy=str(sampler_config.get("validation_policy", "center")),
+        )
+        return _slice_cached_window(cached, selected, window_size, np=np)
     mask_path = _resolve_cloud_or_bundle_path(bundle_dir, record.mask_path, subdir="masks")
     with rasterio.open(mask_path) as mask_ds:
         size = _safe_window_size(mask_ds.height, mask_ds.width, window_size)
@@ -515,6 +590,16 @@ def _read_validation_window(
     channels_array = np.stack(band_arrays, axis=0)
     return _pad_window(channels_array, window_size, fill_value=0, np=np), _pad_window(
         label, window_size, fill_value=255, np=np
+    )
+
+
+def _slice_cached_window(cached: dict, window, target_size: int, *, np):
+    row_end = window.row + window.height
+    col_end = window.col + window.width
+    channels_array = cached["channels"][:, window.row : row_end, window.col : col_end]
+    label = cached["label"][window.row : row_end, window.col : col_end]
+    return _pad_window(channels_array, target_size, fill_value=0, np=np), _pad_window(
+        label, target_size, fill_value=255, np=np
     )
 
 
@@ -581,6 +666,7 @@ def _evaluate_model(
     np,
     use_amp: bool = False,
     channels_last: bool = False,
+    record_cache: dict | None = None,
 ):
     model.eval()
     labels = []
@@ -601,6 +687,7 @@ def _evaluate_model(
                 rasterio=rasterio,
                 RasterWindow=RasterWindow,
                 np=np,
+                record_cache=record_cache,
             )
             inputs = torch.from_numpy(channels[None, ...].astype("float32")).to(device)
             if channels_last:

@@ -17,6 +17,8 @@ from segmentation_training.cloud import (  # noqa: E402
     _maybe_write_training_curves,
     _normalize_band,
     _pad_window,
+    _read_training_window,
+    _read_validation_window,
     _target_has_valid_pixels,
     _write_run_outputs,
     prepare_cloud_run,
@@ -209,6 +211,57 @@ cloud:
         normalized = _normalize_band(array, np=np)
 
         self.assertTrue(np.isfinite(normalized).all())
+
+    def test_read_training_window_can_use_cached_arrays_without_rasterio(self):
+        from types import SimpleNamespace
+
+        label = np.zeros((6, 6), dtype=np.uint8)
+        label[2:4, 2:4] = 2
+        channels = np.stack([np.ones((6, 6), dtype=np.float32), np.full((6, 6), 2.0, dtype=np.float32)], axis=0)
+        record = SimpleNamespace(sample_id="s1")
+
+        batch_channels, batch_label = _read_training_window(
+            record,
+            bundle_dir=Path("unused"),
+            channels=("F01", "F02"),
+            window_size=4,
+            sampler_config={"train_policy": "foreground_biased", "foreground_probability": 1.0},
+            foreground_class_ids=[2],
+            rng=np.random.default_rng(7),
+            rasterio=None,
+            RasterWindow=None,
+            np=np,
+            record_cache={"s1": {"channels": channels, "label": label}},
+        )
+
+        self.assertEqual(batch_channels.shape, (2, 4, 4))
+        self.assertEqual(batch_label.shape, (4, 4))
+        self.assertGreater(int((batch_label == 2).sum()), 0)
+
+    def test_read_validation_window_can_use_cached_arrays_without_rasterio(self):
+        from types import SimpleNamespace
+
+        label = np.zeros((6, 6), dtype=np.uint8)
+        label[4, 4] = 2
+        channels = np.stack([np.ones((6, 6), dtype=np.float32), np.full((6, 6), 2.0, dtype=np.float32)], axis=0)
+        record = SimpleNamespace(sample_id="s1")
+
+        batch_channels, batch_label = _read_validation_window(
+            record,
+            bundle_dir=Path("unused"),
+            channels=("F01", "F02"),
+            window_size=4,
+            sampler_config={"validation_policy": "foreground_center"},
+            foreground_class_ids=[2],
+            rasterio=None,
+            RasterWindow=None,
+            np=np,
+            record_cache={"s1": {"channels": channels, "label": label}},
+        )
+
+        self.assertEqual(batch_channels.shape, (2, 4, 4))
+        self.assertEqual(batch_label.shape, (4, 4))
+        self.assertGreater(int((batch_label == 2).sum()), 0)
 
     def test_target_has_valid_pixels_rejects_all_ignore(self):
         self.assertFalse(_target_has_valid_pixels(np.full((8, 8), 255, dtype=np.uint8), np=np))
