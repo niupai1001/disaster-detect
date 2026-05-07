@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from segmentation_training.cloud import (  # noqa: E402
     _TrainingProgressLogger,
     _build_metrics_payload,
+    _configure_torch_runtime,
     _foreground_window_coverage_rows,
     _maybe_write_training_curves,
     _normalize_band,
@@ -24,6 +25,54 @@ from segmentation_training.cli import main as training_main  # noqa: E402
 
 
 class SegmentationTrainingCloudTests(unittest.TestCase):
+    def test_configure_torch_runtime_enables_cuda_performance_flags_only_on_cuda(self):
+        class FakeCuda:
+            @staticmethod
+            def is_available():
+                return True
+
+        class FakeCudnn:
+            benchmark = False
+
+        class FakeBackends:
+            cudnn = FakeCudnn()
+
+        class FakeTorch:
+            cuda = FakeCuda()
+            backends = FakeBackends()
+
+        runtime = _configure_torch_runtime(
+            FakeTorch,
+            device="cuda",
+            performance_config={"mixed_precision": True, "channels_last": True, "cudnn_benchmark": True},
+        )
+
+        self.assertTrue(runtime["mixed_precision"])
+        self.assertTrue(runtime["channels_last"])
+        self.assertTrue(runtime["cudnn_benchmark"])
+        self.assertTrue(FakeTorch.backends.cudnn.benchmark)
+
+    def test_configure_torch_runtime_keeps_cpu_safe(self):
+        class FakeCudnn:
+            benchmark = True
+
+        class FakeBackends:
+            cudnn = FakeCudnn()
+
+        class FakeTorch:
+            backends = FakeBackends()
+
+        runtime = _configure_torch_runtime(
+            FakeTorch,
+            device="cpu",
+            performance_config={"mixed_precision": True, "channels_last": True, "cudnn_benchmark": True},
+        )
+
+        self.assertFalse(runtime["mixed_precision"])
+        self.assertFalse(runtime["channels_last"])
+        self.assertFalse(runtime["cudnn_benchmark"])
+        self.assertFalse(FakeTorch.backends.cudnn.benchmark)
+
     def test_cloud_confirm_train_calls_training_runner(self):
         with tempfile.TemporaryDirectory() as tmp_name:
             root = Path(tmp_name)

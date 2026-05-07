@@ -83,6 +83,20 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         self.assertIn("NDVI", config["input_channels"])
         self.assertIn("BRIGHTNESS", config["input_channels"])
 
+    def test_rtx4080_config_enables_cuda_performance_options(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "v3_binary_c5_unet_post_optical_indices_rtx4080.yaml"
+        )
+
+        self.assertEqual(config["model"]["base_channels"], 64)
+        self.assertEqual(config["training"]["batch_size"], 16)
+        self.assertTrue(config["training"]["performance"]["mixed_precision"])
+        self.assertTrue(config["training"]["performance"]["channels_last"])
+        self.assertTrue(config["training"]["performance"]["cudnn_benchmark"])
+
     def test_model_input_channel_count_must_match_input_channels(self):
         config = load_config(
             Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"

@@ -180,6 +180,10 @@ def run_cloud_training(
     else:
         raise ValueError(f"Unsupported cloud model family {model_family!r}")
     model.to(device)
+    performance_config = config.get("training", {}).get("performance", {})
+    runtime = _configure_torch_runtime(torch, device=device, performance_config=performance_config)
+    if runtime["channels_last"]:
+        model = model.to(memory_format=torch.channels_last)
     optimizer = torch.optim.Adam(model.parameters(), lr=float(config.get("training", {}).get("learning_rate", 0.001)))
     class_weights = None
     if config.get("training", {}).get("loss") in {"weighted_cross_entropy", "weighted_cross_entropy_dice"}:
@@ -236,7 +240,17 @@ def run_cloud_training(
             batch_x.append(torch.from_numpy(channels.astype("float32")))
             batch_y.append(torch.from_numpy(encoded_label.astype("int64")))
             if len(batch_x) == batch_size:
-                loss_value = _train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch)
+                loss_value = _train_batch(
+                    model,
+                    optimizer,
+                    loss_fn,
+                    batch_x,
+                    batch_y,
+                    device,
+                    torch,
+                    use_amp=runtime["mixed_precision"],
+                    channels_last=runtime["channels_last"],
+                )
                 losses.append(loss_value)
                 epoch_losses.append(loss_value)
                 batch_index += 1
@@ -245,7 +259,17 @@ def run_cloud_training(
                 batch_x = []
                 batch_y = []
         if batch_x:
-            loss_value = _train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch)
+            loss_value = _train_batch(
+                model,
+                optimizer,
+                loss_fn,
+                batch_x,
+                batch_y,
+                device,
+                torch,
+                use_amp=runtime["mixed_precision"],
+                channels_last=runtime["channels_last"],
+            )
             losses.append(loss_value)
             epoch_losses.append(loss_value)
             batch_index += 1
@@ -262,6 +286,8 @@ def run_cloud_training(
                 RasterWindow=RasterWindow,
                 torch=torch,
                 np=np,
+                use_amp=runtime["mixed_precision"],
+                channels_last=runtime["channels_last"],
             )
             progress.log_epoch_metrics(
                 epoch=epoch,
@@ -282,6 +308,8 @@ def run_cloud_training(
         RasterWindow=RasterWindow,
         torch=torch,
         np=np,
+        use_amp=runtime["mixed_precision"],
+        channels_last=runtime["channels_last"],
     )
     metrics_payload["foreground_window_coverage"] = _foreground_window_coverage_rows(
         [*train_records, *validation_records],
@@ -300,6 +328,9 @@ def run_cloud_training(
         "device": str(device),
         "cuda_available": bool(torch.cuda.is_available()),
         "cuda_device_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "",
+        "mixed_precision": runtime["mixed_precision"],
+        "channels_last": runtime["channels_last"],
+        "cudnn_benchmark": runtime["cudnn_benchmark"],
     }
     _write_manifest(run_dir, manifest)
     return manifest
@@ -357,14 +388,41 @@ def _source_class_ids(config: dict) -> list[int]:
     return [0, 1, 2]
 
 
-def _train_batch(model, optimizer, loss_fn, batch_x, batch_y, device, torch) -> float:
+def _configure_torch_runtime(torch, *, device, performance_config: dict | None = None) -> dict:
+    performance_config = performance_config or {}
+    cuda_enabled = str(device).startswith("cuda")
+    cudnn_benchmark = bool(performance_config.get("cudnn_benchmark", False)) and cuda_enabled
+    if hasattr(torch.backends, "cudnn"):
+        torch.backends.cudnn.benchmark = cudnn_benchmark
+    return {
+        "mixed_precision": bool(performance_config.get("mixed_precision", False)) and cuda_enabled,
+        "channels_last": bool(performance_config.get("channels_last", False)) and cuda_enabled,
+        "cudnn_benchmark": cudnn_benchmark,
+    }
+
+
+def _train_batch(
+    model,
+    optimizer,
+    loss_fn,
+    batch_x,
+    batch_y,
+    device,
+    torch,
+    *,
+    use_amp: bool = False,
+    channels_last: bool = False,
+) -> float:
     model.train()
     inputs = torch.stack(batch_x).to(device)
+    if channels_last:
+        inputs = inputs.contiguous(memory_format=torch.channels_last)
     labels = torch.stack(batch_y).to(device)
     if not bool((labels != 255).any().item()):
         return 0.0
     optimizer.zero_grad()
-    loss = loss_fn(model(inputs), labels)
+    with torch.cuda.amp.autocast(enabled=use_amp):
+        loss = loss_fn(model(inputs), labels)
     if not bool(torch.isfinite(loss).item()):
         raise ValueError("Non-finite training loss detected; check raster normalization and labels")
     loss.backward()
@@ -521,6 +579,8 @@ def _evaluate_model(
     RasterWindow,
     torch,
     np,
+    use_amp: bool = False,
+    channels_last: bool = False,
 ):
     model.eval()
     labels = []
@@ -542,7 +602,11 @@ def _evaluate_model(
                 RasterWindow=RasterWindow,
                 np=np,
             )
-            logits = model(torch.from_numpy(channels[None, ...].astype("float32")).to(device))
+            inputs = torch.from_numpy(channels[None, ...].astype("float32")).to(device)
+            if channels_last:
+                inputs = inputs.contiguous(memory_format=torch.channels_last)
+            with torch.cuda.amp.autocast(enabled=use_amp):
+                logits = model(inputs)
             foreground_probability = torch.softmax(logits, dim=1).squeeze(0).cpu().numpy()
             encoded_prediction = torch.argmax(logits, dim=1).squeeze(0).cpu().numpy().astype("uint8")
             prediction = _decode_prediction(encoded_prediction, source_class_ids, np=np)
