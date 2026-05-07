@@ -196,12 +196,16 @@ def _safe_div(numerator: float, denominator: float) -> float:
 
 
 def _mean(values: np.ndarray) -> float:
-    return float(np.mean(values)) if values.size else 0.0
+    return float(np.mean(_float32_values(values))) if values.size else 0.0
 
 
 def _max(values: np.ndarray) -> float:
-    return float(np.max(values)) if values.size else 0.0
+    return float(np.max(_float32_values(values))) if values.size else 0.0
 
 
 def _percentile(values: np.ndarray, q: float) -> float:
-    return float(np.percentile(values, q)) if values.size else 0.0
+    return float(np.percentile(_float32_values(values), q)) if values.size else 0.0
+
+
+def _float32_values(values: np.ndarray) -> np.ndarray:
+    return np.asarray(values, dtype=np.float32)

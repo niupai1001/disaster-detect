@@ -13,6 +13,7 @@ from segmentation_training.metrics import (  # noqa: E402
     per_class_metrics,
     prediction_summary_rows,
     summarize_area,
+    probability_summary,
     threshold_sweep,
 )
 
@@ -76,6 +77,15 @@ class SegmentationTrainingMetricsTests(unittest.TestCase):
         self.assertEqual(rows[0]["recall"], 0.0)
         self.assertEqual(rows[1]["threshold"], 0.3)
         self.assertEqual(rows[1]["recall"], 1.0)
+
+    def test_probability_summary_handles_half_precision_probabilities(self):
+        labels = np.array([[0, 2], [2, 255]], dtype=np.uint8)
+        foreground_probability = np.array([[0.02, 0.35], [0.40, 0.99]], dtype=np.float16)
+
+        row = probability_summary(labels, foreground_probability, foreground_class_id=2)
+
+        self.assertTrue(np.isfinite(row["probability_p95"]))
+        self.assertTrue(np.isfinite(row["probability_p99"]))
 
 
 if __name__ == "__main__":

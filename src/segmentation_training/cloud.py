@@ -5,6 +5,7 @@ import platform
 import subprocess
 import sys
 import csv
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -441,7 +442,7 @@ def _train_batch(
     if not bool((labels != 255).any().item()):
         return 0.0
     optimizer.zero_grad()
-    with torch.cuda.amp.autocast(enabled=use_amp):
+    with _autocast(torch, enabled=use_amp):
         loss = loss_fn(model(inputs), labels)
     if not bool(torch.isfinite(loss).item()):
         raise ValueError("Non-finite training loss detected; check raster normalization and labels")
@@ -466,6 +467,14 @@ def _build_record_cache(records, *, bundle_dir: Path, channels: tuple[str, ...],
             "label": label,
         }
     return cache
+
+
+def _autocast(torch, *, enabled: bool):
+    if not enabled:
+        return nullcontext()
+    if hasattr(torch, "amp") and hasattr(torch.amp, "autocast"):
+        return torch.amp.autocast("cuda", enabled=True)
+    return torch.cuda.amp.autocast(enabled=True)
 
 
 def _read_training_window(
@@ -692,9 +701,10 @@ def _evaluate_model(
             inputs = torch.from_numpy(channels[None, ...].astype("float32")).to(device)
             if channels_last:
                 inputs = inputs.contiguous(memory_format=torch.channels_last)
-            with torch.cuda.amp.autocast(enabled=use_amp):
+            with _autocast(torch, enabled=use_amp):
                 logits = model(inputs)
-            foreground_probability = torch.softmax(logits, dim=1).squeeze(0).cpu().numpy()
+            foreground_probability = torch.softmax(logits.float(), dim=1).squeeze(0).cpu().numpy()
+            foreground_probability = foreground_probability.astype("float32", copy=False)
             encoded_prediction = torch.argmax(logits, dim=1).squeeze(0).cpu().numpy().astype("uint8")
             prediction = _decode_prediction(encoded_prediction, source_class_ids, np=np)
             labels.append(label)
