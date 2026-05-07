@@ -243,6 +243,13 @@ def run_cloud_training(
                 np=np,
                 record_cache=record_cache,
             )
+            channels, label = _apply_training_augmentation(
+                channels,
+                label,
+                config.get("training", {}).get("augmentation", {}),
+                rng=rng,
+                np=np,
+            )
             encoded_label = _encode_label(label, source_class_ids, np=np)
             if not _target_has_valid_pixels(encoded_label, np=np):
                 continue
@@ -298,6 +305,7 @@ def run_cloud_training(
                 use_amp=runtime["mixed_precision"],
                 channels_last=runtime["channels_last"],
                 record_cache=record_cache,
+                preview_config={"max_items": 0, "worst_false_positive_items": 0},
             )
             progress.log_epoch_metrics(
                 epoch=epoch,
@@ -326,6 +334,7 @@ def run_cloud_training(
         use_amp=runtime["mixed_precision"],
         channels_last=runtime["channels_last"],
         record_cache=record_cache,
+        preview_config=config.get("metrics", {}).get("preview", {}),
     )
     metrics_payload["foreground_window_coverage"] = _foreground_window_coverage_rows(
         [*train_records, *validation_records],
@@ -336,7 +345,7 @@ def run_cloud_training(
         np=np,
     )
     metrics_payload["train_loss_last"] = losses[-1] if losses else None
-    _write_run_outputs(run_dir, metrics_payload, source_class_ids)
+    _write_run_outputs(run_dir, metrics_payload, source_class_ids, preview_config=config.get("metrics", {}).get("preview", {}))
     _maybe_write_training_curves(run_dir)
     torch.save(model.state_dict(), run_dir / "checkpoints" / "last.pt")
     manifest["status"] = "completed_cloud_training"
@@ -352,12 +361,225 @@ def run_cloud_training(
     return manifest
 
 
+def run_channel_contribution(
+    *,
+    config_path: Path,
+    bundle_dir: Path,
+    checkpoint_path: Path,
+    output_dir: Path,
+) -> dict:
+    import numpy as np
+    import torch
+    import rasterio
+    from rasterio.windows import Window as RasterWindow
+
+    config = load_config(config_path)
+    manifest_path = bundle_dir / "manifests" / "cloud_model_input_manifest.csv"
+    records = load_model_input_manifest(manifest_path, required_channels=tuple(config["input_channels"]))
+    scoped_records = filter_records(records, class_scope=config["class_scope"])
+    validation_records = [record for record in scoped_records if record.split == "validation"]
+    max_samples = int(config.get("cloud", {}).get("max_validation_samples", 32))
+    validation_records = validation_records[:max_samples]
+    grid_errors = validate_record_raster_grids(
+        validation_records,
+        contract_dir=bundle_dir,
+        required_channels=tuple(config["input_channels"]),
+    )
+    if grid_errors:
+        raise ValueError("Raster grid validation failed:\n" + "\n".join(grid_errors[:20]))
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    source_class_ids = [int(class_id) for class_id in config["metrics"]["class_ids"]]
+    model = _build_trainable_model(config, source_class_ids=source_class_ids)
+    state = torch.load(checkpoint_path, map_location=device)
+    model.load_state_dict(state)
+    model.to(device)
+    performance_config = config.get("training", {}).get("performance", {})
+    runtime = _configure_torch_runtime(torch, device=device, performance_config=performance_config)
+    if runtime["channels_last"]:
+        model = model.to(memory_format=torch.channels_last)
+
+    record_cache = None
+    if bool(performance_config.get("cache_records", False)):
+        record_cache = _build_record_cache(
+            validation_records,
+            bundle_dir=bundle_dir,
+            channels=tuple(config["input_channels"]),
+            rasterio=rasterio,
+            np=np,
+        )
+
+    preview_config = {"max_items": 0, "worst_false_positive_items": 0}
+    baseline = _evaluate_model(
+        model,
+        validation_records,
+        bundle_dir=bundle_dir,
+        config=config,
+        source_class_ids=source_class_ids,
+        device=device,
+        rasterio=rasterio,
+        RasterWindow=RasterWindow,
+        torch=torch,
+        np=np,
+        use_amp=runtime["mixed_precision"],
+        channels_last=runtime["channels_last"],
+        record_cache=record_cache,
+        preview_config=preview_config,
+    )
+    contribution_config = config.get("metrics", {}).get("channel_contribution", {})
+    mode = str(contribution_config.get("mode", "zero"))
+    groups = _channel_contribution_groups(tuple(config["input_channels"]), contribution_config.get("groups"))
+    rows = [_channel_contribution_row("baseline", [], baseline, baseline)]
+    for name, channels in groups:
+        payload = _evaluate_model(
+            model,
+            validation_records,
+            bundle_dir=bundle_dir,
+            config=config,
+            source_class_ids=source_class_ids,
+            device=device,
+            rasterio=rasterio,
+            RasterWindow=RasterWindow,
+            torch=torch,
+            np=np,
+            use_amp=runtime["mixed_precision"],
+            channels_last=runtime["channels_last"],
+            record_cache=record_cache,
+            preview_config=preview_config,
+            channel_perturbation={"channels": channels, "mode": mode},
+        )
+        rows.append(_channel_contribution_row(name, channels, payload, baseline))
+
+    _write_dict_rows(output_dir / "channel_contribution.csv", rows)
+    manifest = {
+        "status": "completed_channel_contribution",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "config_path": str(config_path),
+        "bundle_dir": str(bundle_dir),
+        "checkpoint_path": str(checkpoint_path),
+        "output_dir": str(output_dir),
+        "experiment_id": config["experiment_id"],
+        "input_channels": config["input_channels"],
+        "perturbation_mode": mode,
+        "validation_records": len(validation_records),
+        "test_split_read": False,
+        "cloud_hardware_summary": {
+            "device": str(device),
+            "cuda_available": bool(torch.cuda.is_available()),
+            "cuda_device_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "",
+            "mixed_precision": runtime["mixed_precision"],
+            "channels_last": runtime["channels_last"],
+            "cudnn_benchmark": runtime["cudnn_benchmark"],
+        },
+    }
+    (output_dir / "channel_contribution_manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return manifest
+
+
 def _build_trainable_model(config: dict, *, source_class_ids: list[int]):
     return build_model(
         config["model"],
         input_channels=len(config["input_channels"]),
         output_classes=len(source_class_ids),
     )
+
+
+def _apply_training_augmentation(channels, label, augmentation_config: dict | None, *, rng, np):
+    augmentation_config = augmentation_config or {}
+    if not bool(augmentation_config.get("enabled", False)):
+        return channels, label
+    augmented_channels = channels
+    augmented_label = label
+    if rng.random() < float(augmentation_config.get("horizontal_flip_probability", 0.0)):
+        augmented_channels = augmented_channels[:, :, ::-1]
+        augmented_label = augmented_label[:, ::-1]
+    if rng.random() < float(augmentation_config.get("vertical_flip_probability", 0.0)):
+        augmented_channels = augmented_channels[:, ::-1, :]
+        augmented_label = augmented_label[::-1, :]
+    if rng.random() < float(augmentation_config.get("rotate90_probability", 0.0)):
+        k = int(rng.integers(1, 4))
+        augmented_channels = np.rot90(augmented_channels, k=k, axes=(-2, -1))
+        augmented_label = np.rot90(augmented_label, k=k, axes=(0, 1))
+    noise_std = float(augmentation_config.get("gaussian_noise_std", 0.0))
+    if noise_std > 0:
+        augmented_channels = augmented_channels + rng.normal(0.0, noise_std, size=augmented_channels.shape)
+    return np.ascontiguousarray(augmented_channels), np.ascontiguousarray(augmented_label)
+
+
+def _apply_channel_perturbation(channels, *, input_channels: tuple[str, ...], perturbation: dict | None, np):
+    if not perturbation:
+        return channels
+    selected = set(perturbation.get("channels", []))
+    if not selected:
+        return channels
+    mode = str(perturbation.get("mode", "zero"))
+    perturbed = channels.copy()
+    for index, channel in enumerate(input_channels):
+        if channel not in selected:
+            continue
+        if mode == "zero":
+            perturbed[index] = 0
+        elif mode == "mean":
+            perturbed[index] = float(np.mean(perturbed[index]))
+        else:
+            raise ValueError(f"Unsupported channel perturbation mode {mode!r}")
+    return perturbed
+
+
+def _channel_contribution_groups(input_channels: tuple[str, ...], groups_config) -> list[tuple[str, list[str]]]:
+    groups: list[tuple[str, list[str]]] = []
+    if isinstance(groups_config, dict):
+        for name, channels in groups_config.items():
+            selected = [channel for channel in channels if channel in input_channels]
+            if selected:
+                groups.append((str(name), selected))
+    groups.extend((channel, [channel]) for channel in input_channels)
+    seen = set()
+    unique_groups = []
+    for name, channels in groups:
+        key = (name, tuple(channels))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_groups.append((name, channels))
+    return unique_groups
+
+
+def _channel_contribution_row(name: str, channels: list[str], payload: dict, baseline: dict) -> dict:
+    metrics = _foreground_payload_metrics(payload)
+    baseline_metrics = _foreground_payload_metrics(baseline)
+    return {
+        "group": name,
+        "channels": ";".join(channels),
+        "mean_iou": metrics["mean_iou"],
+        "foreground_precision": metrics["foreground_precision"],
+        "foreground_recall": metrics["foreground_recall"],
+        "foreground_dice": metrics["foreground_dice"],
+        "mean_iou_drop": baseline_metrics["mean_iou"] - metrics["mean_iou"],
+        "foreground_dice_drop": baseline_metrics["foreground_dice"] - metrics["foreground_dice"],
+        "pred_label_area_ratio": metrics["pred_label_area_ratio"],
+    }
+
+
+def _foreground_payload_metrics(payload: dict) -> dict[str, float]:
+    foreground = [metric for metric in payload.get("per_class", []) if metric.class_id != 0]
+    precision = float(sum(metric.precision for metric in foreground) / len(foreground)) if foreground else 0.0
+    recall = float(sum(metric.recall for metric in foreground) / len(foreground)) if foreground else 0.0
+    dice = float(sum(metric.dice for metric in foreground) / len(foreground)) if foreground else 0.0
+    area = payload.get("area", {})
+    label_pixels = sum(item.get("label_pixels", 0) for class_id, item in area.items() if int(class_id) != 0)
+    predicted_pixels = sum(item.get("predicted_pixels", 0) for class_id, item in area.items() if int(class_id) != 0)
+    return {
+        "mean_iou": float(payload.get("mean_iou", 0.0)),
+        "foreground_precision": precision,
+        "foreground_recall": recall,
+        "foreground_dice": dice,
+        "pred_label_area_ratio": float(predicted_pixels / label_pixels) if label_pixels else 0.0,
+    }
 
 
 def _limit_records(records, max_samples):
@@ -713,14 +935,18 @@ def _evaluate_model(
     use_amp: bool = False,
     channels_last: bool = False,
     record_cache: dict | None = None,
+    preview_config: dict | None = None,
+    channel_perturbation: dict | None = None,
 ):
     model.eval()
     labels = []
     predictions = []
     probabilities = []
     sample_ids = []
-    preview_paths = []
+    preview_items = []
     foreground_class_ids = [class_id for class_id in source_class_ids if class_id != 0]
+    preview_limit = _preview_limit(preview_config or {})
+    collect_all_for_worst = int((preview_config or {}).get("worst_false_positive_items", 0) or 0) > 0
     with torch.no_grad():
         for record in records:
             channels, label = _read_validation_window(
@@ -734,6 +960,12 @@ def _evaluate_model(
                 RasterWindow=RasterWindow,
                 np=np,
                 record_cache=record_cache,
+            )
+            channels = _apply_channel_perturbation(
+                channels,
+                input_channels=tuple(config["input_channels"]),
+                perturbation=channel_perturbation,
+                np=np,
             )
             inputs = torch.from_numpy(channels[None, ...].astype("float32")).to(device)
             if channels_last:
@@ -750,13 +982,13 @@ def _evaluate_model(
             probabilities.append(
                 foreground_probability[1] if foreground_probability.shape[0] > 1 else foreground_probability[0]
             )
-            if len(preview_paths) < 12:
-                preview_paths.append((record.sample_id, channels, label, prediction))
+            if _should_collect_preview(len(preview_items), preview_limit, collect_all_for_worst):
+                preview_items.append((record.sample_id, channels, label, prediction))
     return _build_metrics_payload(
         labels,
         predictions,
         source_class_ids,
-        preview_paths,
+        preview_items,
         sample_ids=sample_ids,
         foreground_probabilities=probabilities,
         thresholds=list(config.get("metrics", {}).get("threshold_sweep", [0.5])),
@@ -848,7 +1080,14 @@ def _build_metrics_payload(
     }
 
 
-def _write_run_outputs(run_dir: Path, payload: dict, source_class_ids: list[int]) -> None:
+def _write_run_outputs(
+    run_dir: Path,
+    payload: dict,
+    source_class_ids: list[int],
+    *,
+    preview_config: dict | None = None,
+) -> None:
+    preview_config = preview_config or {}
     metrics = {
         "mean_iou": payload["mean_iou"],
         "foreground_recall": payload["foreground_recall"],
@@ -869,9 +1108,12 @@ def _write_run_outputs(run_dir: Path, payload: dict, source_class_ids: list[int]
     )
     _write_dict_rows(diagnostics_dir / "foreground_window_coverage.csv", payload.get("foreground_window_coverage", []))
     _write_binary_encode_decode_audit(diagnostics_dir / "binary_c5_encode_decode_audit.json", source_class_ids)
+    preview_limit = _preview_limit(preview_config)
+    preview_items = payload.get("preview_items", [])
+    standard_preview_items = preview_items if preview_limit is None else preview_items[:preview_limit]
     preview_paths = []
     per_sample_dir = run_dir / "predictions" / "per_sample"
-    for sample_id, channels, label, prediction in payload["preview_items"]:
+    for sample_id, channels, label, prediction in standard_preview_items:
         preview_paths.append(
             write_prediction_preview(
                 channels=channels,
@@ -884,6 +1126,18 @@ def _write_run_outputs(run_dir: Path, payload: dict, source_class_ids: list[int]
     if preview_paths:
         write_contact_sheet(preview_paths, run_dir / "predictions" / "validation_contact_sheet.png", columns=2)
         write_contact_sheet(preview_paths[: min(6, len(preview_paths))], run_dir / "predictions" / "failures_contact_sheet.png", columns=2)
+    worst_rows = _select_worst_false_positive_rows(
+        payload.get("prediction_summary", []),
+        max_items=int(preview_config.get("worst_false_positive_items", 0) or 0),
+    )
+    _write_dict_rows(diagnostics_dir / "worst_false_positives.csv", worst_rows)
+    worst_paths = _write_worst_false_positive_previews(
+        run_dir,
+        preview_items,
+        worst_rows,
+    )
+    if worst_paths:
+        write_contact_sheet(worst_paths, run_dir / "predictions" / "worst_false_positives_contact_sheet.png", columns=2)
     _write_artifact_inventory(diagnostics_dir / "artifact_inventory.json", run_dir)
 
 
@@ -901,6 +1155,65 @@ def _maybe_write_training_curves(run_dir: Path) -> dict:
     if inventory_path.exists():
         _write_artifact_inventory(inventory_path, run_dir)
     return {"status": "written", **result}
+
+
+def _preview_limit(preview_config: dict) -> int | None:
+    value = preview_config.get("max_items", 12)
+    if isinstance(value, str) and value.lower() == "all":
+        return None
+    return max(0, int(value))
+
+
+def _should_collect_preview(current_count: int, preview_limit: int | None, collect_all_for_worst: bool) -> bool:
+    if collect_all_for_worst:
+        return True
+    if preview_limit is None:
+        return True
+    return current_count < preview_limit
+
+
+def _select_worst_false_positive_rows(rows: list[dict], *, max_items: int) -> list[dict]:
+    if max_items <= 0:
+        return []
+    candidates = [row for row in rows if int(float(row.get("fp", 0) or 0)) > 0]
+    ranked = sorted(
+        candidates,
+        key=lambda row: (
+            int(float(row.get("fp", 0) or 0)),
+            float(row.get("predicted_label_area_ratio", 0.0) or 0.0),
+            -float(row.get("foreground_precision", 0.0) or 0.0),
+        ),
+        reverse=True,
+    )
+    selected = []
+    for rank, row in enumerate(ranked[:max_items], start=1):
+        item = dict(row)
+        item["rank"] = rank
+        selected.append(item)
+    return selected
+
+
+def _write_worst_false_positive_previews(run_dir: Path, preview_items: list, worst_rows: list[dict]) -> list[Path]:
+    if not worst_rows:
+        return []
+    by_sample_id = {sample_id: (channels, label, prediction) for sample_id, channels, label, prediction in preview_items}
+    output_dir = run_dir / "predictions" / "worst_false_positives"
+    output_paths = []
+    for row in worst_rows:
+        sample_id = row.get("sample_id")
+        if sample_id not in by_sample_id:
+            continue
+        channels, label, prediction = by_sample_id[sample_id]
+        output_paths.append(
+            write_prediction_preview(
+                channels=channels,
+                label=label,
+                prediction=prediction,
+                output_path=output_dir / f"{int(row['rank']):02d}__{sample_id}.png",
+                title=f"worst-fp-{row['rank']} {sample_id}",
+            )
+        )
+    return output_paths
 
 
 def _write_per_class_metrics(path: Path, metrics) -> None:
@@ -965,10 +1278,12 @@ def _write_artifact_inventory(path: Path, run_dir: Path) -> None:
         "diagnostics/threshold_sweep.csv",
         "diagnostics/foreground_probability_summary.csv",
         "diagnostics/foreground_window_coverage.csv",
+        "diagnostics/worst_false_positives.csv",
         "diagnostics/binary_c5_encode_decode_audit.json",
         "training_curves.png",
         "training_curves.csv",
         "predictions/validation_contact_sheet.png",
+        "predictions/worst_false_positives_contact_sheet.png",
         "checkpoints/best_mean_iou.pt",
         "checkpoints/best_mean_iou.json",
     ]

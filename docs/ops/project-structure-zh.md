@@ -52,6 +52,29 @@ workspace/
 
 该路径被 Git 忽略，只用于 local/cloud runtime state，不用于 source review。
 
+## 二阶段 Run 输出结构
+
+后续 training run family 应在 raw run directories 旁边提供 review-first 层：
+
+```text
+<run-family-root>/
+  summary.md
+  review/
+    review.md
+    compact_metrics.csv
+    raw_evidence.md
+    figures/
+  <individual-run>/
+    metrics.json
+    per_class_metrics.csv
+    diagnostics/
+    predictions/
+    checkpoints/
+    logs/
+```
+
+`summary.md` 继续兼容旧脚本和快速检查。人工审查应该从 `review/review.md` 开始；raw JSON、checkpoints 和 logs 是证据，不是第一审查入口。
+
 ## 兼容规则
 
 只要 active runbook 仍引用 `.agent-team/artifacts/...`，就不要移动或删除这些路径。先增加新路径，更新 runbooks，验证云端命令，再归档 legacy outputs。

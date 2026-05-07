@@ -114,6 +114,21 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         self.assertEqual(config["training"]["sampler"]["foreground_probability"], 0.7)
         self.assertTrue(config["training"]["performance"]["cache_records"])
 
+    def test_v6_11ch_augmented_diagnostic_config_enables_preview_and_channel_contribution(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "v6_11ch_unet_aug_diagnostics"
+            / "c5_11ch_unet_aug_rtx4080.yaml"
+        )
+
+        self.assertEqual(len(config["input_channels"]), 11)
+        self.assertTrue(config["training"]["augmentation"]["enabled"])
+        self.assertEqual(config["metrics"]["preview"]["max_items"], "all")
+        self.assertEqual(config["metrics"]["preview"]["worst_false_positive_items"], 24)
+        self.assertIn("indices", config["metrics"]["channel_contribution"]["groups"])
+
     def test_model_input_channel_count_must_match_input_channels(self):
         config = load_config(
             Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"

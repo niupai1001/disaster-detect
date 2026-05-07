@@ -113,11 +113,22 @@ PYTHONPATH=src python -m segmentation_training summarize-runs \
   --output .agent-team/artifacts/task-6bd957f6e1ed/cloud_smoke/summary.md
 ```
 
+该命令也会生成二阶段审查入口：
+
+```text
+.agent-team/artifacts/task-6bd957f6e1ed/cloud_smoke/review/
+  review.md
+  compact_metrics.csv
+  raw_evidence.md
+  figures/
+```
+
 ## 下一道 Gate
 
 cloud smoke 后，把以下证据交回 QA/review：
 
 - smoke summary；
+- `review/review.md` 和 `review/compact_metrics.csv`；
 - 显存和运行时记录；
 - 每个架构一张 validation contact sheet；
 - 所有失败或需要 composite treatment 的偏差。

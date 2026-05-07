@@ -52,6 +52,29 @@ workspace/
 
 The path is ignored by Git. It is intended for local and cloud runtime state, not source review.
 
+## Phase 2 Run Output Layout
+
+Training run families should now expose a review-first layer beside the raw run directories:
+
+```text
+<run-family-root>/
+  summary.md
+  review/
+    review.md
+    compact_metrics.csv
+    raw_evidence.md
+    figures/
+  <individual-run>/
+    metrics.json
+    per_class_metrics.csv
+    diagnostics/
+    predictions/
+    checkpoints/
+    logs/
+```
+
+`summary.md` remains for legacy scripts and quick checks. Human review should start at `review/review.md`; raw JSON, checkpoints, and logs are evidence, not the first review surface.
+
 ## Compatibility Rule
 
 Do not move or delete existing `.agent-team/artifacts/...` paths while an active runbook still references them. Add a new path first, update runbooks, verify cloud commands, and only then archive legacy outputs.

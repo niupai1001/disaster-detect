@@ -55,6 +55,8 @@ python -m segmentation_training summarize-runs \
   --output "$RUN_ROOT/summary.md"
 ```
 
+该汇总命令也会写出 `$RUN_ROOT/review/review.md`、`$RUN_ROOT/review/compact_metrics.csv`、`$RUN_ROOT/review/raw_evidence.md`，并把关键图片放到 `$RUN_ROOT/review/figures/`。
+
 Smoke 验收要求：
 
 - 每个 run 都报告 `completed_cloud_training`；
@@ -93,6 +95,8 @@ python -m segmentation_training summarize-runs \
   --output "$RUN_ROOT/summary.md"
 ```
 
+人工审查从 `$RUN_ROOT/review/review.md` 开始。只有追踪具体指标或运行时问题时再打开 raw JSON。
+
 ## 解释规则
 
 - 如果 RGB 或 false-color 优于 11-channel，优先怀疑通道噪声、归一化行为或派生指数不匹配。
@@ -106,6 +110,8 @@ python -m segmentation_training summarize-runs \
 归档并返回：
 
 - `summary.md`；
+- `review/review.md`；
+- `review/compact_metrics.csv`；
 - 每个 `run_manifest.json`；
 - 每个 `metrics.json`；
 - 每个 `per_class_metrics.csv`；
@@ -114,4 +120,3 @@ python -m segmentation_training summarize-runs \
 - `predictions/validation_contact_sheet.png`；
 - `training_curves.png`；
 - best checkpoint metadata。
-

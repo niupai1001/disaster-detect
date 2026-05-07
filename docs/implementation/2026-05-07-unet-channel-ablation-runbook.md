@@ -55,6 +55,8 @@ python -m segmentation_training summarize-runs \
   --output "$RUN_ROOT/summary.md"
 ```
 
+The summary command also writes `$RUN_ROOT/review/review.md`, `$RUN_ROOT/review/compact_metrics.csv`, `$RUN_ROOT/review/raw_evidence.md`, and selected images under `$RUN_ROOT/review/figures/`.
+
 Smoke acceptance requires:
 
 - every run reports `completed_cloud_training`;
@@ -93,6 +95,8 @@ python -m segmentation_training summarize-runs \
   --output "$RUN_ROOT/summary.md"
 ```
 
+Use `$RUN_ROOT/review/review.md` as the first review surface. Open raw JSON only when tracing a specific metric or runtime issue.
+
 ## Interpretation Rules
 
 - If RGB or false-color beats 11-channel, suspect channel noise, normalization behavior, or derived-index mismatch.
@@ -106,6 +110,8 @@ python -m segmentation_training summarize-runs \
 Archive and return:
 
 - `summary.md`;
+- `review/review.md`;
+- `review/compact_metrics.csv`;
 - each `run_manifest.json`;
 - each `metrics.json`;
 - each `per_class_metrics.csv`;
@@ -114,4 +120,3 @@ Archive and return:
 - `predictions/validation_contact_sheet.png`;
 - `training_curves.png`;
 - best checkpoint metadata.
-

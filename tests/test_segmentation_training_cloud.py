@@ -12,6 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from segmentation_training.cloud import (  # noqa: E402
     _BestCheckpointTracker,
     _TrainingProgressLogger,
+    _apply_channel_perturbation,
+    _apply_training_augmentation,
     _build_trainable_model,
     _limit_records,
     _build_metrics_payload,
@@ -161,6 +163,50 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             runner.assert_called_once()
 
+    def test_channel_contribution_requires_cloud_confirm_and_calls_runner(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            config = root / "config.yaml"
+            bundle = root / "bundle"
+            checkpoint = root / "best.pt"
+            output_dir = root / "channel_contribution"
+            config.write_text("task_id: task-afc7f2c25f8f\n", encoding="utf-8")
+            checkpoint.write_text("fake", encoding="utf-8")
+            without_confirm = training_main(
+                [
+                    "channel-contribution",
+                    "--config",
+                    str(config),
+                    "--bundle-dir",
+                    str(bundle),
+                    "--checkpoint",
+                    str(checkpoint),
+                    "--output-dir",
+                    str(output_dir),
+                ]
+            )
+            self.assertEqual(without_confirm, 2)
+            with patch("segmentation_training.cli.run_channel_contribution") as runner:
+                runner.return_value = {"status": "completed"}
+
+                exit_code = training_main(
+                    [
+                        "channel-contribution",
+                        "--config",
+                        str(config),
+                        "--bundle-dir",
+                        str(bundle),
+                        "--checkpoint",
+                        str(checkpoint),
+                        "--output-dir",
+                        str(output_dir),
+                        "--cloud-confirm",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            runner.assert_called_once()
+
     def test_dry_run_validates_selection_records_without_test_split(self):
         import csv
 
@@ -271,6 +317,40 @@ cloud:
         normalized = _normalize_band(array, np=np)
 
         self.assertTrue(np.isfinite(normalized).all())
+
+    def test_training_augmentation_applies_spatial_transforms_to_channels_and_label(self):
+        channels = np.arange(2 * 2 * 3, dtype=np.float32).reshape(2, 2, 3)
+        label = np.array([[0, 2, 0], [2, 0, 2]], dtype=np.uint8)
+
+        augmented_channels, augmented_label = _apply_training_augmentation(
+            channels,
+            label,
+            {
+                "enabled": True,
+                "horizontal_flip_probability": 1.0,
+                "vertical_flip_probability": 1.0,
+                "rotate90_probability": 0.0,
+            },
+            rng=np.random.default_rng(7),
+            np=np,
+        )
+
+        self.assertTrue(np.array_equal(augmented_channels, channels[:, ::-1, ::-1]))
+        self.assertTrue(np.array_equal(augmented_label, label[::-1, ::-1]))
+
+    def test_channel_perturbation_zeroes_named_channels_only(self):
+        channels = np.arange(3 * 2 * 2, dtype=np.float32).reshape(3, 2, 2)
+
+        perturbed = _apply_channel_perturbation(
+            channels,
+            input_channels=("F01", "F02", "NDVI"),
+            perturbation={"channels": ["F02"], "mode": "zero"},
+            np=np,
+        )
+
+        self.assertTrue(np.array_equal(perturbed[0], channels[0]))
+        self.assertTrue((perturbed[1] == 0).all())
+        self.assertTrue(np.array_equal(perturbed[2], channels[2]))
 
     def test_read_training_window_can_use_cached_arrays_without_rasterio(self):
         from types import SimpleNamespace
@@ -422,6 +502,59 @@ cloud:
             inventory = json.loads((run_dir / "diagnostics" / "artifact_inventory.json").read_text(encoding="utf-8"))
             by_path = {item["path"]: item["exists"] for item in inventory["artifacts"]}
             self.assertTrue(by_path["predictions/validation_contact_sheet.png"])
+
+    def test_write_run_outputs_can_export_all_previews_and_worst_false_positives(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            run_dir = Path(tmp_name)
+            preview_items = []
+            prediction_summary = []
+            for index, fp in enumerate([4, 30, 12], start=1):
+                sample_id = f"s{index}"
+                label = np.array([[0, 2], [0, 0]], dtype=np.uint8)
+                prediction = np.array([[2, 2], [2, 0]], dtype=np.uint8)
+                preview_items.append((sample_id, np.ones((2, 2, 2), dtype=np.float32), label, prediction))
+                prediction_summary.append(
+                    {
+                        "sample_id": sample_id,
+                        "label_foreground_pixels": 1,
+                        "predicted_foreground_pixels": fp + 1,
+                        "predicted_label_area_ratio": float(fp + 1),
+                        "tp": 1,
+                        "fp": fp,
+                        "fn": 0,
+                        "foreground_precision": 1.0 / float(fp + 1),
+                        "foreground_recall": 1.0,
+                        "foreground_iou": 1.0 / float(fp + 1),
+                        "foreground_dice": 2.0 / float(fp + 2),
+                        "all_background_prediction": False,
+                    }
+                )
+            payload = {
+                "mean_iou": 0.25,
+                "foreground_recall": 0.5,
+                "per_class": [],
+                "confusion_matrix": np.zeros((2, 2), dtype=np.int64),
+                "area": {0: {"label_pixels": 3, "predicted_pixels": 1}, 2: {"label_pixels": 1, "predicted_pixels": 3}},
+                "preview_items": preview_items,
+                "prediction_summary": prediction_summary,
+                "threshold_sweep": [],
+                "foreground_probability_summary": [],
+                "foreground_window_coverage": [],
+            }
+
+            _write_run_outputs(
+                run_dir,
+                payload,
+                [0, 2],
+                preview_config={"max_items": "all", "worst_false_positive_items": 2},
+            )
+
+            self.assertEqual(len(list((run_dir / "predictions" / "per_sample").glob("*.png"))), 3)
+            worst_files = sorted((run_dir / "predictions" / "worst_false_positives").glob("*.png"))
+            self.assertEqual(len(worst_files), 2)
+            self.assertIn("s2", worst_files[0].name)
+            worst_summary = (run_dir / "diagnostics" / "worst_false_positives.csv").read_text(encoding="utf-8")
+            self.assertIn("s2", worst_summary.splitlines()[1])
 
     def test_maybe_write_training_curves_refreshes_existing_inventory_after_curves(self):
         with tempfile.TemporaryDirectory() as tmp_name:

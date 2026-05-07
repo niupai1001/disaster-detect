@@ -113,11 +113,22 @@ PYTHONPATH=src python -m segmentation_training summarize-runs \
   --output .agent-team/artifacts/task-6bd957f6e1ed/cloud_smoke/summary.md
 ```
 
+This also creates the phase-2 review surface:
+
+```text
+.agent-team/artifacts/task-6bd957f6e1ed/cloud_smoke/review/
+  review.md
+  compact_metrics.csv
+  raw_evidence.md
+  figures/
+```
+
 ## Next Gate
 
 After cloud smoke, return to QA/review with:
 
 - smoke summary;
+- `review/review.md` and `review/compact_metrics.csv`;
 - memory/runtime notes;
 - one validation contact sheet per architecture;
 - any failures or required composite-treatment deviations.
