@@ -186,6 +186,53 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
 
         self.assertEqual(seen, expected_families)
 
+    def test_unet_channel_ablation_configs_validate_channel_contracts(self):
+        config_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training"
+        ablation_dir = config_dir / "unet_channel_ablation"
+        expected_channels = {
+            "c5_unet_rgb_optical_smoke.yaml": ("F04", "F03", "F02"),
+            "c5_unet_false_color_smoke.yaml": ("F07", "F04", "F03"),
+            "c5_unet_post_optical_7ch_smoke.yaml": ("F01", "F02", "F03", "F04", "F07", "F11", "F12"),
+            "c5_unet_indices_only_smoke.yaml": ("NDVI", "NBR", "NDMI", "BRIGHTNESS"),
+            "c5_unet_11ch_indices_smoke.yaml": (
+                "F01",
+                "F02",
+                "F03",
+                "F04",
+                "F07",
+                "F11",
+                "F12",
+                "NDVI",
+                "NBR",
+                "NDMI",
+                "BRIGHTNESS",
+            ),
+        }
+
+        for smoke_name, channels in expected_channels.items():
+            full_name = smoke_name.replace("_smoke.yaml", "_rtx4080.yaml")
+            with self.subTest(filename=smoke_name):
+                smoke = load_config(ablation_dir / smoke_name)
+                self.assertEqual(tuple(smoke["input_channels"]), channels)
+                self.assertEqual(smoke["model"]["family"], "unet")
+                self.assertEqual(smoke["model"]["input_channels"], len(channels))
+                self.assertEqual(smoke["training"]["max_epochs"], 1)
+                self.assertLessEqual(smoke["training"]["batch_size"], 2)
+                self.assertLessEqual(smoke["cloud"]["max_train_samples"], 8)
+                self.assertLessEqual(smoke["cloud"]["max_validation_samples"], 4)
+                self.assertEqual(smoke["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", smoke["split_policy"]["selection_splits"])
+
+            with self.subTest(filename=full_name):
+                full = load_config(ablation_dir / full_name)
+                self.assertEqual(tuple(full["input_channels"]), channels)
+                self.assertEqual(full["model"]["family"], "unet")
+                self.assertEqual(full["model"]["input_channels"], len(channels))
+                self.assertEqual(full["training"]["max_epochs"], 80)
+                self.assertEqual(full["cloud"]["expected_accelerator"], "cuda")
+                self.assertEqual(full["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", full["split_policy"]["selection_splits"])
+
 
 if __name__ == "__main__":
     unittest.main()
