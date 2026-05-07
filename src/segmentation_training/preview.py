@@ -62,12 +62,30 @@ def write_contact_sheet(image_paths: list[Path], output_path: Path, *, columns: 
 def _render_channels(channels: np.ndarray) -> Image.Image:
     array = np.asarray(channels)
     if array.ndim == 3:
-        if array.shape[0] <= 4:
-            array = array[0]
+        if _looks_channel_first(array):
+            array = _channel_first_composite(array)
+        elif array.shape[-1] >= 3:
+            array = np.stack([_normalize(array[:, :, idx]) for idx in range(3)], axis=-1)
         else:
             array = array[:, :, 0]
+    if array.ndim == 3:
+        return Image.fromarray(array.astype(np.uint8), mode="RGB")
     normalized = _normalize(array)
     return Image.fromarray(normalized, mode="L").convert("RGB")
+
+
+def _looks_channel_first(array: np.ndarray) -> bool:
+    return array.ndim == 3 and array.shape[0] <= 16 and array.shape[-1] not in {1, 3, 4}
+
+
+def _channel_first_composite(array: np.ndarray) -> np.ndarray:
+    if array.shape[0] >= 4:
+        indices = [3, 2, 1]
+    elif array.shape[0] >= 3:
+        indices = [0, 1, 2]
+    else:
+        return _normalize(array[0])
+    return np.stack([_normalize(array[idx]) for idx in indices], axis=-1)
 
 
 def _render_mask(mask: np.ndarray) -> Image.Image:
@@ -100,4 +118,3 @@ def _normalize(array: np.ndarray) -> np.ndarray:
     if hi <= lo:
         hi = lo + 1.0
     return np.clip((arr - lo) / (hi - lo) * 255, 0, 255).astype(np.uint8)
-

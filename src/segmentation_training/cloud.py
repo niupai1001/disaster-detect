@@ -230,6 +230,7 @@ def run_cloud_training(
     validation_interval = int(config.get("cloud", {}).get("validation_interval_epochs", 1))
     rng = np.random.default_rng(int(config.get("seed", 20260505)))
     total_batches = (len(train_records) + batch_size - 1) // batch_size
+    best_checkpoint = _BestCheckpointTracker(run_dir, metric_name="mean_iou")
 
     losses: list[float] = []
     for epoch in range(1, max_epochs + 1):
@@ -316,6 +317,11 @@ def run_cloud_training(
                 mean_iou=epoch_metrics["mean_iou"],
                 foreground_recall=epoch_metrics["foreground_recall"],
             )
+            if best_checkpoint.update(epoch=epoch, metrics=epoch_metrics, model=model, torch=torch):
+                progress.log(
+                    f"epoch {epoch}/{max_epochs} saved best_mean_iou="
+                    f"{epoch_metrics['mean_iou']:.4f}"
+                )
 
     metrics_payload = _evaluate_model(
         model,
@@ -398,6 +404,34 @@ class _TrainingProgressLogger:
             f"epoch {epoch}/{max_epochs} validation "
             f"loss={train_loss:.4f} mean_iou={mean_iou:.4f} foreground_recall={foreground_recall:.4f}"
         )
+
+
+class _BestCheckpointTracker:
+    def __init__(self, run_dir: Path, *, metric_name: str):
+        self.run_dir = run_dir
+        self.metric_name = metric_name
+        self.best_value: float | None = None
+
+    def update(self, *, epoch: int, metrics: dict, model, torch) -> bool:
+        value = float(metrics.get(self.metric_name, float("-inf")))
+        if self.best_value is not None and value <= self.best_value:
+            return False
+        self.best_value = value
+        checkpoint_dir = self.run_dir / "checkpoints"
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        torch.save(model.state_dict(), checkpoint_dir / f"best_{self.metric_name}.pt")
+        metadata = {
+            "epoch": epoch,
+            "metric_name": self.metric_name,
+            "metric_value": value,
+            "mean_iou": metrics.get("mean_iou"),
+            "foreground_recall": metrics.get("foreground_recall"),
+        }
+        (checkpoint_dir / f"best_{self.metric_name}.json").write_text(
+            json.dumps(metadata, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        return True
 
 
 def _source_class_ids(config: dict) -> list[int]:
@@ -932,6 +966,8 @@ def _write_artifact_inventory(path: Path, run_dir: Path) -> None:
         "training_curves.png",
         "training_curves.csv",
         "predictions/validation_contact_sheet.png",
+        "checkpoints/best_mean_iou.pt",
+        "checkpoints/best_mean_iou.json",
     ]
     payload = {
         "created_at": datetime.now(timezone.utc).isoformat(),

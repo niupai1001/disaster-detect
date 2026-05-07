@@ -1,5 +1,5 @@
 task_id: task-2ba5416843b1
-experiment_id: V3_binary_c5_unet_post_optical_indices_rtx4080
+experiment_id: V3_binary_c5_unet_post_optical_indices_rtx4080_stable
 seed: 20260507
 class_scope: binary_c5
 input_channels:
@@ -23,7 +23,7 @@ split_policy:
   allow_test_split_for_selection: false
 model:
   family: unet
-  variant: post_disaster_optical_indices_v0_3_rtx4080
+  variant: post_disaster_optical_indices_v0_3_rtx4080_stable
   input_channels: 11
   output_classes: 2
   base_channels: 64
@@ -33,13 +33,13 @@ training:
   max_epochs: 80
   window_size: 256
   loss: weighted_cross_entropy_dice
-  dice_weight: 1.0
-  learning_rate: 0.001
+  dice_weight: 0.5
+  learning_rate: 0.0003
   class_weights:
-    max_weight: 20.0
+    max_weight: 10.0
   sampler:
     train_policy: foreground_biased
-    foreground_probability: 0.8
+    foreground_probability: 0.7
     min_foreground_pixels: 1
     validation_policy: foreground_center
   performance:

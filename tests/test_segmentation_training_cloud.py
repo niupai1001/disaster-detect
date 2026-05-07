@@ -10,6 +10,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from segmentation_training.cloud import (  # noqa: E402
+    _BestCheckpointTracker,
     _TrainingProgressLogger,
     _build_metrics_payload,
     _configure_torch_runtime,
@@ -74,6 +75,39 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
         self.assertFalse(runtime["channels_last"])
         self.assertFalse(runtime["cudnn_benchmark"])
         self.assertFalse(FakeTorch.backends.cudnn.benchmark)
+
+    def test_best_checkpoint_tracker_saves_only_when_metric_improves(self):
+        class FakeModel:
+            def __init__(self):
+                self.value = 0
+
+            def state_dict(self):
+                return {"value": self.value}
+
+        class FakeTorch:
+            saves = []
+
+            @classmethod
+            def save(cls, state, path):
+                cls.saves.append((state, path.name))
+                path.write_text(str(state["value"]), encoding="utf-8")
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            run_dir = Path(tmp_name)
+            model = FakeModel()
+            tracker = _BestCheckpointTracker(run_dir, metric_name="mean_iou")
+
+            model.value = 1
+            self.assertTrue(tracker.update(epoch=1, metrics={"mean_iou": 0.2}, model=model, torch=FakeTorch))
+            model.value = 2
+            self.assertFalse(tracker.update(epoch=2, metrics={"mean_iou": 0.1}, model=model, torch=FakeTorch))
+            model.value = 3
+            self.assertTrue(tracker.update(epoch=3, metrics={"mean_iou": 0.3}, model=model, torch=FakeTorch))
+
+            self.assertEqual((run_dir / "checkpoints" / "best_mean_iou.pt").read_text(encoding="utf-8"), "3")
+            metadata = (run_dir / "checkpoints" / "best_mean_iou.json").read_text(encoding="utf-8")
+            self.assertIn('"epoch": 3', metadata)
+            self.assertEqual([name for _, name in FakeTorch.saves], ["best_mean_iou.pt", "best_mean_iou.pt"])
 
     def test_cloud_confirm_train_calls_training_runner(self):
         with tempfile.TemporaryDirectory() as tmp_name:

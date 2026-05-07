@@ -44,6 +44,26 @@ class SegmentationTrainingPreviewTests(unittest.TestCase):
             with Image.open(sheet) as sheet_image, Image.open(preview_a) as preview_image:
                 self.assertGreater(sheet_image.size[0], preview_image.size[0])
 
+    def test_preview_preserves_spatial_shape_for_many_channel_input(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            channels = np.stack(
+                [np.full((8, 6), channel, dtype=np.float32) for channel in range(11)],
+                axis=0,
+            )
+            label = np.zeros((8, 6), dtype=np.uint8)
+            prediction = np.zeros((8, 6), dtype=np.uint8)
+
+            preview = write_prediction_preview(
+                channels=channels,
+                label=label,
+                prediction=prediction,
+                output_path=root / "preview.png",
+            )
+
+            with Image.open(preview) as image:
+                self.assertEqual(image.size, (24, 8))
+
 
 if __name__ == "__main__":
     unittest.main()

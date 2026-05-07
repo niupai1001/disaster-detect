@@ -97,6 +97,22 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         self.assertTrue(config["training"]["performance"]["channels_last"])
         self.assertTrue(config["training"]["performance"]["cudnn_benchmark"])
         self.assertTrue(config["training"]["performance"]["cache_records"])
+        self.assertIn(0.9, config["metrics"]["threshold_sweep"])
+        self.assertIn("checkpoints/best_mean_iou.pt", config["metrics"]["required_outputs"])
+
+    def test_rtx4080_stable_config_reduces_overprediction_pressure(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "v3_binary_c5_unet_post_optical_indices_rtx4080_stable.yaml"
+        )
+
+        self.assertEqual(config["training"]["learning_rate"], 0.0003)
+        self.assertEqual(config["training"]["dice_weight"], 0.5)
+        self.assertEqual(config["training"]["class_weights"]["max_weight"], 10.0)
+        self.assertEqual(config["training"]["sampler"]["foreground_probability"], 0.7)
+        self.assertTrue(config["training"]["performance"]["cache_records"])
 
     def test_model_input_channel_count_must_match_input_channels(self):
         config = load_config(
