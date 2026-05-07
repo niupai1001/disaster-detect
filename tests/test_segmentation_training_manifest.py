@@ -4,6 +4,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import numpy as np
+import rasterio
+from rasterio.transform import from_origin
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from segmentation_training.manifest import (  # noqa: E402
@@ -11,6 +15,8 @@ from segmentation_training.manifest import (  # noqa: E402
     load_model_input_manifest,
     parse_band_paths,
     rebase_records,
+    validate_record_paths,
+    validate_record_raster_grids,
 )
 
 
@@ -93,6 +99,31 @@ class SegmentationTrainingManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing required channels"):
             load_model_input_manifest(path)
 
+    def test_validate_record_paths_checks_each_band_path(self):
+        root, path = self.write_manifest(
+            [
+                {
+                    "sample_id": "s1",
+                    "event_id": "e1",
+                    "class_id": "2",
+                    "class_name": "C5_fire",
+                    "split": "train",
+                    "mask_path": "masks/s1.tif",
+                    "input_channels": "F16;F17",
+                    "input_band_paths": "F16:bands/missing.tif;F17:bands/f17.tif",
+                }
+            ]
+        )
+        (root / "masks").mkdir()
+        (root / "bands").mkdir()
+        (root / "masks" / "s1.tif").write_bytes(b"mask")
+        (root / "bands" / "f17.tif").write_bytes(b"band")
+
+        errors = validate_record_paths(load_model_input_manifest(path), contract_dir=root)
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("missing F16 raster", errors[0])
+
     def test_rebase_records_limits_to_required_channels(self):
         _, path = self.write_manifest(
             [
@@ -118,7 +149,55 @@ class SegmentationTrainingManifestTests(unittest.TestCase):
         self.assertEqual(rebased[0].input_channels, ("F16", "F17"))
         self.assertEqual(rebased[0].input_band_paths["F16"], "/cloud/data/database/a.tif")
 
+    def test_validate_record_raster_grids_rejects_mask_grid_mismatch(self):
+        root, path = self.write_manifest(
+            [
+                {
+                    "sample_id": "s1",
+                    "event_id": "e1",
+                    "class_id": "2",
+                    "class_name": "C5_fire",
+                    "split": "train",
+                    "mask_path": "masks/s1.tif",
+                    "input_channels": "F16;F17",
+                    "input_band_paths": "F16:bands/f16.tif;F17:bands/f17.tif",
+                }
+            ]
+        )
+        (root / "masks").mkdir()
+        (root / "bands").mkdir()
+        with rasterio.open(
+            root / "masks" / "s1.tif",
+            "w",
+            driver="GTiff",
+            height=4,
+            width=4,
+            count=1,
+            dtype="uint8",
+            crs="EPSG:4326",
+            transform=from_origin(0, 1, 0.3, 0.3),
+        ) as dst:
+            dst.write(np.ones((1, 4, 4), dtype="uint8"))
+        for name in ["f16.tif", "f17.tif"]:
+            with rasterio.open(
+                root / "bands" / name,
+                "w",
+                driver="GTiff",
+                height=10,
+                width=10,
+                count=1,
+                dtype="uint16",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, 0.1, 0.1),
+            ) as dst:
+                dst.write(np.ones((1, 10, 10), dtype="uint16"))
+
+        errors = validate_record_raster_grids(load_model_input_manifest(path), contract_dir=root)
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("s1", errors[0])
+        self.assertIn("mask grid mismatch", errors[0])
+
 
 if __name__ == "__main__":
     unittest.main()
-

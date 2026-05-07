@@ -12,9 +12,11 @@ from pathlib import Path
 MANIFEST_COLUMNS = [
     "sample_id",
     "event_id",
+    "event_date",
     "scene_id",
     "source_raster_id",
     "source_band_paths",
+    "candidate_scenes",
     "polygon_id",
     "source_csv",
     "source_row_number",
@@ -160,17 +162,21 @@ def _read_label_csv(
             sample_id = f"sample-{sample_offset + len(manifest_rows) + 1:06d}"
             raster_key = _raster_key(normalized, event_key)
             raster_match = raster_index.get(raster_key, {})
-            band_paths = raster_match.get("band_paths", {})
-            source_band_paths = _format_band_paths(band_paths) if isinstance(band_paths, dict) else ""
+            candidate_scenes = raster_match.get("candidate_scenes", [])
+            scene_band_paths = raster_match.get("band_paths", {})
+            source_band_paths = _format_band_paths(scene_band_paths) if isinstance(scene_band_paths, dict) else ""
             source_raster_id = str(raster_match.get("source_raster_id", "")) if raster_match else ""
             scene_id = str(raster_match.get("scene_id", "")) if raster_match else ""
+            event_date = raster_key[-1]
             manifest_rows.append(
                 {
                     "sample_id": sample_id,
                     "event_id": event_key,
+                    "event_date": event_date,
                     "scene_id": scene_id or "pending_phase_b",
                     "source_raster_id": source_raster_id or _planned_raster_id(normalized, event_key),
                     "source_band_paths": source_band_paths,
+                    "candidate_scenes": json.dumps(candidate_scenes, ensure_ascii=False, sort_keys=True),
                     "polygon_id": polygon_id,
                     "source_csv": str(csv_path),
                     "source_row_number": str(row_number),
@@ -191,7 +197,9 @@ def _read_label_csv(
 
 
 def _classify(category_raw: str) -> tuple[int | None, str, list[str]]:
-    category = category_raw.strip().upper().removeprefix("C")
+    category = category_raw.strip().upper()
+    if category.startswith("C"):
+        category = category[1:]
     if category == "2":
         return 1, "C2_debris_flow", []
     if category == "5":
@@ -220,7 +228,9 @@ def _normalize_date(value: str) -> str:
 
 
 def _raster_key(row: dict[str, str], event_id: str) -> tuple[str, str, str, str]:
-    category = row.get("category", "").strip().upper().removeprefix("C")
+    category = row.get("category", "").strip().upper()
+    if category.startswith("C"):
+        category = category[1:]
     grid = row.get("grid_id", "").strip()
     polygon = row.get("poly_id", "").strip()
     event_date = event_id.rsplit("EV", 1)[-1] if "EV" in event_id else ""
@@ -253,26 +263,71 @@ def _looks_like_wkt(wkt: str) -> bool:
 
 
 def _build_raster_index(raster_paths: list[Path] | tuple[Path, ...]) -> dict[tuple[str, str, str, str], dict[str, object]]:
-    index: dict[tuple[str, str, str, str], dict[str, object]] = {}
+    scenes_by_key: dict[tuple[str, str, str, str], dict[str, dict[str, object]]] = {}
     for path in raster_paths:
         parsed = _parse_raster_name(Path(path))
         if not parsed:
             continue
         key = (parsed["category"], parsed["grid"], parsed["polygon"], parsed["event_date"])
-        entry = index.setdefault(
-            key,
+        scene = scenes_by_key.setdefault(key, {}).setdefault(
+            parsed["image_date"],
             {
-                "source_raster_id": f"C{parsed['category']}_{parsed['grid']}_{parsed['polygon']}_EV{parsed['event_date']}",
                 "scene_id": f"IM{parsed['image_date']}",
+                "image_date": parsed["image_date"],
+                "event_date": parsed["event_date"],
+                "days_after_event": _days_between(parsed["event_date"], parsed["image_date"]),
+                "temporal_role": _temporal_role(parsed["event_date"], parsed["image_date"]),
+                "source_raster_id": f"C{parsed['category']}_{parsed['grid']}_{parsed['polygon']}_EV{parsed['event_date']}",
                 "band_paths": {},
             },
         )
-        band_paths = entry["band_paths"]
+        band_paths = scene["band_paths"]
         if isinstance(band_paths, dict):
             band_paths.setdefault(parsed["band"], str(path))
-        if str(entry.get("scene_id", "")) > f"IM{parsed['image_date']}":
-            entry["scene_id"] = f"IM{parsed['image_date']}"
+    index: dict[tuple[str, str, str, str], dict[str, object]] = {}
+    for key, scenes in scenes_by_key.items():
+        candidate_scenes = [scenes[image_date] for image_date in sorted(scenes)]
+        primary_scene = _primary_scene(candidate_scenes)
+        index[key] = {
+            "source_raster_id": str(primary_scene.get("source_raster_id", "")) if primary_scene else "",
+            "scene_id": str(primary_scene.get("scene_id", "")) if primary_scene else "",
+            "band_paths": dict(primary_scene.get("band_paths", {})) if primary_scene else {},
+            "candidate_scenes": candidate_scenes,
+        }
     return index
+
+
+def _primary_scene(candidate_scenes: list[dict[str, object]]) -> dict[str, object]:
+    post_scenes = [
+        scene
+        for scene in candidate_scenes
+        if str(scene.get("temporal_role", "")) in {"same_day", "post"}
+        and str(scene.get("days_after_event", "")).lstrip("-").isdigit()
+    ]
+    return (post_scenes or candidate_scenes)[0] if candidate_scenes else {}
+
+
+def _days_between(event_date: str, image_date: str) -> str:
+    from datetime import datetime
+
+    try:
+        event = datetime.strptime(event_date, "%Y%m%d")
+        image = datetime.strptime(image_date, "%Y%m%d")
+    except ValueError:
+        return ""
+    return str((image - event).days)
+
+
+def _temporal_role(event_date: str, image_date: str) -> str:
+    days = _days_between(event_date, image_date)
+    if days == "":
+        return "unknown"
+    value = int(days)
+    if value < 0:
+        return "pre"
+    if value == 0:
+        return "same_day"
+    return "post"
 
 
 def _parse_raster_name(path: Path) -> dict[str, str] | None:

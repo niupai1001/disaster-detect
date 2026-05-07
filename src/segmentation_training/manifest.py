@@ -213,6 +213,66 @@ def validate_record_paths(
     return errors
 
 
+def validate_record_raster_grids(
+    records: Iterable[ModelInputRecord],
+    *,
+    contract_dir: Path,
+    required_channels: Iterable[str] = ("F16", "F17"),
+) -> list[str]:
+    import rasterio
+
+    errors: list[str] = []
+    required = tuple(required_channels)
+    for record in records:
+        mask_path = resolve_existing_data_path(contract_dir, record.mask_path, subdir="masks")
+        if not mask_path.exists():
+            errors.append(f"{record.sample_id}: missing mask {mask_path}")
+            continue
+        band_paths = []
+        missing = []
+        for channel in required:
+            value = record.input_band_paths.get(channel)
+            if value is None:
+                missing.append(channel)
+                continue
+            band_path = resolve_existing_data_path(contract_dir, value)
+            if not band_path.exists():
+                missing.append(channel)
+                continue
+            band_paths.append((channel, band_path))
+        if missing:
+            errors.append(f"{record.sample_id}: missing required channels for grid validation: {', '.join(missing)}")
+            continue
+        try:
+            with rasterio.open(mask_path) as mask_ds:
+                mask_grid = _raster_grid(mask_ds)
+            band_grids = []
+            for channel, band_path in band_paths:
+                with rasterio.open(band_path) as band_ds:
+                    band_grids.append((channel, band_path, _raster_grid(band_ds)))
+        except Exception as exc:
+            errors.append(f"{record.sample_id}: raster grid validation failed: {exc}")
+            continue
+        reference_channel, reference_path, reference_grid = band_grids[0]
+        mismatched_channels = [
+            f"{channel}={_format_grid(grid)}"
+            for channel, _path, grid in band_grids[1:]
+            if grid != reference_grid
+        ]
+        if mismatched_channels:
+            errors.append(
+                f"{record.sample_id}: input channel grid mismatch against {reference_channel} "
+                f"{reference_path}: {'; '.join(mismatched_channels)}"
+            )
+            continue
+        if mask_grid != reference_grid:
+            errors.append(
+                f"{record.sample_id}: mask grid mismatch against {reference_channel} {reference_path}: "
+                f"mask={_format_grid(mask_grid)} {mask_path}; {reference_channel}={_format_grid(reference_grid)}"
+            )
+    return errors
+
+
 def resolve_existing_data_path(root: Path, value: str, *, subdir: str | None = None) -> Path:
     direct = resolve_under_root(root, value)
     if direct.exists():
@@ -225,6 +285,20 @@ def resolve_existing_data_path(root: Path, value: str, *, subdir: str | None = N
         if local_mirror.exists():
             return local_mirror
     return direct
+
+
+def _raster_grid(dataset) -> tuple[str, tuple[float, ...], int, int]:
+    return (
+        str(dataset.crs),
+        tuple(round(float(value), 12) for value in tuple(dataset.transform)[:6]),
+        int(dataset.height),
+        int(dataset.width),
+    )
+
+
+def _format_grid(grid: tuple[str, tuple[float, ...], int, int]) -> str:
+    crs, transform, height, width = grid
+    return f"crs={crs} transform={transform} shape={height}x{width}"
 
 
 def write_manifest(path: Path, records: list[ModelInputRecord]) -> None:

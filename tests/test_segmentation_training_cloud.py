@@ -1,6 +1,7 @@
 import sys
 import tempfile
 import unittest
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,6 +13,7 @@ from segmentation_training.cloud import (  # noqa: E402
     _TrainingProgressLogger,
     _build_metrics_payload,
     _foreground_window_coverage_rows,
+    _maybe_write_training_curves,
     _normalize_band,
     _pad_window,
     _target_has_valid_pixels,
@@ -47,6 +49,85 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             runner.assert_called_once()
+
+    def test_dry_run_validates_selection_records_without_test_split(self):
+        import csv
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            config = root / "e1.yaml"
+            config.write_text(
+                """
+task_id: task-afc7f2c25f8f
+experiment_id: E1_binary_c5_unet
+seed: 20260505
+class_scope: binary_c5
+input_channels: [F16, F17]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: unet
+  input_channels: 2
+  output_classes: 2
+metrics:
+  class_ids: [0, 2]
+  ignore_index: 255
+cloud:
+  local_full_training_allowed: false
+""",
+                encoding="utf-8",
+            )
+            with (root / "model_input_manifest.csv").open("w", encoding="utf-8", newline="") as fh:
+                writer = csv.DictWriter(
+                    fh,
+                    fieldnames=[
+                        "sample_id",
+                        "event_id",
+                        "class_id",
+                        "class_name",
+                        "split",
+                        "mask_path",
+                        "input_channels",
+                        "input_band_paths",
+                    ],
+                )
+                writer.writeheader()
+                for split in ["test", "train", "validation"]:
+                    writer.writerow(
+                        {
+                            "sample_id": split,
+                            "event_id": split,
+                            "class_id": "2",
+                            "class_name": "C5_fire",
+                            "split": split,
+                            "mask_path": f"masks/{split}.tif",
+                            "input_channels": "F16;F17",
+                            "input_band_paths": "F16:database/a.tif;F17:database/b.tif",
+                        }
+                    )
+
+            with patch("segmentation_training.cli.validate_record_paths", return_value=[]) as path_validator, patch(
+                "segmentation_training.cli.validate_record_raster_grids", return_value=[]
+            ) as grid_validator:
+                exit_code = training_main(
+                    [
+                        "dry-run",
+                        "--config",
+                        str(config),
+                        "--contract-dir",
+                        str(root),
+                        "--max-samples",
+                        "2",
+                    ]
+                )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual([record.sample_id for record in path_validator.call_args.args[0]], ["train", "validation"])
+        self.assertEqual([record.sample_id for record in grid_validator.call_args.args[0]], ["train", "validation"])
 
     def test_pad_window_makes_small_training_samples_batchable(self):
         channels = np.ones((2, 148, 152), dtype=np.float32)
@@ -155,6 +236,85 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
             self.assertTrue((run_dir / "diagnostics" / "foreground_window_coverage.csv").exists())
             self.assertTrue((run_dir / "diagnostics" / "artifact_inventory.json").exists())
             self.assertTrue((run_dir / "diagnostics" / "binary_c5_encode_decode_audit.json").exists())
+
+    def test_write_run_outputs_refreshes_inventory_after_prediction_contact_sheet(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            run_dir = Path(tmp_name)
+            label = np.array([[0, 2], [0, 2]], dtype=np.uint8)
+            prediction = np.array([[0, 2], [2, 0]], dtype=np.uint8)
+            payload = {
+                "mean_iou": 0.25,
+                "foreground_recall": 0.5,
+                "per_class": [],
+                "confusion_matrix": np.zeros((2, 2), dtype=np.int64),
+                "area": {0: {"label_pixels": 2, "predicted_pixels": 2}, 2: {"label_pixels": 2, "predicted_pixels": 2}},
+                "preview_items": [("s1", np.ones((2, 2, 2), dtype=np.float32), label, prediction)],
+                "prediction_summary": [],
+                "threshold_sweep": [],
+                "foreground_probability_summary": [],
+                "foreground_window_coverage": [],
+            }
+
+            _write_run_outputs(run_dir, payload, [0, 2])
+
+            inventory = json.loads((run_dir / "diagnostics" / "artifact_inventory.json").read_text(encoding="utf-8"))
+            by_path = {item["path"]: item["exists"] for item in inventory["artifacts"]}
+            self.assertTrue(by_path["predictions/validation_contact_sheet.png"])
+
+    def test_maybe_write_training_curves_refreshes_existing_inventory_after_curves(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            run_dir = Path(tmp_name)
+            (run_dir / "logs").mkdir()
+            (run_dir / "logs" / "training_progress.log").write_text(
+                "\n".join(
+                    [
+                        "[2026-05-06T12:00:00+00:00] epoch 1/1 batch 1/1 (100.0%) loss=0.5 avg_loss=0.5",
+                        "[2026-05-06T12:00:01+00:00] epoch 1/1 validation loss=0.5 mean_iou=0.2 foreground_recall=0.3",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            payload = {
+                "mean_iou": 0.25,
+                "foreground_recall": 0.5,
+                "per_class": [],
+                "confusion_matrix": np.zeros((2, 2), dtype=np.int64),
+                "area": {0: {"label_pixels": 2, "predicted_pixels": 2}, 2: {"label_pixels": 2, "predicted_pixels": 2}},
+                "preview_items": [],
+                "prediction_summary": [],
+                "threshold_sweep": [],
+                "foreground_probability_summary": [],
+                "foreground_window_coverage": [],
+            }
+            _write_run_outputs(run_dir, payload, [0, 2])
+
+            result = _maybe_write_training_curves(run_dir)
+
+            self.assertEqual(result["status"], "written")
+            inventory = json.loads((run_dir / "diagnostics" / "artifact_inventory.json").read_text(encoding="utf-8"))
+            by_path = {item["path"]: item["exists"] for item in inventory["artifacts"]}
+            self.assertTrue(by_path["training_curves.png"])
+            self.assertTrue(by_path["training_curves.csv"])
+
+    def test_maybe_write_training_curves_writes_visual_feedback_from_progress_log(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            run_dir = Path(tmp_name)
+            (run_dir / "logs").mkdir()
+            (run_dir / "logs" / "training_progress.log").write_text(
+                "\n".join(
+                    [
+                        "[2026-05-06T12:00:00+00:00] epoch 1/1 batch 1/1 (100.0%) loss=0.5 avg_loss=0.5",
+                        "[2026-05-06T12:00:01+00:00] epoch 1/1 validation loss=0.5 mean_iou=0.2 foreground_recall=0.3",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            result = _maybe_write_training_curves(run_dir)
+
+            self.assertEqual(result["status"], "written")
+            self.assertTrue((run_dir / "training_curves.png").exists())
+            self.assertTrue((run_dir / "training_curves.csv").exists())
 
     def test_prepare_cloud_run_manifest_does_not_summarize_test_split(self):
         import csv

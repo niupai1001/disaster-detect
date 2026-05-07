@@ -60,6 +60,40 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "train_policy"):
             validate_config(config)
 
+    def test_v2_multichannel_config_validates_when_model_input_count_matches(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"
+        )
+        config["task_id"] = "task-2ba5416843b1"
+        config["experiment_id"] = "V2_binary_c5_unet_post_optical"
+        config["input_channels"] = ["F01", "F02", "F03", "F07", "F11", "F12"]
+        config["model"]["input_channels"] = 6
+
+        validate_config(config)
+
+    def test_v3_indices_config_validates_with_raw_and_derived_channels(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "v3_binary_c5_unet_post_optical_indices_smoke.yaml"
+        )
+
+        self.assertEqual(config["model"]["input_channels"], 11)
+        self.assertIn("NDVI", config["input_channels"])
+        self.assertIn("BRIGHTNESS", config["input_channels"])
+
+    def test_model_input_channel_count_must_match_input_channels(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"
+        )
+        config["task_id"] = "task-2ba5416843b1"
+        config["input_channels"] = ["F01", "F02", "F03"]
+        config["model"]["input_channels"] = 2
+
+        with self.assertRaisesRegex(ValueError, "model.input_channels"):
+            validate_config(config)
+
 
 if __name__ == "__main__":
     unittest.main()
