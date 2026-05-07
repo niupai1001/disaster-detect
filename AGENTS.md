@@ -48,6 +48,3 @@ PYTHONPATH=src python -m agent_team.cli --root . messages tail
 - When generating a correct English Markdown artifact for this project, also archive a Chinese Markdown version with equivalent meaning.
 - Keep the English Markdown as the canonical source unless the user says otherwise.
 - Prefer colocated Chinese archive filenames with a `-zh.md` suffix, or a clearly named Chinese archive path when colocating would be confusing.
-- Also maintain Obsidian-compatible archive notes under `docs/obsidian/` for important project Markdown, handoffs, decisions, and next-step records.
-- Obsidian notes should include YAML frontmatter, tags, and useful wikilinks. If the user later provides an external Obsidian vault path, mirror or move the archive there while keeping project links intact.
-- At the end of substantial work, update an Obsidian handoff/next-actions note so the next conversation can resume from compressed context.
