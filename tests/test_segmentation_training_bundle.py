@@ -230,7 +230,23 @@ class SegmentationTrainingBundleTests(unittest.TestCase):
         manifest = json.loads((output_bundle / "metadata" / "bundle_manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["bundle_version"], "p15-cli-test")
 
-    def make_common_source_bundles(self):
+    def test_common_channel_bundle_interleaves_classes_within_each_split_for_smoke_sampling(self):
+        root, c2_bundle, c5_bundle = self.make_common_source_bundles(c2_count=3, c5_count=3, split="validation")
+
+        build_common_channel_bundle(
+            c2_bundle_dir=c2_bundle,
+            c5_bundle_dir=c5_bundle,
+            output_bundle_dir=root / "merged_interleaved",
+            bundle_version="p15-interleaved-test",
+        )
+
+        records = load_model_input_manifest(
+            root / "merged_interleaved" / "manifests" / "cloud_model_input_manifest.csv",
+            required_channels=("BLUE", "GREEN", "RED", "NIR"),
+        )
+        self.assertEqual([record.class_id for record in records[:6]], [1, 2, 1, 2, 1, 2])
+
+    def make_common_source_bundles(self, *, c2_count: int = 1, c5_count: int = 1, split: str | None = None):
         root = Path(tempfile.mkdtemp())
         self.addCleanup(lambda: shutil.rmtree(root, ignore_errors=True))
         c2_bundle = root / "c2"
@@ -252,35 +268,37 @@ class SegmentationTrainingBundleTests(unittest.TestCase):
         ) as fh:
             writer = csv.DictWriter(fh, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerow(
-                {
-                    "sample_id": "landslide-1",
-                    "event_id": "c2-event",
-                    "class_id": "1",
-                    "class_name": "C2_debris_flow",
-                    "split": "train",
-                    "mask_path": "/data/c2/masks/landslide.tif",
-                    "input_channels": "B;G;R;NIR;SLOPE",
-                    "input_band_paths": "B:/data/c2/a.tif#band=1;G:/data/c2/a.tif#band=2;R:/data/c2/a.tif#band=3;NIR:/data/c2/a.tif#band=4;SLOPE:/data/c2/a.tif#band=6",
-                }
-            )
+            for index in range(c2_count):
+                writer.writerow(
+                    {
+                        "sample_id": f"landslide-{index + 1}",
+                        "event_id": f"c2-event-{index + 1}",
+                        "class_id": "1",
+                        "class_name": "C2_debris_flow",
+                        "split": split or "train",
+                        "mask_path": f"/data/c2/masks/landslide-{index + 1}.tif",
+                        "input_channels": "B;G;R;NIR;SLOPE",
+                        "input_band_paths": "B:/data/c2/a.tif#band=1;G:/data/c2/a.tif#band=2;R:/data/c2/a.tif#band=3;NIR:/data/c2/a.tif#band=4;SLOPE:/data/c2/a.tif#band=6",
+                    }
+                )
         with (c5_bundle / "manifests" / "cloud_model_input_manifest.csv").open(
             "w", encoding="utf-8", newline=""
         ) as fh:
             writer = csv.DictWriter(fh, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerow(
-                {
-                    "sample_id": "fire-1",
-                    "event_id": "c5-event",
-                    "class_id": "2",
-                    "class_name": "C5_fire",
-                    "split": "validation",
-                    "mask_path": "/data/c5/masks/fire.tif",
-                    "input_channels": "F01;F02;F03;F07;F11",
-                    "input_band_paths": "F01:/data/c5/f01.tif;F02:/data/c5/f02.tif;F03:/data/c5/f03.tif;F07:/data/c5/f07.tif;F11:/data/c5/f11.tif",
-                }
-            )
+            for index in range(c5_count):
+                writer.writerow(
+                    {
+                        "sample_id": f"fire-{index + 1}",
+                        "event_id": f"c5-event-{index + 1}",
+                        "class_id": "2",
+                        "class_name": "C5_fire",
+                        "split": split or "validation",
+                        "mask_path": f"/data/c5/masks/fire-{index + 1}.tif",
+                        "input_channels": "F01;F02;F03;F07;F11",
+                        "input_band_paths": "F01:/data/c5/f01.tif;F02:/data/c5/f02.tif;F03:/data/c5/f03.tif;F07:/data/c5/f07.tif;F11:/data/c5/f11.tif",
+                    }
+                )
         return root, c2_bundle, c5_bundle
 
 

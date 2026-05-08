@@ -171,10 +171,10 @@ def build_common_channel_bundle(
         c5_bundle_dir / "manifests" / "cloud_model_input_manifest.csv",
         required_channels=tuple(COMMON_C5_CHANNEL_MAP.values()),
     )
-    selected_records = [
-        *_remap_common_records(filter_records(c2_records, class_scope="binary_c2"), COMMON_C2_CHANNEL_MAP),
-        *_remap_common_records(filter_records(c5_records, class_scope="binary_c5"), COMMON_C5_CHANNEL_MAP),
-    ]
+    selected_records = _interleave_common_records(
+        _remap_common_records(filter_records(c2_records, class_scope="binary_c2"), COMMON_C2_CHANNEL_MAP),
+        _remap_common_records(filter_records(c5_records, class_scope="binary_c5"), COMMON_C5_CHANNEL_MAP),
+    )
 
     output_bundle_dir.mkdir(parents=True, exist_ok=True)
     metadata_dir = output_bundle_dir / "metadata"
@@ -243,6 +243,30 @@ def _standard_manifest_record(record: ModelInputRecord) -> ModelInputRecord:
         input_band_paths={channel: record.input_band_paths[channel] for channel in record.input_channels},
         row=row,
     )
+
+
+def _interleave_common_records(c2_records: list[ModelInputRecord], c5_records: list[ModelInputRecord]):
+    records = []
+    for split in ("train", "validation", "test"):
+        c2_split = [record for record in c2_records if record.split == split]
+        c5_split = [record for record in c5_records if record.split == split]
+        records.extend(_round_robin_records(c2_split, c5_split))
+    remaining_splits = sorted({record.split for record in [*c2_records, *c5_records]} - {"train", "validation", "test"})
+    for split in remaining_splits:
+        c2_split = [record for record in c2_records if record.split == split]
+        c5_split = [record for record in c5_records if record.split == split]
+        records.extend(_round_robin_records(c2_split, c5_split))
+    return records
+
+
+def _round_robin_records(*groups: list[ModelInputRecord]):
+    interleaved = []
+    max_len = max((len(group) for group in groups), default=0)
+    for index in range(max_len):
+        for group in groups:
+            if index < len(group):
+                interleaved.append(group[index])
+    return interleaved
 
 
 def _infer_project_root(contract_dir: Path) -> Path:
