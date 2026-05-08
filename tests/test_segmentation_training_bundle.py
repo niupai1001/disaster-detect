@@ -1,5 +1,6 @@
 import csv
 import json
+import shutil
 import sys
 import tempfile
 import unittest
@@ -7,8 +8,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from segmentation_training.bundle import build_training_bundle  # noqa: E402
+from segmentation_training.bundle import build_common_channel_bundle, build_training_bundle  # noqa: E402
 from segmentation_training.manifest import load_model_input_manifest, validate_record_paths  # noqa: E402
+from segmentation_training.cli import main as training_main  # noqa: E402
 
 
 class SegmentationTrainingBundleTests(unittest.TestCase):
@@ -183,6 +185,103 @@ class SegmentationTrainingBundleTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn("F01:model_inputs/s1_F01.tif", cloud_manifest)
+
+    def test_common_channel_bundle_merges_c2_and_c5_manifests_with_logical_channels(self):
+        root, c2_bundle, c5_bundle = self.make_common_source_bundles()
+
+        manifest = build_common_channel_bundle(
+            c2_bundle_dir=c2_bundle,
+            c5_bundle_dir=c5_bundle,
+            output_bundle_dir=root / "merged",
+            bundle_version="p15-test",
+        )
+
+        self.assertEqual(manifest["record_count"], 2)
+        self.assertEqual(manifest["required_channels"], ["BLUE", "GREEN", "RED", "NIR"])
+        records = load_model_input_manifest(
+            root / "merged" / "manifests" / "cloud_model_input_manifest.csv",
+            required_channels=("BLUE", "GREEN", "RED", "NIR"),
+        )
+        self.assertEqual([record.class_id for record in records], [1, 2])
+        self.assertEqual(records[0].input_channels, ("BLUE", "GREEN", "RED", "NIR"))
+        self.assertEqual(records[0].input_band_paths["BLUE"], "/data/c2/a.tif#band=1")
+        self.assertEqual(records[1].input_band_paths["NIR"], "/data/c5/f07.tif")
+
+    def test_common_channel_bundle_cli_writes_merged_manifest(self):
+        root, c2_bundle, c5_bundle = self.make_common_source_bundles()
+        output_bundle = root / "merged_cli"
+
+        exit_code = training_main(
+            [
+                "common-channel-bundle",
+                "--c2-bundle-dir",
+                str(c2_bundle),
+                "--c5-bundle-dir",
+                str(c5_bundle),
+                "--bundle-dir",
+                str(output_bundle),
+                "--bundle-version",
+                "p15-cli-test",
+            ]
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertTrue((output_bundle / "manifests" / "cloud_model_input_manifest.csv").exists())
+        manifest = json.loads((output_bundle / "metadata" / "bundle_manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["bundle_version"], "p15-cli-test")
+
+    def make_common_source_bundles(self):
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(lambda: shutil.rmtree(root, ignore_errors=True))
+        c2_bundle = root / "c2"
+        c5_bundle = root / "c5"
+        for bundle in [c2_bundle, c5_bundle]:
+            (bundle / "manifests").mkdir(parents=True)
+        fieldnames = [
+            "sample_id",
+            "event_id",
+            "class_id",
+            "class_name",
+            "split",
+            "mask_path",
+            "input_channels",
+            "input_band_paths",
+        ]
+        with (c2_bundle / "manifests" / "cloud_model_input_manifest.csv").open(
+            "w", encoding="utf-8", newline=""
+        ) as fh:
+            writer = csv.DictWriter(fh, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow(
+                {
+                    "sample_id": "landslide-1",
+                    "event_id": "c2-event",
+                    "class_id": "1",
+                    "class_name": "C2_debris_flow",
+                    "split": "train",
+                    "mask_path": "/data/c2/masks/landslide.tif",
+                    "input_channels": "B;G;R;NIR;SLOPE",
+                    "input_band_paths": "B:/data/c2/a.tif#band=1;G:/data/c2/a.tif#band=2;R:/data/c2/a.tif#band=3;NIR:/data/c2/a.tif#band=4;SLOPE:/data/c2/a.tif#band=6",
+                }
+            )
+        with (c5_bundle / "manifests" / "cloud_model_input_manifest.csv").open(
+            "w", encoding="utf-8", newline=""
+        ) as fh:
+            writer = csv.DictWriter(fh, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow(
+                {
+                    "sample_id": "fire-1",
+                    "event_id": "c5-event",
+                    "class_id": "2",
+                    "class_name": "C5_fire",
+                    "split": "validation",
+                    "mask_path": "/data/c5/masks/fire.tif",
+                    "input_channels": "F01;F02;F03;F07;F11",
+                    "input_band_paths": "F01:/data/c5/f01.tif;F02:/data/c5/f02.tif;F03:/data/c5/f03.tif;F07:/data/c5/f07.tif;F11:/data/c5/f11.tif",
+                }
+            )
+        return root, c2_bundle, c5_bundle
 
 
 if __name__ == "__main__":

@@ -6,13 +6,32 @@ import shutil
 from pathlib import Path
 
 from .manifest import (
+    ModelInputRecord,
     class_split_counts,
     filter_records,
     load_model_input_manifest,
     rebase_path,
     resolve_under_root,
+    split_band_reference,
     write_manifest,
 )
+
+
+COMMON_C2_CHANNEL_MAP = {
+    "BLUE": "B",
+    "GREEN": "G",
+    "RED": "R",
+    "NIR": "NIR",
+}
+
+COMMON_C5_CHANNEL_MAP = {
+    "BLUE": "F01",
+    "GREEN": "F02",
+    "RED": "F03",
+    "NIR": "F07",
+}
+
+COMMON_OPTICAL_CHANNELS = ("BLUE", "GREEN", "RED", "NIR")
 
 
 def sha256_file(path: Path) -> str:
@@ -137,6 +156,95 @@ def build_training_bundle(
     return bundle_manifest
 
 
+def build_common_channel_bundle(
+    *,
+    c2_bundle_dir: Path,
+    c5_bundle_dir: Path,
+    output_bundle_dir: Path,
+    bundle_version: str = "p15-c2-c5-common4",
+) -> dict:
+    c2_records = load_model_input_manifest(
+        c2_bundle_dir / "manifests" / "cloud_model_input_manifest.csv",
+        required_channels=tuple(COMMON_C2_CHANNEL_MAP.values()),
+    )
+    c5_records = load_model_input_manifest(
+        c5_bundle_dir / "manifests" / "cloud_model_input_manifest.csv",
+        required_channels=tuple(COMMON_C5_CHANNEL_MAP.values()),
+    )
+    selected_records = [
+        *_remap_common_records(filter_records(c2_records, class_scope="binary_c2"), COMMON_C2_CHANNEL_MAP),
+        *_remap_common_records(filter_records(c5_records, class_scope="binary_c5"), COMMON_C5_CHANNEL_MAP),
+    ]
+
+    output_bundle_dir.mkdir(parents=True, exist_ok=True)
+    metadata_dir = output_bundle_dir / "metadata"
+    manifests_dir = output_bundle_dir / "manifests"
+    metadata_dir.mkdir(exist_ok=True)
+    manifests_dir.mkdir(exist_ok=True)
+
+    write_manifest(manifests_dir / "cloud_model_input_manifest.csv", selected_records)
+    class_map = {
+        "0": {"name": "background", "trainable": False},
+        "1": {"name": "C2_debris_flow", "trainable": True},
+        "2": {"name": "C5_fire", "trainable": True},
+    }
+    (metadata_dir / "class_map.json").write_text(
+        json.dumps(class_map, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    bundle_manifest = {
+        "bundle_version": bundle_version,
+        "mode": "common-channel-merge",
+        "source_bundles": {
+            "c2": str(c2_bundle_dir),
+            "c5": str(c5_bundle_dir),
+        },
+        "required_channels": list(COMMON_OPTICAL_CHANNELS),
+        "class_scope": "multiclass_c2_c5",
+        "record_count": len(selected_records),
+        "split_class_counts": class_split_counts(selected_records),
+    }
+    (metadata_dir / "bundle_manifest.json").write_text(
+        json.dumps(bundle_manifest, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    (output_bundle_dir / "README.md").write_text(_common_bundle_readme(bundle_manifest), encoding="utf-8")
+    return bundle_manifest
+
+
+def _remap_common_records(records, channel_map: dict[str, str]):
+    remapped = []
+    required = tuple(COMMON_OPTICAL_CHANNELS)
+    for record in records:
+        band_paths = {logical: record.input_band_paths[source] for logical, source in channel_map.items()}
+        remapped.append(_standard_manifest_record(record.with_paths(input_channels=required, input_band_paths=band_paths)))
+    return remapped
+
+
+def _standard_manifest_record(record: ModelInputRecord) -> ModelInputRecord:
+    row = {
+        "sample_id": record.sample_id,
+        "event_id": record.event_id,
+        "class_id": str(record.class_id),
+        "class_name": record.class_name,
+        "split": record.split,
+        "mask_path": record.mask_path,
+        "input_channels": ";".join(record.input_channels),
+        "input_band_paths": ";".join(f"{channel}:{record.input_band_paths[channel]}" for channel in record.input_channels),
+    }
+    return ModelInputRecord(
+        sample_id=row["sample_id"],
+        event_id=row["event_id"],
+        split=row["split"],
+        class_id=int(row["class_id"]),
+        class_name=row["class_name"],
+        mask_path=row["mask_path"],
+        input_channels=record.input_channels,
+        input_band_paths={channel: record.input_band_paths[channel] for channel in record.input_channels},
+        row=row,
+    )
+
+
 def _infer_project_root(contract_dir: Path) -> Path:
     for parent in [contract_dir, *contract_dir.parents]:
         if parent.name == ".agent-team":
@@ -152,7 +260,9 @@ def _bundle_band_path(
     project_root: Path,
     cloud_data_root: Path,
 ) -> str:
-    value_path = Path(value)
+    physical_value, band_index = split_band_reference(value)
+    suffix = "" if band_index == 1 and "#band=" not in value else f"#band={band_index}"
+    value_path = Path(physical_value)
     if value_path.is_absolute():
         source_path = value_path
     elif (contract_dir / value_path).exists():
@@ -168,7 +278,7 @@ def _bundle_band_path(
     if relative_to_contract.parts and relative_to_contract.parts[0] == "model_inputs":
         target_path = bundle_dir / relative_to_contract
         copy_if_exists(source_path, target_path)
-        return str(relative_to_contract)
+        return str(relative_to_contract) + suffix
     return rebase_path(value, local_root=project_root, target_root=cloud_data_root)
 
 
@@ -184,6 +294,19 @@ def _bundle_readme(bundle_manifest: dict) -> str:
             "",
             "Run `python -m segmentation_training validate-manifest` and `dry-run` on the",
             "cloud server before launching training.",
+            "",
+        ]
+    )
+
+
+def _common_bundle_readme(bundle_manifest: dict) -> str:
+    return "\n".join(
+        [
+            f"# Common C2/C5 Optical Bundle v{bundle_manifest['bundle_version']}",
+            "",
+            "This bundle merges existing C2 landslide and C5 fire cloud manifests into",
+            "`BLUE/GREEN/RED/NIR` logical channels for dataset-scale multiclass probing.",
+            "It references the source bundle cloud paths directly and does not copy raw rasters.",
             "",
         ]
     )

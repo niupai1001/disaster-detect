@@ -5,13 +5,15 @@ from pathlib import Path
 import numpy as np
 
 from .manifest import ModelInputRecord
+from .manifest import split_band_reference
 
 
-def read_raster_array(path: Path) -> np.ndarray:
+def read_raster_array(path: Path | str) -> np.ndarray:
     import rasterio
 
-    with rasterio.open(path) as dataset:
-        return dataset.read(1)
+    physical_path, band_index = split_band_reference(str(path))
+    with rasterio.open(physical_path) as dataset:
+        return dataset.read(band_index)
 
 
 def read_record_arrays(record: ModelInputRecord, *, root: Path, channels: tuple[str, ...]) -> tuple[np.ndarray, np.ndarray]:
@@ -32,4 +34,3 @@ def to_torch_tensors(channels: np.ndarray, mask: np.ndarray):
     import torch
 
     return torch.from_numpy(channels.astype("float32")), torch.from_numpy(mask.astype("int64"))
-

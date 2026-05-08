@@ -321,6 +321,27 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "resume_from_checkpoint"):
             validate_config(config)
 
+    def test_p15_c2_c5_common_channel_configs_validate(self):
+        config_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "p15_c2_c5_common4"
+        expected = {
+            "c2_c5_common4_unet_smoke.yaml": 1,
+            "c2_c5_common4_deeplabv3plus_smoke.yaml": 1,
+            "c2_c5_common4_unet_80ep.yaml": 80,
+            "c2_c5_common4_deeplabv3plus_80ep.yaml": 80,
+        }
+
+        for filename, max_epochs in expected.items():
+            with self.subTest(filename=filename):
+                config = load_config(config_dir / filename)
+                self.assertEqual(config["class_scope"], "multiclass_c2_c5")
+                self.assertEqual(config["input_channels"], ["BLUE", "GREEN", "RED", "NIR"])
+                self.assertEqual(config["model"]["input_channels"], 4)
+                self.assertEqual(config["model"]["output_classes"], 3)
+                self.assertEqual(config["metrics"]["class_ids"], [0, 1, 2])
+                self.assertEqual(config["training"]["max_epochs"], max_epochs)
+                self.assertEqual(config["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", config["split_policy"]["selection_splits"])
+
 
 if __name__ == "__main__":
     unittest.main()
