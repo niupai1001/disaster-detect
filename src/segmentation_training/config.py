@@ -78,6 +78,9 @@ def validate_config(config: dict[str, Any]) -> None:
     if "validation" not in split_policy.get("selection_splits", []):
         raise ValueError("Validation split must be used for route selection")
     training = config.get("training", {})
+    resume_from_checkpoint = training.get("resume_from_checkpoint")
+    if resume_from_checkpoint is not None and not str(resume_from_checkpoint).strip():
+        raise ValueError("training.resume_from_checkpoint must be non-empty when present")
     loss = training.get("loss")
     if loss is not None and loss not in {
         "cross_entropy",

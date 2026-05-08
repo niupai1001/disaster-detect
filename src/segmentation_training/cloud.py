@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -11,7 +12,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import load_config
-from .manifest import filter_records, load_model_input_manifest, validate_record_raster_grids
+from .manifest import filter_records, load_model_input_manifest, split_band_reference, validate_record_raster_grids
 from .metrics import (
     compute_confusion_matrix,
     decode_prediction,
@@ -24,6 +25,23 @@ from .metrics import (
 )
 from .models import build_model
 from .preview import write_contact_sheet, write_prediction_preview
+
+P14_HARD_WINDOW_BASELINE_IOU = {
+    "sample-000946": 0.0,
+    "sample-000979": 0.0,
+    "sample-001041": 0.0,
+    "sample-001221": 0.0,
+    "sample-001225": 0.0,
+    "sample-001227": 0.0,
+    "sample-001230": 0.0,
+    "sample-001232": 0.022123893805309734,
+    "sample-001267": 0.0,
+    "sample-001268": 0.0,
+    "sample-001281": 0.0,
+    "sample-001282": 0.0,
+    "sample-001315": 0.0,
+    "sample-001350": 0.0,
+}
 
 
 def refuse_local_training() -> str:
@@ -74,6 +92,9 @@ def prepare_cloud_run(
         "cloud_hardware_summary": "record_on_cloud_before_training",
         "status": "prepared_cloud_training_harness",
     }
+    resume_metadata = _resolve_resume_checkpoint(config)
+    if resume_metadata:
+        manifest.update(resume_metadata)
     (run_dir / "run_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
@@ -191,6 +212,14 @@ def run_cloud_training(
     runtime = _configure_torch_runtime(torch, device=device, performance_config=performance_config)
     if runtime["channels_last"]:
         model = model.to(memory_format=torch.channels_last)
+    resume_metadata = _resolve_resume_checkpoint(config)
+    if resume_metadata:
+        _load_resume_checkpoint(model, resume_metadata, device=device, torch=torch)
+        progress.log(
+            "loaded resume checkpoint "
+            f"path={resume_metadata['resume_from_checkpoint']} "
+            f"source_epoch={resume_metadata.get('resume_source_epoch', '')}"
+        )
     optimizer = torch.optim.Adam(model.parameters(), lr=float(config.get("training", {}).get("learning_rate", 0.001)))
     class_weights = None
     if config.get("training", {}).get("loss") in {"weighted_cross_entropy", "weighted_cross_entropy_dice"}:
@@ -719,8 +748,7 @@ def _build_record_cache(records, *, bundle_dir: Path, channels: tuple[str, ...],
         band_arrays = []
         for channel in channels:
             band_path = _resolve_cloud_or_bundle_path(bundle_dir, record.input_band_paths[channel])
-            with rasterio.open(band_path) as band_ds:
-                band_arrays.append(_normalize_band(band_ds.read(1), np=np))
+            band_arrays.append(_read_input_band(band_path, rasterio=rasterio, np=np))
         cache[record.sample_id] = {
             "channels": np.stack(band_arrays, axis=0),
             "label": label,
@@ -802,8 +830,7 @@ def _read_training_window(
     band_arrays = []
     for channel in channels:
         band_path = _resolve_cloud_or_bundle_path(bundle_dir, record.input_band_paths[channel])
-        with rasterio.open(band_path) as band_ds:
-            band_arrays.append(_normalize_band(band_ds.read(1, window=window), np=np))
+        band_arrays.append(_read_input_band(band_path, window=window, rasterio=rasterio, np=np))
     channels_array = np.stack(band_arrays, axis=0)
     return _pad_window(channels_array, window_size, fill_value=0, np=np), _pad_window(
         label, window_size, fill_value=255, np=np
@@ -853,8 +880,7 @@ def _read_validation_window(
     band_arrays = []
     for channel in channels:
         band_path = _resolve_cloud_or_bundle_path(bundle_dir, record.input_band_paths[channel])
-        with rasterio.open(band_path) as band_ds:
-            band_arrays.append(_normalize_band(band_ds.read(1, window=window), np=np))
+        band_arrays.append(_read_input_band(band_path, window=window, rasterio=rasterio, np=np))
     channels_array = np.stack(band_arrays, axis=0)
     return _pad_window(channels_array, window_size, fill_value=0, np=np), _pad_window(
         label, window_size, fill_value=255, np=np
@@ -906,6 +932,12 @@ def _normalize_band(array, *, np):
         hi = lo + 1.0
     scaled = np.clip((arr - lo) / (hi - lo), 0, 1).astype("float32")
     return np.nan_to_num(scaled, nan=0.0, posinf=1.0, neginf=0.0).astype("float32")
+
+
+def _read_input_band(path_reference, *, rasterio, np, window=None):
+    path_value, band_index = split_band_reference(str(path_reference))
+    with rasterio.open(path_value) as band_ds:
+        return _normalize_band(band_ds.read(band_index, window=window), np=np)
 
 
 def _target_has_valid_pixels(target, *, np, ignore_index: int = 255) -> bool:
@@ -1107,6 +1139,7 @@ def _write_run_outputs(
         diagnostics_dir / "foreground_probability_summary.csv", payload.get("foreground_probability_summary", [])
     )
     _write_dict_rows(diagnostics_dir / "foreground_window_coverage.csv", payload.get("foreground_window_coverage", []))
+    _write_p14_gate_reports(run_dir, payload.get("prediction_summary", []))
     _write_binary_encode_decode_audit(diagnostics_dir / "binary_c5_encode_decode_audit.json", source_class_ids)
     preview_limit = _preview_limit(preview_config)
     preview_items = payload.get("preview_items", [])
@@ -1139,6 +1172,127 @@ def _write_run_outputs(
     if worst_paths:
         write_contact_sheet(worst_paths, run_dir / "predictions" / "worst_false_positives_contact_sheet.png", columns=2)
     _write_artifact_inventory(diagnostics_dir / "artifact_inventory.json", run_dir)
+
+
+def _resolve_resume_checkpoint(config: dict) -> dict:
+    checkpoint_value = config.get("training", {}).get("resume_from_checkpoint")
+    if checkpoint_value is None:
+        return {}
+    expanded = os.path.expandvars(str(checkpoint_value)).strip()
+    if "$" in expanded:
+        raise FileNotFoundError(f"Resume checkpoint contains unresolved environment variable: {checkpoint_value}")
+    checkpoint_path = Path(expanded).expanduser()
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Resume checkpoint not found: {checkpoint_path}")
+    sidecar_path = checkpoint_path.with_suffix(".json")
+    source_epoch = None
+    source_metric_value = None
+    if sidecar_path.exists():
+        sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
+        source_epoch = sidecar.get("epoch")
+        source_metric_value = sidecar.get("metric_value", sidecar.get("mean_iou"))
+    return {
+        "resume_from_checkpoint": str(checkpoint_path),
+        "resume_source_epoch": source_epoch,
+        "resume_source_metric_value": source_metric_value,
+        "fine_tune": True,
+    }
+
+
+def _load_resume_checkpoint(model, resume_metadata: dict, *, device, torch) -> None:
+    checkpoint_path = Path(resume_metadata["resume_from_checkpoint"])
+    state = torch.load(checkpoint_path, map_location=device)
+    if isinstance(state, dict) and "state_dict" in state:
+        state = state["state_dict"]
+    try:
+        model.load_state_dict(state)
+    except Exception as exc:
+        raise ValueError(f"Resume checkpoint is incompatible with model: {checkpoint_path}") from exc
+
+
+def _write_p14_gate_reports(run_dir: Path, prediction_rows: list[dict]) -> None:
+    by_sample_id = {str(row.get("sample_id", "")): row for row in prediction_rows}
+    hard_rows = []
+    for sample_id, baseline_iou in P14_HARD_WINDOW_BASELINE_IOU.items():
+        row = by_sample_id.get(sample_id, {})
+        current_iou = _optional_float(row.get("foreground_iou"))
+        if current_iou is None:
+            status = "missing"
+        elif current_iou > baseline_iou:
+            status = "improved"
+        elif current_iou < baseline_iou:
+            status = "regressed"
+        else:
+            status = "unchanged"
+        hard_rows.append(
+            {
+                "sample_id": sample_id,
+                "baseline_iou": baseline_iou,
+                "current_iou": "" if current_iou is None else current_iou,
+                "status": status,
+                "zero_iou_after": current_iou == 0.0 if current_iou is not None else "",
+                "label_foreground_pixels": row.get("label_foreground_pixels", ""),
+                "predicted_foreground_pixels": row.get("predicted_foreground_pixels", ""),
+                "predicted_label_area_ratio": row.get("predicted_label_area_ratio", ""),
+                "foreground_precision": row.get("foreground_precision", ""),
+                "foreground_recall": row.get("foreground_recall", ""),
+            }
+        )
+    _write_dict_rows(run_dir / "diagnostics" / "p14_hard_window_gate.csv", hard_rows)
+    _write_dict_rows(run_dir / "diagnostics" / "p14_tiny_bin_gate.csv", _p14_tiny_bin_rows(prediction_rows))
+
+
+def _p14_tiny_bin_rows(prediction_rows: list[dict]) -> list[dict]:
+    bins = [
+        ("fg_lt_50", lambda value: value < 50),
+        ("fg_lt_100", lambda value: value < 100),
+        ("fg_lt_500", lambda value: value < 500),
+    ]
+    rows = []
+    for name, predicate in bins:
+        selected = []
+        for row in prediction_rows:
+            foreground_pixels = _optional_float(row.get("label_foreground_pixels"))
+            if foreground_pixels is None or not predicate(foreground_pixels):
+                continue
+            iou = _optional_float(row.get("foreground_iou"))
+            if iou is not None:
+                selected.append(iou)
+        rows.append(
+            {
+                "bin": name,
+                "window_count": len(selected),
+                "mean_iou": _mean(selected),
+                "median_iou": _median(selected),
+                "zero_iou_windows": sum(1 for value in selected if value == 0.0),
+            }
+        )
+    return rows
+
+
+def _optional_float(value) -> float | None:
+    if value in {None, ""}:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _mean(values: list[float]) -> float | str:
+    if not values:
+        return ""
+    return sum(values) / len(values)
+
+
+def _median(values: list[float]) -> float | str:
+    if not values:
+        return ""
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[midpoint]
+    return (ordered[midpoint - 1] + ordered[midpoint]) / 2
 
 
 def _maybe_write_training_curves(run_dir: Path) -> dict:
@@ -1279,6 +1433,8 @@ def _write_artifact_inventory(path: Path, run_dir: Path) -> None:
         "diagnostics/foreground_probability_summary.csv",
         "diagnostics/foreground_window_coverage.csv",
         "diagnostics/worst_false_positives.csv",
+        "diagnostics/p14_hard_window_gate.csv",
+        "diagnostics/p14_tiny_bin_gate.csv",
         "diagnostics/binary_c5_encode_decode_audit.json",
         "training_curves.png",
         "training_curves.csv",
@@ -1351,17 +1507,19 @@ def _foreground_window_coverage_rows(records, *, bundle_dir, foreground_class_id
 
 
 def _resolve_cloud_or_bundle_path(bundle_dir: Path, value: str, *, subdir: str | None = None) -> Path:
-    path = Path(value)
+    physical_value, band_index = split_band_reference(value)
+    path = Path(physical_value)
+    suffix = "" if band_index == 1 and "#band=" not in value else f"#band={band_index}"
     if path.exists():
-        return path
+        return Path(str(path) + suffix)
     if subdir is not None:
         mirror = bundle_dir / subdir / path.name
         if mirror.exists():
-            return mirror
-    relative = bundle_dir / value
+            return Path(str(mirror) + suffix)
+    relative = bundle_dir / physical_value
     if relative.exists():
-        return relative
-    return path
+        return Path(str(relative) + suffix)
+    return Path(str(path) + suffix)
 
 
 def _write_manifest(run_dir: Path, manifest: dict) -> None:

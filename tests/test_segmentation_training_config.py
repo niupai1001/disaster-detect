@@ -284,6 +284,43 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
                 self.assertEqual(config["split_policy"]["test"], "sealed")
                 self.assertNotIn("test", config["split_policy"]["selection_splits"])
 
+    def test_p14_fine_tune_configs_resume_from_p13_best_checkpoint(self):
+        probe_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "p14_15ch_finetune"
+        expected = {
+            "c5_deeplabv3plus_15ch_base32_ft_lr1e4_smoke.yaml": (1, 0.0001),
+            "c5_deeplabv3plus_15ch_base32_ft_lr5e5_smoke.yaml": (1, 0.00005),
+            "c5_deeplabv3plus_15ch_base32_ft_lr1e4_80ep.yaml": (80, 0.0001),
+            "c5_deeplabv3plus_15ch_base32_ft_lr5e5_80ep.yaml": (80, 0.00005),
+        }
+
+        for filename, (max_epochs, learning_rate) in expected.items():
+            with self.subTest(filename=filename):
+                config = load_config(probe_dir / filename)
+                self.assertEqual(config["model"]["family"], "deeplabv3_plus")
+                self.assertEqual(config["model"]["base_channels"], 32)
+                self.assertEqual(config["model"]["input_channels"], 15)
+                self.assertEqual(len(config["input_channels"]), 15)
+                self.assertEqual(config["training"]["max_epochs"], max_epochs)
+                self.assertEqual(config["training"]["batch_size"], 8)
+                self.assertEqual(config["training"]["learning_rate"], learning_rate)
+                self.assertEqual(config["training"]["resume_from_checkpoint"], "${P13_BEST_CHECKPOINT}")
+                self.assertEqual(config["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", config["split_policy"]["selection_splits"])
+                self.assertIn("diagnostics/p14_hard_window_gate.csv", config["metrics"]["required_outputs"])
+
+    def test_resume_from_checkpoint_config_value_must_be_non_empty_when_present(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "channel_mapping_probe"
+            / "c5_deeplabv3plus_s2_water_burn_15ch_smoke.yaml"
+        )
+        config["training"]["resume_from_checkpoint"] = " "
+
+        with self.assertRaisesRegex(ValueError, "resume_from_checkpoint"):
+            validate_config(config)
+
 
 if __name__ == "__main__":
     unittest.main()

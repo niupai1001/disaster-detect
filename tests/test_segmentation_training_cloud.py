@@ -14,16 +14,20 @@ from segmentation_training.cloud import (  # noqa: E402
     _TrainingProgressLogger,
     _apply_channel_perturbation,
     _apply_training_augmentation,
+    _build_record_cache,
     _build_trainable_model,
     _limit_records,
     _build_metrics_payload,
     _configure_torch_runtime,
     _foreground_window_coverage_rows,
+    _load_resume_checkpoint,
     _maybe_write_training_curves,
     _normalize_band,
     _pad_window,
     _read_training_window,
     _read_validation_window,
+    _resolve_resume_checkpoint,
+    _write_p14_gate_reports,
     _target_has_valid_pixels,
     _write_run_outputs,
     prepare_cloud_run,
@@ -112,6 +116,136 @@ class SegmentationTrainingCloudTests(unittest.TestCase):
             metadata = (run_dir / "checkpoints" / "best_mean_iou.json").read_text(encoding="utf-8")
             self.assertIn('"epoch": 3', metadata)
             self.assertEqual([name for _, name in FakeTorch.saves], ["best_mean_iou.pt", "best_mean_iou.pt"])
+
+    def test_resolve_resume_checkpoint_records_metadata_from_best_checkpoint_sidecar(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            checkpoint = root / "best_mean_iou.pt"
+            checkpoint.write_text("weights", encoding="utf-8")
+            (root / "best_mean_iou.json").write_text(
+                json.dumps({"epoch": 69, "metric_value": 0.409574}, sort_keys=True),
+                encoding="utf-8",
+            )
+            config = {"training": {"resume_from_checkpoint": str(checkpoint)}}
+
+            metadata = _resolve_resume_checkpoint(config)
+
+        self.assertEqual(metadata["resume_from_checkpoint"], str(checkpoint))
+        self.assertEqual(metadata["resume_source_epoch"], 69)
+        self.assertEqual(metadata["resume_source_metric_value"], 0.409574)
+        self.assertTrue(metadata["fine_tune"])
+
+    def test_resolve_resume_checkpoint_rejects_missing_checkpoint(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            config = {"training": {"resume_from_checkpoint": str(Path(tmp_name) / "missing.pt")}}
+
+            with self.assertRaisesRegex(FileNotFoundError, "Resume checkpoint not found"):
+                _resolve_resume_checkpoint(config)
+
+    def test_load_resume_checkpoint_wraps_incompatible_state_error(self):
+        class FakeModel:
+            def load_state_dict(self, state):
+                raise RuntimeError("size mismatch")
+
+        class FakeTorch:
+            @staticmethod
+            def load(path, map_location):
+                return {"bad.weight": "shape"}
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            checkpoint = Path(tmp_name) / "bad.pt"
+            checkpoint.write_text("bad", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "incompatible"):
+                _load_resume_checkpoint(
+                    FakeModel(),
+                    {"resume_from_checkpoint": str(checkpoint)},
+                    device="cpu",
+                    torch=FakeTorch,
+                )
+
+    def test_prepare_cloud_run_records_resume_metadata_without_reading_test_split(self):
+        import csv
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            bundle = root / "bundle"
+            (bundle / "manifests").mkdir(parents=True)
+            checkpoint = root / "best_mean_iou.pt"
+            checkpoint.write_text("weights", encoding="utf-8")
+            (root / "best_mean_iou.json").write_text(json.dumps({"epoch": 69, "metric_value": 0.409574}))
+            with (bundle / "manifests" / "cloud_model_input_manifest.csv").open(
+                "w", encoding="utf-8", newline=""
+            ) as fh:
+                writer = csv.DictWriter(
+                    fh,
+                    fieldnames=[
+                        "sample_id",
+                        "event_id",
+                        "class_id",
+                        "class_name",
+                        "split",
+                        "mask_path",
+                        "input_channels",
+                        "input_band_paths",
+                    ],
+                )
+                writer.writeheader()
+                for split in ["test", "train", "validation"]:
+                    writer.writerow(
+                        {
+                            "sample_id": split,
+                            "event_id": split,
+                            "class_id": "2",
+                            "class_name": "C5_fire",
+                            "split": split,
+                            "mask_path": f"masks/{split}.tif",
+                            "input_channels": "F01;F02",
+                            "input_band_paths": "F01:database/a.tif;F02:database/b.tif",
+                        }
+                    )
+            config = root / "config.yaml"
+            config.write_text(
+                f"""
+task_id: task-367c2761a456
+experiment_id: P14_manifest_resume_test
+seed: 20260508
+class_scope: binary_c5
+input_channels: [F01, F02]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: unet
+  input_channels: 2
+  output_classes: 2
+metrics:
+  class_ids: [0, 2]
+  ignore_index: 255
+cloud:
+  local_full_training_allowed: false
+training:
+  batch_size: 1
+  max_epochs: 1
+  resume_from_checkpoint: {checkpoint}
+""",
+                encoding="utf-8",
+            )
+
+            manifest = prepare_cloud_run(
+                config_path=config,
+                bundle_dir=bundle,
+                run_dir=root / "run",
+                command_line=["python", "-m", "segmentation_training", "train"],
+            )
+
+        self.assertFalse(manifest["test_split_read"])
+        self.assertTrue(manifest["fine_tune"])
+        self.assertEqual(manifest["resume_source_epoch"], 69)
+        self.assertEqual(manifest["resume_source_metric_value"], 0.409574)
 
     def test_trainable_model_builder_uses_model_registry(self):
         calls = []
@@ -286,6 +420,203 @@ cloud:
         self.assertEqual([record.sample_id for record in path_validator.call_args.args[0]], ["train", "validation"])
         self.assertEqual([record.sample_id for record in grid_validator.call_args.args[0]], ["train", "validation"])
 
+    def test_probe_preflight_writes_cloud_smoke_commands_without_test_split(self):
+        import csv
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            bundle = root / "bundle"
+            (bundle / "manifests").mkdir(parents=True)
+            with (bundle / "manifests" / "cloud_model_input_manifest.csv").open(
+                "w", encoding="utf-8", newline=""
+            ) as fh:
+                writer = csv.DictWriter(
+                    fh,
+                    fieldnames=[
+                        "sample_id",
+                        "event_id",
+                        "class_id",
+                        "class_name",
+                        "split",
+                        "mask_path",
+                        "input_channels",
+                        "input_band_paths",
+                    ],
+                )
+                writer.writeheader()
+                for split in ["test", "train", "validation"]:
+                    writer.writerow(
+                        {
+                            "sample_id": split,
+                            "event_id": split,
+                            "class_id": "2",
+                            "class_name": "C5_fire",
+                            "split": split,
+                            "mask_path": f"masks/{split}.tif",
+                            "input_channels": "F01;F02;F03",
+                            "input_band_paths": "F01:database/a.tif;F02:database/b.tif;F03:database/c.tif",
+                        }
+                    )
+            config_a = root / "deeplab_smoke.yaml"
+            config_b = root / "rgb_unet_smoke.yaml"
+            for config_path, family, experiment_id in [
+                (config_a, "deeplabv3_plus", "probe_deeplab_smoke"),
+                (config_b, "unet", "probe_rgb_unet_smoke"),
+            ]:
+                config_path.write_text(
+                    f"""
+task_id: task-ead45ca02073
+experiment_id: {experiment_id}
+seed: 20260507
+class_scope: binary_c5
+input_channels: [F01, F02, F03]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: {family}
+  input_channels: 3
+  output_classes: 2
+  base_channels: 4
+metrics:
+  class_ids: [0, 2]
+  ignore_index: 255
+  threshold_sweep: [0.5]
+cloud:
+  local_full_training_allowed: false
+  max_train_samples: 4
+  max_validation_samples: 2
+training:
+  batch_size: 1
+  max_epochs: 1
+  window_size: 256
+  loss: weighted_cross_entropy_dice
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.5
+    min_foreground_pixels: 1
+    validation_policy: foreground_center
+""",
+                    encoding="utf-8",
+                )
+
+            output_dir = root / "probe_preflight"
+            with patch("segmentation_training.cli.validate_record_paths", return_value=[]) as path_validator, patch(
+                "segmentation_training.cli.validate_record_raster_grids", return_value=[]
+            ) as grid_validator:
+                exit_code = training_main(
+                    [
+                        "probe-preflight",
+                        "--bundle-dir",
+                        str(bundle),
+                        "--output-dir",
+                        str(output_dir),
+                        "--run-root",
+                        "workspace/runs/segmentation/controlled_probe_smoke",
+                        "--config",
+                        str(config_a),
+                        "--config",
+                        str(config_b),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(
+                [record.sample_id for record in path_validator.call_args_list[0].args[0]],
+                ["train", "validation"],
+            )
+            self.assertEqual(
+                [record.sample_id for record in grid_validator.call_args_list[0].args[0]],
+                ["train", "validation"],
+            )
+            report = (output_dir / "probe_preflight_report.md").read_text(encoding="utf-8")
+            self.assertIn("Probe Preflight Report", report)
+            self.assertIn("test_split_read=false", report)
+            self.assertIn("Full training remains blocked", report)
+            commands = (output_dir / "cloud_smoke_commands.sh").read_text(encoding="utf-8")
+            self.assertIn("probe_deeplab_smoke", commands)
+            self.assertIn("--cloud-confirm", commands)
+            matrix = (output_dir / "probe_preflight_matrix.csv").read_text(encoding="utf-8")
+            self.assertIn("probe_rgb_unet_smoke", matrix)
+
+    def test_model_preflight_instantiates_probe_models_without_data_reads(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            config_a = root / "deeplab_smoke.yaml"
+            config_b = root / "rgb_unet_smoke.yaml"
+            for config_path, family, experiment_id, channels in [
+                (config_a, "deeplabv3_plus", "probe_deeplab_smoke", ["F01", "F02", "F03"]),
+                (config_b, "unet", "probe_rgb_unet_smoke", ["F01", "F02", "F03"]),
+            ]:
+                config_path.write_text(
+                    f"""
+task_id: task-ead45ca02073
+experiment_id: {experiment_id}
+seed: 20260507
+class_scope: binary_c5
+input_channels: [{", ".join(channels)}]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: {family}
+  input_channels: {len(channels)}
+  output_classes: 2
+  base_channels: 2
+metrics:
+  class_ids: [0, 2]
+  ignore_index: 255
+  threshold_sweep: [0.5]
+cloud:
+  local_full_training_allowed: false
+  max_train_samples: 4
+  max_validation_samples: 2
+training:
+  batch_size: 1
+  max_epochs: 1
+  window_size: 64
+  loss: weighted_cross_entropy_dice
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.5
+    min_foreground_pixels: 1
+    validation_policy: foreground_center
+""",
+                    encoding="utf-8",
+                )
+
+            output_dir = root / "model_preflight"
+            exit_code = training_main(
+                [
+                    "model-preflight",
+                    "--output-dir",
+                    str(output_dir),
+                    "--height",
+                    "64",
+                    "--width",
+                    "64",
+                    "--config",
+                    str(config_a),
+                    "--config",
+                    str(config_b),
+                ]
+            )
+
+            self.assertEqual(exit_code, 0)
+            report = (output_dir / "model_preflight_report.md").read_text(encoding="utf-8")
+            self.assertIn("Model Preflight Report", report)
+            self.assertIn("test_split_read=false", report)
+            self.assertIn("does not read data", report)
+            matrix = (output_dir / "model_preflight_matrix.csv").read_text(encoding="utf-8")
+            self.assertIn("probe_deeplab_smoke", matrix)
+            self.assertIn("1x2x64x64", matrix)
+
     def test_pad_window_makes_small_training_samples_batchable(self):
         channels = np.ones((2, 148, 152), dtype=np.float32)
         label = np.ones((148, 152), dtype=np.uint8)
@@ -338,6 +669,75 @@ cloud:
         self.assertTrue(np.array_equal(augmented_channels, channels[:, ::-1, ::-1]))
         self.assertTrue(np.array_equal(augmented_label, label[::-1, ::-1]))
 
+    def test_record_cache_reads_selected_band_from_multiband_reference(self):
+        import csv
+        import rasterio
+        from rasterio.transform import from_origin
+        from segmentation_training.manifest import load_model_input_manifest
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "masks").mkdir()
+            (root / "bands").mkdir()
+            with rasterio.open(
+                root / "masks" / "s1.tif",
+                "w",
+                driver="GTiff",
+                height=2,
+                width=2,
+                count=1,
+                dtype="uint8",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, 0.1, 0.1),
+            ) as dst:
+                dst.write(np.ones((1, 2, 2), dtype="uint8"))
+            selected_band = np.array([[10, 20], [40, 30]], dtype="float32")
+            with rasterio.open(
+                root / "bands" / "multi.tif",
+                "w",
+                driver="GTiff",
+                height=2,
+                width=2,
+                count=2,
+                dtype="float32",
+                crs="EPSG:4326",
+                transform=from_origin(0, 1, 0.1, 0.1),
+            ) as dst:
+                dst.write(np.stack([np.array([[1, 2], [3, 4]], dtype="float32"), selected_band]))
+            manifest_path = root / "model_input_manifest.csv"
+            with manifest_path.open("w", encoding="utf-8", newline="") as fh:
+                writer = csv.DictWriter(
+                    fh,
+                    fieldnames=[
+                        "sample_id",
+                        "event_id",
+                        "class_id",
+                        "class_name",
+                        "split",
+                        "mask_path",
+                        "input_channels",
+                        "input_band_paths",
+                    ],
+                )
+                writer.writeheader()
+                writer.writerow(
+                    {
+                        "sample_id": "s1",
+                        "event_id": "e1",
+                        "class_id": "1",
+                        "class_name": "C2_debris_flow",
+                        "split": "train",
+                        "mask_path": "masks/s1.tif",
+                        "input_channels": "CH02",
+                        "input_band_paths": "CH02:bands/multi.tif#band=2",
+                    }
+                )
+
+            [record] = load_model_input_manifest(manifest_path, required_channels=("CH02",))
+            cache = _build_record_cache([record], bundle_dir=root, channels=("CH02",), rasterio=rasterio, np=np)
+
+        self.assertTrue(np.array_equal(cache["s1"]["channels"][0], _normalize_band(selected_band, np=np)))
+
     def test_channel_perturbation_zeroes_named_channels_only(self):
         channels = np.arange(3 * 2 * 2, dtype=np.float32).reshape(3, 2, 2)
 
@@ -351,6 +751,50 @@ cloud:
         self.assertTrue(np.array_equal(perturbed[0], channels[0]))
         self.assertTrue((perturbed[1] == 0).all())
         self.assertTrue(np.array_equal(perturbed[2], channels[2]))
+
+    def test_write_p14_gate_reports_marks_hard_windows_and_tiny_bins(self):
+        rows = [
+            {
+                "sample_id": "sample-000946",
+                "foreground_iou": 0.2,
+                "label_foreground_pixels": 346,
+                "predicted_foreground_pixels": 360,
+                "predicted_label_area_ratio": 1.04,
+                "foreground_precision": 0.5,
+                "foreground_recall": 0.6,
+            },
+            {
+                "sample_id": "sample-001232",
+                "foreground_iou": 0.0,
+                "label_foreground_pixels": 207,
+                "predicted_foreground_pixels": 0,
+                "predicted_label_area_ratio": 0.0,
+                "foreground_precision": 0.0,
+                "foreground_recall": 0.0,
+            },
+            {
+                "sample_id": "sample-regular-tiny",
+                "foreground_iou": 0.5,
+                "label_foreground_pixels": 40,
+                "predicted_foreground_pixels": 42,
+                "predicted_label_area_ratio": 1.05,
+                "foreground_precision": 0.7,
+                "foreground_recall": 0.8,
+            },
+        ]
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            run_dir = Path(tmp_name)
+            _write_p14_gate_reports(run_dir, rows)
+            hard_gate = (run_dir / "diagnostics" / "p14_hard_window_gate.csv").read_text(encoding="utf-8")
+            tiny_gate = (run_dir / "diagnostics" / "p14_tiny_bin_gate.csv").read_text(encoding="utf-8")
+
+        self.assertIn("sample-000946", hard_gate)
+        self.assertIn("improved", hard_gate)
+        self.assertIn("sample-001232", hard_gate)
+        self.assertIn("regressed", hard_gate)
+        self.assertIn("fg_lt_50", tiny_gate)
+        self.assertIn("fg_lt_500", tiny_gate)
 
     def test_read_training_window_can_use_cached_arrays_without_rasterio(self):
         from types import SimpleNamespace
