@@ -15,6 +15,7 @@ from segmentation_training.manifest import (  # noqa: E402
     load_model_input_manifest,
     parse_band_paths,
     rebase_records,
+    split_band_reference,
     validate_record_paths,
     validate_record_raster_grids,
 )
@@ -47,6 +48,12 @@ class SegmentationTrainingManifestTests(unittest.TestCase):
 
         self.assertEqual(parsed["F16"], "/tmp/a.tif")
         self.assertEqual(parsed["F17"], "/tmp/b.tif")
+
+    def test_band_reference_suffix_preserves_path_and_band_index(self):
+        path, band_index = split_band_reference("bands/multiband.tif#band=3")
+
+        self.assertEqual(path, "bands/multiband.tif")
+        self.assertEqual(band_index, 3)
 
     def test_load_manifest_and_filter_class_scopes(self):
         _, path = self.write_manifest(
@@ -197,6 +204,53 @@ class SegmentationTrainingManifestTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("s1", errors[0])
         self.assertIn("mask grid mismatch", errors[0])
+
+    def test_validate_record_raster_grids_accepts_multiband_band_references(self):
+        root, path = self.write_manifest(
+            [
+                {
+                    "sample_id": "s1",
+                    "event_id": "e1",
+                    "class_id": "1",
+                    "class_name": "C2_debris_flow",
+                    "split": "train",
+                    "mask_path": "masks/s1.tif",
+                    "input_channels": "CH01;CH02",
+                    "input_band_paths": "CH01:bands/multi.tif#band=1;CH02:bands/multi.tif#band=2",
+                }
+            ]
+        )
+        (root / "masks").mkdir()
+        (root / "bands").mkdir()
+        with rasterio.open(
+            root / "masks" / "s1.tif",
+            "w",
+            driver="GTiff",
+            height=4,
+            width=4,
+            count=1,
+            dtype="uint8",
+            crs="EPSG:4326",
+            transform=from_origin(0, 1, 0.1, 0.1),
+        ) as dst:
+            dst.write(np.ones((1, 4, 4), dtype="uint8"))
+        with rasterio.open(
+            root / "bands" / "multi.tif",
+            "w",
+            driver="GTiff",
+            height=4,
+            width=4,
+            count=2,
+            dtype="float32",
+            crs="EPSG:4326",
+            transform=from_origin(0, 1, 0.1, 0.1),
+        ) as dst:
+            dst.write(np.ones((2, 4, 4), dtype="float32"))
+
+        records = load_model_input_manifest(path, required_channels=("CH01", "CH02"))
+        errors = validate_record_raster_grids(records, contract_dir=root, required_channels=("CH01", "CH02"))
+
+        self.assertEqual(errors, [])
 
 
 if __name__ == "__main__":

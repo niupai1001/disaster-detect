@@ -85,6 +85,21 @@ def parse_band_paths(value: str) -> dict[str, str]:
     return band_paths
 
 
+def split_band_reference(value: str) -> tuple[str, int]:
+    path, marker, suffix = value.rpartition("#band=")
+    if not marker:
+        return value, 1
+    if not path.strip():
+        raise ValueError(f"Invalid band reference {value!r}; path is required")
+    try:
+        band_index = int(suffix)
+    except ValueError as exc:
+        raise ValueError(f"Invalid band reference {value!r}; band must be an integer") from exc
+    if band_index < 1:
+        raise ValueError(f"Invalid band reference {value!r}; band must be >= 1")
+    return path, band_index
+
+
 def format_band_paths(band_paths: dict[str, str]) -> str:
     return ";".join(f"{channel}:{path}" for channel, path in band_paths.items())
 
@@ -207,7 +222,7 @@ def validate_record_paths(
             errors.append(f"{record.sample_id}: missing mask {mask_path}")
         if require_bands:
             for channel, path in record.input_band_paths.items():
-                band_path = resolve_existing_data_path(contract_dir, path)
+                band_path = resolve_existing_data_path(contract_dir, split_band_reference(path)[0])
                 if not band_path.exists():
                     errors.append(f"{record.sample_id}: missing {channel} raster {band_path}")
     return errors
@@ -235,11 +250,12 @@ def validate_record_raster_grids(
             if value is None:
                 missing.append(channel)
                 continue
-            band_path = resolve_existing_data_path(contract_dir, value)
+            band_value, band_index = split_band_reference(value)
+            band_path = resolve_existing_data_path(contract_dir, band_value)
             if not band_path.exists():
                 missing.append(channel)
                 continue
-            band_paths.append((channel, band_path))
+            band_paths.append((channel, band_path, band_index))
         if missing:
             errors.append(f"{record.sample_id}: missing required channels for grid validation: {', '.join(missing)}")
             continue
@@ -247,8 +263,10 @@ def validate_record_raster_grids(
             with rasterio.open(mask_path) as mask_ds:
                 mask_grid = _raster_grid(mask_ds)
             band_grids = []
-            for channel, band_path in band_paths:
+            for channel, band_path, band_index in band_paths:
                 with rasterio.open(band_path) as band_ds:
+                    if band_index > band_ds.count:
+                        raise ValueError(f"{channel} requests band {band_index}, but raster has {band_ds.count} band(s)")
                     band_grids.append((channel, band_path, _raster_grid(band_ds)))
         except Exception as exc:
             errors.append(f"{record.sample_id}: raster grid validation failed: {exc}")
