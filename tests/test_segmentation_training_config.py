@@ -370,6 +370,34 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
                 self.assertEqual(config["split_policy"]["test"], "sealed")
                 self.assertNotIn("test", config["split_policy"]["selection_splits"])
 
+    def test_p16b_old_c2_recovery_configs_validate(self):
+        config_dir = (
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "p16b_old_c2_recovery"
+        )
+        expected = {
+            "old_c2_f16f17_unet_smoke.yaml": ("unet", 1),
+            "old_c2_f16f17_deeplabv3plus_smoke.yaml": ("deeplabv3_plus", 1),
+            "old_c2_f16f17_unet_80ep.yaml": ("unet", 80),
+            "old_c2_f16f17_deeplabv3plus_80ep.yaml": ("deeplabv3_plus", 80),
+        }
+
+        for filename, (model_family, max_epochs) in expected.items():
+            with self.subTest(filename=filename):
+                config = load_config(config_dir / filename)
+                self.assertEqual(config["class_scope"], "binary_c2")
+                self.assertEqual(config["input_channels"], ["F16", "F17"])
+                self.assertEqual(config["model"]["family"], model_family)
+                self.assertEqual(config["model"]["input_channels"], 2)
+                self.assertEqual(config["model"]["output_classes"], 2)
+                self.assertEqual(config["metrics"]["class_ids"], [0, 1])
+                self.assertEqual(config["training"]["max_epochs"], max_epochs)
+                self.assertEqual(config["training"]["loss"], "weighted_cross_entropy_dice")
+                self.assertEqual(config["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", config["split_policy"]["selection_splits"])
+
 
 if __name__ == "__main__":
     unittest.main()
