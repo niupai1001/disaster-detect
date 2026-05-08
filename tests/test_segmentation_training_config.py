@@ -342,6 +342,34 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
                 self.assertEqual(config["split_policy"]["test"], "sealed")
                 self.assertNotIn("test", config["split_policy"]["selection_splits"])
 
+    def test_p16_specialist_upper_bound_configs_validate(self):
+        config_dir = (
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "p16_specialist_upper_bounds"
+        )
+        expected = {
+            "c2_landslide_9ch_unet_smoke.yaml": ("binary_c2", 9, [0, 1], 1),
+            "c2_landslide_9ch_deeplabv3plus_smoke.yaml": ("binary_c2", 9, [0, 1], 1),
+            "c5_water_burn_15ch_deeplabv3plus_smoke.yaml": ("binary_c5", 15, [0, 2], 1),
+            "c2_landslide_9ch_unet_80ep.yaml": ("binary_c2", 9, [0, 1], 80),
+            "c2_landslide_9ch_deeplabv3plus_80ep.yaml": ("binary_c2", 9, [0, 1], 80),
+            "c5_water_burn_15ch_deeplabv3plus_80ep.yaml": ("binary_c5", 15, [0, 2], 80),
+        }
+
+        for filename, (class_scope, input_count, class_ids, max_epochs) in expected.items():
+            with self.subTest(filename=filename):
+                config = load_config(config_dir / filename)
+                self.assertEqual(config["class_scope"], class_scope)
+                self.assertEqual(len(config["input_channels"]), input_count)
+                self.assertEqual(config["model"]["input_channels"], input_count)
+                self.assertEqual(config["model"]["output_classes"], 2)
+                self.assertEqual(config["metrics"]["class_ids"], class_ids)
+                self.assertEqual(config["training"]["max_epochs"], max_epochs)
+                self.assertEqual(config["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", config["split_policy"]["selection_splits"])
+
 
 if __name__ == "__main__":
     unittest.main()

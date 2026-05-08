@@ -1,0 +1,62 @@
+task_id: task-367c2761a456
+experiment_id: P16_c2_landslide_9ch_unet_80ep
+seed: 20260508
+class_scope: binary_c2
+input_channels: [B, G, R, NIR, ELEVATION, SLOPE, ASPECT, CURVATURE, TPI]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: unet
+  variant: c2_landslide_9ch_specialist
+  input_channels: 9
+  output_classes: 2
+  base_channels: 32
+  ignore_index: 255
+training:
+  batch_size: 16
+  max_epochs: 80
+  window_size: 256
+  loss: weighted_cross_entropy_dice
+  dice_weight: 1.0
+  learning_rate: 0.001
+  class_weights:
+    max_weight: 20.0
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.8
+    min_foreground_pixels: 1
+    validation_policy: foreground_center
+  augmentation:
+    enabled: true
+    horizontal_flip_probability: 0.5
+    vertical_flip_probability: 0.5
+    rotate90_probability: 0.5
+    gaussian_noise_std: 0.0
+  performance:
+    mixed_precision: true
+    channels_last: true
+    cudnn_benchmark: true
+    cache_records: true
+metrics:
+  class_ids: [0, 1]
+  ignore_index: 255
+  threshold_sweep: [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9]
+  preview:
+    max_items: 12
+    worst_false_positive_items: 12
+  channel_contribution:
+    mode: zero
+    groups:
+      optical: [B, G, R, NIR]
+      terrain: [ELEVATION, SLOPE, ASPECT, CURVATURE, TPI]
+  required_outputs: [metrics.json, per_class_metrics.csv, event_metrics.csv, confusion_matrix.csv, mask_area_summary.csv, diagnostics/artifact_inventory.json, diagnostics/validation_prediction_summary.csv, diagnostics/threshold_sweep.csv, diagnostics/foreground_window_coverage.csv, predictions/validation_contact_sheet.png, training_curves.png, training_curves.csv, checkpoints/best_mean_iou.pt, checkpoints/best_mean_iou.json]
+cloud:
+  local_full_training_allowed: false
+  expected_accelerator: cuda
+  max_validation_samples: 73
+  log_interval_batches: 5
+  validation_interval_epochs: 1
