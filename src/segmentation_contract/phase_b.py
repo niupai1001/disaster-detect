@@ -418,8 +418,8 @@ def build_model_input_previews(
     contract_dir: Path,
     *,
     max_items: int = 36,
-    rgb_channels: tuple[str, str, str] = ("F04", "F03", "F02"),
-    false_color_channels: tuple[str, str, str] = ("F11", "F07", "F04"),
+    rgb_channels: tuple[str, str, str] = ("F03", "F02", "F01"),
+    false_color_channels: tuple[str, str, str] = ("F11", "F07", "F03"),
 ) -> ModelInputPreviewResult:
     _require_module("rasterio")
     _require_module("PIL")
@@ -915,7 +915,7 @@ def _score_scene_cloud_proxy(
 
 
 def _quality_score_channels(required_channels: tuple[str, ...], band_paths: dict) -> list[str]:
-    preferred = ["F04", "F03", "F02", "F01"]
+    preferred = ["F03", "F02", "F01", "F04"]
     channels = [channel for channel in preferred if channel in required_channels and channel in band_paths]
     for channel in required_channels:
         if channel in band_paths and channel not in channels:
@@ -1051,15 +1051,33 @@ def _read_reflectance_channel(path: Path, *, rasterio, numpy):
 
 def _compute_derived_index(index_name: str, arrays: dict[str, object], *, numpy):
     if index_name == "NDVI":
-        return _safe_ratio(arrays["F07"] - arrays["F04"], arrays["F07"] + arrays["F04"], numpy=numpy)
+        return _safe_ratio(arrays["F07"] - arrays["F03"], arrays["F07"] + arrays["F03"], numpy=numpy)
     if index_name == "NBR":
         return _safe_ratio(arrays["F07"] - arrays["F12"], arrays["F07"] + arrays["F12"], numpy=numpy)
     if index_name == "NDMI":
         return _safe_ratio(arrays["F07"] - arrays["F11"], arrays["F07"] + arrays["F11"], numpy=numpy)
     if index_name == "NDWI":
-        return _safe_ratio(arrays["F03"] - arrays["F07"], arrays["F03"] + arrays["F07"], numpy=numpy)
+        return _safe_ratio(arrays["F02"] - arrays["F07"], arrays["F02"] + arrays["F07"], numpy=numpy)
+    if index_name == "MNDWI":
+        return _safe_ratio(arrays["F02"] - arrays["F11"], arrays["F02"] + arrays["F11"], numpy=numpy)
+    if index_name == "NBR2":
+        return _safe_ratio(arrays["F11"] - arrays["F12"], arrays["F11"] + arrays["F12"], numpy=numpy)
+    if index_name == "MIRBI":
+        return (10.0 * arrays["F12"]) - (9.8 * arrays["F11"]) + 2.0
+    if index_name == "BAIS2":
+        red = arrays["F03"]
+        red_edge_2 = arrays["F05"]
+        red_edge_3 = arrays["F06"]
+        narrow_nir = arrays["F08"]
+        swir2 = arrays["F12"]
+        spectral_product = _safe_divide(red_edge_2 * red_edge_3 * narrow_nir, red, numpy=numpy)
+        spectral_product = numpy.where(spectral_product < 0, numpy.nan, spectral_product)
+        first_term = 1.0 - numpy.sqrt(spectral_product)
+        denominator = numpy.sqrt(swir2 + narrow_nir)
+        second_term = _safe_divide(swir2 - narrow_nir, denominator, numpy=numpy) + 1.0
+        return first_term * second_term
     if index_name == "BRIGHTNESS":
-        return numpy.nanmean(numpy.stack([arrays["F04"], arrays["F03"], arrays["F02"]], axis=0), axis=0)
+        return numpy.nanmean(numpy.stack([arrays["F03"], arrays["F02"], arrays["F01"]], axis=0), axis=0)
     raise ValueError(f"Unsupported derived index {index_name!r}")
 
 
@@ -1069,6 +1087,14 @@ def _safe_ratio(numerator, denominator, *, numpy):
     output[valid] = numerator[valid] / denominator[valid]
     output[~valid] = numpy.nan
     return numpy.clip(output, -1.0, 1.0)
+
+
+def _safe_divide(numerator, denominator, *, numpy):
+    output = numpy.zeros_like(numerator, dtype="float64")
+    valid = numpy.isfinite(numerator) & numpy.isfinite(denominator) & (numpy.abs(denominator) > 1e-8)
+    output[valid] = numerator[valid] / denominator[valid]
+    output[~valid] = numpy.nan
+    return output
 
 
 def _resolve_contract_path(contract_dir: Path, value: str) -> Path:

@@ -792,7 +792,18 @@ class SegmentationContractPhaseATests(unittest.TestCase):
             ]
         )
         raster_paths = []
-        values = {"F02": 1000, "F03": 2000, "F04": 2000, "F07": 8000, "F11": 3000, "F12": 1000}
+        values = {
+            "F01": 1000,  # Sentinel-2 blue, 490 nm
+            "F02": 2000,  # Sentinel-2 green, 560 nm
+            "F03": 3000,  # Sentinel-2 red, 665 nm
+            "F04": 4000,  # Sentinel-2 red-edge, 705 nm
+            "F05": 5000,  # Sentinel-2 red-edge, 740 nm
+            "F06": 6000,  # Sentinel-2 red-edge, 783 nm
+            "F07": 8000,  # Sentinel-2 NIR, 842 nm
+            "F08": 7000,  # Sentinel-2 narrow NIR, 865 nm
+            "F11": 3000,  # Sentinel-2 SWIR1, 1610 nm
+            "F12": 1000,  # Sentinel-2 SWIR2, 2190 nm
+        }
         for band, value in values.items():
             raster_path = root / f"T_C5_46RGT_414_EV20220707_IM20220731_{band}.tif"
             with rasterio.open(
@@ -814,24 +825,39 @@ class SegmentationContractPhaseATests(unittest.TestCase):
 
         build_post_disaster_model_input_manifest(
             phase_a.output_dir,
-            required_channels=["F02", "F03", "F04", "F07", "F11", "F12"],
-            derived_indices=["NDVI", "NBR", "NDMI", "BRIGHTNESS"],
+            required_channels=["F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08", "F11", "F12"],
+            derived_indices=["NDVI", "NBR", "NDMI", "NDWI", "MNDWI", "NBR2", "MIRBI", "BAIS2", "BRIGHTNESS"],
         )
 
         model_rows = self.read_csv_rows(phase_a.output_dir / "model_input_manifest.csv")
         input_paths = dict(item.split(":", 1) for item in model_rows[0]["input_band_paths"].split(";"))
         self.assertEqual(
             model_rows[0]["input_channels"],
-            "F02;F03;F04;F07;F11;F12;NDVI;NBR;NDMI;BRIGHTNESS",
+            "F01;F02;F03;F04;F05;F06;F07;F08;F11;F12;NDVI;NBR;NDMI;NDWI;MNDWI;NBR2;MIRBI;BAIS2;BRIGHTNESS",
         )
         self.assertIn("NDVI:", model_rows[0]["derived_index_paths"])
         self.assertIn("BRIGHTNESS:", model_rows[0]["derived_index_paths"])
         with rasterio.open(input_paths["NDVI"]) as ndvi_ds:
             ndvi = ndvi_ds.read(1)
-            self.assertAlmostEqual(float(ndvi[0, 0]), 0.6, places=4)
+            self.assertAlmostEqual(float(ndvi[0, 0]), 0.454545, places=4)
+        with rasterio.open(input_paths["NDWI"]) as ndwi_ds:
+            ndwi = ndwi_ds.read(1)
+            self.assertAlmostEqual(float(ndwi[0, 0]), -0.6, places=4)
+        with rasterio.open(input_paths["MNDWI"]) as mndwi_ds:
+            mndwi = mndwi_ds.read(1)
+            self.assertAlmostEqual(float(mndwi[0, 0]), -0.2, places=4)
+        with rasterio.open(input_paths["NBR2"]) as nbr2_ds:
+            nbr2 = nbr2_ds.read(1)
+            self.assertAlmostEqual(float(nbr2[0, 0]), 0.5, places=4)
+        with rasterio.open(input_paths["MIRBI"]) as mirbi_ds:
+            mirbi = mirbi_ds.read(1)
+            self.assertAlmostEqual(float(mirbi[0, 0]), 0.06, places=4)
+        with rasterio.open(input_paths["BAIS2"]) as bais2_ds:
+            bais2 = bais2_ds.read(1)
+            self.assertAlmostEqual(float(bais2[0, 0]), 0.053768, places=4)
         with rasterio.open(input_paths["BRIGHTNESS"]) as brightness_ds:
             brightness = brightness_ds.read(1)
-            self.assertAlmostEqual(float(brightness[0, 0]), 0.166666, places=4)
+            self.assertAlmostEqual(float(brightness[0, 0]), 0.2, places=4)
 
     def test_model_input_previews_render_multichannel_composites(self):
         root, csv_path = self.make_label_csv(
@@ -848,7 +874,7 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         )
         raster_paths = []
         base = numpy.arange(100, dtype="uint16").reshape(10, 10)
-        for band, offset in [("F02", 0), ("F03", 100), ("F04", 200), ("F07", 300), ("F11", 400)]:
+        for band, offset in [("F01", 0), ("F02", 100), ("F03", 200), ("F07", 300), ("F11", 400)]:
             raster_path = root / f"T_C5_46RGT_413_EV20220707_IM20220731_{band}.tif"
             with rasterio.open(
                 raster_path,
@@ -868,7 +894,7 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         build_visual_qa(phase_a.output_dir, max_items=1)
         build_post_disaster_model_input_manifest(
             phase_a.output_dir,
-            required_channels=["F02", "F03", "F04", "F07", "F11"],
+            required_channels=["F01", "F02", "F03", "F07", "F11"],
         )
 
         result = build_model_input_previews(phase_a.output_dir, max_items=1)
@@ -877,8 +903,8 @@ class SegmentationContractPhaseATests(unittest.TestCase):
         self.assertTrue((phase_a.output_dir / "previews" / "model_input_contact_sheet.png").exists())
         self.assertTrue((phase_a.output_dir / "previews" / "model_input_sample-000001_composite.png").exists())
         summary = (phase_a.output_dir / "reports" / "model_input_visual_qa_summary.md").read_text(encoding="utf-8")
-        self.assertIn("rgb_channels: F04;F03;F02", summary)
-        self.assertIn("false_color_channels: F11;F07;F04", summary)
+        self.assertIn("rgb_channels: F03;F02;F01", summary)
+        self.assertIn("false_color_channels: F11;F07;F03", summary)
 
     def test_post_disaster_model_input_manifest_excludes_test_split(self):
         root, csv_path = self.make_label_csv(

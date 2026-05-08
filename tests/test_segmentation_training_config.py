@@ -129,6 +129,22 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         self.assertEqual(config["metrics"]["preview"]["worst_false_positive_items"], 24)
         self.assertIn("indices", config["metrics"]["channel_contribution"]["groups"])
 
+    def test_c2_landslide_9ch_smoke_config_matches_paired_chip_channels(self):
+        config = load_config(
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "c2_landslide_9ch_unet_smoke.yaml"
+        )
+
+        self.assertEqual(config["class_scope"], "binary_c2")
+        self.assertEqual(
+            config["input_channels"],
+            ["B", "G", "R", "NIR", "ELEVATION", "SLOPE", "ASPECT", "CURVATURE", "TPI"],
+        )
+        self.assertEqual(config["model"]["input_channels"], 9)
+        self.assertEqual(config["metrics"]["class_ids"], [0, 1])
+
     def test_model_input_channel_count_must_match_input_channels(self):
         config = load_config(
             Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "e1_binary_c5_unet.yaml"
@@ -205,8 +221,8 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
         config_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training"
         ablation_dir = config_dir / "unet_channel_ablation"
         expected_channels = {
-            "c5_unet_rgb_optical_smoke.yaml": ("F04", "F03", "F02"),
-            "c5_unet_false_color_smoke.yaml": ("F07", "F04", "F03"),
+            "c5_unet_rgb_optical_smoke.yaml": ("F03", "F02", "F01"),
+            "c5_unet_false_color_smoke.yaml": ("F07", "F03", "F02"),
             "c5_unet_post_optical_7ch_smoke.yaml": ("F01", "F02", "F03", "F04", "F07", "F11", "F12"),
             "c5_unet_indices_only_smoke.yaml": ("NDVI", "NBR", "NDMI", "BRIGHTNESS"),
             "c5_unet_11ch_indices_smoke.yaml": (
@@ -247,6 +263,26 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
                 self.assertEqual(full["cloud"]["expected_accelerator"], "cuda")
                 self.assertEqual(full["split_policy"]["test"], "sealed")
                 self.assertNotIn("test", full["split_policy"]["selection_splits"])
+
+    def test_channel_mapping_probe_configs_validate_post_disaster_single_phase_contracts(self):
+        probe_dir = Path(__file__).resolve().parents[1] / "configs" / "segmentation_training" / "channel_mapping_probe"
+        expected_channels = {
+            "c5_deeplabv3plus_s2_corrected_11ch_smoke.yaml": 11,
+            "c5_deeplabv3plus_s2_corrected_11ch_rtx4080.yaml": 11,
+            "c5_deeplabv3plus_s2_water_burn_15ch_smoke.yaml": 15,
+            "c5_deeplabv3plus_s2_water_burn_15ch_rtx4080.yaml": 15,
+            "c5_deeplabv3plus_s2_rededge_bais2_19ch_smoke.yaml": 19,
+            "c5_deeplabv3plus_s2_rededge_bais2_19ch_rtx4080.yaml": 19,
+        }
+
+        for filename, channel_count in expected_channels.items():
+            with self.subTest(filename=filename):
+                config = load_config(probe_dir / filename)
+                self.assertEqual(config["model"]["family"], "deeplabv3_plus")
+                self.assertEqual(config["model"]["input_channels"], channel_count)
+                self.assertEqual(len(config["input_channels"]), channel_count)
+                self.assertEqual(config["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", config["split_policy"]["selection_splits"])
 
 
 if __name__ == "__main__":

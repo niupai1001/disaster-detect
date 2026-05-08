@@ -102,7 +102,10 @@ def main(argv: list[str] | None = None) -> int:
         "--derived-index",
         action="append",
         dest="derived_indices",
-        help="Derived model input index to write, e.g. NDVI, NBR, NDMI, NDWI, BRIGHTNESS. May be repeated.",
+        help=(
+            "Derived model input index to write, e.g. NDVI, NBR, NDMI, NDWI, "
+            "MNDWI, NBR2, MIRBI, BAIS2, BRIGHTNESS. May be repeated."
+        ),
     )
     args = parser.parse_args(argv)
 
