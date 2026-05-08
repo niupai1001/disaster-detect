@@ -1,0 +1,52 @@
+task_id: task-367c2761a456
+experiment_id: P18_smoke_c5_water_burn_15ch_attention_unet_base64
+seed: 20260508
+class_scope: binary_c5
+input_channels: [F01, F02, F03, F04, F07, F11, F12, NDVI, NBR, NDMI, NDWI, MNDWI, NBR2, MIRBI, BRIGHTNESS]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: attention_unet
+  variant: c5_water_burn_15ch_strong_attention_smoke
+  input_channels: 15
+  output_classes: 2
+  base_channels: 64
+  ignore_index: 255
+training:
+  batch_size: 2
+  max_epochs: 1
+  window_size: 256
+  loss: weighted_cross_entropy_dice
+  dice_weight: 0.5
+  learning_rate: 0.0003
+  class_weights:
+    max_weight: 10.0
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.7
+    min_foreground_pixels: 1
+    validation_policy: foreground_center
+  performance:
+    mixed_precision: true
+    channels_last: true
+    cudnn_benchmark: true
+    cache_records: true
+metrics:
+  class_ids: [0, 2]
+  ignore_index: 255
+  threshold_sweep: [0.5]
+  preview:
+    max_items: 0
+    worst_false_positive_items: 0
+  required_outputs: [metrics.json, per_class_metrics.csv, event_metrics.csv, confusion_matrix.csv, mask_area_summary.csv, diagnostics/artifact_inventory.json, diagnostics/validation_prediction_summary.csv, training_curves.csv, checkpoints/best_mean_iou.pt, checkpoints/best_mean_iou.json]
+cloud:
+  local_full_training_allowed: false
+  expected_accelerator: cuda
+  max_train_samples: 12
+  max_validation_samples: 8
+  log_interval_batches: 1
+  validation_interval_epochs: 1

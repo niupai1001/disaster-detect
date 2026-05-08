@@ -398,6 +398,38 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
                 self.assertEqual(config["split_policy"]["test"], "sealed")
                 self.assertNotIn("test", config["split_policy"]["selection_splits"])
 
+    def test_p18_c5_strong_architecture_configs_validate(self):
+        config_dir = (
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "p18_c5_strong_architectures"
+        )
+        expected = {
+            "c5_water_burn_15ch_deeplabv3plus_base64_smoke.yaml": ("deeplabv3_plus", 1, 2),
+            "c5_water_burn_15ch_attention_unet_base64_smoke.yaml": ("attention_unet", 1, 2),
+            "c5_water_burn_15ch_transformer_unet_base64_smoke.yaml": ("transformer_unet", 1, 2),
+            "c5_water_burn_15ch_deeplabv3plus_base64_100ep.yaml": ("deeplabv3_plus", 100, 8),
+            "c5_water_burn_15ch_attention_unet_base64_100ep.yaml": ("attention_unet", 100, 8),
+            "c5_water_burn_15ch_transformer_unet_base64_100ep.yaml": ("transformer_unet", 100, 8),
+        }
+
+        for filename, (model_family, max_epochs, batch_size) in expected.items():
+            with self.subTest(filename=filename):
+                config = load_config(config_dir / filename)
+                self.assertEqual(config["class_scope"], "binary_c5")
+                self.assertEqual(len(config["input_channels"]), 15)
+                self.assertEqual(config["model"]["family"], model_family)
+                self.assertEqual(config["model"]["input_channels"], 15)
+                self.assertEqual(config["model"]["output_classes"], 2)
+                self.assertEqual(config["model"]["base_channels"], 64)
+                self.assertEqual(config["metrics"]["class_ids"], [0, 2])
+                self.assertEqual(config["training"]["max_epochs"], max_epochs)
+                self.assertEqual(config["training"]["batch_size"], batch_size)
+                self.assertEqual(config["training"]["loss"], "weighted_cross_entropy_dice")
+                self.assertEqual(config["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", config["split_policy"]["selection_splits"])
+
 
 if __name__ == "__main__":
     unittest.main()
