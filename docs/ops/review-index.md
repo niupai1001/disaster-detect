@@ -10,17 +10,21 @@ status: active
 
 # Review Index
 
-Start here before walking the workspace. The repository has large ignored local data and generated run artifacts, so review should use source files, runbooks, and summaries as entrypoints.
+Start here before walking the workspace. The repository has large ignored local data and generated run artifacts, so review should use source files, living notes, runbooks, and summaries as entrypoints.
 
 ## Current Source Entry Points
 
 | Area | Entry |
 |---|---|
 | Project instructions | `AGENTS.md` |
+| Project notes index | `docs/README.md` |
 | Structure policy | `docs/ops/project-structure.md` |
+| Work log | `docs/ops/work-log.md` |
+| Next actions | `docs/ops/next-actions.md` |
 | Architecture benchmark configs | `configs/segmentation_training/architectures/` |
 | Architecture smoke configs | `configs/segmentation_training/architecture_smoke/` |
 | U-Net channel ablation configs | `configs/segmentation_training/unet_channel_ablation/` |
+| V6 U-Net diagnostics configs | `configs/segmentation_training/v6_11ch_unet_aug_diagnostics/` |
 | Model registry | `src/segmentation_training/models/registry.py` |
 | Cloud training path | `src/segmentation_training/cloud.py` |
 | Training CLI | `src/segmentation_training/cli.py` |
@@ -32,12 +36,9 @@ Start here before walking the workspace. The repository has large ignored local 
 
 | Topic | Entry |
 |---|---|
-| Architecture benchmark runway | `docs/implementation/2026-05-07-segmentation-v4-cloud-smoke-runbook.md` |
-| Architecture benchmark review | `docs/implementation/2026-05-07-cloud-benchmark-review.md` |
-| U-Net channel ablation | `docs/implementation/2026-05-07-unet-channel-ablation-runbook.md` |
-| V6 11-channel U-Net augmentation diagnostics | `docs/implementation/2026-05-07-v6-11ch-unet-augmentation-diagnostics-runbook.md` |
-| Model/data hypotheses | `docs/research/memos/2026-05-07-segmentation-model-data-hypotheses.md` |
-| Post-disaster training summary | `docs/implementation/2026-05-07-post-disaster-multispectral-training-summary.md` |
+| Current runbook | `docs/implementation/current-runbook.md` |
+| Model/data hypotheses | `docs/research/segmentation-model-data-hypotheses.md` |
+| Method landscape | `docs/research/method-landscape.md` |
 
 ## Runtime Evidence Entry Points
 
@@ -59,12 +60,8 @@ PYTHONPATH=src python -m segmentation_training summarize-runs \
   --output <run-root>/summary.md
 ```
 
-This command also writes `<run-root>/review/review.md`, `<run-root>/review/compact_metrics.csv`, `<run-root>/review/raw_evidence.md`, and selected figures under `<run-root>/review/figures/`.
-
-## Inventory Command
+Use the inventory command before manually browsing generated outputs:
 
 ```bash
 PYTHONPATH=src python scripts/project_inventory.py --root . --max-depth 4
 ```
-
-Use the output to decide whether you are looking at source, documentation, local data, runtime ledger, or generated workspace state.

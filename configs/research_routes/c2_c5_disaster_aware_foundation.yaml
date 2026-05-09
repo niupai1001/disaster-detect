@@ -1,0 +1,66 @@
+target_outcome: paper_experiment
+contribution_type: method_plus_experiment
+disaster_scope:
+  - C2
+  - C5
+primary_backbone: Prithvi
+extension_backbone: TerraMind
+per_disaster_reporting: true
+category_unknown_required: true
+sealed_test_policy: sealed_until_final
+data_contract:
+  required_manifest_fields:
+    - disaster_id
+    - label_confidence
+    - ignore_mask_path
+  c2_priority_fields:
+    - ELEVATION
+    - SLOPE
+    - ASPECT
+    - CURVATURE
+    - TPI
+  c5_priority_fields:
+    - NIR
+    - SWIR1
+    - SWIR2
+    - NBR
+    - NDMI
+    - BAIS2
+baseline_ladder:
+  - classical_remote_sensing
+  - obia_classical_ml
+  - deep_segmentation
+  - foundation_prithvi
+  - specialist_upper_bound
+  - category_unknown_lower_bound
+  - disaster_aware_prithvi
+  - terramind_extension
+stages:
+  - id: E0
+    name: data_audit_and_sealed_split
+    acceptance: manifest validates C2/C5 disaster metadata, label confidence, ignore masks, and split isolation.
+  - id: E1
+    name: classical_and_deep_baselines
+    acceptance: C2, C5, macro metrics are reported separately without reading sealed test.
+  - id: E2
+    name: prithvi_optical_finetune
+    acceptance: Prithvi-compatible optical channel mapping and vanilla foundation fine-tune are documented.
+  - id: E3
+    name: disaster_aware_prithvi
+    acceptance: Category branch and conditional segmentation head beat the strongest fair baseline on C2.
+  - id: E4
+    name: label_confidence_ignore_ablation
+    acceptance: Relabel, ignore-mask, and confidence weighting effects are isolated.
+  - id: E5
+    name: c2_terrain_adapter
+    acceptance: Terrain adapter reduces C2 false positives or improves C2 IoU/Dice.
+  - id: E6
+    name: category_known_vs_unknown
+    acceptance: End-to-end category-unknown result is reported beside category-known upper bound.
+  - id: E7
+    name: terramind_extension
+    acceptance: TerraMind is promoted only if weights, interface, and compute are feasible.
+acceptance:
+  c2_improvement_required: true
+  c5_may_not_mask_c2_failure: true
+  fallback_if_no_c2_gain: analyze_data_label_modality_bottleneck

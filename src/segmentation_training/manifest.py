@@ -24,6 +24,15 @@ CLASS_SCOPES = {
     "c2_c5": {1, 2},
 }
 
+DISASTER_ID_BY_CLASS_ID = {
+    1: "C2",
+    2: "C5",
+}
+
+LABEL_CONFIDENCE_VALUES = {"high", "medium", "low", "unknown"}
+
+RESEARCH_COLUMNS = ("disaster_id", "label_confidence", "ignore_mask_path")
+
 
 @dataclass(frozen=True)
 class ModelInputRecord:
@@ -102,6 +111,28 @@ def split_band_reference(value: str) -> tuple[str, int]:
 
 def format_band_paths(band_paths: dict[str, str]) -> str:
     return ";".join(f"{channel}:{path}" for channel, path in band_paths.items())
+
+
+def disaster_id_for_class(class_id: int) -> str:
+    return DISASTER_ID_BY_CLASS_ID.get(class_id, f"C{class_id}")
+
+
+def with_research_fields(record: ModelInputRecord) -> ModelInputRecord:
+    row = dict(record.row)
+    row["disaster_id"] = row.get("disaster_id", "").strip() or disaster_id_for_class(record.class_id)
+    row["label_confidence"] = row.get("label_confidence", "").strip() or "unknown"
+    row["ignore_mask_path"] = row.get("ignore_mask_path", "").strip()
+    return ModelInputRecord(
+        sample_id=record.sample_id,
+        event_id=record.event_id,
+        split=record.split,
+        class_id=record.class_id,
+        class_name=record.class_name,
+        mask_path=record.mask_path,
+        input_channels=record.input_channels,
+        input_band_paths=record.input_band_paths,
+        row=row,
+    )
 
 
 def load_model_input_manifest(
@@ -228,6 +259,65 @@ def validate_record_paths(
     return errors
 
 
+def validate_research_contract(
+    records: Iterable[ModelInputRecord],
+    *,
+    contract_dir: Path | None = None,
+    required_disasters: Iterable[str] = ("C2", "C5"),
+) -> list[str]:
+    errors: list[str] = []
+    required = set(required_disasters)
+    seen_disasters: set[str] = set()
+    sample_splits: dict[str, set[str]] = {}
+
+    for record in records:
+        expected_disaster = DISASTER_ID_BY_CLASS_ID.get(record.class_id)
+        disaster_id = record.row.get("disaster_id", "").strip()
+        if not disaster_id:
+            errors.append(f"{record.sample_id}: missing disaster_id")
+        else:
+            seen_disasters.add(disaster_id)
+            if expected_disaster is not None and disaster_id != expected_disaster:
+                errors.append(
+                    f"{record.sample_id}: disaster_id {disaster_id} does not match class_id {record.class_id}"
+                )
+
+        confidence = record.row.get("label_confidence", "").strip()
+        if not confidence:
+            errors.append(f"{record.sample_id}: missing label_confidence")
+        elif not _is_valid_label_confidence(confidence):
+            errors.append(f"{record.sample_id}: invalid label_confidence {confidence!r}")
+
+        sample_splits.setdefault(record.sample_id, set()).add(record.split)
+
+        ignore_mask_path = record.row.get("ignore_mask_path", "").strip()
+        if ignore_mask_path and contract_dir is not None:
+            resolved = resolve_existing_data_path(contract_dir, ignore_mask_path, subdir="masks")
+            if not resolved.exists():
+                errors.append(f"{record.sample_id}: missing ignore mask {resolved}")
+
+    missing_disasters = sorted(required - seen_disasters)
+    if missing_disasters:
+        errors.append(f"Missing required disasters: {', '.join(missing_disasters)}")
+
+    for sample_id, splits in sorted(sample_splits.items()):
+        if len(splits) > 1:
+            errors.append(f"{sample_id}: appears in multiple splits: {', '.join(sorted(splits))}")
+
+    return errors
+
+
+def _is_valid_label_confidence(value: str) -> bool:
+    normalized = value.strip().lower()
+    if normalized in LABEL_CONFIDENCE_VALUES:
+        return True
+    try:
+        numeric = float(normalized)
+    except ValueError:
+        return False
+    return 0.0 <= numeric <= 1.0
+
+
 def validate_record_raster_grids(
     records: Iterable[ModelInputRecord],
     *,
@@ -329,3 +419,7 @@ def write_manifest(path: Path, records: list[ModelInputRecord]) -> None:
         writer.writeheader()
         for record in records:
             writer.writerow(record.row)
+
+
+def write_research_manifest(path: Path, records: list[ModelInputRecord]) -> None:
+    write_manifest(path, [with_research_fields(record) for record in records])

@@ -430,6 +430,31 @@ class SegmentationTrainingConfigTests(unittest.TestCase):
                 self.assertEqual(config["split_policy"]["test"], "sealed")
                 self.assertNotIn("test", config["split_policy"]["selection_splits"])
 
+    def test_e1_c5_multiscene_top3_configs_validate_training_ready_contract(self):
+        config_dir = (
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "segmentation_training"
+            / "e1_c5_multiscene_top3"
+        )
+        expected = {
+            "c5_multiscene_top3_7ch_deeplabv3plus_smoke.yaml": 1,
+            "c5_multiscene_top3_7ch_deeplabv3plus_80ep.yaml": 80,
+        }
+
+        for filename, max_epochs in expected.items():
+            with self.subTest(filename=filename):
+                config = load_config(config_dir / filename)
+                self.assertEqual(config["class_scope"], "binary_c5")
+                self.assertEqual(config["input_channels"], ["F01", "F02", "F03", "F04", "F07", "F11", "F12"])
+                self.assertEqual(config["model"]["family"], "deeplabv3_plus")
+                self.assertEqual(config["model"]["input_channels"], 7)
+                self.assertEqual(config["model"]["output_classes"], 2)
+                self.assertEqual(config["metrics"]["class_ids"], [0, 2])
+                self.assertEqual(config["training"]["max_epochs"], max_epochs)
+                self.assertEqual(config["split_policy"]["test"], "sealed")
+                self.assertNotIn("test", config["split_policy"]["selection_splits"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -12,9 +12,18 @@ from .bundle import build_common_channel_bundle, build_training_bundle
 from .cloud import refuse_local_training, run_channel_contribution, run_cloud_training
 from .config import load_config
 from .diagnostic_audit import write_diagnostic_audit
-from .manifest import class_split_counts, load_model_input_manifest, validate_record_paths, validate_record_raster_grids
+from .manifest import (
+    class_split_counts,
+    load_model_input_manifest,
+    validate_record_paths,
+    validate_record_raster_grids,
+    write_research_manifest,
+)
 from .models import build_model
+from .multiscene import build_c5_multiscene_manifest
 from .paired_chips import LANDSLIDE_9CH_CHANNELS, build_paired_chip_contract
+from .research_contract_audit import build_research_contract_audit, parse_audit_source, parse_bundle_source
+from .research_route import load_research_route, summarize_research_route
 from .training_curves import write_training_curves
 
 
@@ -98,6 +107,28 @@ def main(argv: list[str] | None = None) -> int:
     model_preflight_parser.add_argument("--height", type=int, default=256)
     model_preflight_parser.add_argument("--width", type=int, default=256)
 
+    route_parser = subparsers.add_parser("validate-research-route")
+    route_parser.add_argument("--route", required=True)
+
+    research_audit_parser = subparsers.add_parser("research-contract-audit")
+    research_audit_parser.add_argument("--source", action="append", default=[])
+    research_audit_parser.add_argument("--bundle-source", action="append", default=[])
+    research_audit_parser.add_argument("--required-disaster", action="append")
+    research_audit_parser.add_argument("--output-dir", required=True)
+
+    enrich_parser = subparsers.add_parser("enrich-research-manifest")
+    enrich_parser.add_argument("--manifest", required=True)
+    enrich_parser.add_argument("--output", required=True)
+    enrich_parser.add_argument("--required-channel", action="append")
+
+    multiscene_parser = subparsers.add_parser("c5-multiscene-manifest")
+    multiscene_parser.add_argument("--manifest", required=True)
+    multiscene_parser.add_argument("--output", required=True)
+    multiscene_parser.add_argument("--required-channel", action="append", required=True)
+    multiscene_parser.add_argument("--top-k", type=int, default=3)
+    multiscene_parser.add_argument("--max-days-after-event", type=int, default=30)
+    multiscene_parser.add_argument("--cloud-data-root", default="/data/training_bundle_v0_3_indices")
+
     args = parser.parse_args(argv)
 
     try:
@@ -125,6 +156,14 @@ def main(argv: list[str] | None = None) -> int:
             return _probe_preflight(args)
         if args.command == "model-preflight":
             return _model_preflight(args)
+        if args.command == "validate-research-route":
+            return _validate_research_route(args)
+        if args.command == "research-contract-audit":
+            return _research_contract_audit(args)
+        if args.command == "enrich-research-manifest":
+            return _enrich_research_manifest(args)
+        if args.command == "c5-multiscene-manifest":
+            return _c5_multiscene_manifest(args)
     except Exception as exc:
         parser.exit(2, f"segmentation_training: error: {exc}\n")
     parser.error("unsupported command")
@@ -161,6 +200,50 @@ def _validate_manifest(args) -> int:
         "required_channels": args.required_channel or ["F16", "F17"],
     }
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
+def _validate_research_route(args) -> int:
+    route = load_research_route(args.route)
+    print(json.dumps(summarize_research_route(route), ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
+def _research_contract_audit(args) -> int:
+    sources = [parse_audit_source(value) for value in args.source]
+    sources.extend(parse_bundle_source(value) for value in args.bundle_source)
+    if not sources:
+        raise ValueError("At least one --source or --bundle-source is required")
+    audit = build_research_contract_audit(
+        sources,
+        output_dir=Path(args.output_dir),
+        required_disasters=tuple(args.required_disaster or ["C2", "C5"]),
+    )
+    summary = {key: audit[key] for key in ("status", "total_records", "contract_error_count")}
+    print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
+def _enrich_research_manifest(args) -> int:
+    records = load_model_input_manifest(
+        args.manifest,
+        required_channels=tuple(args.required_channel or ["F16", "F17"]),
+    )
+    write_research_manifest(Path(args.output), records)
+    print(json.dumps({"record_count": len(records), "output": str(args.output)}, ensure_ascii=False, indent=2))
+    return 0
+
+
+def _c5_multiscene_manifest(args) -> int:
+    summary = build_c5_multiscene_manifest(
+        manifest_path=Path(args.manifest),
+        output_path=Path(args.output),
+        required_channels=tuple(args.required_channel),
+        top_k=args.top_k,
+        max_days_after_event=args.max_days_after_event,
+        cloud_data_root=Path(args.cloud_data_root),
+    )
+    print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 
 

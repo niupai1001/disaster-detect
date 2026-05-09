@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import csv
+import io
 import json
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -13,6 +15,79 @@ from segmentation_training.cli import main as training_main  # noqa: E402
 
 
 class SegmentationTrainingCliTests(unittest.TestCase):
+    def test_validate_research_route_outputs_locked_route_summary(self):
+        route_path = (
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "research_routes"
+            / "c2_c5_disaster_aware_foundation.yaml"
+        )
+        stdout = io.StringIO()
+
+        with redirect_stdout(stdout):
+            exit_code = training_main(["validate-research-route", "--route", str(route_path)])
+
+        self.assertEqual(exit_code, 0)
+        summary = json.loads(stdout.getvalue())
+        self.assertEqual(summary["disaster_scope"], ["C2", "C5"])
+        self.assertEqual(summary["primary_backbone"], "Prithvi")
+        self.assertEqual(summary["extension_backbone"], "TerraMind")
+        self.assertEqual(summary["stages"], [f"E{index}" for index in range(8)])
+        self.assertEqual(summary["sealed_test_policy"], "sealed_until_final")
+
+    def test_enrich_research_manifest_adds_contract_fields(self):
+        with tempfile.TemporaryDirectory() as tmp_name:
+            root = Path(tmp_name)
+            manifest = root / "model_input_manifest.csv"
+            with manifest.open("w", encoding="utf-8", newline="") as fh:
+                writer = csv.DictWriter(
+                    fh,
+                    fieldnames=[
+                        "sample_id",
+                        "event_id",
+                        "class_id",
+                        "class_name",
+                        "split",
+                        "mask_path",
+                        "input_channels",
+                        "input_band_paths",
+                    ],
+                )
+                writer.writeheader()
+                writer.writerow(
+                    {
+                        "sample_id": "s1",
+                        "event_id": "e1",
+                        "class_id": "2",
+                        "class_name": "C5_fire",
+                        "split": "train",
+                        "mask_path": "masks/s1.tif",
+                        "input_channels": "F01;F02",
+                        "input_band_paths": "F01:database/f01.tif;F02:database/f02.tif",
+                    }
+                )
+
+            exit_code = training_main(
+                [
+                    "enrich-research-manifest",
+                    "--manifest",
+                    str(manifest),
+                    "--output",
+                    str(root / "research_manifest.csv"),
+                    "--required-channel",
+                    "F01",
+                    "--required-channel",
+                    "F02",
+                ]
+            )
+
+            self.assertEqual(exit_code, 0)
+            with (root / "research_manifest.csv").open(encoding="utf-8", newline="") as fh:
+                rows = list(csv.DictReader(fh))
+            self.assertEqual(rows[0]["disaster_id"], "C5")
+            self.assertEqual(rows[0]["label_confidence"], "unknown")
+            self.assertEqual(rows[0]["ignore_mask_path"], "")
+
     def test_summarize_runs_creates_review_first_pack_by_default(self):
         with tempfile.TemporaryDirectory() as tmp_name:
             root = Path(tmp_name)

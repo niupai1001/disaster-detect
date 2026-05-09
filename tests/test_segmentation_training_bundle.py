@@ -74,6 +74,10 @@ class SegmentationTrainingBundleTests(unittest.TestCase):
         self.assertTrue((bundle_dir / "configs" / "v2_binary_c5_unet_post_optical.yaml").exists())
         cloud_manifest = (bundle_dir / "manifests" / "cloud_model_input_manifest.csv").read_text(encoding="utf-8")
         self.assertIn("/cloud/training_bundle/masks/s1.tif", cloud_manifest)
+        records = load_model_input_manifest(bundle_dir / "manifests" / "cloud_model_input_manifest.csv")
+        self.assertEqual(records[0].row["disaster_id"], "C2")
+        self.assertEqual(records[0].row["label_confidence"], "unknown")
+        self.assertEqual(records[0].row["ignore_mask_path"], "")
 
     def test_local_bundle_validation_accepts_rebased_cloud_mask_paths(self):
         root, contract = self.make_contract()
@@ -203,6 +207,9 @@ class SegmentationTrainingBundleTests(unittest.TestCase):
             required_channels=("BLUE", "GREEN", "RED", "NIR"),
         )
         self.assertEqual([record.class_id for record in records], [1, 2])
+        self.assertEqual([record.row["disaster_id"] for record in records], ["C2", "C5"])
+        self.assertEqual([record.row["label_confidence"] for record in records], ["unknown", "unknown"])
+        self.assertEqual([record.row["ignore_mask_path"] for record in records], ["", ""])
         self.assertEqual(records[0].input_channels, ("BLUE", "GREEN", "RED", "NIR"))
         self.assertEqual(records[0].input_band_paths["BLUE"], "/data/c2/a.tif#band=1")
         self.assertEqual(records[1].input_band_paths["NIR"], "/data/c5/f07.tif")

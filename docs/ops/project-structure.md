@@ -10,7 +10,7 @@ status: active
 
 # Project Structure
 
-This project separates reviewable source files from generated data and runtime artifacts. The current cloud training chain remains compatible with legacy `.agent-team/artifacts/...` paths until the active benchmark and ablation runs are returned.
+This project separates reviewable source files from generated data, runtime artifacts, and project memory. The documentation surface is intentionally small: prefer updating living notes over creating date-stamped Markdown files.
 
 ## Reviewable Source Surface
 
@@ -19,10 +19,8 @@ This project separates reviewable source files from generated data and runtime a
 | `src/` | Maintained Python packages and command implementations. |
 | `tests/` | Unit and contract tests for source behavior. |
 | `configs/` | Reproducible experiment configuration. These are source files, not run outputs. |
-| `docs/` | Human-facing plans, runbooks, research notes, and review indexes. |
+| `docs/` | Small set of living human-facing notes. Do not use as a conversation archive. |
 | `AGENTS.md` | Project agent/team operating rules. |
-
-Review should start from these paths and the current Git diff.
 
 ## Runtime And Generated Surface
 
@@ -31,15 +29,16 @@ Review should start from these paths and the current Git diff.
 | `.agent-team/tasks/` | Runtime ledger | Local task state. Keep as operational state, not review source. |
 | `.agent-team/messages/` | Runtime ledger | Local message state. |
 | `.agent-team/logs/` | Runtime ledger | Local event stream. |
-| `.agent-team/artifacts/<task>/<stage>/*.md` | Department artifacts | Useful for project memory; prefer Markdown summaries over raw outputs. |
+| `.agent-team/briefs/` | Temporary workflow input | Use for short brainstorm/task briefs. Delete after absorption. |
+| `.agent-team/artifacts/<task>/<stage>/*.md` | Department artifacts | Workflow outputs only. Prefer final synthesized artifacts over many intermediate notes. |
 | `.agent-team/artifacts/<task>/cloud_*` | Legacy run outputs | Kept for compatibility. New long-lived outputs should move toward `workspace/runs/`. |
 | `.agent-team/artifacts/<task>/implementation/training_bundle_*` | Legacy bundles | Kept for active cloud commands. Future bundles should move toward `workspace/bundles/`. |
 | `database/` | Local data | Ignored. Do not review by walking the repo. |
-| `workspace/` | Future generated root | Ignored. Use for new local/cloud outputs after migration. |
+| `workspace/` | Generated root | Ignored. Use for new local/cloud outputs. |
 
-## Future Workspace Layout
+## Workspace Layout
 
-Use this layout for new generated artifacts once a runbook has been updated to opt in:
+Use this layout for new generated artifacts:
 
 ```text
 workspace/
@@ -50,11 +49,7 @@ workspace/
   scratch/
 ```
 
-The path is ignored by Git. It is intended for local and cloud runtime state, not source review.
-
-## Phase 2 Run Output Layout
-
-Training run families should now expose a review-first layer beside the raw run directories:
+Training run families should expose a review-first layer beside raw run directories:
 
 ```text
 <run-family-root>/
@@ -73,11 +68,32 @@ Training run families should now expose a review-first layer beside the raw run 
     logs/
 ```
 
-`summary.md` remains for legacy scripts and quick checks. Human review should start at `review/review.md`; raw JSON, checkpoints, and logs are evidence, not the first review surface.
+Human review should start at `review/review.md`; raw JSON, checkpoints, and logs are evidence, not the first review surface.
 
 ## Compatibility Rule
 
 Do not move or delete existing `.agent-team/artifacts/...` paths while an active runbook still references them. Add a new path first, update runbooks, verify cloud commands, and only then archive legacy outputs.
+
+## Minimal Markdown Rule
+
+Maintain these project notes only unless the user explicitly asks for more:
+
+- `docs/README.md`
+- `docs/ops/project-structure.md`
+- `docs/ops/review-index.md`
+- `docs/ops/work-log.md`
+- `docs/ops/next-actions.md`
+- `docs/research/method-landscape.md`
+- `docs/research/segmentation-model-data-hypotheses.md`
+- `docs/implementation/current-runbook.md`
+
+Temporary task briefs should live under `.agent-team/briefs/`, not `docs/`.
+
+Substantial handoffs and Chinese summaries should be mirrored into the Obsidian vault:
+
+```text
+/Users/Lemon/Documents/Obsidian Vault/遥感灾害检测/Codex项目日志/
+```
 
 ## Known Cleanup Candidates
 
@@ -86,17 +102,10 @@ Do not move or delete existing `.agent-team/artifacts/...` paths while an active
 | `tif查看.py` | Root-level exploratory utility with hard-coded local data paths. | Move into `scripts/` or replace with an argparse-based inspection command after current training runs are stable. |
 | `.agent-team/artifacts/*/implementation/training_bundle_*` | Large generated bundles mixed with department notes. | Move future bundles to `workspace/bundles/`; archive old bundles after runbooks stop referencing them. |
 | `.agent-team/artifacts/*/cloud_*` | Raw run outputs mixed with task artifacts. | Move future runs to `workspace/runs/`; keep Markdown summaries in `.agent-team/artifacts`. |
+| date-stamped docs and colocated `-zh.md` copies | Hard to review and mostly duplicate living notes. | Do not recreate; update the living notes above and use Obsidian for Chinese handoffs. |
 
 ## Inventory Command
-
-Use this command to summarize the workspace without manually browsing generated outputs:
 
 ```bash
 PYTHONPATH=src python scripts/project_inventory.py --root . --max-depth 4
 ```
-
-The command reports top-level categories, largest roots, and file extensions. It ignores `.git`.
-
-## Review Rule
-
-A pull request or local review should not require opening raw `metrics.json`, `run_manifest.json`, checkpoints, or raster directories first. Each experiment family should provide a Markdown `summary.md`, runbook, or review note that links to raw evidence only when needed.

@@ -28,6 +28,9 @@ MODEL_INPUT_COLUMNS = [
     "mask_path",
     "input_channels",
     "input_band_paths",
+    "disaster_id",
+    "label_confidence",
+    "ignore_mask_path",
     "source_image_path",
     "source_mask_path",
     "qa_flags",
@@ -85,6 +88,9 @@ def build_paired_chip_contract(
                     f"{channel}:{image_path}#band={band_index}"
                     for band_index, channel in enumerate(channels, start=1)
                 ),
+                "disaster_id": "C2" if class_id == 1 else f"C{class_id}",
+                "label_confidence": "unknown",
+                "ignore_mask_path": "",
                 "source_image_path": str(image_path),
                 "source_mask_path": str(mask_path),
                 "qa_flags": "paired_multiband_chip",

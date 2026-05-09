@@ -16,8 +16,10 @@ from segmentation_training.manifest import (  # noqa: E402
     parse_band_paths,
     rebase_records,
     split_band_reference,
+    validate_research_contract,
     validate_record_paths,
     validate_record_raster_grids,
+    write_research_manifest,
 )
 
 
@@ -251,6 +253,146 @@ class SegmentationTrainingManifestTests(unittest.TestCase):
         errors = validate_record_raster_grids(records, contract_dir=root, required_channels=("CH01", "CH02"))
 
         self.assertEqual(errors, [])
+
+    def test_validate_research_contract_accepts_disaster_metadata_and_ignore_masks(self):
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(lambda: __import__("shutil").rmtree(root, ignore_errors=True))
+        path = root / "model_input_manifest.csv"
+        (root / "masks").mkdir()
+        (root / "ignore").mkdir()
+        for name in ["c2.tif", "c5.tif", "c2_ignore.tif"]:
+            (root / "masks" / name).write_bytes(b"mask")
+        (root / "ignore" / "c5_ignore.tif").write_bytes(b"ignore")
+        fieldnames = [
+            "sample_id",
+            "event_id",
+            "class_id",
+            "class_name",
+            "split",
+            "mask_path",
+            "input_channels",
+            "input_band_paths",
+            "disaster_id",
+            "label_confidence",
+            "ignore_mask_path",
+        ]
+        rows = [
+            {
+                "sample_id": "c2-train",
+                "event_id": "e1",
+                "class_id": "1",
+                "class_name": "C2_landslide",
+                "split": "train",
+                "mask_path": "masks/c2.tif",
+                "input_channels": "B;G",
+                "input_band_paths": "B:database/b.tif;G:database/g.tif",
+                "disaster_id": "C2",
+                "label_confidence": "medium",
+                "ignore_mask_path": "masks/c2_ignore.tif",
+            },
+            {
+                "sample_id": "c5-validation",
+                "event_id": "e2",
+                "class_id": "2",
+                "class_name": "C5_fire",
+                "split": "validation",
+                "mask_path": "masks/c5.tif",
+                "input_channels": "B;G",
+                "input_band_paths": "B:database/b.tif;G:database/g.tif",
+                "disaster_id": "C5",
+                "label_confidence": "0.85",
+                "ignore_mask_path": "ignore/c5_ignore.tif",
+            },
+        ]
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        records = load_model_input_manifest(path, required_channels=("B", "G"))
+        errors = validate_research_contract(records, contract_dir=root, required_disasters=("C2", "C5"))
+
+        self.assertEqual(errors, [])
+
+    def test_validate_research_contract_rejects_disaster_mismatch_bad_confidence_and_split_leakage(self):
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(lambda: __import__("shutil").rmtree(root, ignore_errors=True))
+        path = root / "model_input_manifest.csv"
+        fieldnames = [
+            "sample_id",
+            "event_id",
+            "class_id",
+            "class_name",
+            "split",
+            "mask_path",
+            "input_channels",
+            "input_band_paths",
+            "disaster_id",
+            "label_confidence",
+        ]
+        rows = [
+            {
+                "sample_id": "same-sample",
+                "event_id": "e1",
+                "class_id": "1",
+                "class_name": "C2_landslide",
+                "split": "train",
+                "mask_path": "masks/c2.tif",
+                "input_channels": "B;G",
+                "input_band_paths": "B:database/b.tif;G:database/g.tif",
+                "disaster_id": "C5",
+                "label_confidence": "certain",
+            },
+            {
+                "sample_id": "same-sample",
+                "event_id": "e1",
+                "class_id": "1",
+                "class_name": "C2_landslide",
+                "split": "validation",
+                "mask_path": "masks/c2b.tif",
+                "input_channels": "B;G",
+                "input_band_paths": "B:database/b.tif;G:database/g.tif",
+                "disaster_id": "C2",
+                "label_confidence": "high",
+            },
+        ]
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        records = load_model_input_manifest(path, required_channels=("B", "G"))
+        errors = validate_research_contract(records, required_disasters=("C2", "C5"))
+
+        self.assertTrue(any("disaster_id C5 does not match class_id 1" in error for error in errors))
+        self.assertTrue(any("invalid label_confidence" in error for error in errors))
+        self.assertTrue(any("appears in multiple splits" in error for error in errors))
+
+    def test_write_research_manifest_adds_missing_research_fields(self):
+        root, path = self.write_manifest(
+            [
+                {
+                    "sample_id": "s1",
+                    "event_id": "e1",
+                    "class_id": "1",
+                    "class_name": "C2_landslide",
+                    "split": "train",
+                    "mask_path": "masks/s1.tif",
+                    "input_channels": "B;G",
+                    "input_band_paths": "B:database/b.tif;G:database/g.tif",
+                }
+            ]
+        )
+        output = root / "research_manifest.csv"
+        records = load_model_input_manifest(path, required_channels=("B", "G"))
+
+        write_research_manifest(output, records)
+
+        upgraded = load_model_input_manifest(output, required_channels=("B", "G"))
+        self.assertEqual(upgraded[0].row["disaster_id"], "C2")
+        self.assertEqual(upgraded[0].row["label_confidence"], "unknown")
+        self.assertEqual(upgraded[0].row["ignore_mask_path"], "")
+        self.assertEqual(validate_research_contract(upgraded, required_disasters=("C2",)), [])
 
 
 if __name__ == "__main__":

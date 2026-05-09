@@ -13,6 +13,7 @@ from .manifest import (
     rebase_path,
     resolve_under_root,
     split_band_reference,
+    with_research_fields,
     write_manifest,
 )
 
@@ -116,10 +117,12 @@ def build_training_bundle(
                 cloud_data_root=cloud_data_root,
             )
         rebased_records.append(
-            record.with_paths(
-                mask_path=str(cloud_data_root / "masks" / Path(record.mask_path).name),
-                input_channels=required_channels,
-                input_band_paths=band_paths,
+            with_research_fields(
+                record.with_paths(
+                    mask_path=str(cloud_data_root / "masks" / Path(record.mask_path).name),
+                    input_channels=required_channels,
+                    input_band_paths=band_paths,
+                )
             )
         )
     cloud_manifest_path = manifests_dir / "cloud_model_input_manifest.csv"
@@ -217,7 +220,11 @@ def _remap_common_records(records, channel_map: dict[str, str]):
     required = tuple(COMMON_OPTICAL_CHANNELS)
     for record in records:
         band_paths = {logical: record.input_band_paths[source] for logical, source in channel_map.items()}
-        remapped.append(_standard_manifest_record(record.with_paths(input_channels=required, input_band_paths=band_paths)))
+        remapped.append(
+            _standard_manifest_record(
+                with_research_fields(record.with_paths(input_channels=required, input_band_paths=band_paths))
+            )
+        )
     return remapped
 
 
@@ -231,6 +238,9 @@ def _standard_manifest_record(record: ModelInputRecord) -> ModelInputRecord:
         "mask_path": record.mask_path,
         "input_channels": ";".join(record.input_channels),
         "input_band_paths": ";".join(f"{channel}:{record.input_band_paths[channel]}" for channel in record.input_channels),
+        "disaster_id": record.row.get("disaster_id", ""),
+        "label_confidence": record.row.get("label_confidence", ""),
+        "ignore_mask_path": record.row.get("ignore_mask_path", ""),
     }
     return ModelInputRecord(
         sample_id=row["sample_id"],

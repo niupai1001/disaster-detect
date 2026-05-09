@@ -1,0 +1,66 @@
+task_id: task-2ba5416843b1
+experiment_id: E1_c5_multiscene_top3_7ch_deeplabv3plus_80ep
+seed: 20260508
+class_scope: binary_c5
+input_channels: [F01, F02, F03, F04, F07, F11, F12]
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits: [validation]
+  allow_test_split_for_selection: false
+model:
+  family: deeplabv3_plus
+  variant: c5_multiscene_top3_7ch
+  input_channels: 7
+  output_classes: 2
+  base_channels: 64
+  ignore_index: 255
+training:
+  batch_size: 8
+  max_epochs: 80
+  window_size: 256
+  loss: weighted_cross_entropy_dice
+  dice_weight: 0.5
+  learning_rate: 0.0003
+  class_weights:
+    max_weight: 10.0
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.7
+    min_foreground_pixels: 1
+    validation_policy: foreground_center
+  performance:
+    mixed_precision: true
+    channels_last: true
+    cudnn_benchmark: true
+    cache_records: true
+metrics:
+  class_ids: [0, 2]
+  ignore_index: 255
+  threshold_sweep: [0.3, 0.4, 0.5, 0.6, 0.7]
+  preview:
+    max_items: all
+    worst_false_positive_items: 24
+  required_outputs:
+    - metrics.json
+    - per_class_metrics.csv
+    - event_metrics.csv
+    - confusion_matrix.csv
+    - mask_area_summary.csv
+    - diagnostics/artifact_inventory.json
+    - diagnostics/validation_prediction_summary.csv
+    - diagnostics/threshold_sweep.csv
+    - predictions/validation_contact_sheet.png
+    - predictions/per_sample
+    - predictions/worst_false_positives
+    - training_curves.csv
+    - training_curves.png
+    - checkpoints/best_mean_iou.pt
+    - checkpoints/best_mean_iou.json
+cloud:
+  local_full_training_allowed: false
+  expected_accelerator: cuda
+  max_validation_samples: 64
+  log_interval_batches: 10
+  validation_interval_epochs: 1

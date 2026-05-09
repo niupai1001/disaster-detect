@@ -26,7 +26,7 @@ PYTHONPATH=src python -m agent_team.cli --root . messages tail
 
 ## Department Phrases
 
-- If the user says "研发部门研究目标", "头脑风暴", or asks for research brainstorming, create a brief file for the goal, then run `task create <brief-file> --stage brainstorm` and `run <task-id>`.
+- If the user says "研发部门研究目标", "头脑风暴", or asks for research brainstorming, create a brief file for the goal only when needed, prefer `.agent-team/briefs/` over `docs/`, then run `task create <brief-file> --stage brainstorm` and `run <task-id>`. After the department artifact or living note absorbs it, delete the temporary brief.
 - The `brainstorm` stage is an adversarial workshop. It assigns `research.lead`, `technical.lead`, and `qa.tester`; each produces an independent note with challenge, rebuttal, and negotiation sections. The orchestrator synthesizes a `BrainstormMemo`.
 - For project-start brainstorms, do not converge only around the current local dataset or a single familiar algorithm. First create or reference a research/literature evidence layer, then require each participating agent to propose independent route options grounded in that evidence.
 - A valid project-start `BrainstormMemo` must preserve multiple candidate method families when appropriate, such as classical remote-sensing indices, OBIA/classical ML, supervised segmentation, change detection, weak supervision, foundation-model-assisted workflows, and detection fallbacks.
@@ -43,8 +43,21 @@ PYTHONPATH=src python -m agent_team.cli --root . messages tail
 - Use `task status` and `messages tail` before resuming work in a new conversation.
 - When task choice is ambiguous, ask the user which task to continue.
 
-## Markdown Archive Preference
+## Minimal Markdown Policy
 
-- When generating a correct English Markdown artifact for this project, also archive a Chinese Markdown version with equivalent meaning.
-- Keep the English Markdown as the canonical source unless the user says otherwise.
-- Prefer colocated Chinese archive filenames with a `-zh.md` suffix, or a clearly named Chinese archive path when colocating would be confusing.
+- Keep the project directory lean. Do not create date-stamped Markdown files by default.
+- Maintain only a small set of living project notes:
+  - `docs/README.md`
+  - `docs/ops/project-structure.md`
+  - `docs/ops/review-index.md`
+  - `docs/ops/work-log.md`
+  - `docs/ops/next-actions.md`
+  - `docs/research/method-landscape.md`
+  - `docs/research/segmentation-model-data-hypotheses.md`
+  - `docs/implementation/current-runbook.md`
+- Department artifacts may still be written under `.agent-team/artifacts/` when a workflow stage requires them, but prefer final synthesized artifacts over many intermediate notes.
+- Temporary brainstorm briefs belong under `.agent-team/briefs/`, not `docs/`, and should be deleted after their evidence is absorbed into a living note or department artifact.
+- Do not colocate Chinese `-zh.md` copies in the project unless the user explicitly asks for a bilingual project artifact.
+- Mirror substantial handoffs, decisions, and next actions into the Obsidian vault instead:
+  `/Users/Lemon/Documents/Obsidian Vault/遥感灾害检测/Codex项目日志/`
+- For Obsidian, Chinese summaries are welcome when useful. Keep project Markdown canonical and concise.

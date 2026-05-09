@@ -75,6 +75,9 @@ class SegmentationTrainingPairedChipTests(unittest.TestCase):
 
         self.assertEqual(rows[0]["class_id"], "1")
         self.assertEqual(rows[0]["class_name"], "C2_debris_flow")
+        self.assertEqual(rows[0]["disaster_id"], "C2")
+        self.assertEqual(rows[0]["label_confidence"], "unknown")
+        self.assertEqual(rows[0]["ignore_mask_path"], "")
         self.assertEqual(rows[0]["input_channels"], ";".join(LANDSLIDE_9CH_CHANNELS))
         self.assertIn("#band=9", rows[0]["input_band_paths"])
         self.assertEqual([item["name"] for item in channels["channels"]], list(LANDSLIDE_9CH_CHANNELS))
