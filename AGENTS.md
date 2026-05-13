@@ -46,6 +46,9 @@ PYTHONPATH=src python -m agent_team.cli --root . messages tail
 ## Minimal Markdown Policy
 
 - Keep the project directory lean. Do not create date-stamped Markdown files by default.
+- Do not write logs for work outside this remote-sensing disaster detection project unless the user explicitly asks to archive that outside work here.
+- Project-internal meaningful steps should still be logged concisely: decisions, evidence, commands, blockers, and next actions.
+- When asked to push, push only project-related code, configs, scripts, tests, and necessary project docs. Do not include unrelated workspace outputs, Obsidian notes, or artifacts from other projects.
 - Maintain only a small set of living project notes:
   - `docs/README.md`
   - `docs/ops/project-structure.md`

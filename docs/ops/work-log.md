@@ -11,6 +11,8 @@ status: active
 
 This is the concise public project log. Keep only current decisions, evidence, blockers, and next actions.
 
+Project-external work is not logged here unless the user explicitly asks to archive that outside work in this project.
+
 ## 2026-05-08
 
 ### Project Route Locked
@@ -37,17 +39,6 @@ PYTHONPATH=src python -m segmentation_training validate-research-route \
   `.agent-team/artifacts/task-2ba5416843b1/implementation/training_bundle_c2_landslide_v0_1`
 - C5 active bundle:
   `.agent-team/artifacts/task-2ba5416843b1/implementation/training_bundle_v0_3_indices`
-
-### Cleanup
-
-- Removed thread-local presentation outputs.
-- Removed visual presentation artifacts from `.agent-team/artifacts/visuals`.
-- Removed agent event/message JSONL logs.
-- Compressed the Obsidian public work log into a current-state handoff.
-
-### Next Action
-
-Run E0 data/label contract audit before any new training. The audit should identify missing `disaster_id`, `label_confidence`, `ignore_mask_path`, split leakage, and per-disaster row counts for C2/C5.
 
 ### E0 Audit Implemented And Unblocked
 
@@ -96,25 +87,7 @@ RUN_ROOT=workspace/runs/segmentation/e1_training_ready/full \
 scripts/cloud_e1_training_ready.sh full
 ```
 
-### Conversation Handoff Compressed
+### Log Boundary Tightened
 
-- The project-relevant conversation summary was mirrored into the Obsidian work log:
-  `/Users/Lemon/Documents/Obsidian Vault/遥感灾害检测/Codex项目日志/Codex 工作日志.md`.
-- The summary keeps only route, data, model architecture, training-entry, push/pull discipline, and next commands.
-- Non-project conversational material was intentionally omitted.
-- Project Markdown cleanup should keep only living docs in `docs/` and the current active E0/E1 evidence under `.agent-team/artifacts/task-2ba5416843b1/`.
-
-### Markdown And Workspace Cleanup
-
-- Project Markdown was reduced to living docs plus current active evidence:
-  - `docs/README.md`
-  - `docs/implementation/current-runbook.md`
-  - `docs/ops/next-actions.md`
-  - `docs/ops/project-structure.md`
-  - `docs/ops/review-index.md`
-  - `docs/ops/work-log.md`
-  - `docs/research/method-landscape.md`
-  - `docs/research/segmentation-model-data-hypotheses.md`
-- `.agent-team` was reduced to the active task ledger and active evidence under `task-2ba5416843b1`.
-- Removed stale department task artifacts, stale task JSON ledgers, duplicate Chinese artifact copies, old presentation/visual outputs, Python caches, and `.DS_Store` files.
-- Obsidian project logs were reduced to active notes and obsolete runbook/goal-realignment notes were removed after their useful content was absorbed into the current work log.
+- Added rule: do not write project-external task logs here unless the user explicitly asks.
+- Cleaned the Obsidian project work log by removing non-project entries.
