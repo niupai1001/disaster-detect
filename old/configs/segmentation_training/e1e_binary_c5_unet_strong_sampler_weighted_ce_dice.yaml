@@ -1,0 +1,75 @@
+task_id: task-afc7f2c25f8f
+experiment_id: E1e_binary_c5_unet_strong_sampler_weighted_ce_dice
+seed: 20260505
+class_scope: binary_c5
+input_channels:
+  - F16
+  - F17
+diagnostics:
+  parent_experiment_id: E1d_binary_c5_unet_strong_sampler_weighted_ce
+  changed_factor: loss_family
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits:
+    - validation
+  allow_test_split_for_selection: false
+model:
+  family: unet
+  variant: baseline
+  input_channels: 2
+  output_classes: 2
+  base_channels: 32
+  ignore_index: 255
+training:
+  batch_size: 8
+  max_epochs: 80
+  window_size: 256
+  loss: weighted_cross_entropy_dice
+  class_weights:
+    source: train_masks
+    max_weight: 20.0
+  dice_weight: 0.5
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.95
+    min_foreground_pixels: 64
+    min_foreground_fraction: 0.001
+    max_attempts: 64
+    validation_policy: foreground_center
+metrics:
+  class_ids:
+    - 0
+    - 2
+  ignore_index: 255
+  threshold_sweep:
+    - 0.01
+    - 0.02
+    - 0.03
+    - 0.05
+    - 0.08
+    - 0.1
+    - 0.15
+    - 0.2
+    - 0.25
+    - 0.3
+    - 0.4
+    - 0.5
+  required_outputs:
+    - metrics.json
+    - per_class_metrics.csv
+    - event_metrics.csv
+    - confusion_matrix.csv
+    - mask_area_summary.csv
+    - diagnostics/artifact_inventory.json
+    - diagnostics/binary_c5_encode_decode_audit.json
+    - diagnostics/class_weight_audit.json
+    - diagnostics/validation_prediction_summary.csv
+    - diagnostics/threshold_sweep.csv
+    - diagnostics/foreground_probability_summary.csv
+    - diagnostics/foreground_window_coverage.csv
+cloud:
+  local_full_training_allowed: false
+  expected_accelerator: cuda
+  max_validation_samples: 64

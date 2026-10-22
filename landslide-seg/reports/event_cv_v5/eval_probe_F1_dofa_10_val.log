@@ -1,0 +1,362 @@
+{
+ "checkpoint": "N:/Users/yzh/Disater/landslide-seg/outputs/segformer/event_cv_v5_probe/Probe-dofa_10-F1/1234/best.pt",
+ "split": "best_val",
+ "threshold": 0.5,
+ "n_samples": 453,
+ "overall": {
+  "metric_version": "v2",
+  "n_tiles": 453,
+  "n_positive_tiles": 453,
+  "n_negative_tiles": 0,
+  "pixel": {
+   "tp": 38059,
+   "fp": 57006,
+   "fn": 416177,
+   "tn": 6446215,
+   "iou": 0.07444419668180627,
+   "dice": 0.13857247665669642,
+   "precision": 0.4003471309104297,
+   "recall": 0.08378684208208949,
+   "false_positive_rate": 0.008765810050127467,
+   "average_precision": 0.22365183163014216
+  },
+  "objects": {
+   "n_gt": 2526,
+   "n_gt_evaluable": 1010,
+   "n_matched_all": 138,
+   "n_pred": 805,
+   "unmatched_prediction_objects": 667,
+   "unmatched_prediction_objects_per_tile": 1.4724061810154525,
+   "n_matched_evaluable": 33,
+   "object_recall_all": 0.05463182897862233,
+   "object_recall_evaluable": 0.032673267326732675,
+   "object_recall_strict_evaluable": 0.0029702970297029703,
+   "bins": {
+    "small": {
+     "n_objects": 736,
+     "n_objects_evaluable": 315,
+     "n_matched_all": 1,
+     "n_matched_evaluable": 1,
+     "object_recall_all": 0.001358695652173913,
+     "object_recall_evaluable": 0.0031746031746031746,
+     "gt_px": 17723,
+     "hit_px": 250,
+     "pixel_recall": 0.014105964001579869
+    },
+    "medium": {
+     "n_objects": 1122,
+     "n_objects_evaluable": 523,
+     "n_matched_all": 59,
+     "n_matched_evaluable": 16,
+     "object_recall_all": 0.05258467023172905,
+     "object_recall_evaluable": 0.030592734225621414,
+     "gt_px": 107740,
+     "hit_px": 7627,
+     "pixel_recall": 0.07079079264896974
+    },
+    "large": {
+     "n_objects": 668,
+     "n_objects_evaluable": 172,
+     "n_matched_all": 78,
+     "n_matched_evaluable": 16,
+     "object_recall_all": 0.11676646706586827,
+     "object_recall_evaluable": 0.09302325581395349,
+     "gt_px": 328773,
+     "hit_px": 30182,
+     "pixel_recall": 0.0918019423736134
+    }
+   },
+   "tiny": {
+    "n_objects": 49,
+    "n_objects_evaluable": 0,
+    "n_matched_all": 0,
+    "n_matched_evaluable": 0,
+    "object_recall_all": 0.0,
+    "object_recall_evaluable": null,
+    "gt_px": 108,
+    "hit_px": 0,
+    "pixel_recall": 0.0
+   },
+   "fine_bins": {
+    "1_4": {
+     "n_objects": 49,
+     "n_objects_evaluable": 0,
+     "n_matched_all": 0,
+     "n_matched_evaluable": 0,
+     "object_recall_all": 0.0,
+     "object_recall_evaluable": null,
+     "gt_px": 108,
+     "hit_px": 0,
+     "pixel_recall": 0.0
+    },
+    "5_9": {
+     "n_objects": 92,
+     "n_objects_evaluable": 2,
+     "n_matched_all": 0,
+     "n_matched_evaluable": 0,
+     "object_recall_all": 0.0,
+     "object_recall_evaluable": 0.0,
+     "gt_px": 596,
+     "hit_px": 18,
+     "pixel_recall": 0.030201342281879196
+    },
+    "10_19": {
+     "n_objects": 91,
+     "n_objects_evaluable": 36,
+     "n_matched_all": 1,
+     "n_matched_evaluable": 1,
+     "object_recall_all": 0.01098901098901099,
+     "object_recall_evaluable": 0.027777777777777776,
+     "gt_px": 1349,
+     "hit_px": 33,
+     "pixel_recall": 0.02446256486286138
+    },
+    "20_49": {
+     "n_objects": 504,
+     "n_objects_evaluable": 277,
+     "n_matched_all": 0,
+     "n_matched_evaluable": 0,
+     "object_recall_all": 0.0,
+     "object_recall_evaluable": 0.0,
+     "gt_px": 15670,
+     "hit_px": 199,
+     "pixel_recall": 0.012699425654116145
+    },
+    "50_199": {
+     "n_objects": 1122,
+     "n_objects_evaluable": 523,
+     "n_matched_all": 59,
+     "n_matched_evaluable": 16,
+     "object_recall_all": 0.05258467023172905,
+     "object_recall_evaluable": 0.030592734225621414,
+     "gt_px": 107740,
+     "hit_px": 7627,
+     "pixel_recall": 0.07079079264896974
+    },
+    "ge200": {
+     "n_objects": 668,
+     "n_objects_evaluable": 172,
+     "n_matched_all": 78,
+     "n_matched_evaluable": 16,
+     "object_recall_all": 0.11676646706586827,
+     "object_recall_evaluable": 0.09302325581395349,
+     "gt_px": 328773,
+     "hit_px": 30182,
+     "pixel_recall": 0.0918019423736134
+    }
+   }
+  },
+  "boundary": {
+   "gt_px": 141161,
+   "pred_px": 25797,
+   "precision": 0.21994805597550102,
+   "recall": 0.04086114436707022,
+   "f1": 0.06891880544602405,
+   "tiles_both_empty": 0,
+   "tiles_gt_empty": 0,
+   "tiles_pred_empty": 141
+  },
+  "negative_tiles": {
+   "status": "not_independently_verified",
+   "tile_false_alarm_rate": null,
+   "label_empty_tile_counts": {
+    "n": 0,
+    "n_with_pred_positive": 0,
+    "tile_false_alarm_rate": null
+   }
+  }
+ },
+ "by_event": {
+  "newzealand": {
+   "metric_version": "v2",
+   "n_tiles": 453,
+   "n_positive_tiles": 453,
+   "n_negative_tiles": 0,
+   "pixel": {
+    "tp": 38059,
+    "fp": 57006,
+    "fn": 416177,
+    "tn": 6446215,
+    "iou": 0.07444419668180627,
+    "dice": 0.13857247665669642,
+    "precision": 0.4003471309104297,
+    "recall": 0.08378684208208949,
+    "false_positive_rate": 0.008765810050127467,
+    "average_precision": 0.22365183163014216
+   },
+   "objects": {
+    "n_gt": 2526,
+    "n_gt_evaluable": 1010,
+    "n_matched_all": 138,
+    "n_pred": 805,
+    "unmatched_prediction_objects": 667,
+    "unmatched_prediction_objects_per_tile": 1.4724061810154525,
+    "n_matched_evaluable": 33,
+    "object_recall_all": 0.05463182897862233,
+    "object_recall_evaluable": 0.032673267326732675,
+    "object_recall_strict_evaluable": 0.0029702970297029703,
+    "bins": {
+     "small": {
+      "n_objects": 736,
+      "n_objects_evaluable": 315,
+      "n_matched_all": 1,
+      "n_matched_evaluable": 1,
+      "object_recall_all": 0.001358695652173913,
+      "object_recall_evaluable": 0.0031746031746031746,
+      "gt_px": 17723,
+      "hit_px": 250,
+      "pixel_recall": 0.014105964001579869
+     },
+     "medium": {
+      "n_objects": 1122,
+      "n_objects_evaluable": 523,
+      "n_matched_all": 59,
+      "n_matched_evaluable": 16,
+      "object_recall_all": 0.05258467023172905,
+      "object_recall_evaluable": 0.030592734225621414,
+      "gt_px": 107740,
+      "hit_px": 7627,
+      "pixel_recall": 0.07079079264896974
+     },
+     "large": {
+      "n_objects": 668,
+      "n_objects_evaluable": 172,
+      "n_matched_all": 78,
+      "n_matched_evaluable": 16,
+      "object_recall_all": 0.11676646706586827,
+      "object_recall_evaluable": 0.09302325581395349,
+      "gt_px": 328773,
+      "hit_px": 30182,
+      "pixel_recall": 0.0918019423736134
+     }
+    },
+    "tiny": {
+     "n_objects": 49,
+     "n_objects_evaluable": 0,
+     "n_matched_all": 0,
+     "n_matched_evaluable": 0,
+     "object_recall_all": 0.0,
+     "object_recall_evaluable": null,
+     "gt_px": 108,
+     "hit_px": 0,
+     "pixel_recall": 0.0
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 49,
+      "n_objects_evaluable": 0,
+      "n_matched_all": 0,
+      "n_matched_evaluable": 0,
+      "object_recall_all": 0.0,
+      "object_recall_evaluable": null,
+      "gt_px": 108,
+      "hit_px": 0,
+      "pixel_recall": 0.0
+     },
+     "5_9": {
+      "n_objects": 92,
+      "n_objects_evaluable": 2,
+      "n_matched_all": 0,
+      "n_matched_evaluable": 0,
+      "object_recall_all": 0.0,
+      "object_recall_evaluable": 0.0,
+      "gt_px": 596,
+      "hit_px": 18,
+      "pixel_recall": 0.030201342281879196
+     },
+     "10_19": {
+      "n_objects": 91,
+      "n_objects_evaluable": 36,
+      "n_matched_all": 1,
+      "n_matched_evaluable": 1,
+      "object_recall_all": 0.01098901098901099,
+      "object_recall_evaluable": 0.027777777777777776,
+      "gt_px": 1349,
+      "hit_px": 33,
+      "pixel_recall": 0.02446256486286138
+     },
+     "20_49": {
+      "n_objects": 504,
+      "n_objects_evaluable": 277,
+      "n_matched_all": 0,
+      "n_matched_evaluable": 0,
+      "object_recall_all": 0.0,
+      "object_recall_evaluable": 0.0,
+      "gt_px": 15670,
+      "hit_px": 199,
+      "pixel_recall": 0.012699425654116145
+     },
+     "50_199": {
+      "n_objects": 1122,
+      "n_objects_evaluable": 523,
+      "n_matched_all": 59,
+      "n_matched_evaluable": 16,
+      "object_recall_all": 0.05258467023172905,
+      "object_recall_evaluable": 0.030592734225621414,
+      "gt_px": 107740,
+      "hit_px": 7627,
+      "pixel_recall": 0.07079079264896974
+     },
+     "ge200": {
+      "n_objects": 668,
+      "n_objects_evaluable": 172,
+      "n_matched_all": 78,
+      "n_matched_evaluable": 16,
+      "object_recall_all": 0.11676646706586827,
+      "object_recall_evaluable": 0.09302325581395349,
+      "gt_px": 328773,
+      "hit_px": 30182,
+      "pixel_recall": 0.0918019423736134
+     }
+    }
+   },
+   "boundary": {
+    "gt_px": 141161,
+    "pred_px": 25797,
+    "precision": 0.21994805597550102,
+    "recall": 0.04086114436707022,
+    "f1": 0.06891880544602405,
+    "tiles_both_empty": 0,
+    "tiles_gt_empty": 0,
+    "tiles_pred_empty": 141
+   },
+   "negative_tiles": {
+    "status": "not_independently_verified",
+    "tile_false_alarm_rate": null,
+    "label_empty_tile_counts": {
+     "n": 0,
+     "n_with_pred_positive": 0,
+     "tile_false_alarm_rate": null
+    }
+   }
+  }
+ },
+ "role": "DEV",
+ "manifest": "N:\\Users\\yzh\\Disater\\landslide-seg\\manifests\\event_cv_v5\\F1\\pool_100.jsonl",
+ "manifest_sha256": "d382e5d5866a96e82e6f956464e23bc455c0a4712c75c85f906255bfc80a79ce",
+ "stats_sha256": "9e8f5c73719904f996e064d26fce271d3ece64992c4e9c07d2a86701bdc708b1",
+ "checkpoint_sha256": "9535b2b018cde9583df0362108cc6f875f913d21daf9747c4130475d22a9dea1",
+ "metric_version": "v2",
+ "event_mean_iou": 0.07444419668180627,
+ "efficiency": {
+  "params": {
+   "total": 111212292,
+   "trainable": 3076,
+   "encoder": 111209216,
+   "decoder": 3076,
+   "new": 0
+  },
+  "checkpoint": "N:/Users/yzh/Disater/landslide-seg/outputs/segformer/event_cv_v5_probe/Probe-dofa_10-F1/1234/best.pt",
+  "threshold": 0.5,
+  "scale_thresholds_px": [
+   50.0,
+   200.0
+  ],
+  "device": "cuda:0",
+  "device_name": "NVIDIA GeForce RTX 5090",
+  "latency_b1": null
+ },
+ "note": "test split 不参与任何调参/阈值/checkpoint 选择；阈值扫描只在 val 上做"
+}
+[saved] N:\Users\yzh\Disater\landslide-seg\outputs\segformer\event_cv_v5_probe\Probe-dofa_10-F1\1234\eval\eval_best_val.json
+[saved] N:\Users\yzh\Disater\landslide-seg\outputs\segformer\event_cv_v5_probe\Probe-dofa_10-F1\1234\eval\per_tile_best_val.csv

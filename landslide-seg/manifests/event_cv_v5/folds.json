@@ -1,0 +1,127 @@
+{
+ "version": "EVENT_CV_V5",
+ "note": "已知历史域上的开发型事件交叉验证；非最终盲测",
+ "pool": {
+  "n_tiles": 4715,
+  "source": [
+   "manifests/official_single_geo/trainval.jsonl",
+   "manifests/official_single_geo/test.jsonl"
+  ],
+  "caveat": "受官方任务筛选影响（4,715 / 6,048），不能冒充全部监督数据"
+ },
+ "kyrgyz_merge_reason": "空间审计：kyrgyzstan1/2 最小中心距 1.28 km，存在 1 对 10 m 邻接",
+ "folds": {
+  "F1": {
+   "outer_events": [
+    "italy"
+   ],
+   "inner_events": [
+    "newzealand"
+   ],
+   "n_outer": 1776,
+   "n_inner": 453,
+   "n_train": 2486,
+   "train_events": [
+    "chimanimani",
+    "china",
+    "dominicamaria",
+    "hiroshima",
+    "hokkaido",
+    "indonesia",
+    "itogon",
+    "kyrgyzstan1",
+    "kyrgyzstan2",
+    "thrissur",
+    "usa_puertorico"
+   ],
+   "manifest_sha256": "d382e5d5866a96e82e6f956464e23bc455c0a4712c75c85f906255bfc80a79ce",
+   "test_manifest_sha256": "4f29f424a5dcbcb19262c46734cb90e73f371976876012206dba06493cf65c1b",
+   "stats_sha256": "9e8f5c73719904f996e064d26fce271d3ece64992c4e9c07d2a86701bdc708b1",
+   "protocol_sha256": "bde9a620ea6098b5d401f30578e931b48622cf3c827db669b1b4e52b8d2caaed"
+  },
+  "F2": {
+   "outer_events": [
+    "china",
+    "hokkaido",
+    "kyrgyzstan1",
+    "kyrgyzstan2"
+   ],
+   "inner_events": [
+    "newzealand"
+   ],
+   "n_outer": 979,
+   "n_inner": 453,
+   "n_train": 3283,
+   "train_events": [
+    "chimanimani",
+    "dominicamaria",
+    "hiroshima",
+    "indonesia",
+    "italy",
+    "itogon",
+    "thrissur",
+    "usa_puertorico"
+   ],
+   "manifest_sha256": "9e7ea26c0753b6e05aced0cad9fe7968c44ce78f48386914795fe75763630afc",
+   "test_manifest_sha256": "eaa3bff42c0aa6cce9a81ae85485c359723b62e73520db8bd6614d03a8716029",
+   "stats_sha256": "ce8cb0151e6a4f7e501222c0f3ea229a283f2be4f8c81e07dfa81b17b34ab31e",
+   "protocol_sha256": "5d74c87945800b487d3d8fd70cb1af14872d919d1927b4f4d76181dcafbe401d"
+  },
+  "F3": {
+   "outer_events": [
+    "hiroshima",
+    "newzealand",
+    "thrissur",
+    "usa_puertorico"
+   ],
+   "inner_events": [
+    "kyrgyzstan1",
+    "kyrgyzstan2"
+   ],
+   "n_outer": 985,
+   "n_inner": 773,
+   "n_train": 2957,
+   "train_events": [
+    "chimanimani",
+    "china",
+    "dominicamaria",
+    "hokkaido",
+    "indonesia",
+    "italy",
+    "itogon"
+   ],
+   "manifest_sha256": "3b131b3532aacd934faf32c5b31d12cc48d86dade51dadfd228d33b18a525789",
+   "test_manifest_sha256": "71dc8dc286dbc30915d0311a697e4cd5dc45cdad971d84222093140e91243b3a",
+   "stats_sha256": "7ee781be67a86dc2008ff93262afda7f692a83bd60c7dde440230e0bdbaea195",
+   "protocol_sha256": "deceea9913667d13827958c3f5f05e8707dd7aa52c6a9c78730baf00421ed990"
+  },
+  "F4": {
+   "outer_events": [
+    "chimanimani",
+    "dominicamaria",
+    "indonesia",
+    "itogon"
+   ],
+   "inner_events": [
+    "newzealand"
+   ],
+   "n_outer": 975,
+   "n_inner": 453,
+   "n_train": 3287,
+   "train_events": [
+    "china",
+    "hiroshima",
+    "hokkaido",
+    "italy",
+    "kyrgyzstan1",
+    "kyrgyzstan2",
+    "thrissur",
+    "usa_puertorico"
+   ],
+   "manifest_sha256": "c11f4b65177cea8ce2214e7bb72ef72f95b1b2bd6d100eea8240a20c96ad84e6",
+   "test_manifest_sha256": "fe4f75cfa9a3cc51cd08c52cd437465357551f7c1d34bf4adbee6fb62a783421",
+   "stats_sha256": "e2ced6fc8abe26e3cbd883616a0c71cb19b33059d9d243fc948f79649ed03d14",
+   "protocol_sha256": "1f65aa85d3b7cb856cb0b0fe309038fb11b3c5c2c52b74307b36ac99d845c97a"
+  }
+ }
+}

@@ -1,0 +1,199 @@
+{
+ "protocol": "BENCH_OFFICIAL/S12LS-LD/harmonized/s2",
+ "source": {
+  "commit": "2eb025bd76bef449d2f7cf4aaea861bc4cfeed51",
+  "date": "2026-10-06T13:27:22+02:00",
+  "subject": "Update S12LS-AD task: only use single event samples",
+  "url": "https://github.com/PaulH97/Sen12Landslides"
+ },
+ "files": {
+  "splits.json": {
+   "path": "vendor/official/Sen12Landslides/tasks/S12LS-LD/harmonized/s2/splits.json",
+   "sha256": "8f0c024fcd899890630653dd6c434959ae75663c4500c46efdd33f33b49a1229"
+  },
+  "norm.json": {
+   "path": "vendor/official/Sen12Landslides/tasks/S12LS-LD/harmonized/s2/norm.json",
+   "sha256": "a97e01cb1ae5dcfbb533178b6f32893d1e9e90e895f6ceba07a522c32c07ddb5"
+  }
+ },
+ "counts_official": {
+  "train": 3192,
+  "val": 798,
+  "test": 998
+ },
+ "total_official": 4988,
+ "input_definition": {
+  "bands": [
+   "B02",
+   "B03",
+   "B04",
+   "B05",
+   "B06",
+   "B07",
+   "B08",
+   "B8A",
+   "B11",
+   "B12"
+  ],
+  "grid": [
+   128,
+   128
+  ],
+  "official_modalities": "S2 10 band + SCL + DEM, 15 timesteps, harmonized",
+  "this_stage": "单期（十波段，无 DEM，无多时相）"
+ },
+ "single_date_rule": {
+  "window_days": 120,
+  "max_cloud": 0.5,
+  "min_valid_ratio": 0.5,
+  "max_label_invalid_ratio": 0.6,
+  "rule": "灾后窗口内最早可用（cloud<=max_cloud 且 scl_valid>=min_valid_ratio）；窗口内无解则取全灾后最低云并标 temporal_fallback",
+  "note": "不依据 VAL/TEST 分数挑日期"
+ },
+ "metric_definition": {
+  "threshold": 0.5,
+  "pixel": "pooled foreground IoU/Dice/Precision/Recall + AP（阈值无关）",
+  "object": "8 邻接对象，IoU>=0.25 一对一匹配，六档面积",
+  "boundary": "1px 容差边界 F1（tol=1）",
+  "selection": "官方 VAL 前景 pooled IoU@0.5 选 best；TEST 只评测不选模",
+  "official_metric_note": "官方表值为 binary foreground AP/F1/IoU（75 epochs，3 seeds，多时相+DEM），与本项目 pooled 单期指标不是同一口径，保留双口径命名"
+ },
+ "training_budget": {
+  "seed": 1234,
+  "batch": 64,
+  "max_steps": 3600,
+  "amp": false,
+  "note": "固定更新预算的单期变体，不声称复现官方 75 epochs"
+ },
+ "per_split": {
+  "train": {
+   "official": 3192,
+   "usable": 3012,
+   "excluded": 180
+  },
+  "val": {
+   "official": 798,
+   "usable": 758,
+   "excluded": 40
+  },
+  "test": {
+   "official": 998,
+   "usable": 945,
+   "excluded": 53
+  }
+ },
+ "protocol_sha256": "16bbd71d1b8dfb9da959b9155e87844003daffdf2d1aa6d287ae385025b01044",
+ "manifest_sha256": {
+  "trainval": "464dd7aac098808240046313197d2ed2f64cf00f2597bf69f1023b457853259e",
+  "test": "d9800f2a96a6bbc4221549e38132eb0fe5e74e49ce88867ae6c72f732cc898a6",
+  "stats_train": "545ff7cb66c854dc64709cf75cd0b3ead5854c3339045a64afb81d900ee894c2"
+ },
+ "n_samples": {
+  "train": 3012,
+  "val": 758,
+  "test": 945
+ },
+ "temporal_fallback": {
+  "train": 240,
+  "val": 58,
+  "test": 65
+ },
+ "exclusion_reasons": {
+  "72% 的滑坡像素不可观测，监督不可核实": 5,
+  "70% 的滑坡像素不可观测，监督不可核实": 9,
+  "97% 的滑坡像素不可观测，监督不可核实": 3,
+  "61% 的滑坡像素不可观测，监督不可核实": 8,
+  "78% 的滑坡像素不可观测，监督不可核实": 3,
+  "87% 的滑坡像素不可观测，监督不可核实": 2,
+  "100% 的滑坡像素不可观测，监督不可核实": 13,
+  "79% 的滑坡像素不可观测，监督不可核实": 3,
+  "69% 的滑坡像素不可观测，监督不可核实": 3,
+  "65% 的滑坡像素不可观测，监督不可核实": 7,
+  "63% 的滑坡像素不可观测，监督不可核实": 6,
+  "68% 的滑坡像素不可观测，监督不可核实": 4,
+  "66% 的滑坡像素不可观测，监督不可核实": 6,
+  "92% 的滑坡像素不可观测，监督不可核实": 3,
+  "64% 的滑坡像素不可观测，监督不可核实": 6,
+  "62% 的滑坡像素不可观测，监督不可核实": 10,
+  "83% 的滑坡像素不可观测，监督不可核实": 3,
+  "valid ratio 0.0% < 50%": 34,
+  "best post-event cloud 54% > 50%": 3,
+  "best post-event cloud 100% > 50%": 28,
+  "84% 的滑坡像素不可观测，监督不可核实": 3,
+  "76% 的滑坡像素不可观测，监督不可核实": 4,
+  "71% 的滑坡像素不可观测，监督不可核实": 3,
+  "67% 的滑坡像素不可观测，监督不可核实": 6,
+  "89% 的滑坡像素不可观测，监督不可核实": 2,
+  "74% 的滑坡像素不可观测，监督不可核实": 5,
+  "82% 的滑坡像素不可观测，监督不可核实": 6,
+  "99% 的滑坡像素不可观测，监督不可核实": 4,
+  "unparsable dates ('None,2019-02-23,2017-04-29,2016-08-02', 'days since 2016-04-14')": 1,
+  "unparsable dates ('None,2019-06-28,2016-11-10', 'days since 2016-04-14')": 1,
+  "unparsable dates ('None,2016-08-02,2019-01-19,2017-12-30,2018-02-13,2019-03-05', 'days since 2016-07-13')": 1,
+  "unparsable dates ('None,2017-02-08,2017-01-29,2017-06-08,2017-02-28,2019-07-13,2016-08-02,2016-06-23,2019-06-28', 'days since 2016-05-14')": 1,
+  "unparsable dates ('None,2017-06-28,2016-11-20,2016-08-02', 'days since 2016-04-14')": 1,
+  "valid ratio 0.1% < 50%": 1,
+  "75% 的滑坡像素不可观测，监督不可核实": 1,
+  "unparsable dates ('None', 'days since 2016-03-15')": 5,
+  "unparsable dates ('None,2017-06-28', 'days since 2016-03-15')": 1,
+  "best post-event cloud 87% > 50%": 1,
+  "unparsable dates ('None,2016-08-02,2018-02-23,2017-02-28', 'days since 2016-06-23')": 1,
+  "valid ratio 2.2% < 50%": 1,
+  "unparsable dates ('None,2016-08-22,2017-02-28', 'days since 2016-06-23')": 1,
+  "unparsable dates ('None,2018-08-07,2016-09-11,2019-05-14', 'days since 2016-04-14')": 1,
+  "96% 的滑坡像素不可观测，监督不可核实": 3,
+  "unparsable dates ('None,2017-02-28', 'days since 2016-03-15')": 1,
+  "unparsable dates ('None,2017-04-09', 'days since 2016-04-14')": 1,
+  "unparsable dates ('None,2018-06-28,2016-08-22', 'days since 2016-06-23')": 1,
+  "unparsable dates ('None,2019-03-05,2016-09-11', 'days since 2016-06-23')": 1,
+  "93% 的滑坡像素不可观测，监督不可核实": 2,
+  "best post-event cloud 69% > 50%": 1,
+  "best post-event cloud 66% > 50%": 1,
+  "best post-event cloud 68% > 50%": 2,
+  "86% 的滑坡像素不可观测，监督不可核实": 3,
+  "unparsable dates ('None,2016-08-22', 'days since 2016-05-14')": 1,
+  "unparsable dates ('None,2019-08-17,2016-12-30,2018-12-25', 'days since 2016-07-13')": 1,
+  "unparsable dates ('None,2017-06-08,2016-09-11,2016-04-14', 'days since 2016-03-15')": 1,
+  "best post-event cloud 58% > 50%": 2,
+  "unparsable dates ('None', 'days since 2015-12-16')": 1,
+  "95% 的滑坡像素不可观测，监督不可核实": 1,
+  "unparsable dates ('None,2017-04-09', 'days since 2016-11-10')": 1,
+  "unparsable dates ('None,2017-06-08,2018-11-10', 'days since 2016-10-01')": 1,
+  "unparsable dates ('None,2019-02-23', 'days since 2016-10-01')": 1,
+  "unparsable dates ('None,2017-08-27', 'days since 2016-10-01')": 1,
+  "unparsable dates ('None,2017-04-09', 'days since 2016-10-01')": 1,
+  "88% 的滑坡像素不可观测，监督不可核实": 2,
+  "best post-event cloud 99% > 50%": 4,
+  "best post-event cloud 95% > 50%": 2,
+  "best post-event cloud 73% > 50%": 1,
+  "best post-event cloud 86% > 50%": 3,
+  "best post-event cloud 83% > 50%": 2,
+  "best post-event cloud 94% > 50%": 1,
+  "best post-event cloud 98% > 50%": 4,
+  "best post-event cloud 75% > 50%": 1,
+  "best post-event cloud 78% > 50%": 2,
+  "best post-event cloud 90% > 50%": 1,
+  "best post-event cloud 89% > 50%": 1,
+  "98% 的滑坡像素不可观测，监督不可核实": 2,
+  "85% 的滑坡像素不可观测，监督不可核实": 2,
+  "unparsable dates ('None,2016-08-22', 'days since 2016-06-23')": 1,
+  "91% 的滑坡像素不可观测，监督不可核实": 1,
+  "best post-event cloud 85% > 50%": 1,
+  "best post-event cloud 71% > 50%": 1,
+  "best post-event cloud 84% > 50%": 1,
+  "94% 的滑坡像素不可观测，监督不可核实": 1,
+  "unparsable dates ('None,2018-02-08,2018-02-28', 'days since 2016-10-01')": 1
+ },
+ "decision": {
+  "date": "2026-10-20",
+  "choice": "A：启用独立官方协议（BENCH_OFFICIAL），原事件 OOD 协议与其产物全部保留不改",
+  "rationale_provided_by_user": "选用官方协议，原本协议也需要保留",
+  "consequences": {
+   "newzealand_final_status": "TERMINATED —— 官方 TRAIN 含其 292 块，此后不得再称 newzealand 为未接触训练事件",
+   "hiroshima_thrissur_dev_status": "NO LONGER CLEAN —— 官方 TRAIN 含 322 块；事件 OOD 的历史 DEV 数值仅在原协议内部有效，不可再视为盲测",
+   "italy": "本就是 DIAGNOSTIC，影响最小（官方 TRAIN 含 1,135 块）",
+   "event_ood_namespace": "保持不变；manifests/{p13,v4,v4r1}、历史 checkpoint 与报告一律不动"
+  },
+  "reporting_rule": "此后任何报告中出现 newzealand 的评测结果，必须标注其为已进入官方 TRAIN 的事件，不再是留出集"
+ }
+}

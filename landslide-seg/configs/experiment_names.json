@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "policy": "Use architecture_name for reports and discussion. Legacy IDs locate immutable historical artifacts; do not rename checkpoint directories or embedded metadata.",
+  "experiments": {
+    "A0": {"architecture_name": "SegFormer直接多光谱分割", "canonical_name": "segformer-direct10-standard"},
+    "A1": {"architecture_name": "SegFormer原网格细节残差分割", "canonical_name": "segformer-direct10-native-detail-residual", "supervision": "final-mask"},
+    "B0": {"architecture_name": "SegFormer光谱投影分割", "canonical_name": "segformer-project10to3-standard"},
+    "B1": {"architecture_name": "SegFormer光谱投影与细节残差分割", "canonical_name": "segformer-project10to3-native-detail-residual"},
+    "A1_AUX": {"architecture_name": "SegFormer细节残差分割·双输出监督", "canonical_name": "segformer-direct10-native-detail-residual-dual-supervision"},
+    "CF0": {"architecture_name": "SegFormer空间残差分割·双输出监督", "canonical_name": "segformer-direct10-spatial-residual-dual-supervision", "condition": "zero"},
+    "CF1": {"architecture_name": "SegFormer概率引导空间残差分割", "canonical_name": "segformer-direct10-probability-guided-spatial-residual", "supervision": "dual-mask"},
+    "CF1_B": {"architecture_name": "SegFormer概率引导空间残差分割·边界加权", "canonical_name": "segformer-direct10-probability-guided-spatial-residual-boundary-weighted"},
+    "CF0_NOAUX": {"architecture_name": "SegFormer空间残差分割·最终输出监督", "canonical_name": "segformer-direct10-spatial-residual-final-supervision", "condition": "zero"},
+    "SINGLE_SUM": {"architecture_name": "SegFormer单头语义—细节相加融合", "canonical_name": "segformer-direct10-single-head-detail-sum"},
+    "SINGLE_AFF": {"architecture_name": "SegFormer单头语义—细节局部注意力融合", "canonical_name": "segformer-direct10-single-head-detail-local-aff", "note": "AFF-derived: additional local depthwise 3x3, bias changes, zero terminal BN initialization; not an unchanged reproduction of original AFF."},
+    "U0": {"architecture_name": "ResNet18编码器U-Net多光谱分割", "canonical_name": "unet-resnet18-direct10"},
+    "A0_T1": {"architecture_name": "SegFormer直接多光谱分割·首层独立学习率", "canonical_name": "segformer-direct10-standard-first-layer-lr"},
+    "A0_T2": {"architecture_name": "SegFormer直接多光谱分割·事件尺度均衡采样", "canonical_name": "segformer-direct10-standard-balanced-sampling"}
+  }
+}

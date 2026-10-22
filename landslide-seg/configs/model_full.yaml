@@ -1,0 +1,58 @@
+project: Landslide-Seg-V1
+input:
+  product: Sentinel-2-L2A
+  required_bands_terramind: [B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12]
+  bands_anysat: [B02, B03, B04, B05, B06, B07, B08, B8A, B11, B12]
+  single_date: true
+  reference_resolution_m: 10
+
+model:
+  terramind:
+    name: terramind_v1_small_tim
+    tim_modalities: [LULC]
+    merge_method: mean
+    pretrained: true
+    freeze: true
+    layers: [2, 5, 8, 11]
+  anysat:
+    name: base
+    pretrained: true
+    freeze: true
+    output: dense
+    output_modality: s2
+    patch_sizes_m: [40, 160]   # 候选值，尚未做效果对比
+  text:
+    model: RemoteCLIP
+    arch: ViT-B-32
+    pretrained: true
+    freeze: true
+    class_prompt: "a landslide scar in a satellite image"
+  fusion:
+    method: concat_fpn_gate
+    channels: 128
+    level_strides_m: [10, 20, 40, 80]
+    branch_dropout: 0.1
+  coarse:
+    type: fpn_binary
+    hidden: 64
+  fine:
+    type: unet_refiner
+    hidden: 96
+
+training:
+  freeze_backbones_initially: true
+  use_real_coarse_prediction_in_refiner: true
+  optimizer: adamw
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  batch_size: 2
+  loss:
+    fine: [bce, dice]
+    coarse_weight: 0.5
+    presence_weight: 0.2
+    region_text_weight: 0.1
+    attribute_weight: 0.0   # 无属性标注时为 0
+
+validation:
+  split_by: [event_id, geography]   # 当前数据不满足，见 docs/blockers.md
+  metrics: [iou, dice, precision, recall, empty_tile_fpr]

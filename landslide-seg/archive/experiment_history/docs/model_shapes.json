@@ -1,0 +1,155 @@
+{
+  "input_x12": [
+    2,
+    12,
+    128,
+    128
+  ],
+  "input_x10": [
+    2,
+    10,
+    128,
+    128
+  ],
+  "s2_dates": [
+    2,
+    1
+  ],
+  "fine_logits": [
+    2,
+    1,
+    128,
+    128
+  ],
+  "coarse_logits": [
+    2,
+    1,
+    128,
+    128
+  ],
+  "presence_logits": [
+    2,
+    1
+  ],
+  "sem_map": [
+    2,
+    1,
+    128,
+    128
+  ],
+  "region_embedding": null,
+  "pyramid": [
+    [
+      2,
+      128,
+      128,
+      128
+    ],
+    [
+      2,
+      128,
+      64,
+      64
+    ],
+    [
+      2,
+      128,
+      32,
+      32
+    ],
+    [
+      2,
+      128,
+      16,
+      16
+    ]
+  ],
+  "source_channels": {
+    "terramind.S2L2A": 384,
+    "anysat.s2@40m": 1536,
+    "anysat.s2@160m": 1536
+  },
+  "fusion_gate": [
+    {
+      "stride_m": 10.0,
+      "weights": {
+        "terramind.S2L2A": 0.3333333432674408,
+        "anysat.s2@40m": 0.3333333432674408,
+        "anysat.s2@160m": 0.3333333432674408
+      }
+    },
+    {
+      "stride_m": 20.0,
+      "weights": {
+        "terramind.S2L2A": 0.3333333432674408,
+        "anysat.s2@40m": 0.3333333432674408,
+        "anysat.s2@160m": 0.3333333432674408
+      }
+    },
+    {
+      "stride_m": 40.0,
+      "weights": {
+        "terramind.S2L2A": 0.3333333432674408,
+        "anysat.s2@40m": 0.3333333432674408,
+        "anysat.s2@160m": 0.3333333432674408
+      }
+    },
+    {
+      "stride_m": 80.0,
+      "weights": {
+        "terramind.S2L2A": 0.3333333432674408,
+        "anysat.s2@40m": 0.3333333432674408,
+        "anysat.s2@160m": 0.3333333432674408
+      }
+    }
+  ],
+  "terramind": {
+    "tim_ran": true,
+    "num_tokens": 196,
+    "feature_shapes": [
+      [
+        2,
+        196,
+        384
+      ],
+      [
+        2,
+        196,
+        384
+      ],
+      [
+        2,
+        196,
+        384
+      ],
+      [
+        2,
+        196,
+        384
+      ]
+    ],
+    "latency_s": 0.3585931999987224
+  },
+  "anysat_info@40m": {
+    "patch_size_m": 40,
+    "out_shape": [
+      2,
+      128,
+      128,
+      1536
+    ],
+    "num_patches": 1024,
+    "latency_s": 0.1787114999970072
+  },
+  "anysat_info@160m": {
+    "patch_size_m": 160,
+    "out_shape": [
+      2,
+      128,
+      128,
+      1536
+    ],
+    "num_patches": 64,
+    "latency_s": 0.09826740000062273
+  }
+}

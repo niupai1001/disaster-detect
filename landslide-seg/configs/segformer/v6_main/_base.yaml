@@ -1,0 +1,61 @@
+# 主模型四组正交试验的公共配置（2026-10-21）
+#
+# 数据：官方可用子集 3012/758/945，十波段 S2，128×128，不加 DEM。
+# 训练：3600 次成功更新、有效 batch 64、230400 次目标图块曝光；
+#       统一 microbatch 8 × accumulation 8（显存验收后锁定，四组一致）。
+# 损失：0.5 BCE + 0.5 Dice；BCE 按全有效 batch 有效像素归一化，Dice 按样本数加权。
+# 选择：每 100 次更新只看 VAL pooled IoU@0.5；TEST 不参与选择。
+segformer:
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/segformer
+  data:
+    version: v6_main
+    manifest: manifests/official_single/trainval.jsonl
+    test_manifest: manifests/official_single/test.jsonl
+    stats: manifests/official_single/stats_train.json
+    protocol: manifests/official_single/protocol.json
+    temporal_root: data/s2_temporal_v5
+    quality: data/s2_temporal_v6_quality
+    image_size: 128
+  model:
+    type: temporal_spectral
+    backbone: b0
+    spectral: false
+    spectral_patch: 4
+    spectral_width: 64
+    spectral_heads: 4
+    spectral_layers: 2
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+  temporal:
+    mode: single
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+  optim:
+    encoder_lr: 6.0e-05
+    head_lr: 0.0006
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+  train:
+    epochs: 150
+    batch_size: 64
+    microbatch: 8
+    accumulation: 8
+    max_steps: 3600
+    eval_every_updates: 100
+    budget_mode: updates
+  eval:
+    threshold: 0.5
+    batch_size: 8
+    selection_metric: dev_pooled_iou
+    scale_thresholds_ha:
+    - 0.5
+    - 2.0
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1

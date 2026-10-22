@@ -1,0 +1,331 @@
+{
+ "config": "configs/segformer/p2m1/segformer_b2_latedetail_alltrain_s1234.yaml",
+ "device": "cuda:0",
+ "identity": {
+  "dir": "N:/Users/yzh/Disater/landslide-seg/weights/segformer/segformer-b2-finetuned-ade-512-512",
+  "files": {
+   "config.json": {
+    "bytes": 6885,
+    "sha256": "ee7400840fdb1e5045f0b2eba78bf053df8e33a309c4acec31705a48c8cc5c00"
+   },
+   "download_meta.json": {
+    "bytes": 815,
+    "sha256": "3166ffe04cb32d553336e6218bdfa255640223871cfccc39efd1097cc9c471e1"
+   },
+   "preprocessor_config.json": {
+    "bytes": 271,
+    "sha256": "8039d1d210abaa7117ad78e58cdfd6141a2ec72c03dae891b3cd76737e422c6c"
+   },
+   "pytorch_model.bin": {
+    "bytes": 110000905,
+    "sha256": "187ca07bea003a5717c63d04ea90b07f33cd033c0ebf44b4b89fce5070d6c8f3"
+   }
+  },
+  "config": {
+   "decoder_hidden_size": 768,
+   "depths": [
+    3,
+    4,
+    6,
+    3
+   ],
+   "hidden_sizes": [
+    64,
+    128,
+    320,
+    512
+   ],
+   "num_attention_heads": [
+    1,
+    2,
+    5,
+    8
+   ],
+   "sr_ratios": [
+    8,
+    4,
+    2,
+    1
+   ],
+   "patch_sizes": [
+    7,
+    3,
+    3,
+    3
+   ],
+   "strides": [
+    4,
+    2,
+    2,
+    2
+   ],
+   "num_channels": 3,
+   "reshape_last_stage": true
+  },
+  "state_dict_numel": 27463511,
+  "markers": {
+   "linear_c_out": 768,
+   "classifier": [
+    150,
+    768,
+    1,
+    1
+   ],
+   "first_conv": [
+    64,
+    3,
+    7,
+    7
+   ]
+  },
+  "download_meta": {
+   "repo": "nvidia/segformer-b2-finetuned-ade-512-512",
+   "revision": "de01bae28967510f9ddd496c60a969357195400c",
+   "mirror": "https://hf-mirror.com",
+   "downloaded_on": "2026-10-20",
+   "files": {
+    "config.json": {
+     "bytes": 6885,
+     "sha256": "ee7400840fdb1e5045f0b2eba78bf053df8e33a309c4acec31705a48c8cc5c00"
+    },
+    "preprocessor_config.json": {
+     "bytes": 271,
+     "sha256": "8039d1d210abaa7117ad78e58cdfd6141a2ec72c03dae891b3cd76737e422c6c"
+    },
+    "pytorch_model.bin": {
+     "bytes": 110000905,
+     "sha256": "187ca07bea003a5717c63d04ea90b07f33cd033c0ebf44b4b89fce5070d6c8f3"
+    }
+   },
+   "config": {
+    "model_type": "segformer",
+    "num_labels": null,
+    "hidden_sizes": [
+     64,
+     128,
+     320,
+     512
+    ],
+    "decoder_hidden_size": 768,
+    "depths": [
+     3,
+     4,
+     6,
+     3
+    ]
+   }
+  },
+  "dir_name_matches_content": true
+ },
+ "hf_load_info": {
+  "missing_keys": [],
+  "unexpected_keys": [],
+  "mismatched_keys": [],
+  "error_msgs": []
+ },
+ "spec": {
+  "backbone": "b2",
+  "decoder_hidden": 768,
+  "params": {
+   "total": 27430338,
+   "trainable": 27430338,
+   "encoder": 24218240,
+   "decoder": 3151105,
+   "new": 60993
+  },
+  "decoder_feat_shape": [
+   2,
+   768,
+   32,
+   32
+  ],
+  "logits_shape": [
+   2,
+   1,
+   128,
+   128
+  ],
+  "delta_vs_b0_total": 23676736
+ },
+ "n_train": 2223,
+ "memory": {
+  "batch": 64,
+  "loss": 0.822112,
+  "n_grad_tensors": 387,
+  "all_finite": true,
+  "peak_alloc_mib": 11421.4,
+  "peak_reserved_mib": 15114.0,
+  "param_dtypes": [
+   "torch.float32"
+  ]
+ },
+ "fit": [
+  {
+   "step": 1,
+   "loss": 0.820241,
+   "batch_iou": 0.0348
+  },
+  {
+   "step": 21,
+   "loss": 0.517971,
+   "batch_iou": 0.0
+  },
+  {
+   "step": 41,
+   "loss": 0.399591,
+   "batch_iou": 0.3756
+  },
+  {
+   "step": 61,
+   "loss": 0.314473,
+   "batch_iou": 0.5234
+  },
+  {
+   "step": 81,
+   "loss": 0.254061,
+   "batch_iou": 0.5846
+  },
+  {
+   "step": 100,
+   "loss": 0.242902,
+   "batch_iou": 0.6024
+  }
+ ],
+ "gates": [
+  {
+   "gate": "G1",
+   "check": "权重文件内容 = B2-768 架构",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "linear_c_out": 768,
+    "classifier": [
+     150,
+     768,
+     1,
+     1
+    ],
+    "first_conv": [
+     64,
+     3,
+     7,
+     7
+    ]
+   }
+  },
+  {
+   "gate": "G1",
+   "check": "目录名/仓库名与内容一致（信息项，不阻断）",
+   "ok": false,
+   "hard": false,
+   "detail": {
+    "dir": "segformer-b2-finetuned-ade-512-512",
+    "meta_repo": "nvidia/segformer-b2-finetuned-ade-512-512",
+    "note": "目录名写 512-512，但 config 与张量均为 B2-768；以内容为准，已在报告中标注"
+   }
+  },
+  {
+   "gate": "G2",
+   "check": "from_pretrained 无 missing/unexpected/mismatched",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "missing_keys": 0,
+    "unexpected_keys": 0,
+    "mismatched_keys": 0,
+    "error_msgs": 0
+   }
+  },
+  {
+   "gate": "G3",
+   "check": "decoder 维度 = 768 且 logits 为 [B,1,128,128]",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "backbone": "b2",
+    "decoder_hidden": 768,
+    "params": {
+     "total": 27430338,
+     "trainable": 27430338,
+     "encoder": 24218240,
+     "decoder": 3151105,
+     "new": 60993
+    },
+    "decoder_feat_shape": [
+     2,
+     768,
+     32,
+     32
+    ],
+    "logits_shape": [
+     2,
+     1,
+     128,
+     128
+    ],
+    "delta_vs_b0_total": 23676736
+   }
+  },
+  {
+   "gate": "G3",
+   "check": "参数量与离线核算一致（27,430,338）",
+   "ok": true,
+   "hard": true,
+   "detail": 27430338
+  },
+  {
+   "gate": "G4",
+   "check": "batch64 前反向无 OOM 且梯度全有限",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "batch": 64,
+    "loss": 0.822112,
+    "n_grad_tensors": 387,
+    "all_finite": true,
+    "peak_alloc_mib": 11421.4,
+    "peak_reserved_mib": 15114.0,
+    "param_dtypes": [
+     "torch.float32"
+    ]
+   }
+  },
+  {
+   "gate": "G4",
+   "check": "全参数 FP32",
+   "ok": true,
+   "hard": true,
+   "detail": [
+    "torch.float32"
+   ]
+  },
+  {
+   "gate": "G5",
+   "check": "固定 8 样本 100 步能降 loss",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "first": 0.820241,
+    "last": 0.242902,
+    "iou_last": 0.6024
+   }
+  },
+  {
+   "gate": "G6",
+   "check": "checkpoint 重载输出一致",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "max_abs_diff": 0.0
+   }
+  },
+  {
+   "gate": "G6",
+   "check": "重载后参数哈希一致",
+   "ok": true,
+   "hard": true,
+   "detail": "637e1cc5351d6ae7"
+  }
+ ],
+ "all_pass": true
+}

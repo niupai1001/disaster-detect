@@ -1,0 +1,51 @@
+# ===== 大型数据、权重与运行产物：不入库 =====
+# 原因：仓库只保存代码、配置、清单与报告；影像、掩膜、权重和逐 run 输出体积过大
+# （本地合计约 176 GB），由本地磁盘/对象存储另行保存。
+# 注意：以下路径均从仓库根锚定，避免误伤 src/.../data 等同名子目录。
+
+# 数据与影像
+/landslide-seg/data/
+/images/
+/annotations/
+
+# 训练产物、权重、第三方代码
+/landslide-seg/outputs/
+/landslide-seg/outputs_run2/
+/landslide-seg/weights/
+/landslide-seg/vendor/
+/exp/
+/_diag/
+
+# 归档前仓库的临时克隆（仅本地用于生成 old/）
+/.push/
+
+# 工具与缓存
+/.workbuddy/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# 模型文件与压缩包（GitHub 单文件 100 MB 限制，且非源码）
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.npy
+*.npz
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.rar
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

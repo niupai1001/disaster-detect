@@ -1,0 +1,10 @@
+_base: base.yaml
+segformer:
+  experiment: CF1_B
+  model:
+    type: segformer
+    refine: guided
+  loss:
+    coarse_weight: 0.5
+    boundary_weight: 0.5
+    boundary_width: 2

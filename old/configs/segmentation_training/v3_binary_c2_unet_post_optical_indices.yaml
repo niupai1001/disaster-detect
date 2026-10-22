@@ -1,0 +1,74 @@
+task_id: task-2ba5416843b1
+experiment_id: V3_binary_c2_unet_post_optical_indices
+seed: 20260507
+class_scope: binary_c2
+input_channels:
+  - F01
+  - F02
+  - F03
+  - F04
+  - F07
+  - F11
+  - F12
+  - NDVI
+  - NBR
+  - NDMI
+  - BRIGHTNESS
+split_policy:
+  train: train
+  validation: validation
+  test: sealed
+  selection_splits:
+    - validation
+  allow_test_split_for_selection: false
+model:
+  family: unet
+  variant: post_disaster_optical_indices_v0_3
+  input_channels: 11
+  output_classes: 2
+  base_channels: 32
+  ignore_index: 255
+training:
+  batch_size: 6
+  max_epochs: 60
+  window_size: 256
+  loss: weighted_cross_entropy_dice
+  dice_weight: 1.0
+  class_weights:
+    max_weight: 20.0
+  sampler:
+    train_policy: foreground_biased
+    foreground_probability: 0.8
+    min_foreground_pixels: 1
+    validation_policy: foreground_center
+metrics:
+  class_ids:
+    - 0
+    - 1
+  ignore_index: 255
+  threshold_sweep:
+    - 0.05
+    - 0.1
+    - 0.2
+    - 0.3
+    - 0.4
+    - 0.5
+  required_outputs:
+    - metrics.json
+    - per_class_metrics.csv
+    - event_metrics.csv
+    - confusion_matrix.csv
+    - mask_area_summary.csv
+    - diagnostics/artifact_inventory.json
+    - diagnostics/validation_prediction_summary.csv
+    - diagnostics/threshold_sweep.csv
+    - diagnostics/foreground_window_coverage.csv
+    - predictions/validation_contact_sheet.png
+    - training_curves.png
+    - training_curves.csv
+cloud:
+  local_full_training_allowed: false
+  expected_accelerator: cuda
+  max_validation_samples: 64
+  log_interval_batches: 10
+  validation_interval_epochs: 1

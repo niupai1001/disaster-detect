@@ -1,0 +1,90 @@
+{
+ "schema_version": 1,
+ "updated": "2026-10-22",
+ "default_protocol": "event_ood_v4r1",
+ "manifest_root": "manifests/v4r1",
+ "folds": [],
+ "seed": 1234,
+ "pool_file": "pool_100.jsonl",
+ "outer_file": null,
+ "train_role": "TRAIN",
+ "inner_role": "DEV",
+ "outer_role": null,
+ "selection": {
+  "segformer": "dev_event_mean_iou",
+  "utae_cv": "inner_event_mean_iou"
+ },
+ "normalization": "沿用原十波段stats_core25.json，由559块共同训练核心拟合；不因TRAIN=2223擅自重算。额外输入统计仅TRAIN拟合、显式登记，不读取DEV/FINAL/DIAG。",
+ "initialization": "通用预训练或本固定TRAIN合法状态；禁止使用包含DEV/FINAL/DIAG事件监督的checkpoint作为无泄漏起点",
+ "official_comparison": {
+  "routine_development": false,
+  "requires": "项目协议取得明确进步、冻结候选及规则，再安排官方比较；历史脚本和历史产物不等于当前授权",
+  "iou_gain_reference": 0.02,
+  "reference_is_significance_threshold": false,
+  "data_split_display": "官方数据划分（未按事件隔离）"
+ },
+ "stage_ledger": "docs/assets/research/stage_ledger.json",
+ "phase_order": [
+  "terrain-prior",
+  "spectral-controlled"
+ ],
+ "temporal": {
+  "groups": [
+   "single",
+   "history",
+   "multi"
+  ],
+  "prediction_cutoff": "原始所选单期日期，不延后",
+  "history": "只使用不晚于prediction_cutoff的真实观测",
+  "multi": "完整15期回顾性条件，必须明确含截止日期之后观测",
+  "deferred": "此前3/5/7帧资格限制属于历史四折设计，不自动套用原固定留出；本次不安排新时相网格，不改变原始截止日期或复制帧。"
+ },
+ "independent_branches": "回到原固定事件留出基线，先地形再光谱独立对照；不扩四折、不因时间负结果取消后续信息条件研究，也不提前联合叠加",
+ "preflight": "scripts/check_research_protocol.py --config <实际配置> [--set key=value]",
+ "preflight_limit": "核查清单、协议锁和统计来源元数据；不重算图像统计、不检查完整预训练语料，不能代替模型与数据运行验证",
+ "stats_file": "stats_core25.json",
+ "protocol_file": "protocol.json",
+ "baseline_config": "configs/segformer/v4r1/segformer_b0_direct10_detailres_n100_u3600_s1234.yaml",
+ "baseline_counts": {
+  "train": 2223,
+  "dev": 669
+ },
+ "dev_events": [
+  "hiroshima",
+  "thrissur"
+ ],
+ "optional_protocols": {
+  "EVENT_CV_V5": {
+   "manifest_root": "manifests/event_cv_v5",
+   "folds": [
+    "F1",
+    "F2",
+    "F3",
+    "F4"
+   ],
+   "pool_file": "pool_100.jsonl",
+   "outer_file": "test.jsonl",
+   "train_role": "TRAIN",
+   "inner_role": "VAL",
+   "outer_role": "TEST",
+   "selection": {
+    "segformer": "dev_event_mean_iou",
+    "utae_cv": "inner_event_mean_iou"
+   }
+  }
+ },
+ "event_cv_policy": "四折只保留已有诊断与历史证据；不作为每项新实验默认队列，不以补齐四折作为进入后续阶段的前置。",
+ "held_out_roles": {
+  "dev": "hiroshima448+thrissur221；二事件等权IoU选模，非盲测TEST",
+  "final": "newzealand338；开发阶段不评测，保留历史接触限制",
+  "diagnostic": "italy2795；仅明确诊断时使用，不参与选模或作为独立TEST反复调参"
+ },
+ "display_name": "九事件训练、广岛与特里苏尔验证",
+ "role_definitions": {
+  "TRAIN": "训练：更新参数，2223块",
+  "DEV": "开发验证：广岛448＋特里苏尔221，选择最佳模型，清单split=val",
+  "DIAG": "意大利错误诊断，不参与常规选模",
+  "FINAL": "新西兰保留评价，开发期间不使用"
+ },
+ "data_split_display": "我们的数据划分（留事件验证）"
+}

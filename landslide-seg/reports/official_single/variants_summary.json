@@ -1,0 +1,3427 @@
+{
+ "baseline": {
+  "n_train": 3012,
+  "n_val": 758,
+  "best_val_iou": 0.3622693574752923,
+  "best_step": 2700,
+  "selection_metric": "dev_pooled_iou",
+  "seconds": 686.957948923111,
+  "params": {
+   "total": 3753602,
+   "trainable": 3753602,
+   "encoder": 3330368,
+   "decoder": 395009,
+   "new": 28225
+  },
+  "peak_alloc_mib": 4694.2587890625,
+  "in_chans": "none",
+  "best_val": {
+   "n": 758,
+   "event_mean": 0.29328153717127203,
+   "iou": 0.3622684895898423,
+   "dice": 0.5318606315248702,
+   "precision": 0.5685333612269714,
+   "recall": 0.4996323022475525,
+   "ap": 0.5175956088603396,
+   "boundary_f1": 0.5282467218879119,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3844,
+    "n_pred": 11469,
+    "unmatched_prediction_objects": 7625,
+    "unmatched_prediction_objects_per_tile": 10.059366754617415,
+    "n_matched_evaluable": 2798,
+    "object_recall_all": 0.4260696076258036,
+    "object_recall_evaluable": 0.453484602917342,
+    "object_recall_strict_evaluable": 0.2706645056726094,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2798,
+      "n_matched_evaluable": 2225,
+      "object_recall_all": 0.39425109201070874,
+      "object_recall_evaluable": 0.43003478933127176,
+      "gt_px": 106600,
+      "hit_px": 44199,
+      "pixel_recall": 0.41462476547842403
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 818,
+      "n_matched_evaluable": 501,
+      "object_recall_all": 0.5287653522947641,
+      "object_recall_evaluable": 0.5725714285714286,
+      "gt_px": 136255,
+      "hit_px": 67169,
+      "pixel_recall": 0.492965395765293
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 228,
+      "n_matched_evaluable": 72,
+      "object_recall_all": 0.6031746031746031,
+      "object_recall_evaluable": 0.5950413223140496,
+      "gt_px": 192285,
+      "hit_px": 106042,
+      "pixel_recall": 0.5514834750500559
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 104,
+     "n_matched_evaluable": 68,
+     "object_recall_all": 0.15757575757575756,
+     "object_recall_evaluable": 0.22895622895622897,
+     "gt_px": 1995,
+     "hit_px": 349,
+     "pixel_recall": 0.174937343358396
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 104,
+      "n_matched_evaluable": 68,
+      "object_recall_all": 0.15757575757575756,
+      "object_recall_evaluable": 0.22895622895622897,
+      "gt_px": 1995,
+      "hit_px": 349,
+      "pixel_recall": 0.174937343358396
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 748,
+      "n_matched_evaluable": 617,
+      "object_recall_all": 0.34280476626947753,
+      "object_recall_evaluable": 0.3580963435867673,
+      "gt_px": 14598,
+      "hit_px": 4763,
+      "pixel_recall": 0.326277572270174
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 980,
+      "n_matched_evaluable": 809,
+      "object_recall_all": 0.45244690674053556,
+      "object_recall_evaluable": 0.4864702345159351,
+      "gt_px": 28450,
+      "hit_px": 11794,
+      "pixel_recall": 0.4145518453427065
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 966,
+      "n_matched_evaluable": 731,
+      "object_recall_all": 0.4624222115844902,
+      "object_recall_evaluable": 0.4902749832327297,
+      "gt_px": 61557,
+      "hit_px": 27293,
+      "pixel_recall": 0.44337768247315495
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 818,
+      "n_matched_evaluable": 501,
+      "object_recall_all": 0.5287653522947641,
+      "object_recall_evaluable": 0.5725714285714286,
+      "gt_px": 136255,
+      "hit_px": 67169,
+      "pixel_recall": 0.492965395765293
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 228,
+      "n_matched_evaluable": 72,
+      "object_recall_all": 0.6031746031746031,
+      "object_recall_evaluable": 0.5950413223140496,
+      "gt_px": 192285,
+      "hit_px": 106042,
+      "pixel_recall": 0.5514834750500559
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.44559321525967216,
+    "china": 0.1086747451432968,
+    "dominicamaria": 0.15872074049900614,
+    "hiroshima": 0.49932670961167525,
+    "hokkaido": 0.5205873174897762,
+    "indonesia": 0.18661879323933794,
+    "italy": 0.3806933375035605,
+    "itogon": 0.21946222791293213,
+    "kyrgyzstan1": 0.33343980515656346,
+    "kyrgyzstan2": 0.07382992748846408,
+    "newzealand": 0.3658077638434179,
+    "thrissur": 0.508277493102089,
+    "usa_puertorico": 0.011627906976744186
+   },
+   "scale": {
+    "1_4": 0.22895622895622897,
+    "5_9": 0.3580963435867673,
+    "10_19": 0.4864702345159351,
+    "20_49": 0.4902749832327297,
+    "50_199": 0.5725714285714286,
+    "ge200": 0.5950413223140496
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "last_val": {
+   "n": 758,
+   "event_mean": 0.2914519203783848,
+   "iou": 0.3604057919726326,
+   "dice": 0.5298504227184045,
+   "precision": 0.5566244939271255,
+   "recall": 0.5055338511743347,
+   "ap": 0.5111813317910316,
+   "boundary_f1": 0.5278961958148595,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3844,
+    "n_pred": 11726,
+    "unmatched_prediction_objects": 7882,
+    "unmatched_prediction_objects_per_tile": 10.398416886543536,
+    "n_matched_evaluable": 2804,
+    "object_recall_all": 0.4260696076258036,
+    "object_recall_evaluable": 0.45445705024311184,
+    "object_recall_strict_evaluable": 0.27115072933549433,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2812,
+      "n_matched_evaluable": 2243,
+      "object_recall_all": 0.3962237565168381,
+      "object_recall_evaluable": 0.43351372245844605,
+      "gt_px": 106600,
+      "hit_px": 44693,
+      "pixel_recall": 0.41925891181988745
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 807,
+      "n_matched_evaluable": 490,
+      "object_recall_all": 0.5216548157724629,
+      "object_recall_evaluable": 0.56,
+      "gt_px": 136255,
+      "hit_px": 67735,
+      "pixel_recall": 0.4971193717661737
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 225,
+      "n_matched_evaluable": 71,
+      "object_recall_all": 0.5952380952380952,
+      "object_recall_evaluable": 0.5867768595041323,
+      "gt_px": 192285,
+      "hit_px": 107550,
+      "pixel_recall": 0.5593260004680553
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 107,
+     "n_matched_evaluable": 70,
+     "object_recall_all": 0.1621212121212121,
+     "object_recall_evaluable": 0.2356902356902357,
+     "gt_px": 1995,
+     "hit_px": 363,
+     "pixel_recall": 0.18195488721804512
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 107,
+      "n_matched_evaluable": 70,
+      "object_recall_all": 0.1621212121212121,
+      "object_recall_evaluable": 0.2356902356902357,
+      "gt_px": 1995,
+      "hit_px": 363,
+      "pixel_recall": 0.18195488721804512
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 751,
+      "n_matched_evaluable": 622,
+      "object_recall_all": 0.34417965169569203,
+      "object_recall_evaluable": 0.3609982588508416,
+      "gt_px": 14598,
+      "hit_px": 4791,
+      "pixel_recall": 0.32819564323879985
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 984,
+      "n_matched_evaluable": 813,
+      "object_recall_all": 0.45429362880886426,
+      "object_recall_evaluable": 0.4888755261575466,
+      "gt_px": 28450,
+      "hit_px": 11901,
+      "pixel_recall": 0.4183128295254833
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 970,
+      "n_matched_evaluable": 738,
+      "object_recall_all": 0.46433700335088557,
+      "object_recall_evaluable": 0.4949698189134809,
+      "gt_px": 61557,
+      "hit_px": 27638,
+      "pixel_recall": 0.4489822440989652
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 807,
+      "n_matched_evaluable": 490,
+      "object_recall_all": 0.5216548157724629,
+      "object_recall_evaluable": 0.56,
+      "gt_px": 136255,
+      "hit_px": 67735,
+      "pixel_recall": 0.4971193717661737
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 225,
+      "n_matched_evaluable": 71,
+      "object_recall_all": 0.5952380952380952,
+      "object_recall_evaluable": 0.5867768595041323,
+      "gt_px": 192285,
+      "hit_px": 107550,
+      "pixel_recall": 0.5593260004680553
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.44634548559985865,
+    "china": 0.1025491340727768,
+    "dominicamaria": 0.16251177931979782,
+    "hiroshima": 0.49870593810374364,
+    "hokkaido": 0.5255489628480496,
+    "indonesia": 0.17094493501921554,
+    "italy": 0.3815629844308149,
+    "itogon": 0.21134825611660593,
+    "kyrgyzstan1": 0.3249067271818147,
+    "kyrgyzstan2": 0.07786594870341505,
+    "newzealand": 0.3645334114643283,
+    "thrissur": 0.5086048344718865,
+    "usa_puertorico": 0.013446567586694975
+   },
+   "scale": {
+    "1_4": 0.2356902356902357,
+    "5_9": 0.3609982588508416,
+    "10_19": 0.4888755261575466,
+    "20_49": 0.4949698189134809,
+    "50_199": 0.56,
+    "ge200": 0.5867768595041323
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "best_test": {
+   "n": 945,
+   "event_mean": 0.2859992084315317,
+   "iou": 0.32754796503086514,
+   "dice": 0.4934630968655807,
+   "precision": 0.5403546347127188,
+   "recall": 0.4540601265882736,
+   "ap": 0.48300356184060156,
+   "boundary_f1": 0.5139109545973799,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 4983,
+    "n_pred": 14821,
+    "unmatched_prediction_objects": 9838,
+    "unmatched_prediction_objects_per_tile": 10.41058201058201,
+    "n_matched_evaluable": 3631,
+    "object_recall_all": 0.4281663516068053,
+    "object_recall_evaluable": 0.4602027883396705,
+    "object_recall_strict_evaluable": 0.27921419518377694,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3739,
+      "n_matched_evaluable": 2952,
+      "object_recall_all": 0.4061481642407126,
+      "object_recall_evaluable": 0.4433763893060979,
+      "gt_px": 137717,
+      "hit_px": 57243,
+      "pixel_recall": 0.415656745354604
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 976,
+      "n_matched_evaluable": 594,
+      "object_recall_all": 0.502833590932509,
+      "object_recall_evaluable": 0.5459558823529411,
+      "gt_px": 167326,
+      "hit_px": 78849,
+      "pixel_recall": 0.47122981485244375
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 268,
+      "n_matched_evaluable": 85,
+      "object_recall_all": 0.5458248472505092,
+      "object_recall_evaluable": 0.5902777777777778,
+      "gt_px": 222810,
+      "hit_px": 103585,
+      "pixel_recall": 0.4649028320093353
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 135,
+     "n_matched_evaluable": 86,
+     "object_recall_all": 0.15995260663507108,
+     "object_recall_evaluable": 0.21026894865525672,
+     "gt_px": 2590,
+     "hit_px": 419,
+     "pixel_recall": 0.16177606177606177
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 135,
+      "n_matched_evaluable": 86,
+      "object_recall_all": 0.15995260663507108,
+      "object_recall_evaluable": 0.21026894865525672,
+      "gt_px": 2590,
+      "hit_px": 419,
+      "pixel_recall": 0.16177606177606177
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 1030,
+      "n_matched_evaluable": 841,
+      "object_recall_all": 0.362420830401126,
+      "object_recall_evaluable": 0.37662337662337664,
+      "gt_px": 19057,
+      "hit_px": 6305,
+      "pixel_recall": 0.3308495565933778
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1300,
+      "n_matched_evaluable": 1054,
+      "object_recall_all": 0.4694835680751174,
+      "object_recall_evaluable": 0.5033428844317096,
+      "gt_px": 36083,
+      "hit_px": 15153,
+      "pixel_recall": 0.4199484521796968
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1274,
+      "n_matched_evaluable": 971,
+      "object_recall_all": 0.4631043256997455,
+      "object_recall_evaluable": 0.5052029136316337,
+      "gt_px": 79987,
+      "hit_px": 35366,
+      "pixel_recall": 0.4421468488629402
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 976,
+      "n_matched_evaluable": 594,
+      "object_recall_all": 0.502833590932509,
+      "object_recall_evaluable": 0.5459558823529411,
+      "gt_px": 167326,
+      "hit_px": 78849,
+      "pixel_recall": 0.47122981485244375
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 268,
+      "n_matched_evaluable": 85,
+      "object_recall_all": 0.5458248472505092,
+      "object_recall_evaluable": 0.5902777777777778,
+      "gt_px": 222810,
+      "hit_px": 103585,
+      "pixel_recall": 0.4649028320093353
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.394478500355366,
+    "china": 0.12326845519901806,
+    "dominicamaria": 0.14783463382344092,
+    "hiroshima": 0.4956290876125105,
+    "hokkaido": 0.4595944077431249,
+    "indonesia": 0.26503189934775634,
+    "italy": 0.37682540979513646,
+    "itogon": 0.24202075582533777,
+    "kyrgyzstan1": 0.24956863099678261,
+    "kyrgyzstan2": 0.0922664097977157,
+    "newzealand": 0.2969629279608231,
+    "thrissur": 0.46980639679553315,
+    "usa_puertorico": 0.10470219435736677
+   },
+   "scale": {
+    "1_4": 0.21026894865525672,
+    "5_9": 0.37662337662337664,
+    "10_19": 0.5033428844317096,
+    "20_49": 0.5052029136316337,
+    "50_199": 0.5459558823529411,
+    "ge200": 0.5902777777777778
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  },
+  "last_test": {
+   "n": 945,
+   "event_mean": 0.2841761299820505,
+   "iou": 0.32654246394558006,
+   "dice": 0.4923211624516471,
+   "precision": 0.5278787760526766,
+   "recall": 0.4612515226777152,
+   "ap": 0.47864716246260475,
+   "boundary_f1": 0.5113222339771465,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 5033,
+    "n_pred": 15146,
+    "unmatched_prediction_objects": 10113,
+    "unmatched_prediction_objects_per_tile": 10.7015873015873,
+    "n_matched_evaluable": 3667,
+    "object_recall_all": 0.43246262244371886,
+    "object_recall_evaluable": 0.464765525982256,
+    "object_recall_strict_evaluable": 0.28060836501901143,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3789,
+      "n_matched_evaluable": 2986,
+      "object_recall_all": 0.4115794047360417,
+      "object_recall_evaluable": 0.4484830279363172,
+      "gt_px": 137717,
+      "hit_px": 57584,
+      "pixel_recall": 0.41813283763079356
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 978,
+      "n_matched_evaluable": 597,
+      "object_recall_all": 0.5038639876352395,
+      "object_recall_evaluable": 0.5487132352941176,
+      "gt_px": 167326,
+      "hit_px": 79387,
+      "pixel_recall": 0.47444509520337547
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 266,
+      "n_matched_evaluable": 84,
+      "object_recall_all": 0.5417515274949084,
+      "object_recall_evaluable": 0.5833333333333334,
+      "gt_px": 222810,
+      "hit_px": 106502,
+      "pixel_recall": 0.4779947040078991
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 145,
+     "n_matched_evaluable": 89,
+     "object_recall_all": 0.17180094786729858,
+     "object_recall_evaluable": 0.2176039119804401,
+     "gt_px": 2590,
+     "hit_px": 433,
+     "pixel_recall": 0.16718146718146717
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 145,
+      "n_matched_evaluable": 89,
+      "object_recall_all": 0.17180094786729858,
+      "object_recall_evaluable": 0.2176039119804401,
+      "gt_px": 2590,
+      "hit_px": 433,
+      "pixel_recall": 0.16718146718146717
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 1055,
+      "n_matched_evaluable": 864,
+      "object_recall_all": 0.3712174524982407,
+      "object_recall_evaluable": 0.38692342140618,
+      "gt_px": 19057,
+      "hit_px": 6389,
+      "pixel_recall": 0.3352573857375243
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1306,
+      "n_matched_evaluable": 1054,
+      "object_recall_all": 0.47165041531238716,
+      "object_recall_evaluable": 0.5033428844317096,
+      "gt_px": 36083,
+      "hit_px": 15242,
+      "pixel_recall": 0.42241498766732255
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1283,
+      "n_matched_evaluable": 979,
+      "object_recall_all": 0.4663758633224282,
+      "object_recall_evaluable": 0.5093652445369407,
+      "gt_px": 79987,
+      "hit_px": 35520,
+      "pixel_recall": 0.4440721617262805
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 978,
+      "n_matched_evaluable": 597,
+      "object_recall_all": 0.5038639876352395,
+      "object_recall_evaluable": 0.5487132352941176,
+      "gt_px": 167326,
+      "hit_px": 79387,
+      "pixel_recall": 0.47444509520337547
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 266,
+      "n_matched_evaluable": 84,
+      "object_recall_all": 0.5417515274949084,
+      "object_recall_evaluable": 0.5833333333333334,
+      "gt_px": 222810,
+      "hit_px": 106502,
+      "pixel_recall": 0.4779947040078991
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.3927747551686616,
+    "china": 0.11906014378397335,
+    "dominicamaria": 0.15670373802903922,
+    "hiroshima": 0.4937276274629946,
+    "hokkaido": 0.47128388442061364,
+    "indonesia": 0.2530759439966059,
+    "italy": 0.37712116906095583,
+    "itogon": 0.23000188217579523,
+    "kyrgyzstan1": 0.2459969418077955,
+    "kyrgyzstan2": 0.09770923982595342,
+    "newzealand": 0.2964269886529923,
+    "thrissur": 0.4708946635168696,
+    "usa_puertorico": 0.08951271186440678
+   },
+   "scale": {
+    "1_4": 0.2176039119804401,
+    "5_9": 0.38692342140618,
+    "10_19": 0.5033428844317096,
+    "20_49": 0.5093652445369407,
+    "50_199": 0.5487132352941176,
+    "ge200": 0.5833333333333334
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  }
+ },
+ "DEM": {
+  "n_train": 3012,
+  "n_val": 758,
+  "best_val_iou": 0.3641252768111357,
+  "best_step": 2700,
+  "selection_metric": "dev_pooled_iou",
+  "seconds": 804.984911441803,
+  "params": {
+   "total": 3755202,
+   "trainable": 3755202,
+   "encoder": 3331936,
+   "decoder": 395009,
+   "new": 28257
+  },
+  "peak_alloc_mib": 4698.2763671875,
+  "in_chans": "dem",
+  "best_val": {
+   "n": 758,
+   "event_mean": 0.3045889232378835,
+   "iou": 0.36412336232791603,
+   "dice": 0.5338569404845159,
+   "precision": 0.5563190612036426,
+   "recall": 0.5131383003171394,
+   "ap": 0.5237242424352009,
+   "boundary_f1": 0.5348236259414999,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 4001,
+    "n_pred": 12537,
+    "unmatched_prediction_objects": 8536,
+    "unmatched_prediction_objects_per_tile": 11.261213720316622,
+    "n_matched_evaluable": 2918,
+    "object_recall_all": 0.4434715140767014,
+    "object_recall_evaluable": 0.4729335494327391,
+    "object_recall_strict_evaluable": 0.28119935170178284,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2934,
+      "n_matched_evaluable": 2330,
+      "object_recall_all": 0.4134141186416796,
+      "object_recall_evaluable": 0.45032856590645537,
+      "gt_px": 106600,
+      "hit_px": 47140,
+      "pixel_recall": 0.4422138836772983
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 836,
+      "n_matched_evaluable": 514,
+      "object_recall_all": 0.5404007756948933,
+      "object_recall_evaluable": 0.5874285714285714,
+      "gt_px": 136255,
+      "hit_px": 70104,
+      "pixel_recall": 0.5145058896921214
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 231,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.6111111111111112,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 106043,
+      "pixel_recall": 0.5514886756637283
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 118,
+     "n_matched_evaluable": 73,
+     "object_recall_all": 0.1787878787878788,
+     "object_recall_evaluable": 0.24579124579124578,
+     "gt_px": 1995,
+     "hit_px": 384,
+     "pixel_recall": 0.1924812030075188
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 118,
+      "n_matched_evaluable": 73,
+      "object_recall_all": 0.1787878787878788,
+      "object_recall_evaluable": 0.24579124579124578,
+      "gt_px": 1995,
+      "hit_px": 384,
+      "pixel_recall": 0.1924812030075188
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 781,
+      "n_matched_evaluable": 643,
+      "object_recall_all": 0.3579285059578369,
+      "object_recall_evaluable": 0.3731863029599536,
+      "gt_px": 14598,
+      "hit_px": 5048,
+      "pixel_recall": 0.3458007946294013
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 1025,
+      "n_matched_evaluable": 847,
+      "object_recall_all": 0.4732225300092336,
+      "object_recall_evaluable": 0.5093205051112447,
+      "gt_px": 28450,
+      "hit_px": 12761,
+      "pixel_recall": 0.4485413005272408
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 1010,
+      "n_matched_evaluable": 767,
+      "object_recall_all": 0.48348492101483964,
+      "object_recall_evaluable": 0.5144198524480215,
+      "gt_px": 61557,
+      "hit_px": 28947,
+      "pixel_recall": 0.4702470880647205
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 836,
+      "n_matched_evaluable": 514,
+      "object_recall_all": 0.5404007756948933,
+      "object_recall_evaluable": 0.5874285714285714,
+      "gt_px": 136255,
+      "hit_px": 70104,
+      "pixel_recall": 0.5145058896921214
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 231,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.6111111111111112,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 106043,
+      "pixel_recall": 0.5514886756637283
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.4325002989357886,
+    "china": 0.14321210752202396,
+    "dominicamaria": 0.16751476867286658,
+    "hiroshima": 0.4927860696517413,
+    "hokkaido": 0.513563570755696,
+    "indonesia": 0.19649727246626472,
+    "italy": 0.39069483193835525,
+    "itogon": 0.30466384009691094,
+    "kyrgyzstan1": 0.3325180933366608,
+    "kyrgyzstan2": 0.06690326965189157,
+    "newzealand": 0.3491015417331207,
+    "thrissur": 0.520695743150461,
+    "usa_puertorico": 0.04900459418070444
+   },
+   "scale": {
+    "1_4": 0.24579124579124578,
+    "5_9": 0.3731863029599536,
+    "10_19": 0.5093205051112447,
+    "20_49": 0.5144198524480215,
+    "50_199": 0.5874285714285714,
+    "ge200": 0.6115702479338843
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "last_val": {
+   "n": 758,
+   "event_mean": 0.3023170229306388,
+   "iou": 0.35875783210348866,
+   "dice": 0.5280673621554722,
+   "precision": 0.5606054739428857,
+   "recall": 0.49909914050650367,
+   "ap": 0.516134631408745,
+   "boundary_f1": 0.5305538448329729,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3902,
+    "n_pred": 11855,
+    "unmatched_prediction_objects": 7953,
+    "unmatched_prediction_objects_per_tile": 10.492084432717679,
+    "n_matched_evaluable": 2834,
+    "object_recall_all": 0.43249833739747284,
+    "object_recall_evaluable": 0.4593192868719611,
+    "object_recall_strict_evaluable": 0.2692058346839546,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2852,
+      "n_matched_evaluable": 2261,
+      "object_recall_all": 0.4018599408200648,
+      "object_recall_evaluable": 0.4369926555856204,
+      "gt_px": 106600,
+      "hit_px": 45051,
+      "pixel_recall": 0.4226172607879925
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 824,
+      "n_matched_evaluable": 503,
+      "object_recall_all": 0.5326438267614738,
+      "object_recall_evaluable": 0.5748571428571428,
+      "gt_px": 136255,
+      "hit_px": 67716,
+      "pixel_recall": 0.4969799273421159
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 226,
+      "n_matched_evaluable": 70,
+      "object_recall_all": 0.5978835978835979,
+      "object_recall_evaluable": 0.5785123966942148,
+      "gt_px": 192285,
+      "hit_px": 104411,
+      "pixel_recall": 0.5430012741503497
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 114,
+     "n_matched_evaluable": 73,
+     "object_recall_all": 0.17272727272727273,
+     "object_recall_evaluable": 0.24579124579124578,
+     "gt_px": 1995,
+     "hit_px": 367,
+     "pixel_recall": 0.18395989974937343
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 114,
+      "n_matched_evaluable": 73,
+      "object_recall_all": 0.17272727272727273,
+      "object_recall_evaluable": 0.24579124579124578,
+      "gt_px": 1995,
+      "hit_px": 367,
+      "pixel_recall": 0.18395989974937343
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 758,
+      "n_matched_evaluable": 623,
+      "object_recall_all": 0.3473877176901925,
+      "object_recall_evaluable": 0.3615786419036564,
+      "gt_px": 14598,
+      "hit_px": 4758,
+      "pixel_recall": 0.3259350595972051
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 999,
+      "n_matched_evaluable": 823,
+      "object_recall_all": 0.46121883656509693,
+      "object_recall_evaluable": 0.49488875526157544,
+      "gt_px": 28450,
+      "hit_px": 11978,
+      "pixel_recall": 0.4210193321616872
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 981,
+      "n_matched_evaluable": 742,
+      "object_recall_all": 0.46960268070847294,
+      "object_recall_evaluable": 0.49765258215962443,
+      "gt_px": 61557,
+      "hit_px": 27948,
+      "pixel_recall": 0.4540182270091135
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 824,
+      "n_matched_evaluable": 503,
+      "object_recall_all": 0.5326438267614738,
+      "object_recall_evaluable": 0.5748571428571428,
+      "gt_px": 136255,
+      "hit_px": 67716,
+      "pixel_recall": 0.4969799273421159
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 226,
+      "n_matched_evaluable": 70,
+      "object_recall_all": 0.5978835978835979,
+      "object_recall_evaluable": 0.5785123966942148,
+      "gt_px": 192285,
+      "hit_px": 104411,
+      "pixel_recall": 0.5430012741503497
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.4297072749471427,
+    "china": 0.13665943600867678,
+    "dominicamaria": 0.16934412019647502,
+    "hiroshima": 0.48698220536756126,
+    "hokkaido": 0.5183746258200115,
+    "indonesia": 0.18382458046256325,
+    "italy": 0.3857569603447403,
+    "itogon": 0.32287390029325513,
+    "kyrgyzstan1": 0.3158657565638068,
+    "kyrgyzstan2": 0.060703341602218006,
+    "newzealand": 0.35315087151765384,
+    "thrissur": 0.5135448916408669,
+    "usa_puertorico": 0.05333333333333334
+   },
+   "scale": {
+    "1_4": 0.24579124579124578,
+    "5_9": 0.3615786419036564,
+    "10_19": 0.49488875526157544,
+    "20_49": 0.49765258215962443,
+    "50_199": 0.5748571428571428,
+    "ge200": 0.5785123966942148
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "best_test": {
+   "n": 945,
+   "event_mean": 0.2901786559673204,
+   "iou": 0.33629428069407136,
+   "dice": 0.5033236848389414,
+   "precision": 0.5325120403218645,
+   "recall": 0.4771688329894876,
+   "ap": 0.49016802720768604,
+   "boundary_f1": 0.5208104821736401,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 5205,
+    "n_pred": 16035,
+    "unmatched_prediction_objects": 10830,
+    "unmatched_prediction_objects_per_tile": 11.46031746031746,
+    "n_matched_evaluable": 3779,
+    "object_recall_all": 0.4472417941227015,
+    "object_recall_evaluable": 0.47896070975918886,
+    "object_recall_strict_evaluable": 0.29632446134347273,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3913,
+      "n_matched_evaluable": 3067,
+      "object_recall_all": 0.42504888116445794,
+      "object_recall_evaluable": 0.4606488434965455,
+      "gt_px": 137717,
+      "hit_px": 61709,
+      "pixel_recall": 0.4480855667782481
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1013,
+      "n_matched_evaluable": 625,
+      "object_recall_all": 0.5218959299330242,
+      "object_recall_evaluable": 0.5744485294117647,
+      "gt_px": 167326,
+      "hit_px": 82597,
+      "pixel_recall": 0.4936292028734327
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 279,
+      "n_matched_evaluable": 87,
+      "object_recall_all": 0.5682281059063137,
+      "object_recall_evaluable": 0.6041666666666666,
+      "gt_px": 222810,
+      "hit_px": 107569,
+      "pixel_recall": 0.48278353754319825
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 143,
+     "n_matched_evaluable": 91,
+     "object_recall_all": 0.16943127962085308,
+     "object_recall_evaluable": 0.22249388753056235,
+     "gt_px": 2590,
+     "hit_px": 463,
+     "pixel_recall": 0.17876447876447876
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 143,
+      "n_matched_evaluable": 91,
+      "object_recall_all": 0.16943127962085308,
+      "object_recall_evaluable": 0.22249388753056235,
+      "gt_px": 2590,
+      "hit_px": 463,
+      "pixel_recall": 0.17876447876447876
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 1065,
+      "n_matched_evaluable": 866,
+      "object_recall_all": 0.37473610133708657,
+      "object_recall_evaluable": 0.3878190774742499,
+      "gt_px": 19057,
+      "hit_px": 6779,
+      "pixel_recall": 0.35572230676391875
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1368,
+      "n_matched_evaluable": 1099,
+      "object_recall_all": 0.49404117009750814,
+      "object_recall_evaluable": 0.5248328557784145,
+      "gt_px": 36083,
+      "hit_px": 16420,
+      "pixel_recall": 0.45506194052600946
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1337,
+      "n_matched_evaluable": 1011,
+      "object_recall_all": 0.4860050890585242,
+      "object_recall_evaluable": 0.5260145681581686,
+      "gt_px": 79987,
+      "hit_px": 38047,
+      "pixel_recall": 0.4756647955292735
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1013,
+      "n_matched_evaluable": 625,
+      "object_recall_all": 0.5218959299330242,
+      "object_recall_evaluable": 0.5744485294117647,
+      "gt_px": 167326,
+      "hit_px": 82597,
+      "pixel_recall": 0.4936292028734327
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 279,
+      "n_matched_evaluable": 87,
+      "object_recall_all": 0.5682281059063137,
+      "object_recall_evaluable": 0.6041666666666666,
+      "gt_px": 222810,
+      "hit_px": 107569,
+      "pixel_recall": 0.48278353754319825
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.37828062481633024,
+    "china": 0.09796533534287867,
+    "dominicamaria": 0.16669524299403707,
+    "hiroshima": 0.49929025489106954,
+    "hokkaido": 0.4920871992155088,
+    "indonesia": 0.2887827317763623,
+    "italy": 0.3827011953575648,
+    "itogon": 0.23481308411214954,
+    "kyrgyzstan1": 0.26024967596698273,
+    "kyrgyzstan2": 0.10495333811916727,
+    "newzealand": 0.29431772545098395,
+    "thrissur": 0.48174243352530327,
+    "usa_puertorico": 0.09044368600682594
+   },
+   "scale": {
+    "1_4": 0.22249388753056235,
+    "5_9": 0.3878190774742499,
+    "10_19": 0.5248328557784145,
+    "20_49": 0.5260145681581686,
+    "50_199": 0.5744485294117647,
+    "ge200": 0.6041666666666666
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  },
+  "last_test": {
+   "n": 945,
+   "event_mean": 0.28741411998283584,
+   "iou": 0.3328206927311098,
+   "dice": 0.4994230574993853,
+   "precision": 0.5411262972183041,
+   "recall": 0.4636878070220308,
+   "ap": 0.4859930455089582,
+   "boundary_f1": 0.5189784106440319,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 5043,
+    "n_pred": 15046,
+    "unmatched_prediction_objects": 10003,
+    "unmatched_prediction_objects_per_tile": 10.585185185185185,
+    "n_matched_evaluable": 3665,
+    "object_recall_all": 0.43332187661110155,
+    "object_recall_evaluable": 0.4645120405576679,
+    "object_recall_strict_evaluable": 0.28681875792141953,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3777,
+      "n_matched_evaluable": 2965,
+      "object_recall_all": 0.4102759070171627,
+      "object_recall_evaluable": 0.44532892760588766,
+      "gt_px": 137717,
+      "hit_px": 58644,
+      "pixel_recall": 0.4258297813632304
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 994,
+      "n_matched_evaluable": 615,
+      "object_recall_all": 0.512107161257084,
+      "object_recall_evaluable": 0.5652573529411765,
+      "gt_px": 167326,
+      "hit_px": 79959,
+      "pixel_recall": 0.477863571710314
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 272,
+      "n_matched_evaluable": 85,
+      "object_recall_all": 0.5539714867617108,
+      "object_recall_evaluable": 0.5902777777777778,
+      "gt_px": 222810,
+      "hit_px": 106156,
+      "pixel_recall": 0.47644181140882363
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 138,
+     "n_matched_evaluable": 88,
+     "object_recall_all": 0.16350710900473933,
+     "object_recall_evaluable": 0.21515892420537897,
+     "gt_px": 2590,
+     "hit_px": 438,
+     "pixel_recall": 0.1691119691119691
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 138,
+      "n_matched_evaluable": 88,
+      "object_recall_all": 0.16350710900473933,
+      "object_recall_evaluable": 0.21515892420537897,
+      "gt_px": 2590,
+      "hit_px": 438,
+      "pixel_recall": 0.1691119691119691
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 1018,
+      "n_matched_evaluable": 825,
+      "object_recall_all": 0.35819845179451093,
+      "object_recall_evaluable": 0.3694581280788177,
+      "gt_px": 19057,
+      "hit_px": 6397,
+      "pixel_recall": 0.33567717898934774
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1310,
+      "n_matched_evaluable": 1056,
+      "object_recall_all": 0.47309498013723367,
+      "object_recall_evaluable": 0.504297994269341,
+      "gt_px": 36083,
+      "hit_px": 15550,
+      "pixel_recall": 0.43095086328742066
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1311,
+      "n_matched_evaluable": 996,
+      "object_recall_all": 0.4765539803707743,
+      "object_recall_evaluable": 0.518210197710718,
+      "gt_px": 79987,
+      "hit_px": 36259,
+      "pixel_recall": 0.4533111630639979
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 994,
+      "n_matched_evaluable": 615,
+      "object_recall_all": 0.512107161257084,
+      "object_recall_evaluable": 0.5652573529411765,
+      "gt_px": 167326,
+      "hit_px": 79959,
+      "pixel_recall": 0.477863571710314
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 272,
+      "n_matched_evaluable": 85,
+      "object_recall_all": 0.5539714867617108,
+      "object_recall_evaluable": 0.5902777777777778,
+      "gt_px": 222810,
+      "hit_px": 106156,
+      "pixel_recall": 0.47644181140882363
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.37635694779841566,
+    "china": 0.08684801597204891,
+    "dominicamaria": 0.16619498945848923,
+    "hiroshima": 0.49901856678572576,
+    "hokkaido": 0.4940496017926899,
+    "indonesia": 0.269182704323919,
+    "italy": 0.3830300291854359,
+    "itogon": 0.2296840850387443,
+    "kyrgyzstan1": 0.25538910943000526,
+    "kyrgyzstan2": 0.11334760885082085,
+    "newzealand": 0.2899995889678984,
+    "thrissur": 0.48414582192197675,
+    "usa_puertorico": 0.08913649025069638
+   },
+   "scale": {
+    "1_4": 0.21515892420537897,
+    "5_9": 0.3694581280788177,
+    "10_19": 0.504297994269341,
+    "20_49": 0.518210197710718,
+    "50_199": 0.5652573529411765,
+    "ge200": 0.5902777777777778
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  }
+ },
+ "Slope": {
+  "n_train": 3012,
+  "n_val": 758,
+  "best_val_iou": 0.3597430957794766,
+  "best_step": 2600,
+  "selection_metric": "dev_pooled_iou",
+  "seconds": 831.2490332126617,
+  "params": {
+   "total": 3755202,
+   "trainable": 3755202,
+   "encoder": 3331936,
+   "decoder": 395009,
+   "new": 28257
+  },
+  "peak_alloc_mib": 4698.2763671875,
+  "in_chans": "slope",
+  "best_val": {
+   "n": 758,
+   "event_mean": 0.2989697146070621,
+   "iou": 0.35977228686066237,
+   "dice": 0.5291654938655603,
+   "precision": 0.5451056737830581,
+   "recall": 0.5141310842487475,
+   "ap": 0.5096104715438147,
+   "boundary_f1": 0.5294901997560323,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3918,
+    "n_pred": 12259,
+    "unmatched_prediction_objects": 8341,
+    "unmatched_prediction_objects_per_tile": 11.00395778364116,
+    "n_matched_evaluable": 2845,
+    "object_recall_all": 0.43427178009310574,
+    "object_recall_evaluable": 0.46110210696920584,
+    "object_recall_strict_evaluable": 0.27374392220421395,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2867,
+      "n_matched_evaluable": 2271,
+      "object_recall_all": 0.40397350993377484,
+      "object_recall_evaluable": 0.43892539621182836,
+      "gt_px": 106600,
+      "hit_px": 47586,
+      "pixel_recall": 0.44639774859287057
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 830,
+      "n_matched_evaluable": 504,
+      "object_recall_all": 0.5365223012281836,
+      "object_recall_evaluable": 0.576,
+      "gt_px": 136255,
+      "hit_px": 70687,
+      "pixel_recall": 0.5187846317566328
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 221,
+      "n_matched_evaluable": 70,
+      "object_recall_all": 0.5846560846560847,
+      "object_recall_evaluable": 0.5785123966942148,
+      "gt_px": 192285,
+      "hit_px": 105446,
+      "pixel_recall": 0.5483839093012975
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 98,
+     "n_matched_evaluable": 60,
+     "object_recall_all": 0.1484848484848485,
+     "object_recall_evaluable": 0.20202020202020202,
+     "gt_px": 1995,
+     "hit_px": 348,
+     "pixel_recall": 0.17443609022556392
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 98,
+      "n_matched_evaluable": 60,
+      "object_recall_all": 0.1484848484848485,
+      "object_recall_evaluable": 0.20202020202020202,
+      "gt_px": 1995,
+      "hit_px": 348,
+      "pixel_recall": 0.17443609022556392
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 761,
+      "n_matched_evaluable": 626,
+      "object_recall_all": 0.34876260311640694,
+      "object_recall_evaluable": 0.363319791062101,
+      "gt_px": 14598,
+      "hit_px": 4983,
+      "pixel_recall": 0.3413481298808056
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 1011,
+      "n_matched_evaluable": 835,
+      "object_recall_all": 0.4667590027700831,
+      "object_recall_evaluable": 0.50210463018641,
+      "gt_px": 28450,
+      "hit_px": 12784,
+      "pixel_recall": 0.44934973637961334
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 997,
+      "n_matched_evaluable": 750,
+      "object_recall_all": 0.47726184777405456,
+      "object_recall_evaluable": 0.5030181086519114,
+      "gt_px": 61557,
+      "hit_px": 29471,
+      "pixel_recall": 0.47875952369348734
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 830,
+      "n_matched_evaluable": 504,
+      "object_recall_all": 0.5365223012281836,
+      "object_recall_evaluable": 0.576,
+      "gt_px": 136255,
+      "hit_px": 70687,
+      "pixel_recall": 0.5187846317566328
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 221,
+      "n_matched_evaluable": 70,
+      "object_recall_all": 0.5846560846560847,
+      "object_recall_evaluable": 0.5785123966942148,
+      "gt_px": 192285,
+      "hit_px": 105446,
+      "pixel_recall": 0.5483839093012975
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.4510769230769231,
+    "china": 0.11725293132328309,
+    "dominicamaria": 0.17042719217034782,
+    "hiroshima": 0.4875906152912188,
+    "hokkaido": 0.5359539633652132,
+    "indonesia": 0.18125714285714287,
+    "italy": 0.3854765652606894,
+    "itogon": 0.2503576537911302,
+    "kyrgyzstan1": 0.29474469672742776,
+    "kyrgyzstan2": 0.09603250064828421,
+    "newzealand": 0.3667486524674237,
+    "thrissur": 0.4820471762025005,
+    "usa_puertorico": 0.06764027671022291
+   },
+   "scale": {
+    "1_4": 0.20202020202020202,
+    "5_9": 0.363319791062101,
+    "10_19": 0.50210463018641,
+    "20_49": 0.5030181086519114,
+    "50_199": 0.576,
+    "ge200": 0.5785123966942148
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "last_val": {
+   "n": 758,
+   "event_mean": 0.29464690723644194,
+   "iou": 0.35695209936318795,
+   "dice": 0.5261086217128874,
+   "precision": 0.560019302064335,
+   "recall": 0.49607023027071745,
+   "ap": 0.5078822390284112,
+   "boundary_f1": 0.5272896501267474,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3854,
+    "n_pred": 11655,
+    "unmatched_prediction_objects": 7801,
+    "unmatched_prediction_objects_per_tile": 10.29155672823219,
+    "n_matched_evaluable": 2805,
+    "object_recall_all": 0.42717800931057415,
+    "object_recall_evaluable": 0.4546191247974068,
+    "object_recall_strict_evaluable": 0.27293354943273906,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2816,
+      "n_matched_evaluable": 2242,
+      "object_recall_all": 0.39678737494716076,
+      "object_recall_evaluable": 0.4333204483958253,
+      "gt_px": 106600,
+      "hit_px": 45216,
+      "pixel_recall": 0.4241651031894934
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 825,
+      "n_matched_evaluable": 497,
+      "object_recall_all": 0.5332902391725921,
+      "object_recall_evaluable": 0.568,
+      "gt_px": 136255,
+      "hit_px": 67652,
+      "pixel_recall": 0.4965102198084474
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 213,
+      "n_matched_evaluable": 66,
+      "object_recall_all": 0.5634920634920635,
+      "object_recall_evaluable": 0.5454545454545454,
+      "gt_px": 192285,
+      "hit_px": 102992,
+      "pixel_recall": 0.5356216033491952
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 97,
+     "n_matched_evaluable": 58,
+     "object_recall_all": 0.14696969696969697,
+     "object_recall_evaluable": 0.19528619528619529,
+     "gt_px": 1995,
+     "hit_px": 338,
+     "pixel_recall": 0.16942355889724312
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 97,
+      "n_matched_evaluable": 58,
+      "object_recall_all": 0.14696969696969697,
+      "object_recall_evaluable": 0.19528619528619529,
+      "gt_px": 1995,
+      "hit_px": 338,
+      "pixel_recall": 0.16942355889724312
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 729,
+      "n_matched_evaluable": 604,
+      "object_recall_all": 0.3340971585701192,
+      "object_recall_evaluable": 0.3505513639001741,
+      "gt_px": 14598,
+      "hit_px": 4723,
+      "pixel_recall": 0.3235374708864228
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 1001,
+      "n_matched_evaluable": 835,
+      "object_recall_all": 0.4621421975992613,
+      "object_recall_evaluable": 0.50210463018641,
+      "gt_px": 28450,
+      "hit_px": 12239,
+      "pixel_recall": 0.4301933216168717
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 989,
+      "n_matched_evaluable": 745,
+      "object_recall_all": 0.4734322642412638,
+      "object_recall_evaluable": 0.49966465459423204,
+      "gt_px": 61557,
+      "hit_px": 27916,
+      "pixel_recall": 0.4534983836119369
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 825,
+      "n_matched_evaluable": 497,
+      "object_recall_all": 0.5332902391725921,
+      "object_recall_evaluable": 0.568,
+      "gt_px": 136255,
+      "hit_px": 67652,
+      "pixel_recall": 0.4965102198084474
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 213,
+      "n_matched_evaluable": 66,
+      "object_recall_all": 0.5634920634920635,
+      "object_recall_evaluable": 0.5454545454545454,
+      "gt_px": 192285,
+      "hit_px": 102992,
+      "pixel_recall": 0.5356216033491952
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.4495426250109595,
+    "china": 0.11357158517868889,
+    "dominicamaria": 0.16698618550888075,
+    "hiroshima": 0.4794515443943515,
+    "hokkaido": 0.5397334649555775,
+    "indonesia": 0.17655513395423708,
+    "italy": 0.3841988018736775,
+    "itogon": 0.23955931334870612,
+    "kyrgyzstan1": 0.2939143733847003,
+    "kyrgyzstan2": 0.0957019567632231,
+    "newzealand": 0.3594139953975302,
+    "thrissur": 0.4704904917225675,
+    "usa_puertorico": 0.06129032258064516
+   },
+   "scale": {
+    "1_4": 0.19528619528619529,
+    "5_9": 0.3505513639001741,
+    "10_19": 0.50210463018641,
+    "20_49": 0.49966465459423204,
+    "50_199": 0.568,
+    "ge200": 0.5454545454545454
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "best_test": {
+   "n": 945,
+   "event_mean": 0.3022076584140531,
+   "iou": 0.3402452418447989,
+   "dice": 0.507735795243658,
+   "precision": 0.5240614647581756,
+   "recall": 0.4923965573748752,
+   "ap": 0.4923397140799346,
+   "boundary_f1": 0.524193115031724,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 5026,
+    "n_pred": 14825,
+    "unmatched_prediction_objects": 9799,
+    "unmatched_prediction_objects_per_tile": 10.369312169312169,
+    "n_matched_evaluable": 3611,
+    "object_recall_all": 0.43186114452655094,
+    "object_recall_evaluable": 0.4576679340937896,
+    "object_recall_strict_evaluable": 0.2766793409378961,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3700,
+      "n_matched_evaluable": 2889,
+      "object_recall_all": 0.40191179665435584,
+      "object_recall_evaluable": 0.43391408831480927,
+      "gt_px": 137717,
+      "hit_px": 61270,
+      "pixel_recall": 0.4448978702701918
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1035,
+      "n_matched_evaluable": 632,
+      "object_recall_all": 0.5332302936630603,
+      "object_recall_evaluable": 0.5808823529411765,
+      "gt_px": 167326,
+      "hit_px": 86439,
+      "pixel_recall": 0.5165903685022053
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 291,
+      "n_matched_evaluable": 90,
+      "object_recall_all": 0.5926680244399185,
+      "object_recall_evaluable": 0.625,
+      "gt_px": 222810,
+      "hit_px": 112204,
+      "pixel_recall": 0.5035860149903505
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 121,
+     "n_matched_evaluable": 74,
+     "object_recall_all": 0.14336492890995262,
+     "object_recall_evaluable": 0.18092909535452323,
+     "gt_px": 2590,
+     "hit_px": 429,
+     "pixel_recall": 0.16563706563706565
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 121,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.14336492890995262,
+      "object_recall_evaluable": 0.18092909535452323,
+      "gt_px": 2590,
+      "hit_px": 429,
+      "pixel_recall": 0.16563706563706565
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 985,
+      "n_matched_evaluable": 796,
+      "object_recall_all": 0.34658691062631947,
+      "object_recall_evaluable": 0.35647111509180474,
+      "gt_px": 19057,
+      "hit_px": 6328,
+      "pixel_recall": 0.3320564621923703
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1264,
+      "n_matched_evaluable": 1020,
+      "object_recall_all": 0.4564824846514987,
+      "object_recall_evaluable": 0.4871060171919771,
+      "gt_px": 36083,
+      "hit_px": 15946,
+      "pixel_recall": 0.4419255605132611
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1330,
+      "n_matched_evaluable": 999,
+      "object_recall_all": 0.48346055979643765,
+      "object_recall_evaluable": 0.5197710718002081,
+      "gt_px": 79987,
+      "hit_px": 38567,
+      "pixel_recall": 0.482165851950942
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1035,
+      "n_matched_evaluable": 632,
+      "object_recall_all": 0.5332302936630603,
+      "object_recall_evaluable": 0.5808823529411765,
+      "gt_px": 167326,
+      "hit_px": 86439,
+      "pixel_recall": 0.5165903685022053
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 291,
+      "n_matched_evaluable": 90,
+      "object_recall_all": 0.5926680244399185,
+      "object_recall_evaluable": 0.625,
+      "gt_px": 222810,
+      "hit_px": 112204,
+      "pixel_recall": 0.5035860149903505
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.41183851845441566,
+    "china": 0.15052377115229654,
+    "dominicamaria": 0.18657961818481908,
+    "hiroshima": 0.49618389695013426,
+    "hokkaido": 0.4735372359970017,
+    "indonesia": 0.2856901046074681,
+    "italy": 0.39011676210725676,
+    "itogon": 0.27432409161356985,
+    "kyrgyzstan1": 0.2394757393136576,
+    "kyrgyzstan2": 0.08242714223575467,
+    "newzealand": 0.3239655910630182,
+    "thrissur": 0.4751481988144095,
+    "usa_puertorico": 0.1388888888888889
+   },
+   "scale": {
+    "1_4": 0.18092909535452323,
+    "5_9": 0.35647111509180474,
+    "10_19": 0.4871060171919771,
+    "20_49": 0.5197710718002081,
+    "50_199": 0.5808823529411765,
+    "ge200": 0.625
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  },
+  "last_test": {
+   "n": 945,
+   "event_mean": 0.29936240830850497,
+   "iou": 0.33497100472016184,
+   "dice": 0.5018401201760616,
+   "precision": 0.5375886309920611,
+   "recall": 0.47054956588292574,
+   "ap": 0.4874541999963729,
+   "boundary_f1": 0.5238906356095607,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 4926,
+    "n_pred": 14106,
+    "unmatched_prediction_objects": 9180,
+    "unmatched_prediction_objects_per_tile": 9.714285714285714,
+    "n_matched_evaluable": 3558,
+    "object_recall_all": 0.42326860285272383,
+    "object_recall_evaluable": 0.4509505703422053,
+    "object_recall_strict_evaluable": 0.27122940430925224,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3634,
+      "n_matched_evaluable": 2848,
+      "object_recall_all": 0.3947425592005214,
+      "object_recall_evaluable": 0.4277560829077801,
+      "gt_px": 137717,
+      "hit_px": 58564,
+      "pixel_recall": 0.4252488799494616
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1002,
+      "n_matched_evaluable": 618,
+      "object_recall_all": 0.5162287480680062,
+      "object_recall_evaluable": 0.5680147058823529,
+      "gt_px": 167326,
+      "hit_px": 82700,
+      "pixel_recall": 0.49424476769898285
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 290,
+      "n_matched_evaluable": 92,
+      "object_recall_all": 0.5906313645621182,
+      "object_recall_evaluable": 0.6388888888888888,
+      "gt_px": 222810,
+      "hit_px": 107117,
+      "pixel_recall": 0.4807549032808222
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 119,
+     "n_matched_evaluable": 73,
+     "object_recall_all": 0.14099526066350712,
+     "object_recall_evaluable": 0.1784841075794621,
+     "gt_px": 2590,
+     "hit_px": 410,
+     "pixel_recall": 0.1583011583011583
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 119,
+      "n_matched_evaluable": 73,
+      "object_recall_all": 0.14099526066350712,
+      "object_recall_evaluable": 0.1784841075794621,
+      "gt_px": 2590,
+      "hit_px": 410,
+      "pixel_recall": 0.1583011583011583
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 971,
+      "n_matched_evaluable": 787,
+      "object_recall_all": 0.34166080225193524,
+      "object_recall_evaluable": 0.35244066278549036,
+      "gt_px": 19057,
+      "hit_px": 6070,
+      "pixel_recall": 0.31851812982106315
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1254,
+      "n_matched_evaluable": 1010,
+      "object_recall_all": 0.4528710725893825,
+      "object_recall_evaluable": 0.48233046800382046,
+      "gt_px": 36083,
+      "hit_px": 15308,
+      "pixel_recall": 0.4242441038716293
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1290,
+      "n_matched_evaluable": 978,
+      "object_recall_all": 0.46892039258451473,
+      "object_recall_evaluable": 0.5088449531737773,
+      "gt_px": 79987,
+      "hit_px": 36776,
+      "pixel_recall": 0.459774713390926
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1002,
+      "n_matched_evaluable": 618,
+      "object_recall_all": 0.5162287480680062,
+      "object_recall_evaluable": 0.5680147058823529,
+      "gt_px": 167326,
+      "hit_px": 82700,
+      "pixel_recall": 0.49424476769898285
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 290,
+      "n_matched_evaluable": 92,
+      "object_recall_all": 0.5906313645621182,
+      "object_recall_evaluable": 0.6388888888888888,
+      "gt_px": 222810,
+      "hit_px": 107117,
+      "pixel_recall": 0.4807549032808222
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.41500699995483903,
+    "china": 0.1403988420714056,
+    "dominicamaria": 0.18270243360713806,
+    "hiroshima": 0.4939178996694162,
+    "hokkaido": 0.47223095227405376,
+    "indonesia": 0.2669191834545637,
+    "italy": 0.389939178562647,
+    "itogon": 0.2798801049082053,
+    "kyrgyzstan1": 0.22493146194648073,
+    "kyrgyzstan2": 0.087957222566646,
+    "newzealand": 0.31571805926889385,
+    "thrissur": 0.4781613143282386,
+    "usa_puertorico": 0.14394765539803708
+   },
+   "scale": {
+    "1_4": 0.1784841075794621,
+    "5_9": 0.35244066278549036,
+    "10_19": 0.48233046800382046,
+    "20_49": 0.5088449531737773,
+    "50_199": 0.5680147058823529,
+    "ge200": 0.6388888888888888
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  }
+ },
+ "DEMSlope": {
+  "n_train": 3012,
+  "n_val": 758,
+  "best_val_iou": 0.3636333644548403,
+  "best_step": 2000,
+  "selection_metric": "dev_pooled_iou",
+  "seconds": 764.669755935669,
+  "params": {
+   "total": 3756802,
+   "trainable": 3756802,
+   "encoder": 3333504,
+   "decoder": 395009,
+   "new": 28289
+  },
+  "peak_alloc_mib": 4702.2939453125,
+  "in_chans": "both",
+  "best_val": {
+   "n": 758,
+   "event_mean": 0.298791511385305,
+   "iou": 0.36366650555983526,
+   "dice": 0.5333657519299951,
+   "precision": 0.5630577250182609,
+   "recall": 0.5066484349864412,
+   "ap": 0.5263176701249992,
+   "boundary_f1": 0.530551627967057,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3817,
+    "n_pred": 11204,
+    "unmatched_prediction_objects": 7387,
+    "unmatched_prediction_objects_per_tile": 9.74538258575198,
+    "n_matched_evaluable": 2767,
+    "object_recall_all": 0.4230769230769231,
+    "object_recall_evaluable": 0.4484602917341977,
+    "object_recall_strict_evaluable": 0.2559157212317666,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2736,
+      "n_matched_evaluable": 2178,
+      "object_recall_all": 0.38551500634070734,
+      "object_recall_evaluable": 0.4209509083880943,
+      "gt_px": 106600,
+      "hit_px": 45719,
+      "pixel_recall": 0.42888367729831145
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 850,
+      "n_matched_evaluable": 515,
+      "object_recall_all": 0.5494505494505495,
+      "object_recall_evaluable": 0.5885714285714285,
+      "gt_px": 136255,
+      "hit_px": 69129,
+      "pixel_recall": 0.5073501889838905
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 231,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.6111111111111112,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 105615,
+      "pixel_recall": 0.5492628130119354
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 96,
+     "n_matched_evaluable": 61,
+     "object_recall_all": 0.14545454545454545,
+     "object_recall_evaluable": 0.2053872053872054,
+     "gt_px": 1995,
+     "hit_px": 329,
+     "pixel_recall": 0.1649122807017544
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 96,
+      "n_matched_evaluable": 61,
+      "object_recall_all": 0.14545454545454545,
+      "object_recall_evaluable": 0.2053872053872054,
+      "gt_px": 1995,
+      "hit_px": 329,
+      "pixel_recall": 0.1649122807017544
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 693,
+      "n_matched_evaluable": 570,
+      "object_recall_all": 0.3175985334555454,
+      "object_recall_evaluable": 0.3308183401044689,
+      "gt_px": 14598,
+      "hit_px": 4598,
+      "pixel_recall": 0.3149746540622003
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 980,
+      "n_matched_evaluable": 814,
+      "object_recall_all": 0.45244690674053556,
+      "object_recall_evaluable": 0.48947684906794947,
+      "gt_px": 28450,
+      "hit_px": 12274,
+      "pixel_recall": 0.4314235500878735
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 967,
+      "n_matched_evaluable": 733,
+      "object_recall_all": 0.46290090952608903,
+      "object_recall_evaluable": 0.49161636485580146,
+      "gt_px": 61557,
+      "hit_px": 28518,
+      "pixel_recall": 0.4632779375213217
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 850,
+      "n_matched_evaluable": 515,
+      "object_recall_all": 0.5494505494505495,
+      "object_recall_evaluable": 0.5885714285714285,
+      "gt_px": 136255,
+      "hit_px": 69129,
+      "pixel_recall": 0.5073501889838905
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 231,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.6111111111111112,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 105615,
+      "pixel_recall": 0.5492628130119354
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.44170647892045933,
+    "china": 0.128686327077748,
+    "dominicamaria": 0.16373187767799496,
+    "hiroshima": 0.48934913427105253,
+    "hokkaido": 0.5091669293690166,
+    "indonesia": 0.16693469645626327,
+    "italy": 0.39411122005883176,
+    "itogon": 0.22705696202531644,
+    "kyrgyzstan1": 0.3298871807094903,
+    "kyrgyzstan2": 0.09717635402906209,
+    "newzealand": 0.3627725807636986,
+    "thrissur": 0.5063164477798624,
+    "usa_puertorico": 0.06739345887016848
+   },
+   "scale": {
+    "1_4": 0.2053872053872054,
+    "5_9": 0.3308183401044689,
+    "10_19": 0.48947684906794947,
+    "20_49": 0.49161636485580146,
+    "50_199": 0.5885714285714285,
+    "ge200": 0.6115702479338843
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "last_val": {
+   "n": 758,
+   "event_mean": 0.2932746237464337,
+   "iou": 0.35711191384422447,
+   "dice": 0.5262821882281632,
+   "precision": 0.5726360117631795,
+   "recall": 0.4868708921266719,
+   "ap": 0.5187991654965783,
+   "boundary_f1": 0.5308370508850686,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3882,
+    "n_pred": 11275,
+    "unmatched_prediction_objects": 7393,
+    "unmatched_prediction_objects_per_tile": 9.7532981530343,
+    "n_matched_evaluable": 2844,
+    "object_recall_all": 0.43028153402793173,
+    "object_recall_evaluable": 0.4609400324149109,
+    "object_recall_strict_evaluable": 0.2685575364667747,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2830,
+      "n_matched_evaluable": 2263,
+      "object_recall_all": 0.39876003945329014,
+      "object_recall_evaluable": 0.437379203710862,
+      "gt_px": 106600,
+      "hit_px": 44856,
+      "pixel_recall": 0.42078799249530957
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 830,
+      "n_matched_evaluable": 507,
+      "object_recall_all": 0.5365223012281836,
+      "object_recall_evaluable": 0.5794285714285714,
+      "gt_px": 136255,
+      "hit_px": 66236,
+      "pixel_recall": 0.4861179406260321
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 222,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.5873015873015873,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 100765,
+      "pixel_recall": 0.5240398367007307
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 113,
+     "n_matched_evaluable": 71,
+     "object_recall_all": 0.1712121212121212,
+     "object_recall_evaluable": 0.23905723905723905,
+     "gt_px": 1995,
+     "hit_px": 341,
+     "pixel_recall": 0.17092731829573934
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 113,
+      "n_matched_evaluable": 71,
+      "object_recall_all": 0.1712121212121212,
+      "object_recall_evaluable": 0.23905723905723905,
+      "gt_px": 1995,
+      "hit_px": 341,
+      "pixel_recall": 0.17092731829573934
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 737,
+      "n_matched_evaluable": 612,
+      "object_recall_all": 0.3377635197066911,
+      "object_recall_evaluable": 0.355194428322693,
+      "gt_px": 14598,
+      "hit_px": 4636,
+      "pixel_recall": 0.31757775037676395
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 1005,
+      "n_matched_evaluable": 837,
+      "object_recall_all": 0.46398891966759004,
+      "object_recall_evaluable": 0.5033072760072159,
+      "gt_px": 28450,
+      "hit_px": 12128,
+      "pixel_recall": 0.4262917398945518
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 975,
+      "n_matched_evaluable": 743,
+      "object_recall_all": 0.46673049305887987,
+      "object_recall_evaluable": 0.4983232729711603,
+      "gt_px": 61557,
+      "hit_px": 27751,
+      "pixel_recall": 0.45081794109524503
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 830,
+      "n_matched_evaluable": 507,
+      "object_recall_all": 0.5365223012281836,
+      "object_recall_evaluable": 0.5794285714285714,
+      "gt_px": 136255,
+      "hit_px": 66236,
+      "pixel_recall": 0.4861179406260321
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 222,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.5873015873015873,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 100765,
+      "pixel_recall": 0.5240398367007307
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.43960093474743844,
+    "china": 0.11760500446827525,
+    "dominicamaria": 0.16489501888781516,
+    "hiroshima": 0.48576026346319373,
+    "hokkaido": 0.5210791738095635,
+    "indonesia": 0.1512987567213861,
+    "italy": 0.3939793790877674,
+    "itogon": 0.22682926829268293,
+    "kyrgyzstan1": 0.3045121496457403,
+    "kyrgyzstan2": 0.09020116807268008,
+    "newzealand": 0.3494227955124384,
+    "thrissur": 0.5008560015217804,
+    "usa_puertorico": 0.06653019447287616
+   },
+   "scale": {
+    "1_4": 0.23905723905723905,
+    "5_9": 0.355194428322693,
+    "10_19": 0.5033072760072159,
+    "20_49": 0.4983232729711603,
+    "50_199": 0.5794285714285714,
+    "ge200": 0.6115702479338843
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "best_test": {
+   "n": 945,
+   "event_mean": 0.30314080762595697,
+   "iou": 0.33644780555570514,
+   "dice": 0.5034956160009669,
+   "precision": 0.5375471543911116,
+   "recall": 0.47350114520519915,
+   "ap": 0.4968954003593688,
+   "boundary_f1": 0.5249266154106338,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 4886,
+    "n_pred": 13789,
+    "unmatched_prediction_objects": 8903,
+    "unmatched_prediction_objects_per_tile": 9.42116402116402,
+    "n_matched_evaluable": 3500,
+    "object_recall_all": 0.419831586183193,
+    "object_recall_evaluable": 0.4435994930291508,
+    "object_recall_strict_evaluable": 0.26185044359949305,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3576,
+      "n_matched_evaluable": 2792,
+      "object_recall_all": 0.3884423202259396,
+      "object_recall_evaluable": 0.4193451486933013,
+      "gt_px": 137717,
+      "hit_px": 58800,
+      "pixel_recall": 0.4269625391200796
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1019,
+      "n_matched_evaluable": 615,
+      "object_recall_all": 0.5249871200412158,
+      "object_recall_evaluable": 0.5652573529411765,
+      "gt_px": 167326,
+      "hit_px": 83623,
+      "pixel_recall": 0.49976094569881546
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 291,
+      "n_matched_evaluable": 93,
+      "object_recall_all": 0.5926680244399185,
+      "object_recall_evaluable": 0.6458333333333334,
+      "gt_px": 222810,
+      "hit_px": 107516,
+      "pixel_recall": 0.48254566671154797
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 111,
+     "n_matched_evaluable": 71,
+     "object_recall_all": 0.13151658767772512,
+     "object_recall_evaluable": 0.17359413202933985,
+     "gt_px": 2590,
+     "hit_px": 424,
+     "pixel_recall": 0.1637065637065637
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 111,
+      "n_matched_evaluable": 71,
+      "object_recall_all": 0.13151658767772512,
+      "object_recall_evaluable": 0.17359413202933985,
+      "gt_px": 2590,
+      "hit_px": 424,
+      "pixel_recall": 0.1637065637065637
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 935,
+      "n_matched_evaluable": 750,
+      "object_recall_all": 0.3289936664320901,
+      "object_recall_evaluable": 0.33587102552619796,
+      "gt_px": 19057,
+      "hit_px": 6103,
+      "pixel_recall": 0.320249776984835
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1231,
+      "n_matched_evaluable": 998,
+      "object_recall_all": 0.444564824846515,
+      "object_recall_evaluable": 0.47659980897803245,
+      "gt_px": 36083,
+      "hit_px": 15255,
+      "pixel_recall": 0.4227752681318072
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1299,
+      "n_matched_evaluable": 973,
+      "object_recall_all": 0.4721919302071974,
+      "object_recall_evaluable": 0.5062434963579605,
+      "gt_px": 79987,
+      "hit_px": 37018,
+      "pixel_recall": 0.4628002050333179
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1019,
+      "n_matched_evaluable": 615,
+      "object_recall_all": 0.5249871200412158,
+      "object_recall_evaluable": 0.5652573529411765,
+      "gt_px": 167326,
+      "hit_px": 83623,
+      "pixel_recall": 0.49976094569881546
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 291,
+      "n_matched_evaluable": 93,
+      "object_recall_all": 0.5926680244399185,
+      "object_recall_evaluable": 0.6458333333333334,
+      "gt_px": 222810,
+      "hit_px": 107516,
+      "pixel_recall": 0.48254566671154797
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.40595857791560525,
+    "china": 0.14154599224964307,
+    "dominicamaria": 0.1713383569339248,
+    "hiroshima": 0.5096037433330061,
+    "hokkaido": 0.45584041215615323,
+    "indonesia": 0.29296888430462437,
+    "italy": 0.39267121463920746,
+    "itogon": 0.3138287102652359,
+    "kyrgyzstan1": 0.23212993966873738,
+    "kyrgyzstan2": 0.08648285137861467,
+    "newzealand": 0.31938077941852905,
+    "thrissur": 0.4748705105583699,
+    "usa_puertorico": 0.14421052631578948
+   },
+   "scale": {
+    "1_4": 0.17359413202933985,
+    "5_9": 0.33587102552619796,
+    "10_19": 0.47659980897803245,
+    "20_49": 0.5062434963579605,
+    "50_199": 0.5652573529411765,
+    "ge200": 0.6458333333333334
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  },
+  "last_test": {
+   "n": 945,
+   "event_mean": 0.29892488693307173,
+   "iou": 0.33262851384365383,
+   "dice": 0.4992066587023041,
+   "precision": 0.5480502418085239,
+   "recall": 0.45835677736036357,
+   "ap": 0.4922526314209528,
+   "boundary_f1": 0.5271386955271093,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 4943,
+    "n_pred": 13729,
+    "unmatched_prediction_objects": 8786,
+    "unmatched_prediction_objects_per_tile": 9.297354497354497,
+    "n_matched_evaluable": 3548,
+    "object_recall_all": 0.42472933493727444,
+    "object_recall_evaluable": 0.4496831432192649,
+    "object_recall_strict_evaluable": 0.27110266159695817,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 3675,
+      "n_matched_evaluable": 2863,
+      "object_recall_all": 0.3991961764066913,
+      "object_recall_evaluable": 0.4300090117152298,
+      "gt_px": 137717,
+      "hit_px": 58400,
+      "pixel_recall": 0.4240580320512355
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 987,
+      "n_matched_evaluable": 594,
+      "object_recall_all": 0.508500772797527,
+      "object_recall_evaluable": 0.5459558823529411,
+      "gt_px": 167326,
+      "hit_px": 80284,
+      "pixel_recall": 0.47980588790743817
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 281,
+      "n_matched_evaluable": 91,
+      "object_recall_all": 0.5723014256619144,
+      "object_recall_evaluable": 0.6319444444444444,
+      "gt_px": 222810,
+      "hit_px": 103261,
+      "pixel_recall": 0.46344867824603925
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 123,
+     "n_matched_evaluable": 79,
+     "object_recall_all": 0.1457345971563981,
+     "object_recall_evaluable": 0.19315403422982885,
+     "gt_px": 2590,
+     "hit_px": 433,
+     "pixel_recall": 0.16718146718146717
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 123,
+      "n_matched_evaluable": 79,
+      "object_recall_all": 0.1457345971563981,
+      "object_recall_evaluable": 0.19315403422982885,
+      "gt_px": 2590,
+      "hit_px": 433,
+      "pixel_recall": 0.16718146718146717
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 981,
+      "n_matched_evaluable": 792,
+      "object_recall_all": 0.34517945109078113,
+      "object_recall_evaluable": 0.35467980295566504,
+      "gt_px": 19057,
+      "hit_px": 6265,
+      "pixel_recall": 0.32875059033426035
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1258,
+      "n_matched_evaluable": 1010,
+      "object_recall_all": 0.454315637414229,
+      "object_recall_evaluable": 0.48233046800382046,
+      "gt_px": 36083,
+      "hit_px": 15289,
+      "pixel_recall": 0.423717540115844
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1313,
+      "n_matched_evaluable": 982,
+      "object_recall_all": 0.4772809887313704,
+      "object_recall_evaluable": 0.5109261186264308,
+      "gt_px": 79987,
+      "hit_px": 36413,
+      "pixel_recall": 0.4552364759273382
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 987,
+      "n_matched_evaluable": 594,
+      "object_recall_all": 0.508500772797527,
+      "object_recall_evaluable": 0.5459558823529411,
+      "gt_px": 167326,
+      "hit_px": 80284,
+      "pixel_recall": 0.47980588790743817
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 281,
+      "n_matched_evaluable": 91,
+      "object_recall_all": 0.5723014256619144,
+      "object_recall_evaluable": 0.6319444444444444,
+      "gt_px": 222810,
+      "hit_px": 103261,
+      "pixel_recall": 0.46344867824603925
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.39931756788777784,
+    "china": 0.13930348258706468,
+    "dominicamaria": 0.16943077459603983,
+    "hiroshima": 0.5045817127035401,
+    "hokkaido": 0.4639897532445487,
+    "indonesia": 0.27261884477764525,
+    "italy": 0.3946327277449757,
+    "itogon": 0.2836725855348636,
+    "kyrgyzstan1": 0.22061338589319815,
+    "kyrgyzstan2": 0.09964745665155766,
+    "newzealand": 0.3055974677731492,
+    "thrissur": 0.4881505576208178,
+    "usa_puertorico": 0.1444672131147541
+   },
+   "scale": {
+    "1_4": 0.19315403422982885,
+    "5_9": 0.35467980295566504,
+    "10_19": 0.48233046800382046,
+    "20_49": 0.5109261186264308,
+    "50_199": 0.5459558823529411,
+    "ge200": 0.6319444444444444
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  }
+ },
+ "PW5": {
+  "n_train": 3012,
+  "n_val": 758,
+  "best_val_iou": 0.3578760695377526,
+  "best_step": 3000,
+  "selection_metric": "dev_pooled_iou",
+  "seconds": 720.3830101490021,
+  "params": {
+   "total": 3753602,
+   "trainable": 3753602,
+   "encoder": 3330368,
+   "decoder": 395009,
+   "new": 28225
+  },
+  "peak_alloc_mib": 4694.2587890625,
+  "in_chans": "none",
+  "best_val": {
+   "n": 758,
+   "event_mean": 0.29513110864495584,
+   "iou": 0.3578547841494845,
+   "dice": 0.5270884461678764,
+   "precision": 0.4888588937287193,
+   "recall": 0.571804476720136,
+   "ap": 0.5200158352231901,
+   "boundary_f1": 0.5164934704067436,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 3952,
+    "n_pred": 13511,
+    "unmatched_prediction_objects": 9559,
+    "unmatched_prediction_objects_per_tile": 12.610817941952506,
+    "n_matched_evaluable": 2867,
+    "object_recall_all": 0.43804034582132567,
+    "object_recall_evaluable": 0.4646677471636953,
+    "object_recall_strict_evaluable": 0.2760129659643436,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 2919,
+      "n_matched_evaluable": 2314,
+      "object_recall_all": 0.41130054952796957,
+      "object_recall_evaluable": 0.4472361809045226,
+      "gt_px": 106600,
+      "hit_px": 51812,
+      "pixel_recall": 0.4860412757973734
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 803,
+      "n_matched_evaluable": 479,
+      "object_recall_all": 0.5190691661279897,
+      "object_recall_evaluable": 0.5474285714285714,
+      "gt_px": 136255,
+      "hit_px": 76850,
+      "pixel_recall": 0.5640159994128656
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 230,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.6084656084656085,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 120153,
+      "pixel_recall": 0.6248693345814806
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 133,
+     "n_matched_evaluable": 94,
+     "object_recall_all": 0.2015151515151515,
+     "object_recall_evaluable": 0.3164983164983165,
+     "gt_px": 1995,
+     "hit_px": 534,
+     "pixel_recall": 0.26766917293233083
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 133,
+      "n_matched_evaluable": 94,
+      "object_recall_all": 0.2015151515151515,
+      "object_recall_evaluable": 0.3164983164983165,
+      "gt_px": 1995,
+      "hit_px": 534,
+      "pixel_recall": 0.26766917293233083
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 836,
+      "n_matched_evaluable": 685,
+      "object_recall_all": 0.383134738771769,
+      "object_recall_evaluable": 0.3975623911781776,
+      "gt_px": 14598,
+      "hit_px": 6104,
+      "pixel_recall": 0.41813947116043293
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 985,
+      "n_matched_evaluable": 800,
+      "object_recall_all": 0.45475530932594643,
+      "object_recall_evaluable": 0.4810583283223091,
+      "gt_px": 28450,
+      "hit_px": 13938,
+      "pixel_recall": 0.4899121265377856
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 965,
+      "n_matched_evaluable": 735,
+      "object_recall_all": 0.4619435136428913,
+      "object_recall_evaluable": 0.49295774647887325,
+      "gt_px": 61557,
+      "hit_px": 31236,
+      "pixel_recall": 0.5074321360690092
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 803,
+      "n_matched_evaluable": 479,
+      "object_recall_all": 0.5190691661279897,
+      "object_recall_evaluable": 0.5474285714285714,
+      "gt_px": 136255,
+      "hit_px": 76850,
+      "pixel_recall": 0.5640159994128656
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 230,
+      "n_matched_evaluable": 74,
+      "object_recall_all": 0.6084656084656085,
+      "object_recall_evaluable": 0.6115702479338843,
+      "gt_px": 192285,
+      "hit_px": 120153,
+      "pixel_recall": 0.6248693345814806
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.4420571860980487,
+    "china": 0.09304975313330802,
+    "dominicamaria": 0.16582207207207209,
+    "hiroshima": 0.48828218550070135,
+    "hokkaido": 0.5195564691236502,
+    "indonesia": 0.22053775743707094,
+    "italy": 0.3886042231933373,
+    "itogon": 0.23873463814292217,
+    "kyrgyzstan1": 0.32539267472063876,
+    "kyrgyzstan2": 0.05299620733249052,
+    "newzealand": 0.3466707943141656,
+    "thrissur": 0.51843582546568,
+    "usa_puertorico": 0.036564625850340135
+   },
+   "scale": {
+    "1_4": 0.3164983164983165,
+    "5_9": 0.3975623911781776,
+    "10_19": 0.4810583283223091,
+    "20_49": 0.49295774647887325,
+    "50_199": 0.5474285714285714,
+    "ge200": 0.6115702479338843
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "last_val": {
+   "n": 758,
+   "event_mean": 0.2888766976323639,
+   "iou": 0.35003714148605386,
+   "dice": 0.518559276229616,
+   "precision": 0.44995394664571026,
+   "recall": 0.6118490600726203,
+   "ap": 0.5235974262759575,
+   "boundary_f1": 0.501208993836787,
+   "objects": {
+    "n_gt": 9022,
+    "n_gt_evaluable": 6170,
+    "n_matched_all": 4042,
+    "n_pred": 14974,
+    "unmatched_prediction_objects": 10932,
+    "unmatched_prediction_objects_per_tile": 14.422163588390502,
+    "n_matched_evaluable": 2938,
+    "object_recall_all": 0.4480159609842607,
+    "object_recall_evaluable": 0.47617504051863857,
+    "object_recall_strict_evaluable": 0.2839546191247974,
+    "bins": {
+     "small": {
+      "n_objects": 7097,
+      "n_objects_evaluable": 5174,
+      "n_matched_all": 3004,
+      "n_matched_evaluable": 2374,
+      "object_recall_all": 0.42327744117232635,
+      "object_recall_evaluable": 0.4588326246617704,
+      "gt_px": 106600,
+      "hit_px": 56528,
+      "pixel_recall": 0.530281425891182
+     },
+     "medium": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 814,
+      "n_matched_evaluable": 491,
+      "object_recall_all": 0.5261797026502909,
+      "object_recall_evaluable": 0.5611428571428572,
+      "gt_px": 136255,
+      "hit_px": 82506,
+      "pixel_recall": 0.6055264027008184
+     },
+     "large": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 224,
+      "n_matched_evaluable": 73,
+      "object_recall_all": 0.5925925925925926,
+      "object_recall_evaluable": 0.6033057851239669,
+      "gt_px": 192285,
+      "hit_px": 127206,
+      "pixel_recall": 0.661549262813012
+     }
+    },
+    "tiny": {
+     "n_objects": 660,
+     "n_objects_evaluable": 297,
+     "n_matched_all": 145,
+     "n_matched_evaluable": 97,
+     "object_recall_all": 0.2196969696969697,
+     "object_recall_evaluable": 0.3265993265993266,
+     "gt_px": 1995,
+     "hit_px": 617,
+     "pixel_recall": 0.3092731829573935
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 660,
+      "n_objects_evaluable": 297,
+      "n_matched_all": 145,
+      "n_matched_evaluable": 97,
+      "object_recall_all": 0.2196969696969697,
+      "object_recall_evaluable": 0.3265993265993266,
+      "gt_px": 1995,
+      "hit_px": 617,
+      "pixel_recall": 0.3092731829573935
+     },
+     "5_9": {
+      "n_objects": 2182,
+      "n_objects_evaluable": 1723,
+      "n_matched_all": 857,
+      "n_matched_evaluable": 700,
+      "object_recall_all": 0.3927589367552704,
+      "object_recall_evaluable": 0.4062681369704005,
+      "gt_px": 14598,
+      "hit_px": 6730,
+      "pixel_recall": 0.4610220578161392
+     },
+     "10_19": {
+      "n_objects": 2166,
+      "n_objects_evaluable": 1663,
+      "n_matched_all": 1020,
+      "n_matched_evaluable": 829,
+      "object_recall_all": 0.4709141274238227,
+      "object_recall_evaluable": 0.4984966927239928,
+      "gt_px": 28450,
+      "hit_px": 15197,
+      "pixel_recall": 0.5341652021089631
+     },
+     "20_49": {
+      "n_objects": 2089,
+      "n_objects_evaluable": 1491,
+      "n_matched_all": 982,
+      "n_matched_evaluable": 748,
+      "object_recall_all": 0.4700813786500718,
+      "object_recall_evaluable": 0.5016767270288397,
+      "gt_px": 61557,
+      "hit_px": 33984,
+      "pixel_recall": 0.5520736878015498
+     },
+     "50_199": {
+      "n_objects": 1547,
+      "n_objects_evaluable": 875,
+      "n_matched_all": 814,
+      "n_matched_evaluable": 491,
+      "object_recall_all": 0.5261797026502909,
+      "object_recall_evaluable": 0.5611428571428572,
+      "gt_px": 136255,
+      "hit_px": 82506,
+      "pixel_recall": 0.6055264027008184
+     },
+     "ge200": {
+      "n_objects": 378,
+      "n_objects_evaluable": 121,
+      "n_matched_all": 224,
+      "n_matched_evaluable": 73,
+      "object_recall_all": 0.5925925925925926,
+      "object_recall_evaluable": 0.6033057851239669,
+      "gt_px": 192285,
+      "hit_px": 127206,
+      "pixel_recall": 0.661549262813012
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.425818835649723,
+    "china": 0.09379562043795621,
+    "dominicamaria": 0.1670041965050003,
+    "hiroshima": 0.4897104531326681,
+    "hokkaido": 0.5121360480779193,
+    "indonesia": 0.21415134565702676,
+    "italy": 0.3813759113311681,
+    "itogon": 0.2151678888460054,
+    "kyrgyzstan1": 0.31983056390947456,
+    "kyrgyzstan2": 0.04754384506691048,
+    "newzealand": 0.3371448177908285,
+    "thrissur": 0.5138001687356876,
+    "usa_puertorico": 0.03791737408036219
+   },
+   "scale": {
+    "1_4": 0.3265993265993266,
+    "5_9": 0.4062681369704005,
+    "10_19": 0.4984966927239928,
+    "20_49": 0.5016767270288397,
+    "50_199": 0.5611428571428572,
+    "ge200": 0.6033057851239669
+   },
+   "scale_n": {
+    "1_4": 297,
+    "5_9": 1723,
+    "10_19": 1663,
+    "20_49": 1491,
+    "50_199": 875,
+    "ge200": 121
+   }
+  },
+  "best_test": {
+   "n": 945,
+   "event_mean": 0.29429629602858143,
+   "iou": 0.3314333154705857,
+   "dice": 0.4978594295628586,
+   "precision": 0.4651904567538743,
+   "recall": 0.5354634718378033,
+   "ap": 0.492194990071657,
+   "boundary_f1": 0.512633646190981,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 5294,
+    "n_pred": 17214,
+    "unmatched_prediction_objects": 11920,
+    "unmatched_prediction_objects_per_tile": 12.613756613756614,
+    "n_matched_evaluable": 3840,
+    "object_recall_all": 0.4548891562124076,
+    "object_recall_evaluable": 0.4866920152091255,
+    "object_recall_strict_evaluable": 0.29860583016476555,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 4004,
+      "n_matched_evaluable": 3141,
+      "object_recall_all": 0.434933738865957,
+      "object_recall_evaluable": 0.47176329227996394,
+      "gt_px": 137717,
+      "hit_px": 68186,
+      "pixel_recall": 0.4951167974905059
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1002,
+      "n_matched_evaluable": 611,
+      "object_recall_all": 0.5162287480680062,
+      "object_recall_evaluable": 0.5615808823529411,
+      "gt_px": 167326,
+      "hit_px": 91613,
+      "pixel_recall": 0.5475120423604222
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 288,
+      "n_matched_evaluable": 88,
+      "object_recall_all": 0.5865580448065173,
+      "object_recall_evaluable": 0.6111111111111112,
+      "gt_px": 222810,
+      "hit_px": 122847,
+      "pixel_recall": 0.5513531708630672
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 198,
+     "n_matched_evaluable": 123,
+     "object_recall_all": 0.23459715639810427,
+     "object_recall_evaluable": 0.30073349633251834,
+     "gt_px": 2590,
+     "hit_px": 685,
+     "pixel_recall": 0.2644787644787645
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 198,
+      "n_matched_evaluable": 123,
+      "object_recall_all": 0.23459715639810427,
+      "object_recall_evaluable": 0.30073349633251834,
+      "gt_px": 2590,
+      "hit_px": 685,
+      "pixel_recall": 0.2644787644787645
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 1201,
+      "n_matched_evaluable": 986,
+      "object_recall_all": 0.4225897255453906,
+      "object_recall_evaluable": 0.44155844155844154,
+      "gt_px": 19057,
+      "hit_px": 8279,
+      "pixel_recall": 0.4344335414808207
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1314,
+      "n_matched_evaluable": 1052,
+      "object_recall_all": 0.4745395449620802,
+      "object_recall_evaluable": 0.5023877745940784,
+      "gt_px": 36083,
+      "hit_px": 18146,
+      "pixel_recall": 0.502896100656819
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1291,
+      "n_matched_evaluable": 980,
+      "object_recall_all": 0.4692838967648128,
+      "object_recall_evaluable": 0.5098855359001041,
+      "gt_px": 79987,
+      "hit_px": 41076,
+      "pixel_recall": 0.5135334491854926
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1002,
+      "n_matched_evaluable": 611,
+      "object_recall_all": 0.5162287480680062,
+      "object_recall_evaluable": 0.5615808823529411,
+      "gt_px": 167326,
+      "hit_px": 91613,
+      "pixel_recall": 0.5475120423604222
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 288,
+      "n_matched_evaluable": 88,
+      "object_recall_all": 0.5865580448065173,
+      "object_recall_evaluable": 0.6111111111111112,
+      "gt_px": 222810,
+      "hit_px": 122847,
+      "pixel_recall": 0.5513531708630672
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.4005316504938298,
+    "china": 0.1098053617333823,
+    "dominicamaria": 0.18628661205251937,
+    "hiroshima": 0.5110154853177369,
+    "hokkaido": 0.48120113995868957,
+    "indonesia": 0.2994832692671246,
+    "italy": 0.38386537155388983,
+    "itogon": 0.22179827471798275,
+    "kyrgyzstan1": 0.23314554887170183,
+    "kyrgyzstan2": 0.09347969042440184,
+    "newzealand": 0.30914395052079824,
+    "thrissur": 0.5134261707503378,
+    "usa_puertorico": 0.08266932270916334
+   },
+   "scale": {
+    "1_4": 0.30073349633251834,
+    "5_9": 0.44155844155844154,
+    "10_19": 0.5023877745940784,
+    "20_49": 0.5098855359001041,
+    "50_199": 0.5615808823529411,
+    "ge200": 0.6111111111111112
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  },
+  "last_test": {
+   "n": 945,
+   "event_mean": 0.29044373235473103,
+   "iou": 0.32747209952299705,
+   "dice": 0.4933769977397916,
+   "precision": 0.4311022172371209,
+   "recall": 0.5766813866739414,
+   "ap": 0.49586779604951414,
+   "boundary_f1": 0.5027009490467855,
+   "objects": {
+    "n_gt": 11638,
+    "n_gt_evaluable": 7890,
+    "n_matched_all": 5445,
+    "n_pred": 18770,
+    "unmatched_prediction_objects": 13325,
+    "unmatched_prediction_objects_per_tile": 14.100529100529101,
+    "n_matched_evaluable": 3948,
+    "object_recall_all": 0.4678638941398866,
+    "object_recall_evaluable": 0.5003802281368821,
+    "object_recall_strict_evaluable": 0.3031685678073511,
+    "bins": {
+     "small": {
+      "n_objects": 9206,
+      "n_objects_evaluable": 6658,
+      "n_matched_all": 4143,
+      "n_matched_evaluable": 3243,
+      "object_recall_all": 0.450032587442972,
+      "object_recall_evaluable": 0.4870832081706218,
+      "gt_px": 137717,
+      "hit_px": 73825,
+      "pixel_recall": 0.5360630858935352
+     },
+     "medium": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1008,
+      "n_matched_evaluable": 613,
+      "object_recall_all": 0.5193199381761978,
+      "object_recall_evaluable": 0.5634191176470589,
+      "gt_px": 167326,
+      "hit_px": 98865,
+      "pixel_recall": 0.5908525871651745
+     },
+     "large": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 294,
+      "n_matched_evaluable": 92,
+      "object_recall_all": 0.5987780040733197,
+      "object_recall_evaluable": 0.6388888888888888,
+      "gt_px": 222810,
+      "hit_px": 131713,
+      "pixel_recall": 0.5911449216821507
+     }
+    },
+    "tiny": {
+     "n_objects": 844,
+     "n_objects_evaluable": 409,
+     "n_matched_all": 213,
+     "n_matched_evaluable": 133,
+     "object_recall_all": 0.2523696682464455,
+     "object_recall_evaluable": 0.3251833740831296,
+     "gt_px": 2590,
+     "hit_px": 781,
+     "pixel_recall": 0.30154440154440154
+    },
+    "fine_bins": {
+     "1_4": {
+      "n_objects": 844,
+      "n_objects_evaluable": 409,
+      "n_matched_all": 213,
+      "n_matched_evaluable": 133,
+      "object_recall_all": 0.2523696682464455,
+      "object_recall_evaluable": 0.3251833740831296,
+      "gt_px": 2590,
+      "hit_px": 781,
+      "pixel_recall": 0.30154440154440154
+     },
+     "5_9": {
+      "n_objects": 2842,
+      "n_objects_evaluable": 2233,
+      "n_matched_all": 1251,
+      "n_matched_evaluable": 1027,
+      "object_recall_all": 0.44018296973962,
+      "object_recall_evaluable": 0.4599193909538737,
+      "gt_px": 19057,
+      "hit_px": 9051,
+      "pixel_recall": 0.47494359028178623
+     },
+     "10_19": {
+      "n_objects": 2769,
+      "n_objects_evaluable": 2094,
+      "n_matched_all": 1345,
+      "n_matched_evaluable": 1074,
+      "object_recall_all": 0.48573492235464066,
+      "object_recall_evaluable": 0.5128939828080229,
+      "gt_px": 36083,
+      "hit_px": 19628,
+      "pixel_recall": 0.5439680736080703
+     },
+     "20_49": {
+      "n_objects": 2751,
+      "n_objects_evaluable": 1922,
+      "n_matched_all": 1334,
+      "n_matched_evaluable": 1009,
+      "object_recall_all": 0.48491457651763,
+      "object_recall_evaluable": 0.5249739854318418,
+      "gt_px": 79987,
+      "hit_px": 44365,
+      "pixel_recall": 0.554652631052546
+     },
+     "50_199": {
+      "n_objects": 1941,
+      "n_objects_evaluable": 1088,
+      "n_matched_all": 1008,
+      "n_matched_evaluable": 613,
+      "object_recall_all": 0.5193199381761978,
+      "object_recall_evaluable": 0.5634191176470589,
+      "gt_px": 167326,
+      "hit_px": 98865,
+      "pixel_recall": 0.5908525871651745
+     },
+     "ge200": {
+      "n_objects": 491,
+      "n_objects_evaluable": 144,
+      "n_matched_all": 294,
+      "n_matched_evaluable": 92,
+      "object_recall_all": 0.5987780040733197,
+      "object_recall_evaluable": 0.6388888888888888,
+      "gt_px": 222810,
+      "hit_px": 131713,
+      "pixel_recall": 0.5911449216821507
+     }
+    }
+   },
+   "by_event": {
+    "chimanimani": 0.39776606871509484,
+    "china": 0.09864893845164058,
+    "dominicamaria": 0.1897398240536766,
+    "hiroshima": 0.5008527087715309,
+    "hokkaido": 0.46028192942580987,
+    "indonesia": 0.2955811138014528,
+    "italy": 0.3767397793835673,
+    "itogon": 0.2221038209773177,
+    "kyrgyzstan1": 0.23762607532690522,
+    "kyrgyzstan2": 0.09213917525773196,
+    "newzealand": 0.30692523206327915,
+    "thrissur": 0.5241820362016788,
+    "usa_puertorico": 0.07318181818181818
+   },
+   "scale": {
+    "1_4": 0.3251833740831296,
+    "5_9": 0.4599193909538737,
+    "10_19": 0.5128939828080229,
+    "20_49": 0.5249739854318418,
+    "50_199": 0.5634191176470589,
+    "ge200": 0.6388888888888888
+   },
+   "scale_n": {
+    "1_4": 409,
+    "5_9": 2233,
+    "10_19": 2094,
+    "20_49": 1922,
+    "50_199": 1088,
+    "ge200": 144
+   }
+  }
+ }
+}

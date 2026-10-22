@@ -1,0 +1,22 @@
+﻿hazard,dataset,annotation_level,annotation_type,sensor,resolution,patches,access,entry,license,reachable_2026_10_20,notes
+landslide,Landslide4Sense,L1,pixel binary mask,Sentinel-2 12 bands + DEM + slope,10 m,"3799/245/800",A,10.5281/zenodo.10463238,open,200,in use; 4844 h5 in workspace
+landslide,GDCLD,L1,pixel binary mask,multi-source RGB,0.5-15 m,"11162/4459/7 large",A,10.5281/zenodo.13612636,CC BY 4.0,200,1024x1024; 9 regions
+landslide,Sen12Landslides,L1,pixel binary mask,Sentinel-1 + S2 10 bands + DEM,10 m,12000+,A,"HF paulhoehn/Sen12Landslides",open,000,HF unreachable; 15 time steps
+landslide,Bijie,L1,pixel binary mask,TripleSat RGB,0.8 m,"770 pos / 2003 neg",A,gpcv.whu.edu.cn/data/Bijie_pages.html,research use,200,
+landslide,HR-GLDD,L1,pixel binary mask,PlanetScope 4 bands,3 m,1756,A,ESSD 2024 data paper,open,unverified,13 events / 10 regions
+landslide,CAS Landslide,L1,pixel binary mask,"PlanetScope/GF/SV/WorldView/S2/Landsat",0.5-15 m,"20865 (sat-only 7422)",B,see Xu et al. 2024,research use,unverified,512x512
+landslide,LMHLD,L1,pixel binary mask,"RapidEye/PlanetScope/GF-2/IKONOS/S2",0.8-10 m,"25365 patches / 32296 instances",unverified,arXiv 2502.19866,unverified,unverified,no download link found
+landslide,GVLM,L1,pixel binary mask dual-temporal,VHR RGB,0.59 m or 1.5 m (conflict),630,unverified,Zhang et al. 2023,unverified,unverified,resolution conflict across papers
+debris_flow,Southeast Tibet RGB benchmark,L1,pixel mask,UAV + close-range + video frames,sub-meter,10000 originals (+40000 aug),B,lbsu@xza.edu.cn,research request,unverified,only usable segmentation set; 30-day decision
+debris_flow,DeFlow,L4,none (2 cams + LiDAR sequence),near-range cameras + LiDAR,sub-meter,1 event sequence,A,share.phys.ethz.ch/~gsg/DeFlow/DeFlow_Dataset.zip,MIT,301,Illgraben; motion not segmentation
+debris_flow,Dongchuan 1961-2024,L4,time series (discharge/rain/sediment),ground station,n/a,60+ years,A,ncdc.ac.cn / msdc.ac.cn,open,200,ESSD 2025
+debris_flow,USGS South Fork orthomosaic,none,unlabeled,UAS/SfM,3 cm,1 scene (211 MB),A,10.5066/P144KDGN,public domain,unverified,good base for manual labeling
+debris_flow,WZM-WH Debris-flow-dataset,L2,YOLO bbox,web imagery,mixed,3022 (2172/850),C,GitHub WZM-WH/Debris-flow-dataset,unclear,502,baidu pan pwd day7
+debris_flow,DED,L2,bbox,UAV,sub-meter,16535 objects,B,"Zhan et al. 2022, Surveying & Mapping Info 47(3)",research use,unverified,3 classes incl collapsed houses
+debris_flow,Wenchuan post-quake inventory,L3,vector inventory,n/a,n/a,186 flows / 79 catchments,A,10.5281/zenodo.6891244,CC BY 4.0,200,not imagery
+collapse,Engineering geology interpretation library,L2?,unknown (metadata silent),high-res optical,Yichang China,"collapse 1233 + dangerous rock 774 + landslide 9",B,CSTR:16666.11.nbsdc.9dUxJtqJ,full sharing after approval,200,needs official seal; annotation format unverified
+collapse,MRDataset,L2,bbox single class web/news imagery,mixed,3921 images / 12314 instances,A,GitHub muranhb/MRDataset,"annotations CC BY 4.0; images copyright unclear",502,baidu pan pwd 5bks; detection only
+collapse,Rockfall instance-seg 759,D (no data),claimed instance mask,unknown,759 images,D,GitHub 767172261/...,n/a,502,repo contains README only (verified via API)
+collapse,Landslide+rocks labelme 519,L2,polygon labelme,640x640,519 images,C,CSDN resale,unclear unverified,no data
+collapse,Rockfall video COCO (PA-NET),L1,instance mask,railway slope video frames,unpublished,D,Railway Construction 2025(11),n/a,n/a,not public
+collapse,RMaM-2020 / LRD-RB,L2,bbox / rotated bbox,HiRISE / LRO NAC,0.25-2 m,"2822 / 11697 patches",A,10.17617/3.7BXEVC,CC BY 4.0,unverified,Moon and Mars only - do not use for Earth

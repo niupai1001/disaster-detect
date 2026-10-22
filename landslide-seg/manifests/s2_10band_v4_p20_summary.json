@@ -1,0 +1,112 @@
+{
+ "data_version": "s2_10band_v4_p20",
+ "parent_version": "s2_10band_v4",
+ "n_v1": 6303,
+ "n_kept": 6048,
+ "n_quarantined": 255,
+ "rules": {
+  "window_days": 120,
+  "keep": "chosen_date >= latest event date",
+  "reselect": "earliest usable timestep within window after latest event date",
+  "quarantine": "no usable timestep in window",
+  "note": "只裁决时间契约；未改标签、未用模型输出、未把日期简单改成 max(event_date)。"
+ },
+ "timing_rule_counts": {
+  "single_date": 5148,
+  "reselect_within_window": 456,
+  "chosen_after_latest": 444,
+  "quarantined": 255
+ },
+ "reselect_days_after_latest": {
+  "n": 456,
+  "min": 0,
+  "p50": 5.0,
+  "max": 120
+ },
+ "quarantine_by_region": {
+  "china": 5,
+  "indonesia": 35,
+  "kyrgyzstan1": 52,
+  "kyrgyzstan2": 6,
+  "newzealand": 157
+ },
+ "splits": {
+  "train": {
+   "n_samples": 2805,
+   "events": {
+    "chimanimani": 406,
+    "china": 72,
+    "dominicamaria": 374,
+    "hokkaido": 150,
+    "indonesia": 235,
+    "itogon": 119,
+    "kyrgyzstan1": 642,
+    "kyrgyzstan2": 181,
+    "nepal": 8,
+    "newzealand": 338,
+    "thrissur": 221,
+    "usa_alaska": 15,
+    "usa_puertorico": 44
+   },
+   "n_positive_tiles": 2805,
+   "n_negative_tiles": 0,
+   "positive_px": 1728308,
+   "n_reselected": 456
+  },
+  "val": {
+   "n_samples": 448,
+   "events": {
+    "hiroshima": 448
+   },
+   "n_positive_tiles": 446,
+   "n_negative_tiles": 2,
+   "positive_px": 129078,
+   "n_reselected": 0
+  },
+  "test": {
+   "n_samples": 2795,
+   "events": {
+    "italy": 2795
+   },
+   "n_positive_tiles": 2795,
+   "n_negative_tiles": 0,
+   "positive_px": 812453,
+   "n_reselected": 0
+  }
+ },
+ "stats": {
+  "mean": [
+   578.8832285586939,
+   832.089181674633,
+   766.3204319289408,
+   1300.9571710214714,
+   2494.754831335564,
+   2885.5924853130578,
+   2967.9779269073892,
+   3156.491177679896,
+   2168.8169722800185,
+   1311.457127846039
+  ],
+  "std": [
+   745.3023086119825,
+   738.0145228760308,
+   802.1330379749186,
+   781.6654289355794,
+   955.5972863275006,
+   1074.0856547409676,
+   1120.8215665714547,
+   1106.3094829287513,
+   807.0168404654986,
+   701.3967643321505
+  ],
+  "fit_split": "train"
+ },
+ "identity": {
+  "parent_manifest": "d3f0433c576b9c03d7fa64c7abfc8f678a589ae0a25fbd8d5be8eba4ba7ef2c1",
+  "parent_stats": "49b783735352b60828d4327ce2aa6f250189391e89c65c2e363cae4707d54d7b",
+  "script_sha256": "197541b226daf3c8b237dd883a8283254829f54b14f20d5984eb94080c21f7fd",
+  "manifest_sha256": "7991dfdaa706559cf345b3b880df96d77968611d547b22df3639b10bc5a55846",
+  "stats_sha256": "92948e519bf2d593e422b9deeb4cd31083075c1afce9904d6473a9a8fb1516f6",
+  "quarantine_sha256": "ccaa3e194b7b5e7f3b67b8501bfb8e02c2e06516a4c7ec35b2b1ab2d458fae7c"
+ }
+}

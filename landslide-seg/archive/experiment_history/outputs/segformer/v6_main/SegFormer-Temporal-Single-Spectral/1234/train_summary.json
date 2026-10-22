@@ -1,0 +1,1311 @@
+{
+ "experiment": "SegFormer-Temporal-Single-Spectral",
+ "seed": 1234,
+ "run_dir": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\v6_main\\SegFormer-Temporal-Single-Spectral\\1234",
+ "n_train": 3012,
+ "n_val": 758,
+ "params": {
+  "total": 3882394,
+  "trainable": 3882394,
+  "encoder": 3330368,
+  "decoder": 395009,
+  "new": 157017,
+  "temporal_aggregation": 21636,
+  "spectral": 107156
+ },
+ "global_step": 3600,
+ "target_updates": 3600,
+ "complete": true,
+ "batch_size": 64,
+ "microbatch": 8,
+ "accumulation": 8,
+ "selection_metric": "dev_pooled_iou",
+ "best_val_iou": 0.37053474851270957,
+ "best_step": 3600,
+ "seconds": 1602.4200751781464,
+ "device": "cuda:0",
+ "history": [
+  {
+   "global_step": 100,
+   "epoch": 2,
+   "train_loss": 0.6652542151917038,
+   "dev": {
+    "pooled_iou": 4.596221905593602e-06,
+    "dice": 9.192401560869784e-06,
+    "precision": 1.0,
+    "recall": 4.596221905593602e-06,
+    "event_mean_iou": 2.020436717396465e-06,
+    "by_event": {
+     "chimanimani": 0.0,
+     "china": 0.0,
+     "dominicamaria": 0.0,
+     "hiroshima": 0.0,
+     "hokkaido": 0.0,
+     "indonesia": 0.0,
+     "italy": 0.0,
+     "itogon": 0.0,
+     "kyrgyzstan1": 2.6265677326154047e-05,
+     "kyrgyzstan2": 0.0,
+     "newzealand": 0.0,
+     "thrissur": 0.0,
+     "usa_puertorico": 0.0
+    }
+   },
+   "val_iou": 4.596221905593602e-06,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    3.366666666666667e-05,
+    0.00033666666666666665
+   ],
+   "samples_exposed": 6400,
+   "seconds": 50.688697814941406
+  },
+  {
+   "global_step": 200,
+   "epoch": 4,
+   "train_loss": 0.45913422875966203,
+   "dev": {
+    "pooled_iou": 0.2634055630764149,
+    "dice": 0.41697705119331224,
+    "precision": 0.4236763893138643,
+    "recall": 0.4104862802776118,
+    "event_mean_iou": 0.22359855852126834,
+    "by_event": {
+     "chimanimani": 0.3553950356275938,
+     "china": 0.10817892569717387,
+     "dominicamaria": 0.15182820986617393,
+     "hiroshima": 0.41600189091768597,
+     "hokkaido": 0.2920672679816302,
+     "indonesia": 0.16613326413516707,
+     "italy": 0.2808184092834486,
+     "itogon": 0.1218144750254842,
+     "kyrgyzstan1": 0.2281501439433085,
+     "kyrgyzstan2": 0.06395453185761292,
+     "newzealand": 0.26215661666567064,
+     "thrissur": 0.39726279612127163,
+     "usa_puertorico": 0.06301969365426696
+    }
+   },
+   "val_iou": 0.2634055630764149,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    5.964912280701755e-05,
+    0.0005964912280701754
+   ],
+   "samples_exposed": 12800,
+   "seconds": 98.41850543022156
+  },
+  {
+   "global_step": 300,
+   "epoch": 6,
+   "train_loss": 0.4101205249930927,
+   "dev": {
+    "pooled_iou": 0.28312896174511554,
+    "dice": 0.44131021929400904,
+    "precision": 0.48588571002378395,
+    "recall": 0.4042262260421933,
+    "event_mean_iou": 0.23861045776531833,
+    "by_event": {
+     "chimanimani": 0.39547249276125296,
+     "china": 0.11773472429210134,
+     "dominicamaria": 0.1362478917953636,
+     "hiroshima": 0.4453761297639094,
+     "hokkaido": 0.2983613572740403,
+     "indonesia": 0.15808036656316884,
+     "italy": 0.3173809848588187,
+     "itogon": 0.17696504940274296,
+     "kyrgyzstan1": 0.24637694435792676,
+     "kyrgyzstan2": 0.06399883726563635,
+     "newzealand": 0.2944278884291319,
+     "thrissur": 0.40870318539250966,
+     "usa_puertorico": 0.042810098792535674
+    }
+   },
+   "val_iou": 0.28312896174511554,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    5.789473684210527e-05,
+    0.0005789473684210526
+   ],
+   "samples_exposed": 19200,
+   "seconds": 146.2635600566864
+  },
+  {
+   "global_step": 400,
+   "epoch": 8,
+   "train_loss": 0.3965427935282712,
+   "dev": {
+    "pooled_iou": 0.29217057257261325,
+    "dice": 0.4522167255224268,
+    "precision": 0.5263103294664706,
+    "recall": 0.3964103506917314,
+    "event_mean_iou": 0.2455642221996436,
+    "by_event": {
+     "chimanimani": 0.4063179904495493,
+     "china": 0.0973549677706157,
+     "dominicamaria": 0.11853663577801508,
+     "hiroshima": 0.46187995945048416,
+     "hokkaido": 0.27457948794284015,
+     "indonesia": 0.14248420303183126,
+     "italy": 0.3305023052657122,
+     "itogon": 0.2377326565143824,
+     "kyrgyzstan1": 0.2729568366448077,
+     "kyrgyzstan2": 0.07774310972438897,
+     "newzealand": 0.28871346804754355,
+     "thrissur": 0.45026516621394386,
+     "usa_puertorico": 0.033268101761252444
+    }
+   },
+   "val_iou": 0.29217057257261325,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    5.6140350877192984e-05,
+    0.0005614035087719298
+   ],
+   "samples_exposed": 25600,
+   "seconds": 190.2135407924652
+  },
+  {
+   "global_step": 500,
+   "epoch": 10,
+   "train_loss": 0.38351237905307667,
+   "dev": {
+    "pooled_iou": 0.31406826996021414,
+    "dice": 0.4780090610813137,
+    "precision": 0.4813077797658988,
+    "recall": 0.4747552511835271,
+    "event_mean_iou": 0.26107562031076925,
+    "by_event": {
+     "chimanimani": 0.4136728686158507,
+     "china": 0.10269049086054631,
+     "dominicamaria": 0.1232102824689882,
+     "hiroshima": 0.4661702271042523,
+     "hokkaido": 0.40577157566725375,
+     "indonesia": 0.17369159012218502,
+     "italy": 0.3486747608019276,
+     "itogon": 0.20508613617719443,
+     "kyrgyzstan1": 0.27121842908687205,
+     "kyrgyzstan2": 0.06783156066854786,
+     "newzealand": 0.3109084968654918,
+     "thrissur": 0.4562043795620438,
+     "usa_puertorico": 0.04885226603884638
+    }
+   },
+   "val_iou": 0.31406826996021414,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    5.43859649122807e-05,
+    0.000543859649122807
+   ],
+   "samples_exposed": 32000,
+   "seconds": 231.96001482009888
+  },
+  {
+   "global_step": 600,
+   "epoch": 12,
+   "train_loss": 0.3774212349220477,
+   "dev": {
+    "pooled_iou": 0.3371554414854623,
+    "dice": 0.5042875809725041,
+    "precision": 0.4885613626814053,
+    "recall": 0.5210598887714298,
+    "event_mean_iou": 0.27519966892431275,
+    "by_event": {
+     "chimanimani": 0.4246323016382462,
+     "china": 0.11523574947220268,
+     "dominicamaria": 0.127506345177665,
+     "hiroshima": 0.48311337420762757,
+     "hokkaido": 0.45448305072368517,
+     "indonesia": 0.17577238108923696,
+     "italy": 0.3537057116206836,
+     "itogon": 0.18770685579196217,
+     "kyrgyzstan1": 0.3280471470667024,
+     "kyrgyzstan2": 0.06199693369106937,
+     "newzealand": 0.34249927872897123,
+     "thrissur": 0.4809438589514151,
+     "usa_puertorico": 0.041952707856598014
+    }
+   },
+   "val_iou": 0.3371554414854623,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    5.2631578947368424e-05,
+    0.0005263157894736842
+   ],
+   "samples_exposed": 38400,
+   "seconds": 273.99648571014404
+  },
+  {
+   "global_step": 700,
+   "epoch": 14,
+   "train_loss": 0.37057878212437906,
+   "dev": {
+    "pooled_iou": 0.32544791210768226,
+    "dice": 0.49107612473456774,
+    "precision": 0.5682664628786666,
+    "recall": 0.4323482097715678,
+    "event_mean_iou": 0.2676364655462192,
+    "by_event": {
+     "chimanimani": 0.4228173766343315,
+     "china": 0.10096266729279174,
+     "dominicamaria": 0.12678658240155566,
+     "hiroshima": 0.4799625468164794,
+     "hokkaido": 0.4492669854448006,
+     "indonesia": 0.11839506172839506,
+     "italy": 0.35195235328297503,
+     "itogon": 0.22161823123562618,
+     "kyrgyzstan1": 0.2891770011273957,
+     "kyrgyzstan2": 0.06930121872070383,
+     "newzealand": 0.33310947708698524,
+     "thrissur": 0.47455621301775147,
+     "usa_puertorico": 0.04136833731105807
+    }
+   },
+   "val_iou": 0.32544791210768226,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    5.087719298245614e-05,
+    0.0005087719298245614
+   ],
+   "samples_exposed": 44800,
+   "seconds": 315.9593312740326
+  },
+  {
+   "global_step": 800,
+   "epoch": 16,
+   "train_loss": 0.3654466995362934,
+   "dev": {
+    "pooled_iou": 0.3429651897269017,
+    "dice": 0.5107581229214814,
+    "precision": 0.5501131188716227,
+    "recall": 0.4766580870524429,
+    "event_mean_iou": 0.2775245263763129,
+    "by_event": {
+     "chimanimani": 0.41881615768341646,
+     "china": 0.09553295002211411,
+     "dominicamaria": 0.13926179361535562,
+     "hiroshima": 0.46649446494464947,
+     "hokkaido": 0.5240242791171792,
+     "indonesia": 0.1625447923397756,
+     "italy": 0.36765385377015997,
+     "itogon": 0.2462934277495021,
+     "kyrgyzstan1": 0.29594257800817464,
+     "kyrgyzstan2": 0.07365831154851607,
+     "newzealand": 0.33819528663673015,
+     "thrissur": 0.4663574691956251,
+     "usa_puertorico": 0.013043478260869565
+    }
+   },
+   "val_iou": 0.3429651897269017,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    4.912280701754386e-05,
+    0.0004912280701754385
+   ],
+   "samples_exposed": 51200,
+   "seconds": 357.9394187927246
+  },
+  {
+   "global_step": 900,
+   "epoch": 19,
+   "train_loss": 0.36088322372322723,
+   "dev": {
+    "pooled_iou": 0.34718283852222054,
+    "dice": 0.5154205184250409,
+    "precision": 0.5430938172008806,
+    "recall": 0.49043066599255414,
+    "event_mean_iou": 0.2856122025551828,
+    "by_event": {
+     "chimanimani": 0.44439404934687954,
+     "china": 0.11893617021276595,
+     "dominicamaria": 0.13645513952119917,
+     "hiroshima": 0.49071190415124755,
+     "hokkaido": 0.49831910615998154,
+     "indonesia": 0.15794538674365452,
+     "italy": 0.3635293585042329,
+     "itogon": 0.23696880887586352,
+     "kyrgyzstan1": 0.3302392102975406,
+     "kyrgyzstan2": 0.058421890240772115,
+     "newzealand": 0.3609001235543133,
+     "thrissur": 0.4750307662413369,
+     "usa_puertorico": 0.04110671936758893
+    }
+   },
+   "val_iou": 0.34718283852222054,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    4.736842105263158e-05,
+    0.00047368421052631577
+   ],
+   "samples_exposed": 57600,
+   "seconds": 397.7817692756653
+  },
+  {
+   "global_step": 1000,
+   "epoch": 21,
+   "train_loss": 0.3567378489167109,
+   "dev": {
+    "pooled_iou": 0.3508544954334864,
+    "dice": 0.5194556432532698,
+    "precision": 0.5759902617845,
+    "recall": 0.47302707174702396,
+    "event_mean_iou": 0.28702333172532163,
+    "by_event": {
+     "chimanimani": 0.4118845724051798,
+     "china": 0.10446365973358261,
+     "dominicamaria": 0.1444828351348781,
+     "hiroshima": 0.48234624145785876,
+     "hokkaido": 0.5228432243836608,
+     "indonesia": 0.15058128806052778,
+     "italy": 0.37216909914443885,
+     "itogon": 0.26684491978609626,
+     "kyrgyzstan1": 0.33220743095569244,
+     "kyrgyzstan2": 0.06430993999478216,
+     "newzealand": 0.34633108826657216,
+     "thrissur": 0.48911545880407825,
+     "usa_puertorico": 0.04372355430183357
+    }
+   },
+   "val_iou": 0.3508544954334864,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    4.5614035087719304e-05,
+    0.000456140350877193
+   ],
+   "samples_exposed": 64000,
+   "seconds": 437.2361650466919
+  },
+  {
+   "global_step": 1100,
+   "epoch": 23,
+   "train_loss": 0.3505368000546434,
+   "dev": {
+    "pooled_iou": 0.35440921963499056,
+    "dice": 0.5233414163121288,
+    "precision": 0.5526670892028378,
+    "recall": 0.49697108976421384,
+    "event_mean_iou": 0.28869763923534825,
+    "by_event": {
+     "chimanimani": 0.4414820972626329,
+     "china": 0.10539845758354756,
+     "dominicamaria": 0.15216935024437048,
+     "hiroshima": 0.4866773198558103,
+     "hokkaido": 0.5313725490196078,
+     "indonesia": 0.1737517069405688,
+     "italy": 0.3712351735701422,
+     "itogon": 0.2467801287948482,
+     "kyrgyzstan1": 0.33248408858863154,
+     "kyrgyzstan2": 0.05864142406382092,
+     "newzealand": 0.3426220491971228,
+     "thrissur": 0.4947913210802203,
+     "usa_puertorico": 0.015663643858202802
+    }
+   },
+   "val_iou": 0.35440921963499056,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    4.385964912280702e-05,
+    0.00043859649122807013
+   ],
+   "samples_exposed": 70400,
+   "seconds": 477.1711230278015
+  },
+  {
+   "global_step": 1200,
+   "epoch": 25,
+   "train_loss": 0.34858279209442194,
+   "dev": {
+    "pooled_iou": 0.34856690938771095,
+    "dice": 0.516944182689416,
+    "precision": 0.5684032714967538,
+    "recall": 0.47402904812244334,
+    "event_mean_iou": 0.2871977968035536,
+    "by_event": {
+     "chimanimani": 0.4382544646771695,
+     "china": 0.11416781292984869,
+     "dominicamaria": 0.14674337888121072,
+     "hiroshima": 0.4867868889645004,
+     "hokkaido": 0.5325174214645142,
+     "indonesia": 0.13853073463268367,
+     "italy": 0.35953029412986337,
+     "itogon": 0.27248816412414517,
+     "kyrgyzstan1": 0.31947582025328836,
+     "kyrgyzstan2": 0.06762072707542051,
+     "newzealand": 0.3459342560553633,
+     "thrissur": 0.5032157474176574,
+     "usa_puertorico": 0.008305647840531562
+    }
+   },
+   "val_iou": 0.34856690938771095,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    4.210526315789474e-05,
+    0.0004210526315789473
+   ],
+   "samples_exposed": 76800,
+   "seconds": 517.5059819221497
+  },
+  {
+   "global_step": 1300,
+   "epoch": 27,
+   "train_loss": 0.34452760161848267,
+   "dev": {
+    "pooled_iou": 0.36233903671783063,
+    "dice": 0.5319366573988568,
+    "precision": 0.5792381380316536,
+    "recall": 0.49177735901089303,
+    "event_mean_iou": 0.2986502849701363,
+    "by_event": {
+     "chimanimani": 0.4464258727520024,
+     "china": 0.1148691767708998,
+     "dominicamaria": 0.14830396281368596,
+     "hiroshima": 0.4999445204719459,
+     "hokkaido": 0.531099521802156,
+     "indonesia": 0.17896263840369472,
+     "italy": 0.3767431594965529,
+     "itogon": 0.27620587442737804,
+     "kyrgyzstan1": 0.33327230935090824,
+     "kyrgyzstan2": 0.06299276599203446,
+     "newzealand": 0.3685156192537643,
+     "thrissur": 0.5108456250417139,
+     "usa_puertorico": 0.03427265803503427
+    }
+   },
+   "val_iou": 0.36233903671783063,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    4.035087719298246e-05,
+    0.00040350877192982455
+   ],
+   "samples_exposed": 83200,
+   "seconds": 563.3999783992767
+  },
+  {
+   "global_step": 1400,
+   "epoch": 29,
+   "train_loss": 0.34334447913556937,
+   "dev": {
+    "pooled_iou": 0.35778083709685543,
+    "dice": 0.5270082289006905,
+    "precision": 0.5704171629705965,
+    "recall": 0.4897389345957623,
+    "event_mean_iou": 0.29284692671337464,
+    "by_event": {
+     "chimanimani": 0.4472210254200776,
+     "china": 0.11347358997314234,
+     "dominicamaria": 0.1439648954075499,
+     "hiroshima": 0.4982463752395415,
+     "hokkaido": 0.5294779629131954,
+     "indonesia": 0.153028692879915,
+     "italy": 0.37876781297200274,
+     "itogon": 0.25344149459193704,
+     "kyrgyzstan1": 0.3215455950540958,
+     "kyrgyzstan2": 0.06974796952189567,
+     "newzealand": 0.3504219038410829,
+     "thrissur": 0.5155442154032096,
+     "usa_puertorico": 0.0321285140562249
+    }
+   },
+   "val_iou": 0.35778083709685543,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    3.859649122807018e-05,
+    0.00038596491228070175
+   ],
+   "samples_exposed": 89600,
+   "seconds": 610.8313267230988
+  },
+  {
+   "global_step": 1500,
+   "epoch": 31,
+   "train_loss": 0.3395096988505096,
+   "dev": {
+    "pooled_iou": 0.3643743099127928,
+    "dice": 0.5341266062625918,
+    "precision": 0.5648076740771866,
+    "recall": 0.5066070689892908,
+    "event_mean_iou": 0.29852145166345245,
+    "by_event": {
+     "chimanimani": 0.4384833473533352,
+     "china": 0.10737248178311187,
+     "dominicamaria": 0.15632847815168258,
+     "hiroshima": 0.48392421684486964,
+     "hokkaido": 0.5467671571819247,
+     "indonesia": 0.17470367591897976,
+     "italy": 0.3926872581975011,
+     "itogon": 0.2866421914713358,
+     "kyrgyzstan1": 0.3312060551333692,
+     "kyrgyzstan2": 0.06353828843735522,
+     "newzealand": 0.34511976887087387,
+     "thrissur": 0.5209830902991717,
+     "usa_puertorico": 0.03302286198137172
+    }
+   },
+   "val_iou": 0.3643743099127928,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    3.6842105263157895e-05,
+    0.0003684210526315789
+   ],
+   "samples_exposed": 96000,
+   "seconds": 658.2234425544739
+  },
+  {
+   "global_step": 1600,
+   "epoch": 33,
+   "train_loss": 0.33789833416949316,
+   "dev": {
+    "pooled_iou": 0.36354644538933656,
+    "dice": 0.5332366148855785,
+    "precision": 0.5440391586720102,
+    "recall": 0.5228547134255642,
+    "event_mean_iou": 0.2994239054721056,
+    "by_event": {
+     "chimanimani": 0.4435243362191273,
+     "china": 0.10769836582004332,
+     "dominicamaria": 0.16492827210717892,
+     "hiroshima": 0.49075089566425384,
+     "hokkaido": 0.5388666231708453,
+     "indonesia": 0.17337643255950633,
+     "italy": 0.38690191110355804,
+     "itogon": 0.2835820895522388,
+     "kyrgyzstan1": 0.33967468941804674,
+     "kyrgyzstan2": 0.0626865671641791,
+     "newzealand": 0.33805177872974485,
+     "thrissur": 0.5235799207397622,
+     "usa_puertorico": 0.03888888888888889
+    }
+   },
+   "val_iou": 0.36354644538933656,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    3.508771929824561e-05,
+    0.0003508771929824561
+   ],
+   "samples_exposed": 102400,
+   "seconds": 704.8756210803986
+  },
+  {
+   "global_step": 1700,
+   "epoch": 36,
+   "train_loss": 0.3331482658820728,
+   "dev": {
+    "pooled_iou": 0.3606814237027247,
+    "dice": 0.5301482292912153,
+    "precision": 0.5513693699954826,
+    "recall": 0.5105000689433286,
+    "event_mean_iou": 0.29853733688173795,
+    "by_event": {
+     "chimanimani": 0.4352020385875501,
+     "china": 0.11394672039400044,
+     "dominicamaria": 0.15956943458717768,
+     "hiroshima": 0.4956704373779432,
+     "hokkaido": 0.5448891457072473,
+     "indonesia": 0.1644203261863332,
+     "italy": 0.3825132223535216,
+     "itogon": 0.27891332470892627,
+     "kyrgyzstan1": 0.33188908145580587,
+     "kyrgyzstan2": 0.05173533083645443,
+     "newzealand": 0.35962027735038865,
+     "thrissur": 0.5327978580990629,
+     "usa_puertorico": 0.029818181818181817
+    }
+   },
+   "val_iou": 0.3606814237027247,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    3.3333333333333335e-05,
+    0.0003333333333333333
+   ],
+   "samples_exposed": 108800,
+   "seconds": 751.9476053714752
+  },
+  {
+   "global_step": 1800,
+   "epoch": 38,
+   "train_loss": 0.33303805359369176,
+   "dev": {
+    "pooled_iou": 0.35976197610641375,
+    "dice": 0.5291543408745224,
+    "precision": 0.5525198209238926,
+    "recall": 0.5076848830261526,
+    "event_mean_iou": 0.2950716495180869,
+    "by_event": {
+     "chimanimani": 0.4511261068876171,
+     "china": 0.10762426284751474,
+     "dominicamaria": 0.16941381945202488,
+     "hiroshima": 0.4908169014084507,
+     "hokkaido": 0.5400809594751178,
+     "indonesia": 0.15112351299750332,
+     "italy": 0.38284941070788964,
+     "itogon": 0.2710594315245478,
+     "kyrgyzstan1": 0.33403171552138394,
+     "kyrgyzstan2": 0.06442910915934755,
+     "newzealand": 0.3416816316059518,
+     "thrissur": 0.5091321325103917,
+     "usa_puertorico": 0.022562449637389202
+    }
+   },
+   "val_iou": 0.35976197610641375,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    3.157894736842106e-05,
+    0.00031578947368421053
+   ],
+   "samples_exposed": 115200,
+   "seconds": 800.1516840457916
+  },
+  {
+   "global_step": 1900,
+   "epoch": 40,
+   "train_loss": 0.32674968589581843,
+   "dev": {
+    "pooled_iou": 0.35806578349850926,
+    "dice": 0.5273172888224855,
+    "precision": 0.5794130679488203,
+    "recall": 0.48381670267040494,
+    "event_mean_iou": 0.29427549894999044,
+    "by_event": {
+     "chimanimani": 0.4357326071123215,
+     "china": 0.10315315315315315,
+     "dominicamaria": 0.1546642899584076,
+     "hiroshima": 0.4871177370030581,
+     "hokkaido": 0.5409229358399109,
+     "indonesia": 0.14810369659145464,
+     "italy": 0.3822174158359977,
+     "itogon": 0.28865058087578194,
+     "kyrgyzstan1": 0.3359347687498715,
+     "kyrgyzstan2": 0.059983194363648115,
+     "newzealand": 0.3483570836002394,
+     "thrissur": 0.506858481097357,
+     "usa_puertorico": 0.0338855421686747
+    }
+   },
+   "val_iou": 0.35806578349850926,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    2.9824561403508775e-05,
+    0.0002982456140350877
+   ],
+   "samples_exposed": 121600,
+   "seconds": 847.7701654434204
+  },
+  {
+   "global_step": 2000,
+   "epoch": 42,
+   "train_loss": 0.32803175676903884,
+   "dev": {
+    "pooled_iou": 0.36276114070470894,
+    "dice": 0.5323913778714272,
+    "precision": 0.5656295400141661,
+    "recall": 0.5028427632486097,
+    "event_mean_iou": 0.298191865751706,
+    "by_event": {
+     "chimanimani": 0.4482466146061829,
+     "china": 0.11037005163511188,
+     "dominicamaria": 0.16567079877523114,
+     "hiroshima": 0.4928524058654484,
+     "hokkaido": 0.5427140368342459,
+     "indonesia": 0.15827379580548515,
+     "italy": 0.38818662119475583,
+     "itogon": 0.29224137931034483,
+     "kyrgyzstan1": 0.33111069759748585,
+     "kyrgyzstan2": 0.06376037959667853,
+     "newzealand": 0.3419327177470798,
+     "thrissur": 0.5076002152273339,
+     "usa_puertorico": 0.0335345405767941
+    }
+   },
+   "val_iou": 0.36276114070470894,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    2.8070175438596492e-05,
+    0.0002807017543859649
+   ],
+   "samples_exposed": 128000,
+   "seconds": 895.1262998580933
+  },
+  {
+   "global_step": 2100,
+   "epoch": 44,
+   "train_loss": 0.32570478214327586,
+   "dev": {
+    "pooled_iou": 0.36460158729366265,
+    "dice": 0.5343707506844637,
+    "precision": 0.5692889345060999,
+    "recall": 0.5034885324263455,
+    "event_mean_iou": 0.2987371297562829,
+    "by_event": {
+     "chimanimani": 0.4435018766592414,
+     "china": 0.10206345684490792,
+     "dominicamaria": 0.16224826820214538,
+     "hiroshima": 0.4890978726631527,
+     "hokkaido": 0.5483586216085675,
+     "indonesia": 0.16704222879049485,
+     "italy": 0.3908954689806325,
+     "itogon": 0.2892608089260809,
+     "kyrgyzstan1": 0.3327039919658549,
+     "kyrgyzstan2": 0.06717243559348822,
+     "newzealand": 0.3531694431077027,
+     "thrissur": 0.5042140468227425,
+     "usa_puertorico": 0.033854166666666664
+    }
+   },
+   "val_iou": 0.36460158729366265,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    2.6315789473684212e-05,
+    0.0002631578947368421
+   ],
+   "samples_exposed": 134400,
+   "seconds": 942.833034992218
+  },
+  {
+   "global_step": 2200,
+   "epoch": 46,
+   "train_loss": 0.32347656529042557,
+   "dev": {
+    "pooled_iou": 0.3674102543716157,
+    "dice": 0.5373811600388453,
+    "precision": 0.5819799300633717,
+    "recall": 0.4991313140598428,
+    "event_mean_iou": 0.3000318835267713,
+    "by_event": {
+     "chimanimani": 0.4464875780198262,
+     "china": 0.09882869692532943,
+     "dominicamaria": 0.16429955743253016,
+     "hiroshima": 0.501141082719144,
+     "hokkaido": 0.5513471552867355,
+     "indonesia": 0.15197340839671797,
+     "italy": 0.3928157850356962,
+     "itogon": 0.2792511700468019,
+     "kyrgyzstan1": 0.34102433814150757,
+     "kyrgyzstan2": 0.07383531029740416,
+     "newzealand": 0.34250605182314564,
+     "thrissur": 0.5285556628500483,
+     "usa_puertorico": 0.028348688873139617
+    }
+   },
+   "val_iou": 0.3674102543716157,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    2.456140350877193e-05,
+    0.00024561403508771925
+   ],
+   "samples_exposed": 140800,
+   "seconds": 990.5120840072632
+  },
+  {
+   "global_step": 2300,
+   "epoch": 48,
+   "train_loss": 0.3224768960925363,
+   "dev": {
+    "pooled_iou": 0.3677191835583691,
+    "dice": 0.537711524381315,
+    "precision": 0.5484115320740289,
+    "recall": 0.5274210598887714,
+    "event_mean_iou": 0.2996826567940926,
+    "by_event": {
+     "chimanimani": 0.4507767447334353,
+     "china": 0.10092551784927281,
+     "dominicamaria": 0.16670056070422126,
+     "hiroshima": 0.49827809664876876,
+     "hokkaido": 0.54142108176756,
+     "indonesia": 0.16896145925272138,
+     "italy": 0.3948686830968384,
+     "itogon": 0.28705330990041006,
+     "kyrgyzstan1": 0.34357212554886973,
+     "kyrgyzstan2": 0.05948827292110874,
+     "newzealand": 0.3481584433634468,
+     "thrissur": 0.5111303652359371,
+     "usa_puertorico": 0.024539877300613498
+    }
+   },
+   "val_iou": 0.3677191835583691,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    2.2807017543859652e-05,
+    0.0002280701754385965
+   ],
+   "samples_exposed": 147200,
+   "seconds": 1037.8046340942383
+  },
+  {
+   "global_step": 2400,
+   "epoch": 50,
+   "train_loss": 0.3195143848377148,
+   "dev": {
+    "pooled_iou": 0.36590971327387245,
+    "dice": 0.5357743776443964,
+    "precision": 0.5763508864779042,
+    "recall": 0.5005354598520017,
+    "event_mean_iou": 0.3001034554800765,
+    "by_event": {
+     "chimanimani": 0.4505896583005745,
+     "china": 0.09503482363513817,
+     "dominicamaria": 0.1657584971550712,
+     "hiroshima": 0.49671340096508226,
+     "hokkaido": 0.5337163847138909,
+     "indonesia": 0.1826408398639657,
+     "italy": 0.39352300714341437,
+     "itogon": 0.29333717911739254,
+     "kyrgyzstan1": 0.33155173654294845,
+     "kyrgyzstan2": 0.07403718459495352,
+     "newzealand": 0.34530277892990463,
+     "thrissur": 0.5317810785494447,
+     "usa_puertorico": 0.007358351729212656
+    }
+   },
+   "val_iou": 0.36590971327387245,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    2.105263157894737e-05,
+    0.00021052631578947364
+   ],
+   "samples_exposed": 153600,
+   "seconds": 1085.93936419487
+  },
+  {
+   "global_step": 2500,
+   "epoch": 53,
+   "train_loss": 0.31830782227934823,
+   "dev": {
+    "pooled_iou": 0.3681050711089908,
+    "dice": 0.5381239772916031,
+    "precision": 0.5520619565926774,
+    "recall": 0.5248724548421198,
+    "event_mean_iou": 0.29933969985716974,
+    "by_event": {
+     "chimanimani": 0.4456058959978859,
+     "china": 0.09614542268944372,
+     "dominicamaria": 0.1780423965254408,
+     "hiroshima": 0.49351386104912826,
+     "hokkaido": 0.540564153769346,
+     "indonesia": 0.18054506362949618,
+     "italy": 0.3915999041814165,
+     "itogon": 0.2925207756232687,
+     "kyrgyzstan1": 0.343025915392112,
+     "kyrgyzstan2": 0.058748999733262204,
+     "newzealand": 0.3541651856891877,
+     "thrissur": 0.5155899061963272,
+     "usa_puertorico": 0.0013486176668914363
+    }
+   },
+   "val_iou": 0.3681050711089908,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    1.929824561403509e-05,
+    0.00019298245614035088
+   ],
+   "samples_exposed": 160000,
+   "seconds": 1131.0235397815704
+  },
+  {
+   "global_step": 2600,
+   "epoch": 55,
+   "train_loss": 0.31581028885664353,
+   "dev": {
+    "pooled_iou": 0.3648068010925943,
+    "dice": 0.5345911242537019,
+    "precision": 0.5856845263350953,
+    "recall": 0.49169692512754515,
+    "event_mean_iou": 0.29534457752015963,
+    "by_event": {
+     "chimanimani": 0.4372651678472436,
+     "china": 0.09718670076726342,
+     "dominicamaria": 0.17108138038370596,
+     "hiroshima": 0.4993503515744421,
+     "hokkaido": 0.542354924151216,
+     "indonesia": 0.1691279156143218,
+     "italy": 0.3893262335899898,
+     "itogon": 0.2973742486554888,
+     "kyrgyzstan1": 0.33488269145639665,
+     "kyrgyzstan2": 0.06549009429881478,
+     "newzealand": 0.34573173970783533,
+     "thrissur": 0.4861239592969473,
+     "usa_puertorico": 0.0041841004184100415
+    }
+   },
+   "val_iou": 0.3648068010925943,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    1.7543859649122806e-05,
+    0.00017543859649122806
+   ],
+   "samples_exposed": 166400,
+   "seconds": 1173.93084192276
+  },
+  {
+   "global_step": 2700,
+   "epoch": 57,
+   "train_loss": 0.3158119226454181,
+   "dev": {
+    "pooled_iou": 0.3702448005860168,
+    "dice": 0.5404067950889841,
+    "precision": 0.5675630562391092,
+    "recall": 0.5157305694718941,
+    "event_mean_iou": 0.3029281255502743,
+    "by_event": {
+     "chimanimani": 0.45153790128298504,
+     "china": 0.09435626102292768,
+     "dominicamaria": 0.178368448246168,
+     "hiroshima": 0.5057161063008359,
+     "hokkaido": 0.5505669653477123,
+     "indonesia": 0.1743730292046091,
+     "italy": 0.3927244343791913,
+     "itogon": 0.29443838604143946,
+     "kyrgyzstan1": 0.3466790307131066,
+     "kyrgyzstan2": 0.06655992680695334,
+     "newzealand": 0.3414159668332093,
+     "thrissur": 0.5318312112525831,
+     "usa_puertorico": 0.009497964721845319
+    }
+   },
+   "val_iou": 0.3702448005860168,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    1.578947368421053e-05,
+    0.00015789473684210527
+   ],
+   "samples_exposed": 172800,
+   "seconds": 1217.2768561840057
+  },
+  {
+   "global_step": 2800,
+   "epoch": 59,
+   "train_loss": 0.31449653770723274,
+   "dev": {
+    "pooled_iou": 0.3639236649196427,
+    "dice": 0.5336422767341363,
+    "precision": 0.6002872118905722,
+    "recall": 0.4803166796892954,
+    "event_mean_iou": 0.29433052790392317,
+    "by_event": {
+     "chimanimani": 0.4455936989151434,
+     "china": 0.09606453189929112,
+     "dominicamaria": 0.15882481501139592,
+     "hiroshima": 0.49200860611648994,
+     "hokkaido": 0.5495764740848372,
+     "indonesia": 0.16421318271946164,
+     "italy": 0.387463983751358,
+     "itogon": 0.29465301478953354,
+     "kyrgyzstan1": 0.34034558885964167,
+     "kyrgyzstan2": 0.06397515527950311,
+     "newzealand": 0.3345634683157125,
+     "thrissur": 0.499014343008633,
+     "usa_puertorico": 0.0
+    }
+   },
+   "val_iou": 0.3639236649196427,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    1.4035087719298246e-05,
+    0.00014035087719298245
+   ],
+   "samples_exposed": 179200,
+   "seconds": 1260.6228380203247
+  },
+  {
+   "global_step": 2900,
+   "epoch": 61,
+   "train_loss": 0.3131956944699157,
+   "dev": {
+    "pooled_iou": 0.3632390412135189,
+    "dice": 0.5329058664431635,
+    "precision": 0.6047039466006955,
+    "recall": 0.4763478420738153,
+    "event_mean_iou": 0.29534962758740346,
+    "by_event": {
+     "chimanimani": 0.4409379461166965,
+     "china": 0.09200676165177493,
+     "dominicamaria": 0.1758053358197732,
+     "hiroshima": 0.4922715711211113,
+     "hokkaido": 0.5367744311808335,
+     "indonesia": 0.15670905011219147,
+     "italy": 0.3883491647953118,
+     "itogon": 0.29788467110982325,
+     "kyrgyzstan1": 0.34519834095501434,
+     "kyrgyzstan2": 0.0658687717511247,
+     "newzealand": 0.33615583780600283,
+     "thrissur": 0.5115832762165867,
+     "usa_puertorico": 0.0
+    }
+   },
+   "val_iou": 0.3632390412135189,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    1.2280701754385968e-05,
+    0.00012280701754385965
+   ],
+   "samples_exposed": 185600,
+   "seconds": 1303.5525660514832
+  },
+  {
+   "global_step": 3000,
+   "epoch": 63,
+   "train_loss": 0.3115716003516478,
+   "dev": {
+    "pooled_iou": 0.36506716464106637,
+    "dice": 0.534870626291942,
+    "precision": 0.5918410584211216,
+    "recall": 0.48790504205543045,
+    "event_mean_iou": 0.2962603954733226,
+    "by_event": {
+     "chimanimani": 0.43910473493011515,
+     "china": 0.09960345229764404,
+     "dominicamaria": 0.17481737905946548,
+     "hiroshima": 0.496918724080462,
+     "hokkaido": 0.5486359789048766,
+     "indonesia": 0.1483770790408791,
+     "italy": 0.39496800281091415,
+     "itogon": 0.30323529411764705,
+     "kyrgyzstan1": 0.33249509845707953,
+     "kyrgyzstan2": 0.06156683646583524,
+     "newzealand": 0.3400426727047092,
+     "thrissur": 0.5116198882835666,
+     "usa_puertorico": 0.0
+    }
+   },
+   "val_iou": 0.36506716464106637,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    1.0526315789473684e-05,
+    0.00010526315789473682
+   ],
+   "samples_exposed": 192000,
+   "seconds": 1346.801566362381
+  },
+  {
+   "global_step": 3100,
+   "epoch": 65,
+   "train_loss": 0.3104846294288695,
+   "dev": {
+    "pooled_iou": 0.36990822108286225,
+    "dice": 0.5400481804400931,
+    "precision": 0.5686888046119589,
+    "recall": 0.5141540653582755,
+    "event_mean_iou": 0.3012010928057165,
+    "by_event": {
+     "chimanimani": 0.45142805980839823,
+     "china": 0.0939883355764917,
+     "dominicamaria": 0.17687154092630353,
+     "hiroshima": 0.5067832034961048,
+     "hokkaido": 0.5510414846120847,
+     "indonesia": 0.15954001129171247,
+     "italy": 0.3973431012894581,
+     "itogon": 0.295747062115277,
+     "kyrgyzstan1": 0.3399611241597149,
+     "kyrgyzstan2": 0.05953827460510328,
+     "newzealand": 0.346746253704554,
+     "thrissur": 0.5175126050420168,
+     "usa_puertorico": 0.0191131498470948
+    }
+   },
+   "val_iou": 0.36990822108286225,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    8.771929824561406e-06,
+    8.771929824561406e-05
+   ],
+   "samples_exposed": 198400,
+   "seconds": 1390.131646156311
+  },
+  {
+   "global_step": 3200,
+   "epoch": 67,
+   "train_loss": 0.30868596095546197,
+   "dev": {
+    "pooled_iou": 0.36647386114561575,
+    "dice": 0.5363788822691035,
+    "precision": 0.5931575664416672,
+    "recall": 0.4895206140552466,
+    "event_mean_iou": 0.29718044794374243,
+    "by_event": {
+     "chimanimani": 0.44672020211134167,
+     "china": 0.0932690098782449,
+     "dominicamaria": 0.17254257544069315,
+     "hiroshima": 0.5018190173476812,
+     "hokkaido": 0.5483190184049079,
+     "indonesia": 0.14057488834936907,
+     "italy": 0.3965035127987044,
+     "itogon": 0.29797101449275365,
+     "kyrgyzstan1": 0.33538038783008756,
+     "kyrgyzstan2": 0.06725197541703248,
+     "newzealand": 0.3396687662423468,
+     "thrissur": 0.5177029649956496,
+     "usa_puertorico": 0.005622489959839358
+    }
+   },
+   "val_iou": 0.36647386114561575,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    7.017543859649123e-06,
+    7.017543859649122e-05
+   ],
+   "samples_exposed": 204800,
+   "seconds": 1432.4188125133514
+  },
+  {
+   "global_step": 3300,
+   "epoch": 70,
+   "train_loss": 0.3087342057478886,
+   "dev": {
+    "pooled_iou": 0.3687763203313773,
+    "dice": 0.5388408826974702,
+    "precision": 0.5969591734673636,
+    "recall": 0.49103506917313966,
+    "event_mean_iou": 0.29992408690538847,
+    "by_event": {
+     "chimanimani": 0.44883638301652157,
+     "china": 0.09503444998812069,
+     "dominicamaria": 0.1725958365828784,
+     "hiroshima": 0.5008086253369273,
+     "hokkaido": 0.5517550289111491,
+     "indonesia": 0.15524463060333304,
+     "italy": 0.3927833591084562,
+     "itogon": 0.297712134375905,
+     "kyrgyzstan1": 0.3431439318531868,
+     "kyrgyzstan2": 0.06482504604051566,
+     "newzealand": 0.34407794469845415,
+     "thrissur": 0.5182456858331628,
+     "usa_puertorico": 0.013950073421439061
+    }
+   },
+   "val_iou": 0.3687763203313773,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    5.263157894736846e-06,
+    5.2631578947368444e-05
+   ],
+   "samples_exposed": 211200,
+   "seconds": 1474.7685058116913
+  },
+  {
+   "global_step": 3400,
+   "epoch": 72,
+   "train_loss": 0.30815636323391843,
+   "dev": {
+    "pooled_iou": 0.36923224539059385,
+    "dice": 0.5393274174393473,
+    "precision": 0.5798758532445765,
+    "recall": 0.5040791469412144,
+    "event_mean_iou": 0.2985705835374124,
+    "by_event": {
+     "chimanimani": 0.44647574447646493,
+     "china": 0.09581395348837209,
+     "dominicamaria": 0.1740062579673195,
+     "hiroshima": 0.503039106999503,
+     "hokkaido": 0.5502305048300129,
+     "indonesia": 0.15478064573618083,
+     "italy": 0.39979495383644753,
+     "itogon": 0.2936046511627907,
+     "kyrgyzstan1": 0.33845376661133847,
+     "kyrgyzstan2": 0.06419291840027172,
+     "newzealand": 0.34577860370824004,
+     "thrissur": 0.5086530721760129,
+     "usa_puertorico": 0.006593406593406593
+    }
+   },
+   "val_iou": 0.36923224539059385,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    3.5087719298245615e-06,
+    3.508771929824561e-05
+   ],
+   "samples_exposed": 217600,
+   "seconds": 1517.4782364368439
+  },
+  {
+   "global_step": 3500,
+   "epoch": 74,
+   "train_loss": 0.3055503671986427,
+   "dev": {
+    "pooled_iou": 0.3684312723556464,
+    "dice": 0.5384724535290999,
+    "precision": 0.5873634818310678,
+    "recall": 0.49709518775566486,
+    "event_mean_iou": 0.29791356680181036,
+    "by_event": {
+     "chimanimani": 0.44170129552676607,
+     "china": 0.09568261376896149,
+     "dominicamaria": 0.17247195998934628,
+     "hiroshima": 0.4974882139268877,
+     "hokkaido": 0.5500421202695698,
+     "indonesia": 0.14709569577935647,
+     "italy": 0.3995737667651739,
+     "itogon": 0.2977279433461198,
+     "kyrgyzstan1": 0.3399110646089459,
+     "kyrgyzstan2": 0.06304667879102797,
+     "newzealand": 0.34237068266580184,
+     "thrissur": 0.5139300134589502,
+     "usa_puertorico": 0.011834319526627219
+    }
+   },
+   "val_iou": 0.3684312723556464,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    1.754385964912284e-06,
+    1.7543859649122836e-05
+   ],
+   "samples_exposed": 224000,
+   "seconds": 1559.896754026413
+  },
+  {
+   "global_step": 3600,
+   "epoch": 76,
+   "train_loss": 0.3080539943366459,
+   "dev": {
+    "pooled_iou": 0.37053474851270957,
+    "dice": 0.540715584066453,
+    "precision": 0.5834242558106116,
+    "recall": 0.5038332490692651,
+    "event_mean_iou": 0.30031113981288515,
+    "by_event": {
+     "chimanimani": 0.44511133785487067,
+     "china": 0.09524907749077491,
+     "dominicamaria": 0.17576149594260848,
+     "hiroshima": 0.5024553057622957,
+     "hokkaido": 0.5517972439047895,
+     "indonesia": 0.15478802253187074,
+     "italy": 0.4000248154352007,
+     "itogon": 0.29724238026124816,
+     "kyrgyzstan1": 0.34167345149370576,
+     "kyrgyzstan2": 0.06291681291681292,
+     "newzealand": 0.34393532147275907,
+     "thrissur": 0.5166374781085814,
+     "usa_puertorico": 0.016452074391988557
+    }
+   },
+   "val_iou": 0.37053474851270957,
+   "selection_metric": "dev_pooled_iou",
+   "lr": [
+    0.0,
+    0.0
+   ],
+   "samples_exposed": 230400,
+   "seconds": 1602.2452445030212
+  }
+ ],
+ "best_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\v6_main\\SegFormer-Temporal-Single-Spectral\\1234\\best.pt",
+ "last_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\v6_main\\SegFormer-Temporal-Single-Spectral\\1234\\last.pt",
+ "samples_exposed": 230400,
+ "unique_samples_exposed": 3012,
+ "exposures_min": 76,
+ "exposures_max": 77,
+ "module_activity": {
+  "temporal": {
+   "score_weight_abs_sum": 0.0,
+   "content_weight_abs_sum": 668.5753173828125,
+   "time_weight_abs_sum": 139.638916015625
+  },
+  "spectral": {
+   "readout_weight_abs_sum": 16.782678604125977,
+   "relation_last_weight_abs_sum": 3.4072179794311523,
+   "layer0_qkv_weight_abs_sum": 807.4940185546875,
+   "layer1_mlp_weight_abs_sum": 1092.060546875
+  }
+ },
+ "peak_alloc_mib": 1496.8720703125,
+ "peak_reserved_mib": 1590.0,
+ "batchnorm_note": "decoder BatchNorm 统计基于 microbatch 8（四组一致），不等价于历史 batch64"
+}

@@ -1,0 +1,50 @@
+seed: 1234
+deterministic: true
+output_dir: outputs
+
+data:
+  source: certified            # certified | sen12_raw
+  manifest: manifests/certified.jsonl
+  cache_dir: data/certified
+  batch_size: 2
+  boa_offset_dn: 1000.0        # Sen12 的 DN 比官方 L2A 低 1000（基线 04.00 偏移），加回
+  num_workers: 0
+
+model:
+  channels: 128
+  level_strides: [10, 20, 40, 80]
+  anysat_scales_m: [40, 160]
+  tim_enabled: true
+  branch_dropout: 0.1
+  freeze_backbones: true
+  semantic:
+    mode: full                  # class_only（基线）| full（类别查询+属性+关系）
+    use_attributes: true        # full 模式下是否组合属性响应
+    use_relation: true          # full 模式下是否组合区域-背景关系
+    class_prompt: "a landslide scar in a satellite image"
+
+loss:
+  lambda_coarse: 0.5
+  lambda_presence: 0.0        # 无可靠负样本图块 -> 关掉 presence 监督（见 docs/blockers.md B6）
+  lambda_region_text: 0.1
+  lambda_attribute: 0.0
+  bce_weight: 0.5
+  dice_weight: 0.5
+
+optim:
+  lr: 0.0001
+  weight_decay: 0.0001
+  grad_clip: 1.0
+
+train:
+  epochs: 1
+  steps_per_epoch: null
+  log_every: 1
+
+ablation:                       # 语义三阶段接口（全部 true = FULL）
+  sem_align: true               # 区域-文本对比是否生效
+  sem_loc: true                 # 语义相似度是否加到粗 logits
+  sem_ref: true                 # 语义图与 FiLM 是否进入细化器
+
+eval:
+  threshold: 0.5

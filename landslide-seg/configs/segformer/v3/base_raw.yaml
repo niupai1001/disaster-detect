@@ -1,0 +1,60 @@
+# SegFormer 四组实验的公共配置（A0/A1/B0/B1 只覆盖 model.adapter 与 model.stem）。
+# 任何公共项改动都会影响全部组，必须四组重跑。
+segformer:
+  experiment: BASE
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/segformer
+
+  data:
+    version: s2_10band_v3_p20_raw
+    source_root: data/sen12
+    cache_dir: data/s2_10band_v3_p20_raw
+    manifest: manifests/s2_10band_v3_p20_raw.jsonl
+    quarantine: manifests/s2_10band_v3_p20_raw_quarantine.jsonl
+    stats: data/s2_10band_v3_p20_raw/stats.json
+    test_event: italy
+    val_event: hiroshima
+    max_cloud: 0.5
+    min_valid_ratio: 0.5
+    max_label_invalid_ratio: 0.6
+    warn_days_after_event: 365
+    post_event_window_days: 120       # 灾后"最早可用"窗口；超窗才退化为最低云量
+    image_size: 128
+    num_workers: 0
+    preload: true                     # 约 2,000 样本 0.73 GB，避免每 epoch 重复解压 npz
+
+  model:
+    backbone: b0                        # b0 | b2，B2 需配套权重并单独记录来源
+    adapter: direct10                   # direct10 | project10to3
+    stem: false
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+
+  optim:
+    encoder_lr: 6.0e-5
+    head_lr: 6.0e-4
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+
+  train:
+    epochs: 150                         # v2：按更新步数定预算（batch 64 × 1,277 样本 ≈ 2,850 步）
+    batch_size: 64                      # 实测 4.8 GB / 42.8 ms step
+    amp: false                          # 先 fp32 验证正确性，再考虑 bf16
+    amp_dtype: bf16
+    log_every: 20
+    max_steps: null
+
+  eval:
+    threshold: 0.5
+    scale_thresholds_ha: [0.5, 2.0]     # small <0.5ha, medium 0.5-2ha, large >=2ha
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1

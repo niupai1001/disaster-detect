@@ -1,0 +1,37 @@
+# 项目数据划分下的 U-TAE 时间对照（event_ood_v4r1）
+#
+# 协议：TRAIN 2223 块（九事件）、DEV 669 块（广岛 448＋特里苏尔 221）、seed 1234。
+# 模型：官方 U-TAE（vendored 实现）＋真实观测日期；本组不加 DEM，保持十波段。
+# 选模：每个 epoch 用 DEV 两个事件的等权平均 IoU，同分取较早状态。
+utae_cv:
+  fold: v4r1
+  seed: 1234
+  deterministic: true
+  protocol:
+    pool: manifests/v4r1/pool_100.jsonl
+    stats: manifests/v4r1/stats_core25.json
+    temporal_root: data/s2_temporal_v4r1
+    quality: data/s2_temporal_v4r1_none
+    roles:
+      train: TRAIN
+      inner: DEV
+  data:
+    dem: false
+    in_channels: 10
+    image_size: 128
+    preload: false
+  train:
+    epochs: 75
+    batch_size: 16
+    lr: 0.001
+    weight_decay: 0.01
+    grad_clip: 1.0
+    pos_weight: 5.0
+    bce_weight: 0.5
+    dice_weight: 0.5
+    amp: false
+    log_every: 5
+  eval:
+    threshold: 0.5
+    selection: inner_event_mean_iou
+  output_dir: outputs/utae_v4r1

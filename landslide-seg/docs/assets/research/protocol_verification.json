@@ -1,0 +1,610 @@
+{
+ "checked_at_utc": "2026-10-22T03:32:04.974127+00:00",
+ "default_protocol": "event_ood_v4r1",
+ "current_default_config_checks": [
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\v4r1\\segformer_b0_direct10_detailres_n100_u3600_s1234.yaml",
+   "config_sha256": "d0674608f942379bacdd02c308402326d436b1f2b7fb44323eb1350bc2b3ba24",
+   "effective_config_sha256": "37eb42f79d264eb1e772d2d476dc84528000e93647f2c1493552766f526975cb",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "event_ood_v4r1",
+   "fold": null,
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 2223,
+    "dev": 669
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "china",
+     "dominicamaria",
+     "hokkaido",
+     "indonesia",
+     "itogon",
+     "kyrgyzstan1",
+     "kyrgyzstan2",
+     "usa_puertorico"
+    ],
+    "dev": [
+     "hiroshima",
+     "thrissur"
+    ]
+   },
+   "normalization_fit_n": 559,
+   "files": {
+    "manifests\\v4r1\\protocol.json": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63",
+    "manifests\\v4r1\\pool_100.jsonl": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53",
+    "manifests\\v4r1\\stats_core25.json": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+   },
+   "warnings": [
+    "DEV is a development set, not blind TEST; FINAL/Italy diagnostic evaluation is not performed by this checker"
+   ]
+  }
+ ],
+ "historical_explicit_checks": [
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5\\foldF1_control_s1234.yaml",
+   "config_sha256": "b0ef449c97a1173e69fa65ca9523e8c6cf6ac5d2687c61ef17d21f5f4898a3c0",
+   "effective_config_sha256": "215217751bb787ccd39b4426443828eb8bea7d3775aa8df2394bf1cb8cbd108b",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F1",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 2486,
+    "inner": 453,
+    "outer": 1776
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "china",
+     "dominicamaria",
+     "hiroshima",
+     "hokkaido",
+     "indonesia",
+     "itogon",
+     "kyrgyzstan1",
+     "kyrgyzstan2",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "italy"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F1\\protocol.json": "5113a7690fa95501dda0375e1615cc9bbaabf9e13156def52458cdf625ebe163",
+    "manifests\\event_cv_v5\\F1\\pool_100.jsonl": "d382e5d5866a96e82e6f956464e23bc455c0a4712c75c85f906255bfc80a79ce",
+    "manifests\\event_cv_v5\\F1\\test.jsonl": "4f29f424a5dcbcb19262c46734cb90e73f371976876012206dba06493cf65c1b",
+    "manifests\\event_cv_v5\\F1\\stats_train.json": "9e8f5c73719904f996e064d26fce271d3ece64992c4e9c07d2a86701bdc708b1"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5\\foldF2_control_s1234.yaml",
+   "config_sha256": "8c4ffd9c23750dfac9c262fd157ba326da4799643e44f6d083e6514f83851f1b",
+   "effective_config_sha256": "3ae6eff58ea786e6aa44d95fa5505d1459fa363e938d5a9033c41232c79b16ed",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F2",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 3283,
+    "inner": 453,
+    "outer": 979
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "dominicamaria",
+     "hiroshima",
+     "indonesia",
+     "italy",
+     "itogon",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "china",
+     "hokkaido",
+     "kyrgyzstan1",
+     "kyrgyzstan2"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F2\\protocol.json": "b2049c565394e3a952e62436a17602189ae4cd6031b98ea5e2f074471f4133ba",
+    "manifests\\event_cv_v5\\F2\\pool_100.jsonl": "9e7ea26c0753b6e05aced0cad9fe7968c44ce78f48386914795fe75763630afc",
+    "manifests\\event_cv_v5\\F2\\test.jsonl": "eaa3bff42c0aa6cce9a81ae85485c359723b62e73520db8bd6614d03a8716029",
+    "manifests\\event_cv_v5\\F2\\stats_train.json": "ce8cb0151e6a4f7e501222c0f3ea229a283f2be4f8c81e07dfa81b17b34ab31e"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5\\foldF3_control_s1234.yaml",
+   "config_sha256": "71e8b99f921bbfc4b1f3876b6cdd80fe43b8c3711d859eb1282a850047e4d7b5",
+   "effective_config_sha256": "3aeabf902cd57a0752c368d5b9209c679cd56a133820d1ca0aba16782963e733",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F3",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 2957,
+    "inner": 773,
+    "outer": 985
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "china",
+     "dominicamaria",
+     "hokkaido",
+     "indonesia",
+     "italy",
+     "itogon"
+    ],
+    "inner": [
+     "kyrgyzstan1",
+     "kyrgyzstan2"
+    ],
+    "outer": [
+     "hiroshima",
+     "newzealand",
+     "thrissur",
+     "usa_puertorico"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F3\\protocol.json": "82e6335eeeda134fb5cc02c2e41ea97505ba930c2ca057c3f46f651edcdef7a6",
+    "manifests\\event_cv_v5\\F3\\pool_100.jsonl": "3b131b3532aacd934faf32c5b31d12cc48d86dade51dadfd228d33b18a525789",
+    "manifests\\event_cv_v5\\F3\\test.jsonl": "71dc8dc286dbc30915d0311a697e4cd5dc45cdad971d84222093140e91243b3a",
+    "manifests\\event_cv_v5\\F3\\stats_train.json": "7ee781be67a86dc2008ff93262afda7f692a83bd60c7dde440230e0bdbaea195"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5\\foldF4_control_s1234.yaml",
+   "config_sha256": "c43a8d9209ac446f096c39cf5bd64e25353ebb30f65eff14021d5532fdabf0f5",
+   "effective_config_sha256": "71914aacfc75e62caa0692befad30bfe0d67b493b74f002466fead745b111564",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F4",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 3287,
+    "inner": 453,
+    "outer": 975
+   },
+   "events": {
+    "train": [
+     "china",
+     "hiroshima",
+     "hokkaido",
+     "italy",
+     "kyrgyzstan1",
+     "kyrgyzstan2",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "chimanimani",
+     "dominicamaria",
+     "indonesia",
+     "itogon"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F4\\protocol.json": "cc45bef4f20683e74a29d6707a80be5d39864f60500a73ec7643dafe2c6d5ac2",
+    "manifests\\event_cv_v5\\F4\\pool_100.jsonl": "c11f4b65177cea8ce2214e7bb72ef72f95b1b2bd6d100eea8240a20c96ad84e6",
+    "manifests\\event_cv_v5\\F4\\test.jsonl": "fe4f75cfa9a3cc51cd08c52cd437465357551f7c1d34bf4adbee6fb62a783421",
+    "manifests\\event_cv_v5\\F4\\stats_train.json": "e2ced6fc8abe26e3cbd883616a0c71cb19b33059d9d243fc948f79649ed03d14"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5_dem\\F1_demraw.yaml",
+   "config_sha256": "72757861f52c3b325d3465679e8c95e566afa7306fca8000b457662135dc25cb",
+   "effective_config_sha256": "9733dcb8501539db554124d87a039abcaba6264d8cf6df9c09ef17182b8434aa",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F1",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 2486,
+    "inner": 453,
+    "outer": 1776
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "china",
+     "dominicamaria",
+     "hiroshima",
+     "hokkaido",
+     "indonesia",
+     "itogon",
+     "kyrgyzstan1",
+     "kyrgyzstan2",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "italy"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F1\\protocol_geoboth.json": "593b1c1652355299dac01a0c3d3d81a65e846546018528c0608700ed61d7edda",
+    "manifests\\event_cv_v5\\F1\\pool_100.jsonl": "d382e5d5866a96e82e6f956464e23bc455c0a4712c75c85f906255bfc80a79ce",
+    "manifests\\event_cv_v5\\F1\\test.jsonl": "4f29f424a5dcbcb19262c46734cb90e73f371976876012206dba06493cf65c1b",
+    "manifests\\event_cv_v5\\F1\\stats_geoboth.json": "92977751e071b14be68b9aeef493a39277e2a860e0cdb6da8b34a4607fb3ded9"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5_dem\\F2_demraw.yaml",
+   "config_sha256": "dc714d19c71e73e8b3bdb58ebed8f1bffd0fc4b25de089bf0fb999138d6f9845",
+   "effective_config_sha256": "b2045cdb242ce4235bcec765d55a79f3bc519dbf5257890822ac1bd7b2ade608",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F2",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 3283,
+    "inner": 453,
+    "outer": 979
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "dominicamaria",
+     "hiroshima",
+     "indonesia",
+     "italy",
+     "itogon",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "china",
+     "hokkaido",
+     "kyrgyzstan1",
+     "kyrgyzstan2"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F2\\protocol_geoboth.json": "07dea1f16144eea449810472c573ad9364b9269f317cb6df96d66f77c3f46b6f",
+    "manifests\\event_cv_v5\\F2\\pool_100.jsonl": "9e7ea26c0753b6e05aced0cad9fe7968c44ce78f48386914795fe75763630afc",
+    "manifests\\event_cv_v5\\F2\\test.jsonl": "eaa3bff42c0aa6cce9a81ae85485c359723b62e73520db8bd6614d03a8716029",
+    "manifests\\event_cv_v5\\F2\\stats_geoboth.json": "7cbc09c23edff9fa3a4dedb522bec71a4bd9b8a6446eac8e23f24b36bc1c8c75"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5_dem\\F3_demraw.yaml",
+   "config_sha256": "81efffb9cd5ca57760995a92936e77e848f1bc12aa4946655e1372fb4c58aa7b",
+   "effective_config_sha256": "6054e49d2aaf0130b7cc93d175793168e69c95a94be65b1b46e59f1c185f03c8",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F3",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 2957,
+    "inner": 773,
+    "outer": 985
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "china",
+     "dominicamaria",
+     "hokkaido",
+     "indonesia",
+     "italy",
+     "itogon"
+    ],
+    "inner": [
+     "kyrgyzstan1",
+     "kyrgyzstan2"
+    ],
+    "outer": [
+     "hiroshima",
+     "newzealand",
+     "thrissur",
+     "usa_puertorico"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F3\\protocol_geoboth.json": "819a5d990b4722902a56b42854c23f8069e5c1568fe44f8e41a36e2e690f171c",
+    "manifests\\event_cv_v5\\F3\\pool_100.jsonl": "3b131b3532aacd934faf32c5b31d12cc48d86dade51dadfd228d33b18a525789",
+    "manifests\\event_cv_v5\\F3\\test.jsonl": "71dc8dc286dbc30915d0311a697e4cd5dc45cdad971d84222093140e91243b3a",
+    "manifests\\event_cv_v5\\F3\\stats_geoboth.json": "b102bd0aaee21a2d1451883465c0fb2cb21db9573660b9f3af08d22b6798df2f"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\segformer\\event_cv_v5_dem\\F4_demraw.yaml",
+   "config_sha256": "1800a9ee9266bb4eca9366a2cd36159dbca120436d160760de4952ffd7c48068",
+   "effective_config_sha256": "bd0863ad9fb2106abd82ac91cfb00b4fdc5cc5d3fd3f2d3ee5a7983132ff5c75",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F4",
+   "seed": 1234,
+   "selection": "dev_event_mean_iou",
+   "counts": {
+    "train": 3287,
+    "inner": 453,
+    "outer": 975
+   },
+   "events": {
+    "train": [
+     "china",
+     "hiroshima",
+     "hokkaido",
+     "italy",
+     "kyrgyzstan1",
+     "kyrgyzstan2",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "chimanimani",
+     "dominicamaria",
+     "indonesia",
+     "itogon"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F4\\protocol_geoboth.json": "2e110fd27a1cb5fab5052f0a51f96cf52639d51731862698b8428caa6e5ff0a7",
+    "manifests\\event_cv_v5\\F4\\pool_100.jsonl": "c11f4b65177cea8ce2214e7bb72ef72f95b1b2bd6d100eea8240a20c96ad84e6",
+    "manifests\\event_cv_v5\\F4\\test.jsonl": "fe4f75cfa9a3cc51cd08c52cd437465357551f7c1d34bf4adbee6fb62a783421",
+    "manifests\\event_cv_v5\\F4\\stats_geoboth.json": "8041e05b44f7c7e94afab2205d54b7e9dc053cfcee0f91bb242315102b5a7285"
+   },
+   "warnings": []
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\utae\\event_cv\\F1.yaml",
+   "config_sha256": "d6cdc7125d8c43c6b6a05d7e977d7fbf61eaac6f0ae1a3e3aad699d6d8ec1def",
+   "effective_config_sha256": "5c76c6330411bba32ef080bbe850af8f1d62710785ec629926d6d0854b319d1e",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F1",
+   "seed": 1234,
+   "selection": "inner_event_mean_iou",
+   "counts": {
+    "train": 2486,
+    "inner": 453,
+    "outer": 1776
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "china",
+     "dominicamaria",
+     "hiroshima",
+     "hokkaido",
+     "indonesia",
+     "itogon",
+     "kyrgyzstan1",
+     "kyrgyzstan2",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "italy"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F1\\protocol.json": "5113a7690fa95501dda0375e1615cc9bbaabf9e13156def52458cdf625ebe163",
+    "manifests\\event_cv_v5\\F1\\pool_100.jsonl": "d382e5d5866a96e82e6f956464e23bc455c0a4712c75c85f906255bfc80a79ce",
+    "manifests\\event_cv_v5\\F1\\test.jsonl": "4f29f424a5dcbcb19262c46734cb90e73f371976876012206dba06493cf65c1b",
+    "manifests\\event_cv_v5\\F1\\stats_dem.json": "3d1fce982a8dd68d49b5de644a7281d919e46a91cabbdea05c96cf82f93c6538"
+   },
+   "warnings": [
+    "stats_dem provenance checked; DEM values are not registered in the base protocol hash and were not refitted here"
+   ]
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\utae\\event_cv\\F2.yaml",
+   "config_sha256": "d4a1ba811b2809e1862528c59138e089fe2bbf347e9ca072cb0b76caa13e1c6f",
+   "effective_config_sha256": "71bb81fd8e905255d47484a4becd97c6c2f34165d23d59bba43b6017a9b8d474",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F2",
+   "seed": 1234,
+   "selection": "inner_event_mean_iou",
+   "counts": {
+    "train": 3283,
+    "inner": 453,
+    "outer": 979
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "dominicamaria",
+     "hiroshima",
+     "indonesia",
+     "italy",
+     "itogon",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "china",
+     "hokkaido",
+     "kyrgyzstan1",
+     "kyrgyzstan2"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F2\\protocol.json": "b2049c565394e3a952e62436a17602189ae4cd6031b98ea5e2f074471f4133ba",
+    "manifests\\event_cv_v5\\F2\\pool_100.jsonl": "9e7ea26c0753b6e05aced0cad9fe7968c44ce78f48386914795fe75763630afc",
+    "manifests\\event_cv_v5\\F2\\test.jsonl": "eaa3bff42c0aa6cce9a81ae85485c359723b62e73520db8bd6614d03a8716029",
+    "manifests\\event_cv_v5\\F2\\stats_dem.json": "b869297d321170d5504ae98ed5ff321aeef17a5cddb7e5595df69a34590f8bf3"
+   },
+   "warnings": [
+    "stats_dem provenance checked; DEM values are not registered in the base protocol hash and were not refitted here"
+   ]
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\utae\\event_cv\\F3.yaml",
+   "config_sha256": "54731518cc326cb3ad263d2711d371da12371f3ed97bf39f42da6b3b819c6d00",
+   "effective_config_sha256": "3deccb9703ffa12da389ee1be69f1db64e67dce647ec4e21a8fa0e91c8943fdf",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F3",
+   "seed": 1234,
+   "selection": "inner_event_mean_iou",
+   "counts": {
+    "train": 2957,
+    "inner": 773,
+    "outer": 985
+   },
+   "events": {
+    "train": [
+     "chimanimani",
+     "china",
+     "dominicamaria",
+     "hokkaido",
+     "indonesia",
+     "italy",
+     "itogon"
+    ],
+    "inner": [
+     "kyrgyzstan1",
+     "kyrgyzstan2"
+    ],
+    "outer": [
+     "hiroshima",
+     "newzealand",
+     "thrissur",
+     "usa_puertorico"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F3\\protocol.json": "82e6335eeeda134fb5cc02c2e41ea97505ba930c2ca057c3f46f651edcdef7a6",
+    "manifests\\event_cv_v5\\F3\\pool_100.jsonl": "3b131b3532aacd934faf32c5b31d12cc48d86dade51dadfd228d33b18a525789",
+    "manifests\\event_cv_v5\\F3\\test.jsonl": "71dc8dc286dbc30915d0311a697e4cd5dc45cdad971d84222093140e91243b3a",
+    "manifests\\event_cv_v5\\F3\\stats_dem.json": "6facc710aafe42ae58efaf31df7f68473c2eb3cfd16e832907f2038e930580ac"
+   },
+   "warnings": [
+    "stats_dem provenance checked; DEM values are not registered in the base protocol hash and were not refitted here"
+   ]
+  },
+  {
+   "ok": true,
+   "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\utae\\event_cv\\F4.yaml",
+   "config_sha256": "77d0db5da0800e542e1763374e79872ae48001cc0b78979252b3245af79d244c",
+   "effective_config_sha256": "10c2410e213d1098a6e534d2a6638b99821fd92747033cdd3f16c7217dd982fd",
+   "policy_sha256": "460b74cdbac9cb3d27671d48581a64acdeb24bd6d965ed129313df9861142221",
+   "protocol": "EVENT_CV_V5",
+   "fold": "F4",
+   "seed": 1234,
+   "selection": "inner_event_mean_iou",
+   "counts": {
+    "train": 3287,
+    "inner": 453,
+    "outer": 975
+   },
+   "events": {
+    "train": [
+     "china",
+     "hiroshima",
+     "hokkaido",
+     "italy",
+     "kyrgyzstan1",
+     "kyrgyzstan2",
+     "thrissur",
+     "usa_puertorico"
+    ],
+    "inner": [
+     "newzealand"
+    ],
+    "outer": [
+     "chimanimani",
+     "dominicamaria",
+     "indonesia",
+     "itogon"
+    ]
+   },
+   "files": {
+    "manifests\\event_cv_v5\\F4\\protocol.json": "cc45bef4f20683e74a29d6707a80be5d39864f60500a73ec7643dafe2c6d5ac2",
+    "manifests\\event_cv_v5\\F4\\pool_100.jsonl": "c11f4b65177cea8ce2214e7bb72ef72f95b1b2bd6d100eea8240a20c96ad84e6",
+    "manifests\\event_cv_v5\\F4\\test.jsonl": "fe4f75cfa9a3cc51cd08c52cd437465357551f7c1d34bf4adbee6fb62a783421",
+    "manifests\\event_cv_v5\\F4\\stats_dem.json": "2662fb579da5800619469519dbd9ada040d537d651d410fdd70c75703759fe0b"
+   },
+   "warnings": [
+    "stats_dem provenance checked; DEM values are not registered in the base protocol hash and were not refitted here"
+   ]
+  }
+ ],
+ "historical_checks_are_default_authorization": false,
+ "regression": {
+  "command": "python -X utf8 -m unittest discover -s tests -p test_research_protocol.py -v",
+  "tests_run": 12,
+  "result": "OK"
+ },
+ "default_fourfold_schedulers": [
+  {
+   "script": "run_utae_cv.py",
+   "default_exit_code": 2,
+   "training_started": false
+  },
+  {
+   "script": "run_dem_arm.py",
+   "default_exit_code": 2,
+   "training_started": false
+  }
+ ],
+ "document_missing_links": [],
+ "limits": [
+  "No training/inference or checkpoint changes.",
+  "Original 559-core normalization retained; no refitting.",
+  "New DEM/spectral configurations for original 2223/669 split are still pending adaptation.",
+  "Historical checks preserve existing data identities, not new experiment authorization."
+ ]
+}

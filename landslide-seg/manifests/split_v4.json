@@ -1,0 +1,133 @@
+{
+ "counts_by_role": {
+  "dev": 2,
+  "diagnostic": 1,
+  "exclude_small": 2,
+  "final": 1,
+  "train": 9
+ },
+ "data_version": "s2_10band_v4_p20",
+ "design": {
+  "dev": [
+   "hiroshima",
+   "thrissur"
+  ],
+  "diagnostic": [
+   "italy"
+  ],
+  "exclude_small": [
+   "nepal",
+   "usa_alaska"
+  ],
+  "final": [
+   "newzealand"
+  ],
+  "train": [
+   "chimanimani",
+   "dominicamaria",
+   "indonesia",
+   "kyrgyzstan1",
+   "kyrgyzstan2",
+   "hokkaido",
+   "itogon",
+   "china",
+   "usa_puertorico"
+  ]
+ },
+ "events": {
+  "chimanimani": {
+   "n": 406,
+   "role": "train"
+  },
+  "china": {
+   "n": 72,
+   "role": "train"
+  },
+  "dominicamaria": {
+   "n": 374,
+   "role": "train"
+  },
+  "hiroshima": {
+   "n": 448,
+   "role": "dev"
+  },
+  "hokkaido": {
+   "n": 150,
+   "role": "train"
+  },
+  "indonesia": {
+   "n": 235,
+   "role": "train"
+  },
+  "italy": {
+   "n": 2795,
+   "role": "diagnostic"
+  },
+  "itogon": {
+   "n": 119,
+   "role": "train"
+  },
+  "kyrgyzstan1": {
+   "n": 642,
+   "role": "train"
+  },
+  "kyrgyzstan2": {
+   "n": 181,
+   "role": "train"
+  },
+  "nepal": {
+   "n": 8,
+   "role": "exclude_small"
+  },
+  "newzealand": {
+   "n": 338,
+   "role": "final"
+  },
+  "thrissur": {
+   "n": 221,
+   "role": "dev"
+  },
+  "usa_alaska": {
+   "n": 15,
+   "role": "exclude_small"
+  },
+  "usa_puertorico": {
+   "n": 44,
+   "role": "train"
+  }
+ },
+ "frozen": true,
+ "n_dev": 669,
+ "n_final": 338,
+ "n_train_all": 2223,
+ "notes": {
+  "hiroshima": "SEEN_DEV：v1–v3 一直用作 val 做模型选择，不构成盲测，仅用于与历史可比。",
+  "italy": "DIAGNOSTIC：多轮查看过，不能作最终留出，也不参与任何筛选。",
+  "nepal/usa_alaska": "样本 <20，指标方差过大，只报告不参与选择。",
+  "newzealand": "FINAL：从未参与训练或选择；32.5% 图块用了时相 fallback，结论需单独声明。"
+ },
+ "pool_summary": {
+  "100%": {
+   "events": 9,
+   "fg_px": 1304458,
+   "n": 2223
+  },
+  "25%": {
+   "events": 9,
+   "fg_px": 313984,
+   "n": 559
+  },
+  "50%": {
+   "events": 9,
+   "fg_px": 665407,
+   "n": 1113
+  },
+  "75%": {
+   "events": 9,
+   "fg_px": 997527,
+   "n": 1671
+  }
+ },
+ "protocol": "event_ood_v4",
+ "sha256": "aac3012179683dc94e24f8be55981453a8c1d6005db5f3289b20d04812916775"
+}

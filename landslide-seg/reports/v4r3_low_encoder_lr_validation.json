@@ -1,0 +1,281 @@
+{
+ "status": "PASS",
+ "purpose": "integration only",
+ "final_used": false,
+ "updates": 3,
+ "config_sha256": "3be40aacf5066cff72668177d85caa5455807f81c473130518eae8cd4b022beb",
+ "optimizer_groups": [
+  {
+   "initial_lr": 6e-06,
+   "parameters": 3314656
+  },
+  {
+   "initial_lr": 6e-05,
+   "parameters": 15712
+  },
+  {
+   "initial_lr": 0.0006,
+   "parameters": 423234
+  }
+ ],
+ "params": {
+  "total": 3753602,
+  "trainable": 3753602,
+  "encoder": 3330368,
+  "decoder": 395009,
+  "new": 28225
+ },
+ "reload_max_error": 0.0,
+ "output_shape": [
+  4,
+  1,
+  128,
+  128
+ ],
+ "source_sha256": {
+  "src/landslide_seg/__init__.py": "af201fbc0696ed533c8358270ab1423eb5e671b6e6f7d5f0e3868b930199cda2",
+  "src/landslide_seg/config.py": "d29c563d40df9e78f3516f6a0241d71908d4a109c2184102712cb55c1a4f2072",
+  "src/landslide_seg/data/__init__.py": "92be8f4baa5319214dc29bb6b644d90dab34384e712beb805e779f7bf08540e7",
+  "src/landslide_seg/data/band_mapping.py": "8b67e47e876f6cea773ea10c9969527ca0239139b50f6aa3412c74675b0c9a45",
+  "src/landslide_seg/data/certified.py": "ad7af1af1e543c3510ea89c360ad523e93e68c9e41dbbce8ae5a04f6d5aa4554",
+  "src/landslide_seg/data/loader.py": "2ac61720e861f1cd18f7efad0dd2acaf631449ae1dafde8c720a8a4adff6102d",
+  "src/landslide_seg/data/pipeline.py": "29c2502a3baa4bd1f93ba65bf7ae50cd2a3463a7204e661a0dc356b13680f31e",
+  "src/landslide_seg/data/s2_backfill.py": "73c87f5289402573d36cc7fd6c29767a41b4be5569b24e72ca499958513b323d",
+  "src/landslide_seg/data/segformer_dataset.py": "ccc011598235eaa3f5de40ef2d2515cd297162c0a998df6cb3f339ad95004d08",
+  "src/landslide_seg/data/sen12.py": "6dadafeb66bdb5ff094577c1b88ddf7d86670588f507ca7b4886acc190ef93a7",
+  "src/landslide_seg/encoders/__init__.py": "b2e86af5a4621b6efbb5296098fcbd39124666e600712a5ac3aa8e3a4e0c9320",
+  "src/landslide_seg/encoders/_terramind_loader.py": "800bcbc98ebdabe6ca64a7b73d60f2e31839c889bd456e844954fd0b3a289ef7",
+  "src/landslide_seg/encoders/anysat_scale.py": "cf600f4464a7a3a3ad492b78512c15e9a49f0eda96d03a6db903d16046bf33fb",
+  "src/landslide_seg/encoders/terramind_tim.py": "4ecd3d4b3187c2c6492cf1b268e859677f95099207997c75d74079b811cfd743",
+  "src/landslide_seg/inference/__init__.py": "3416f6ac45478f1b4a0090fabe231f10b2eb941e6fecb02120ffcebb061aa5e7",
+  "src/landslide_seg/inference/visualize.py": "a553155a99c3597cc0c804f3ae42612fdba7d8f96198d739d73edb6328fde033",
+  "src/landslide_seg/models/__init__.py": "22363fc89673112dec1e22646cc5f4c3d8764e0301c6354e6c1d7c1697f1efb2",
+  "src/landslide_seg/models/build.py": "64ff67b24ea35c441661705a5c14e87306f1d3dcddb620f4cd0bc7cae2526580",
+  "src/landslide_seg/models/coarse.py": "90e4012ed44eb38fd2cba7589e2e294c8fb167da012bc1d112a9242fbc949dc7",
+  "src/landslide_seg/models/factory.py": "db31cd43c13cfb5f39c200dcd96c538d446762bc92a05bed6c1ecec9b2a1b4fc",
+  "src/landslide_seg/models/feature_fusion.py": "e8d0d50321a90c9a3ecca553d67e5c3f2e61f2c8726bf435afedd6b7791f8dd4",
+  "src/landslide_seg/models/full_model.py": "1ea7d88cb5c57c71c9d848f18db88169d3cea8b14565c9981360be6ad43a6d54",
+  "src/landslide_seg/models/fusion.py": "b53e83f4e1828a33ffca2dfc52c6f06bb9e31a294d25bf6b35b83a5368367a86",
+  "src/landslide_seg/models/refiner.py": "511a73904861f9d177cc4dfc51c8e686b53825365b6faba246c76401a3a7b220",
+  "src/landslide_seg/models/segformer.py": "5393ab679d42e2fc034f99d057db87b507f932e1beba9e1a9a729baad03aff0c",
+  "src/landslide_seg/models/segformer_probe.py": "1f65b2222b8fb53896c915f1a50478b42193db78de96bdc361c70a804da08696",
+  "src/landslide_seg/models/semantic.py": "bd74e18519b7eb81b6e87b4b74186621a396b28dbbd33e0b81afef0dd291004c",
+  "src/landslide_seg/models/semantic_dynamic.py": "dd4e4f3f9bfaadcbf01103158aae7148cbc9e1188d87817160f46e77ed13c839",
+  "src/landslide_seg/models/spectral_stem.py": "238bf2fdfb0da7dc8de1f619b9388006d7f46a0a82d416281bc2bf01add1f317",
+  "src/landslide_seg/models/unet.py": "7a449d29e781c72b1f68241b5283829360da449a072a366dc3394873a7103aee",
+  "src/landslide_seg/training/__init__.py": "227484dda949b07eabecca5327ea4eba5849531b4589916108e2b926dbf54081",
+  "src/landslide_seg/training/losses.py": "0edf495a66b161731701044c7026adc4278c80c32af3f0722baa0f41f6f7ac48",
+  "src/landslide_seg/training/metrics.py": "7723a3ce3d90220c3bc832ecc3ffc0669edd73e5fe0e5a58be19edf07729aa81",
+  "src/landslide_seg/training/protocol.py": "954e5f6b28d733171a8200b58d7bf6f2a17023db73052466327dab5121193fed",
+  "src/landslide_seg/training/segformer_metrics.py": "8a07131305343a28a9681922811c3e5840a0a25511bcf8ae54e877104b34ff9f",
+  "src/landslide_seg/training/segformer_trainer.py": "8024abd91ebab8b9fadb5ce95b2c4b97e51e5ff696b542849f4376af39076e2a",
+  "src/landslide_seg/training/trainer.py": "c3ee581d76b9f26c4ef7c316307c90d8623caecead75189fd693798f49fde37a",
+  "src/landslide_seg/training/update_training.py": "e465ba4e728462f85a52450eefe511f52a81d020954f659359d34e15afbe09d3"
+ },
+ "summary": {
+  "experiment": "validation_detailres_low_encoder_lr_u3",
+  "seed": 1234,
+  "run_dir": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\s2_10band_v4r3_low_encoder_lr\\validation_detailres_low_encoder_lr_u3\\1234",
+  "n_train": 2223,
+  "n_val": 669,
+  "params": {
+   "total": 3753602,
+   "trainable": 3753602,
+   "encoder": 3330368,
+   "decoder": 395009,
+   "new": 28225
+  },
+  "global_step": 3,
+  "target_updates": 3,
+  "complete": true,
+  "selection_metric": "dev_event_mean_iou",
+  "best_val_iou": 0.0008143929095115808,
+  "best_step": 3,
+  "seconds": 34.99108934402466,
+  "device": "cuda:1",
+  "history": [
+   {
+    "global_step": 3,
+    "epoch": 0,
+    "train_loss": 0.7825777530670166,
+    "coarse_loss": 0.0,
+    "train_clean": {
+     "pooled": {
+      "iou": 0.0006601458284498831,
+      "dice": 0.0013194206468637687,
+      "precision": 0.03436085363224833,
+      "recall": 0.0006726243574411918,
+      "false_positive_rate": 0.000686017224367817,
+      "tp": 797,
+      "fp": 22398,
+      "fn": 1184114,
+      "tn": 32626928
+     },
+     "by_event": {
+      "chimanimani": {
+       "iou": 9.740386238782322e-05,
+       "dice": 0.000194788751598891,
+       "precision": 0.006109979633401222,
+       "recall": 9.89720107153697e-05,
+       "false_positive_rate": 0.0004068471711949535,
+       "tp": 15,
+       "fp": 2440,
+       "fn": 151543,
+       "tn": 5994898
+      },
+      "china": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 9.194151048868751e-06,
+       "tp": 0,
+       "fp": 10,
+       "fn": 12279,
+       "tn": 1087638
+      },
+      "dominicamaria": {
+       "iou": 0.0005979737233261007,
+       "dice": 0.0011952327288870675,
+       "precision": 0.06202008269344359,
+       "recall": 0.0006034309358926468,
+       "false_positive_rate": 0.00030549923634809906,
+       "tp": 105,
+       "fp": 1588,
+       "fn": 173900,
+       "tn": 5196461
+      },
+      "hokkaido": {
+       "iou": 7.522830154119894e-05,
+       "dice": 0.00015044528533910694,
+       "precision": 0.08550185873605948,
+       "recall": 7.528888015974336e-05,
+       "false_positive_rate": 0.00012623981870730426,
+       "tp": 23,
+       "fp": 246,
+       "fn": 305467,
+       "tn": 1948426
+      },
+      "indonesia": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 1.615387400535306e-05,
+       "tp": 0,
+       "fp": 58,
+       "fn": 91682,
+       "tn": 3590412
+      },
+      "itogon": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 2.5207993345089758e-05,
+       "tp": 0,
+       "fp": 46,
+       "fn": 17104,
+       "tn": 1824772
+      },
+      "kyrgyzstan1": {
+       "iou": 0.001462206439676524,
+       "dice": 0.0029201430274135875,
+       "precision": 0.06476484194294525,
+       "recall": 0.0014937468403951825,
+       "false_positive_rate": 0.0008863315071904962,
+       "tp": 588,
+       "fp": 8491,
+       "fn": 393053,
+       "tn": 9571446
+      },
+      "kyrgyzstan2": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 2.540224454232776e-06,
+       "tp": 0,
+       "fp": 7,
+       "fn": 34944,
+       "tn": 2755655
+      },
+      "usa_puertorico": {
+       "iou": 0.004810495626822157,
+       "dice": 0.009574931089511098,
+       "precision": 0.006890791396951347,
+       "recall": 0.01568441064638783,
+       "false_positive_rate": 0.014266601873016444,
+       "tp": 66,
+       "fp": 9512,
+       "fn": 4142,
+       "tn": 657220
+      }
+     },
+     "event_mean_iou": 0.0007825897726393116
+    },
+    "dev": {
+     "pooled": {
+      "iou": 0.0007667713813037902,
+      "dice": 0.0015323677868429974,
+      "precision": 0.013958209965315964,
+      "recall": 0.0008106833323506869,
+      "false_positive_rate": 0.001123983932892682,
+      "tp": 165,
+      "fp": 11656,
+      "fn": 203367,
+      "tn": 10358599
+     },
+     "by_event": {
+      "hiroshima": {
+       "iou": 0.0006372645966554596,
+       "dice": 0.0012737174982431483,
+       "precision": 0.007669252468265162,
+       "recall": 0.0006945331459956572,
+       "false_positive_rate": 0.0016288803657767562,
+       "tp": 87,
+       "fp": 11257,
+       "fn": 125177,
+       "tn": 6899625
+      },
+      "thrissur": {
+       "iou": 0.000991521222367702,
+       "dice": 0.0019810781636929327,
+       "precision": 0.16352201257861634,
+       "recall": 0.0009965758675320694,
+       "false_positive_rate": 0.0001153388200694172,
+       "tp": 78,
+       "fp": 399,
+       "fn": 78190,
+       "tn": 3458974
+      }
+     },
+     "event_mean_iou": 0.0008143929095115808
+    },
+    "val_iou": 0.0008143929095115808,
+    "selection_metric": "dev_event_mean_iou",
+    "lr": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "skipped_batches": 0,
+    "samples_exposed": 12,
+    "seconds": 34.00986981391907
+   }
+  ],
+  "best_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\s2_10band_v4r3_low_encoder_lr\\validation_detailres_low_encoder_lr_u3\\1234\\best.pt",
+  "last_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\s2_10band_v4r3_low_encoder_lr\\validation_detailres_low_encoder_lr_u3\\1234\\last.pt",
+  "skipped_batches": 0,
+  "samples_exposed": 12,
+  "unique_samples_exposed": 12,
+  "exposures_min": 0,
+  "exposures_max": 1,
+  "dev_events": {
+   "hiroshima": 448,
+   "thrissur": 221
+  },
+  "peak_alloc_mib": 350.8701171875,
+  "peak_reserved_mib": 442.0
+ }
+}

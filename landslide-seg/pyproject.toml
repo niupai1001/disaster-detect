@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "landslide-seg"
+version = "0.1.0"
+description = "Single-date Sentinel-2 landslide segmentation: TerraMind+TiM, AnySat multi-scale, semantic 3-stage, coarse-to-fine"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.4",
+    "torchvision>=0.19",
+    "numpy>=1.26",
+    "h5py>=3.10",
+    "einops>=0.7",
+    "timm>=0.9",
+    "huggingface_hub>=0.23",
+    "matplotlib>=3.8",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# TerraMind 官方实现（只装骨架，不拉整套 EO 栈）
+terramind = ["terratorch>=1.2.5"]
+text = ["clip-anytorch"]
+# SegFormer 路线：官方 Transformers 封装（版本与 envs/tm 实测一致）
+segformer = ["transformers==4.57.6", "safetensors>=0.4"]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

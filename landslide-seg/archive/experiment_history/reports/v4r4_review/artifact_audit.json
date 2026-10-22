@@ -1,0 +1,47 @@
+{
+ "status": "PASS",
+ "runs": [
+  {
+   "arm": "LateDetail",
+   "updates": 3600,
+   "exposures": 230400,
+   "best_step": 500,
+   "checkpoint_hashes": {
+    "best": "aa1a32aceabdeb8c8d83df5c9c1f659fed3aab6529521dc19d86123182f6f567",
+    "last": "b91d4fc189dbf82ad9522c333ec4f6dab9b647bc662540315f8d20be056300ea"
+   },
+   "current_source_differs": [
+    "src/landslide_seg/models/factory.py",
+    "src/landslide_seg/models/segformer.py",
+    "src/landslide_seg/training/segformer_trainer.py",
+    "src/landslide_seg/training/update_training.py"
+   ],
+   "historical_reference": true
+  },
+  {
+   "arm": "Self",
+   "updates": 3600,
+   "exposures": 230400,
+   "best_step": 500,
+   "checkpoint_hashes": {
+    "best": "236119d960d5f8cb326bc0c37d3e019521e8a0733c0a6d5a36b7b0024734e2bd",
+    "last": "871c8ecdd1f3e4ce92d18abd3d60ccae1587b9f4bccc746cde8a9af532520d2e"
+   },
+   "current_source_differs": [],
+   "historical_reference": false
+  },
+  {
+   "arm": "Cross",
+   "updates": 3600,
+   "exposures": 230400,
+   "best_step": 500,
+   "checkpoint_hashes": {
+    "best": "31355352149ddb08fce86943addd79b5679750718eeb34a099e86b0f3f1d8e60",
+    "last": "b5708dd7e7614655a0cd14ab6381d5190f62330aeada5cc77b53d3b76ef23ec2"
+   },
+   "current_source_differs": [],
+   "historical_reference": false
+  }
+ ],
+ "scope": "saved TRAIN/DEV artifact consistency; not label audit or independent generalization"
+}

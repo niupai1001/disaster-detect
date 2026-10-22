@@ -1,0 +1,74 @@
+# v4r4 · 早期双向交换：容量对照（Self）
+#
+# 问题：保持 SegFormer 主干、原解码器和监督不变，让原网格细节在**编码阶段**
+# 参与一次双向交换，是否比只在末端融合更有效？收益是否超过新增参数本身？
+#
+# 本配置 = 主比较中的"容量对照"：与 Cross 参数结构逐项相同、参数量精确相等，
+# 唯一区别是信息不出自另一条路径（E 取 P(E)，D 取 D 本身）。
+# 只有 Cross 优于 Self，才能把增益归因于"跨路径交换"而不是"多了一层卷积"。
+#
+# 与历史 LateDetail（v4r1 detailres_n100）的差异仅此一项：
+# 在 encoder 阶段 2 输出之后插入一次交换，其余数据/损失/优化/预算/增强完全沿用。
+segformer:
+  experiment: segformer_b0_detail_early_self_residual_n100_u3600_s1234
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/segformer
+  data:
+    version: s2_10band_v4r4
+    source_root: data/sen12
+    cache_dir: data/s2_10band_v4_p20
+    manifest: manifests/v4r1/pool_100.jsonl
+    quarantine: manifests/s2_10band_v4_p20_quarantine.jsonl
+    stats: manifests/v4r1/stats_core25.json
+    test_event: italy
+    val_event: hiroshima
+    max_cloud: 0.5
+    min_valid_ratio: 0.5
+    max_label_invalid_ratio: 0.6
+    warn_days_after_event: 365
+    post_event_window_days: 120
+    image_size: 128
+    num_workers: 0
+    preload: true
+    pool_fraction: 100
+    protocol: manifests/v4r1/protocol.json
+  model:
+    type: segformer
+    backbone: b0
+    adapter: direct10
+    stem: true                   # 交换块的 D 就是这个原网格 Stem
+    refine: none                 # 不启用精分头，保持末端路径与历史一致
+    exchange: self               # none | self | cross
+    exchange_stage: 2            # 阶段 2 之后、阶段 3 之前，仅此一次
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+  optim:
+    encoder_lr: 6.0e-05
+    head_lr: 0.0006              # 新增交换模块按 param_groups 的 new 组落在这里
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+  train:
+    epochs: 150
+    batch_size: 64
+    amp: false                   # 计划要求 FP32，不做静默 AMP
+    amp_dtype: bf16
+    log_every: 20
+    max_steps: 3600
+    budget_mode: updates
+    eval_every_updates: 100
+  eval:
+    threshold: 0.5
+    scale_thresholds_ha:
+    - 0.5
+    - 2.0
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1
+    selection_metric: dev_event_mean_iou

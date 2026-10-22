@@ -1,0 +1,589 @@
+{
+ "as_of": "2026-10-22",
+ "current_stage": "terrain-prior",
+ "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
+ "stages": [
+  {
+   "id": "foundation",
+   "name": "早期完整系统的工程验证",
+   "previous": null,
+   "goal": "检查影像、预训练模型、文本语义和粗细分割接口能否共同运行。",
+   "delta": "建立最初的数据读入与多模块训练接口；这些模块不属于当前SegFormer主训练。",
+   "result": "前向、反向和小样本训练已运行；训练样本少，不能据此比较各基础模型能力。",
+   "status": "历史完成",
+   "next": "转向成熟SegFormer建立可训练的单期视觉参照。",
+   "evidence": [
+    "archive/experiment_history/docs/report_M1_M2.md"
+   ],
+   "comparisons": [
+    {
+     "name": "早期多模块系统的工程与小样本训练",
+     "evaluation_context": "26块训练；广岛21块验证、意大利25块评价。",
+     "comparison": "TerraMind/TiM、AnySat、文本语义与粗细分割接口共同运行；未做模块逐一移除对照。",
+     "observation": "训练损失从1.306到0.189；同一模型在广岛IoU为0.270、意大利为0.011。",
+     "possible_answer": "链路能运行并学习，但极小样本和缺少组件消融不足以评价各模块的贡献。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "segformer-input",
+   "name": "十波段输入适配与影像细节对照",
+   "previous": "foundation",
+   "goal": "比较直接读取十波段和投影为三通道，并检查不下采样细节分支的作用。",
+   "delta": "改用成熟SegFormer编码器和解码器，分别开启两种输入适配与细节分支。",
+   "result": "四种组合已训练，输入方式的排序随数据版本变化；没有一种方式在所有版本持续领先。",
+   "status": "完成",
+   "next": "保留有效基线，明确数据变化与空间恢复的贡献。",
+   "evidence": [
+    "archive/experiment_history/docs/all_experiment_results_v2_2026-10-19.md"
+   ],
+   "comparisons": [
+    {
+     "name": "SegFormer两种输入适配",
+     "evaluation_context": "初版广岛448块验证，三随机种子均值。",
+     "comparison": "保持不加细节分支，比较十波段直入与可训练十转三通道投影。",
+     "observation": "直入IoU 0.2575；可学习投影0.2740。",
+     "possible_answer": "这组投影较高，可能与输入适配有关；不同数据版本和有无细节分支的排序不同，不能宣布投影普遍更好。"
+    },
+    {
+     "name": "SegFormer是否保留原网格细节",
+     "evaluation_context": "同初版广岛验证成员，三随机种子均值。",
+     "comparison": "十波段直入分别关闭/开启细节；可学习投影也分别关闭/开启细节。",
+     "observation": "直入无/有细节IoU为0.2575/0.2938；投影无/有细节为0.2740/0.3134；扩展版直入无/有细节为0.2459/0.2996。",
+     "possible_answer": "支持这些已测数据条件下细节分支有帮助；不等于证明它恢复了原生影像不存在的信息。"
+    },
+    {
+     "name": "首层学习率与均衡采样",
+     "evaluation_context": "清理版训练1237块，广岛448块验证，三随机种子均值。",
+     "comparison": "同一十波段直入、无细节SegFormer，比较原训练、首层独立学习率和事件/尺度均衡采样。",
+     "observation": "原训练IoU 0.2483；首层学习率调整0.2526；均衡采样0.2560。",
+     "possible_answer": "平均差较小且逐种子方向不同；不能把单种子筛选结果当稳定机制证据。",
+     "evidence": [
+      "archive/experiment_history/docs/all_experiment_results_v2_2026-10-19.md"
+     ]
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "data-cleaning",
+   "name": "观测日期清理与数据扩展",
+   "previous": "segformer-input",
+   "goal": "减少影像日期选择风险，增加符合要求的训练图块。",
+   "delta": "重新选择部分训练影像日期或隔离样本；仍使用十波段，同时测试集合成员增加。",
+   "result": "合法训练样本增加有限，主要扩展了意大利评价图块；不同评价成员的分数不能直接相减。",
+   "status": "完成",
+   "next": "在明确划分下检验结构与后续数据学习曲线。",
+   "evidence": [
+    "archive/experiment_history/docs/segformer_input_contract.md",
+    "archive/experiment_history/docs/all_experiment_results_v2_2026-10-19.md"
+   ],
+   "comparisons": [
+    {
+     "name": "日期选择清理及数据扩展",
+     "evaluation_context": "验证始终为广岛448块；意大利评价从382增到2795块。下述架构IoU为三随机种子均值。",
+     "comparison": "同一SegFormer B0，分别在十转三投影＋细节、十波段直入＋细节结构中清理/重选训练日期并扩展分卷。",
+     "observation": "训练图块1277→1237→1480；同一验证集上，投影＋细节IoU 0.3134→0.3031→0.2930，直入＋细节0.2938→0.2947→0.2996。",
+     "possible_answer": "扩量和日期选择没有令所有结构同步改善；新增主要是评价图块，不同意大利集合的结果不能直接相减。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "spatial-variants",
+   "name": "基础预测引导与不同融合结构",
+   "previous": "data-cleaning",
+   "goal": "检查基础概率、附加损失和特征融合是否帮助细节分割。",
+   "delta": "在影像细节基线上比较概率条件、移除基础输出附加损失、边界加权和单头注意力融合。",
+   "result": "没有形成候选区域裁剪后的真正两阶段流程；本批注意力融合未显示稳定改善。",
+   "status": "完成",
+   "next": "停止堆局部融合，转数据规模和表征问题。",
+   "evidence": [
+    "archive/experiment_history/docs/all_experiment_results_v2_2026-10-19.md"
+   ],
+   "comparisons": [
+    {
+     "name": "粗概率作为精分条件",
+     "evaluation_context": "扩展版训练1480块，广岛448块验证，随机种子1234。",
+     "comparison": "同一精分头，比较输入基础粗概率和把该概率固定为零；原细节残差基线另列。",
+     "observation": "原细节残差IoU 0.3068；概率条件精分0.3158；零概率条件精分0.3135。",
+     "possible_answer": "精分头可能有帮助，但这组概率条件净差只有0.0023；没有候选区域裁剪，不能称真正定位后再分割。"
+    },
+    {
+     "name": "基础输出附加损失与边界加权",
+     "evaluation_context": "扩展版1480块训练、广岛448块验证，随机种子1234。",
+     "comparison": "分别在普通细节残差和零概率精分结构增减基础输出附加损失；另比较条件精分的边界加权。",
+     "observation": "普通细节残差原/加附加损失IoU 0.3068/0.2976；零概率精分有/无附加损失0.3135/0.2987；概率精分原/边界加权0.3158/0.3143。",
+     "possible_answer": "附加损失的方向依赖结构；边界加权没有提高这次IoU，不证明它对所有边界指标均无用。"
+    },
+    {
+     "name": "单头融合、注意力融合与U-Net",
+     "evaluation_context": "扩展版1480块训练、广岛448块验证，随机种子1234。",
+     "comparison": "影像细节残差基线，与取消基础分数残差的单头相加、单头注意力融合及ResNet18 U-Net比较。",
+     "observation": "基线IoU 0.3068；单头相加0.2692；单头注意力0.2690；U-Net 0.2583。",
+     "possible_answer": "这批完整系统中基线较高，注意力未优于相加；多处结构同时不同，不能把全部差值归给某一组件。"
+    },
+    {
+     "name": "粗输出候选区域是否覆盖滑坡",
+     "evaluation_context": "旧广岛验证与意大利评价；冻结已有模型做诊断。",
+     "comparison": "保留粗概率最高的20%面积，检查其对标注滑坡像素的覆盖；并查看漏检/误检案例。",
+     "observation": "归档记录：广岛标注像素覆盖约88%，意大利约63%；出现粗输出漏检而最终细节输出检出的案例。",
+     "possible_answer": "粗分数的候选覆盖依赖事件；该诊断没有训练新的两阶段裁剪模型，不能据此声称两阶段流程有效。"
+    },
+    {
+     "name": "固定模型的注意力干预",
+     "evaluation_context": "广岛验证集的96图块敏感性子集；固定同一单头注意力融合模型。",
+     "comparison": "不更新模型参数，比较原注意力、固定均匀权重、只保留深层特征或只保留细节特征。",
+     "observation": "在这96块上，原模型IoU 0.2404；均匀权重0.2360；只保留深层特征0.1528，只保留细节0.1512。不能与448块整集的0.2690直接比较。",
+     "possible_answer": "两路信息会影响这个固定模型在该子集上的输出；这是输入干预而非重训消融，不能由此认定参数或训练机制的贡献。",
+     "evidence": [
+      "outputs/segformer/single_head/attention_analysis.json",
+      "archive/experiment_history/docs/all_experiment_results_v2_2026-10-19.md"
+     ]
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "data-scaling",
+   "name": "同一批训练事件内增加图块",
+   "previous": "spatial-variants",
+   "goal": "判断增加现有事件的训练图块能否持续改善验证结果。",
+   "delta": "九训练事件和广岛、特里苏尔验证事件保持相同；训练量为559、1113、1671、2223，模型与更新预算相同。",
+   "result": "验证事件平均IoU依次为0.2870、0.3112、0.3143、0.3081，不随数据量单调增加；后期训练改善未同步转为验证改善。",
+   "status": "完成",
+   "next": "诊断早晚编码器状态与泛化退化。",
+   "evidence": [
+    "archive/experiment_history/reports/v4r1_execution_report_2026-10-19.md"
+   ],
+   "comparisons": [
+    {
+     "name": "同九训练事件内增加样本",
+     "evaluation_context": "同广岛448＋特里苏尔221验证；同3600次更新。",
+     "comparison": "同一SegFormer B0＋细节基线，训练559、1113、1671、2223块。",
+     "observation": "验证事件平均IoU依次0.2870、0.3112、0.3143、0.3081。",
+     "possible_answer": "当前固定事件中收益不随图块量单调增加；不能据此否定增加其他事件或其他预算的价值。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "encoder-state",
+   "name": "比较较早与较晚的编码器状态",
+   "previous": "data-scaling",
+   "goal": "检查训练后期的编码器变化是否与验证下降有关。",
+   "delta": "分别固定同一模型训练较早和结束时的编码器，训练相同初始化的解码器，不使用影像细节分支。",
+   "result": "固定较早编码器组验证IoU约0.2731，固定较晚编码器组约0.2463；不能单独证明遗忘或解码器是唯一原因。",
+   "status": "完成",
+   "next": "做一次有限LR控制与DOFA完整系统对照。",
+   "evidence": [
+    "archive/experiment_history/reports/v4r2_probe_execution_report_2026-10-19.md"
+   ],
+   "comparisons": [
+    {
+     "name": "较早/较晚编码器固定后重训解码器",
+     "evaluation_context": "九事件训练、两事件验证；两组不加细节支路。",
+     "comparison": "分别固定相同B0训练较早与结束时的编码器，重训同初始化解码器。",
+     "observation": "较早状态验证IoU约0.2731；较晚状态约0.2463。",
+     "possible_answer": "编码器训练状态可能与后期验证下降相关；并未单独证明灾难性遗忘或解码器是唯一瓶颈。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "lr-dofa",
+   "name": "编码器学习率与遥感预训练对照",
+   "previous": "encoder-state",
+   "goal": "检查降低编码器更新速度或更换预训练编码器能否改善当前基线。",
+   "delta": "一组降低首层以外编码器学习率；另一组改用DOFA遥感编码器及匹配的特征金字塔解码结构。",
+   "result": "B0＋细节参照IoU 0.3081；低编码器学习率B0为0.2823，DOFA完整系统为0.1969；后者并非纯编码器对照。",
+   "status": "完成",
+   "next": "有限检验细节信息是否进入太晚。",
+   "evidence": [
+    "archive/experiment_history/reports/v4r3_execution_report_2026-10-19.md"
+   ],
+   "comparisons": [
+    {
+     "name": "低编码器学习率与DOFA完整系统",
+     "evaluation_context": "同九事件训练2223、两事件验证669。",
+     "comparison": "B0＋细节原训练作参照，比较较低编码器学习率；另比较DOFA遥感编码器＋匹配解码结构。",
+     "observation": "B0参照IoU 0.3081；低学习率B0 0.2823；DOFA系统0.1969。",
+     "possible_answer": "这些设置未超过参照；DOFA同时改变编码器、解码器和初始化，不是纯编码器能力比较。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "early-exchange",
+   "name": "在编码过程中交换影像细节",
+   "previous": "lr-dofa",
+   "goal": "检查不下采样特征更早影响编码器是否有帮助。",
+   "delta": "在编码器第二阶段后比较分支各自残差处理与双向特征交换，保留末端细节修正。",
+   "result": "B0末端细节参照IoU 0.3081；增加分支内残差为0.2969，双向交换为0.3034；本批未提高IoU。",
+   "status": "完成并停止扩展",
+   "next": "用户否决继续loss小改，回到事件覆盖和编码器竞争。",
+   "evidence": [
+    "archive/experiment_history/reports/v4r4_review_2026-10-20.md"
+   ],
+   "comparisons": [
+    {
+     "name": "更早交换原网格细节",
+     "evaluation_context": "同2223/669成员与训练预算。",
+     "comparison": "B0末端细节基线，与编码器第二阶段后的分支内残差处理及双向交换比较。",
+     "observation": "末端细节基线IoU 0.3081；分支内残差0.2969；双向交换0.3034。",
+     "possible_answer": "本批早期连接未提高IoU，不足以继续扩局部结构网格；不等于所有早期融合方式均无效。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "event-capacity",
+   "name": "训练事件覆盖与较大模型对照",
+   "previous": "early-exchange",
+   "goal": "区分训练事件组成与模型规模的影响。",
+   "delta": "同1251块比较三事件与九事件；同2223块比较SegFormer B0与B2。",
+   "result": "同1251训练块，三事件/九事件IoU为0.2300/0.2908；同2223块B0/B2为0.3082/0.2698。B2上游权重身份仍有限制。",
+   "status": "完成",
+   "next": "拓展跨事件证据，并历史性开展官方条件诊断。",
+   "evidence": [
+    "archive/experiment_history/reports/p13_p2m1_stage_report_2026-10-20.md"
+   ],
+   "comparisons": [
+    {
+     "name": "事件覆盖与SegFormer模型规模",
+     "evaluation_context": "事件覆盖对照均1251训练块；规模对照均2223训练块；同两事件验证。",
+     "comparison": "同一SegFormer B0＋细节结构，比较三训练事件与九训练事件；另以相同2223块数据、相同细节结构比较B0与B2。",
+     "observation": "三/九训练事件IoU 0.2300/0.2908；B0/B2 0.3082/0.2698。",
+     "possible_answer": "事件组成在该受控数量对照中有影响；B2在本次设置未提高，上游权重身份仍有限制。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "official-single",
+   "name": "官方图块划分下的单张影像参照",
+   "previous": "event-capacity",
+   "goal": "记录官方成员划分条件下的单期模型表现。",
+   "delta": "使用3012训练、758验证、945测试图块，按验证像素汇总IoU选模，同一灾害事件可出现在不同集合。",
+   "result": "单期细节SegFormer测试IoU约0.3275；与整事件划分结果及完整998块官方测试结果均不可直接排名。",
+   "status": "完成（历史协议）",
+   "next": "当时继续地形、损失及U-Net对照；现在不再作为日常开发入口。",
+   "evidence": [
+    "archive/experiment_history/docs/DECISION_LOG.md",
+    "archive/experiment_history/reports/official_single/stage_report_2026-10-20.md"
+   ],
+   "comparisons": [
+    {
+     "name": "官方划分下的单张影像参照",
+     "evaluation_context": "本地官方子集3012训练、758验证、945测试。",
+     "comparison": "训练单张十波段SegFormer B0＋细节，并以该验证集选择最佳模型；不是与项目划分同成员的受控对照。",
+     "observation": "官方子集测试IoU约0.3275；当前项目验证基线0.3081使用另一集合与统计口径。",
+     "possible_answer": "建立该条件下的参照；两数不能直接相减，不能由此判定模型跨事件能力变化。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "官方数据划分（未按事件隔离）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "official-variants",
+   "name": "官方划分下的高程与模型结构对照",
+   "previous": "official-single",
+   "goal": "检查增加地形信息、增加滑坡像素损失权重及使用U-Net的影响。",
+   "delta": "保持本地官方子集不变；加入高程或坡度、改变交叉熵权重，并比较U-Net完整系统。",
+   "result": "多数改变量不足0.02；该批SegFormer优于U-Net，但不是单独验证光谱或解码器作用的实验。",
+   "status": "完成",
+   "next": "回到跨事件表征与多帧信息诊断。",
+   "evidence": [
+    "archive/experiment_history/docs/latest_experiments_review_2026-10-20.md"
+   ],
+   "comparisons": [
+    {
+     "name": "官方子集的地形、损失与U-Net",
+     "evaluation_context": "同3012/758/945成员，单随机种子。",
+     "comparison": "SegFormer十波段参照，分别追加高程或坡度、增加滑坡损失权重；另比较U-Net系统。",
+     "observation": "SegFormer原/高程/坡度/正类加权测试IoU 0.3275/0.3363/0.3402/0.3314；U-Net十波段0.3004。",
+     "possible_answer": "本批SegFormer高于U-Net，地形改变量较小；输入和系统不同，不单独证明光谱或某解码器机制。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "官方数据划分（未按事件隔离）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "event-cv",
+   "name": "历史四次事件划分与多日期参考",
+   "previous": "official-variants",
+   "goal": "评估不同未参与训练事件的迁移表现，并检查多日期输入。",
+   "delta": "建立四次整事件训练、选模验证和评价划分；分别拟合训练统计，比较完整微调和固定编码器读取。",
+   "result": "完整B0四次评价IoU均值0.1685；发现波长映射、日期使用及对象匹配问题，错误输入结果不用于机制结论。",
+   "status": "完成但发现需修正项",
+   "next": "修正输入契约，再检验主模型时间与光谱因素。",
+   "evidence": [
+    "archive/experiment_history/docs/event_cv_v5_review_and_next_plan_2026-10-20.md",
+    "archive/experiment_history/docs/v6_temporal_spectral_2026-10-21.md"
+   ],
+   "comparisons": [
+    {
+     "name": "四次整事件划分与冻结表征读取",
+     "evaluation_context": "四次独立训练、选模与留出评价；不同读取方案输入/解码不同。",
+     "comparison": "完整微调B0＋细节；固定SegFormer RGB编码器读取；固定DOFA RGB/十波段读取。",
+     "observation": "完整B0四折评价IoU均值0.1685；固定SegFormer RGB 0.0853；固定DOFA RGB 0.0743；纠正波长后的十波段DOFA约0.029。",
+     "possible_answer": "这些特定冻结读取设置未超过完整系统；不是同输入、同解码器的纯编码器比较，不能泛化成多光谱无用。"
+    }
+   ],
+   "evidence_level": "归档报告/汇总，非本次重新运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "temporal-spectral",
+   "name": "修正观测日期编码与波段波长映射",
+   "previous": "event-cv",
+   "goal": "复核多日期结果，比较时间特征加权和光谱关系模块。",
+   "delta": "按波段名修正波长；启用源观测日期编码；每日期共享编码器、解码前融合特征，光谱模块独立开启。",
+   "result": "官方可用子集U-TAE单张、15张、截止参考日期分别为0.3396、0.4832、0.4046；SegFormer对应完成的单张、15张、单张光谱组为0.3302、0.4093、0.3336；联合组中断。",
+   "status": "完成（15期光谱中断）",
+   "next": "时间因子转项目四折复验，分离帧数与时间跨度；光谱未获正收益前不叠加。",
+   "evidence": [
+    "outputs/utae_v6/utae_single_realdates/1234/eval/eval_best_test.json",
+    "outputs/utae_v6/utae_multi_realdates/1234/eval/eval_best_test.json",
+    "outputs/utae_v6/utae_history_realdates/1234/eval/eval_best_test.json",
+    "outputs/segformer/v6_main/SegFormer-Temporal-Single-Baseline/1234/eval/eval_best.json",
+    "outputs/segformer/v6_main/SegFormer-Temporal-Multi15-Baseline/1234/eval/eval_best.json",
+    "outputs/segformer/v6_main/SegFormer-Temporal-Single-Spectral/1234/eval/eval_best.json"
+   ],
+   "comparisons": [
+    {
+     "name": "观测日期编码、时间融合与光谱关系",
+     "evaluation_context": "本地官方可用子集同945测试图块；组内比较。",
+     "comparison": "U-TAE比较单张、参考日期及以前、15张；SegFormer比较统一接口的单张、15张、单张光谱。",
+     "observation": "U-TAE三组IoU 0.3396/0.4046/0.4832；SegFormer三组0.3302/0.4093/0.3336。15张＋光谱组2200/3600步中断。",
+     "possible_answer": "该子集多日期有改善，但混合观测张数、跨度和未来影像；单张光谱尚无明确收益，四组联合对照未完成。",
+     "data_split_display": "官方数据划分（未按事件隔离）"
+    }
+   ],
+   "evidence_level": "现存训练/评价产物与源码核对",
+   "data_split_display": "两类均有：波长纠错用我们的事件划分；时间与光谱对照用官方划分",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "utae-cv-temporal",
+   "name": "历史多日期输入的跨事件复验",
+   "previous": "temporal-spectral",
+   "goal": "检查官方子集的多日期改善是否迁移到未参与训练的事件。",
+   "delta": "U-TAE在四次事件划分中分别比较单张、参考日期及以前、完整15张，保持各次训练成员与批次顺序。",
+   "result": "前两组四折均值0.1589和0.0684；15张仅三折均值0.1279，同三折配对差−0.0304。不同事件方向不一致，日期干预只提示敏感性。",
+   "status": "历史诊断；本次核对11/12完成，非默认续跑队列",
+   "next": "已有结果留档，不以补齐F4为后续前置；按用户纠正回到原2223/669固定事件留出，推进地形、光谱独立对照。未自动中止现有进程。",
+   "evidence": [
+    "outputs/utae_cv/summary.json",
+    "outputs/utae_cv/F1/multi/1234/eval/date_intervention_best.json",
+    "docs/assets/research/utae_cv_modes.png"
+   ],
+   "protocol": "EVENT_CV_V5",
+   "execution_spec": {
+    "folds": [
+     "F1",
+     "F2",
+     "F3",
+     "F4"
+    ],
+    "seed": 1234,
+    "configs": "configs/utae/event_cv/F{1,2,3,4}.yaml",
+    "inputs": "十波段S2+DEM；single/history/multi只改时间输入；history不晚于原始所选单期日期；multi为完整15期回顾性条件",
+    "budget": "75 epoch、batch16、FP32、AdamW lr1e-3 wd0.01、0.5 BCE(pos_weight5)+0.5 Dice；每折三组同图块批序、尾批保留、ceil(N/16)更新/epoch",
+    "initialization": "每折各组共同初始化，不使用官方监督训练后的状态",
+    "selection": "INNER事件平均IoU；OUTER仅配置冻结后比较",
+    "next_config_command": "历史复查时显式：scripts/check_research_protocol.py --protocol EVENT_CV_V5 --config configs/utae/event_cv/F1.yaml",
+    "deferred": "四折时相资格限制仅适用于当时设计，不自动套用到原固定留出；本次不新增时相试验。",
+    "scope": "历史四折说明，不是当前执行计划"
+   },
+   "comparisons": [
+    {
+     "name": "多日期收益能否迁移到留出事件",
+     "evaluation_context": "四次事件划分；完整15张仅三次完成。",
+     "comparison": "每次保持U-TAE、训练成员、批序和损失一致，只换单张、参考日期及以前、15张输入。",
+     "observation": "单张/截止组四折均值0.1589/0.0684；15张三折0.1279；同三折与单张配对差−0.0304。",
+     "possible_answer": "已完成事件间方向不同，不能把官方多日期收益直接推到新事件；三折不能冒充完整四折。"
+    }
+   ],
+   "evidence_level": "现存训练/评价产物与源码核对",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "历史模型或历史诊断"
+  },
+  {
+   "id": "terrain-prior",
+   "name": "高程、坡度与地形预训练对照",
+   "previous": "utae-cv-temporal",
+   "goal": "区分地形输入、额外参数、高程重建及标签比例预训练的作用。",
+   "delta": "协议 event_ood_v4r1（TRAIN 2223 / DEV 669，seed1234）；缓存与清单冻结，地形以侧表加入；六组共用同一 TRAIN、3600 更新与 DEV 事件平均 IoU 选模；坡度按 0.01° 原始单位归一化（修正旧版 100 倍尺度错误），α 可学习、读出头零初始化。",
+   "result": "修正坡度单位后六组重跑：验证事件平均 IoU 0.3067–0.3096（基线 0.3081），全部落在 −0.0015～+0.0015；12 通道直入 0.3067（对象召回 0.5622 高于基线 0.5211，但边界 F1 0.4544 低于 0.4806）；地形自监督组最高 0.3096（+0.0015），同源评分头组最低 0.3076（融合系数仅 0.048）。评分头自身在 11318 个 16×16 格子上与真实滑坡比例的相关系数只有 0.087，基本是常数输出。",
+   "status": "完成（六组，单seed；坡度单位修正后重跑）",
+   "next": "光谱独立对照沿用现有训练与验证成员；地形不叠加。若修复标签比例训练的编码器加载，需另行登记和复验，不改写旧结果。",
+   "evidence": [
+    "outputs/segformer/s2_10band_v4r1_geo_raw/summary_terrain.json",
+    "outputs/segformer/s2_10band_v4r1_geo_raw/ssl_eval.json",
+    "outputs/segformer/s2_10band_v4r1_geo_raw/scoring_head_eval.json",
+    "docs/assets/research/v4r1_terrain_arms.png",
+    "manifests/v4r1/protocol_geoboth_raw.json"
+   ],
+   "limitations": [
+    "评分训练更新后的编码器未加载；实际是高程重建编码器加标签比例预测头。",
+    "已有α来自最佳模型，不能称训练终值，不能仅凭α判断有效贡献。",
+    "高程重建损失未额外用valid加权；局部标签均值在valid加权前计算；尚未修复重训。"
+   ],
+   "comparisons": [
+    {
+     "name": "地形信息与地形预训练",
+     "evaluation_context": "原2223训练、广岛448＋特里苏尔221验证；同3600分割更新。",
+     "comparison": "十波段B0＋细节参照，与12通道共同输入、高程重建/随机/标签比例预训练的独立地形分支比较。",
+     "observation": "十波段参照IoU 0.3081、对象召回0.5211；12通道共同输入IoU 0.3067、对象召回0.5622但边界F1 0.4544；五独立分支IoU 0.3076–0.3096，其中地形自监督组最高0.3096。",
+     "possible_answer": "当前实现没有明确IoU改善；标签比例组未迁移该阶段编码器，不能据此评价完整的编码器＋预测头预训练迁移。"
+    }
+   ],
+   "evidence_level": "现存训练/评价产物与源码核对",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "最新已完成的地形对照，未纳入当前参照",
+   "research_intent": "利用地形信息辅助单期影像分割，依次区分直接输入、独立地形分支、地形自监督及滑坡标注引导。遮挡补全高程只是地形自监督的实现任务，不是另一个研究目标；不预训练地形分支是控制额外参数量的对照。",
+   "current_results_source": "outputs/segformer/s2_10band_v4r1_geo_raw/summary_terrain.json",
+   "current_variants": [
+    {
+     "experiment": "segformer_b0_direct10_detailres_n100_u3600_s1234",
+     "status": "当前研究参照",
+     "model_change": "当前参照：SegFormer B0＋原始网格细节；只输入十波段影像。",
+     "training_method": "不使用地形分支；按原滑坡标注训练影像分割。",
+     "table_label": "当前参照：十波段影像＋细节分支"
+    },
+    {
+     "experiment": "SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw",
+     "status": "本轮对照：已训练、未纳入参照",
+     "model_change": "相对当前参照，拼接高程和坡度；主干首层与细节入口都由10通道扩为12通道。",
+     "training_method": "不单独预训练地形网络；12通道模型直接学习滑坡分割。",
+     "table_label": "12通道共同输入：影像＋高程＋坡度"
+    },
+    {
+     "experiment": "SegFormer-B0-LateDetail-OODv4-TerrainCapControl",
+     "status": "本轮对照：已训练、未纳入参照",
+     "model_change": "相对当前参照，另加高程＋坡度分支，在最终像素分数处相加；视觉网络仍只读十波段。",
+     "training_method": "地形分支不先单独训练，从初始参数开始随滑坡分割一起学习。",
+     "table_label": "独立地形分支：直接随分割训练"
+    },
+    {
+     "experiment": "SegFormer-B0-LateDetail-OODv4-TerrainSSL",
+     "status": "本轮对照：已训练、未纳入参照",
+     "model_change": "相对当前参照，另加高程＋坡度分支，在最终像素分数处相加；视觉网络仍只读十波段。",
+     "training_method": "先遮挡部分高程/坡度，让地形网络补回高程3000步；再迁移地形编码器，参与滑坡分割。",
+     "table_label": "独立地形分支：先做地形自监督"
+    },
+    {
+     "experiment": "SegFormer-B0-LateDetail-OODv4-TerrainSSLSup",
+     "status": "本轮对照：已训练、未纳入参照",
+     "model_change": "相对当前参照，另加高程＋坡度分支，在最终像素分数处相加；视觉网络仍只读十波段。",
+     "training_method": "编码器来自地形补全训练；预测头来自已有滑坡标注的局部比例训练。实际没有迁移比例训练后的编码器。",
+     "table_label": "独立地形分支：加载标注训练的评分头"
+    },
+    {
+     "experiment": "SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget",
+     "status": "本轮对照：已训练、未纳入参照",
+     "model_change": "相对当前参照，另加高程＋坡度分支，在最终像素分数处相加；视觉网络仍只读十波段。",
+     "training_method": "与地形补全3000步组相同，但地形补全先训练6000步；最终滑坡分割预算不变。",
+     "table_label": "独立地形分支：地形自监督预算加倍"
+    },
+    {
+     "experiment": "SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha",
+     "status": "本轮对照：已训练、未纳入参照",
+     "model_change": "相对当前参照，另加高程＋坡度分支，在最终像素分数处相加；视觉网络仍只读十波段。",
+     "training_method": "与地形补全3000步组相同，但地形分数融合系数固定0.01，不参与学习。",
+     "table_label": "独立地形分支：固定融合系数"
+    }
+   ],
+   "reference_experiment": "segformer_b0_direct10_detailres_n100_u3600_s1234",
+   "current_table_scope": "我们的数据划分（留事件验证）：九事件2223块训练，广岛448＋特里苏尔221块验证；同3600次分割更新、随机种子1234。结果为两验证事件等权平均IoU。"
+  },
+  {
+   "id": "spectral-controlled",
+   "name": "计划中的单张影像光谱独立对照",
+   "previous": "terrain-prior",
+   "goal": "区分光谱指数、波段物理信息、轻量交互和可学习融合权重的贡献。",
+   "delta": "继续使用九事件训练、两事件验证及原影像基线，不叠加地形或多日期模块，只增加一个独立光谱信息条件。",
+   "result": "本轮正式光谱实验尚未开始；旧官方单张光谱IoU增加0.0034、AP减少0.0005不能作为新方案有效的证据。",
+   "status": "计划已落项目；正式配置待实现",
+   "next": "准备原固定留出下指数/通道混合/物理身份/加性容量/低秩交互/固定门控六组配置，先前反向与恒等初始化，再正式训练；不扩四折。",
+   "evidence": [
+    "docs/assets/research/research_policy.json"
+   ],
+   "protocol": "event_ood_v4r1",
+   "execution_spec": {
+    "seed": 1234,
+    "reference": "原event_ood_v4r1单期B0+原网格细节，已完成DEV0.3081；同一通用初始化，不使用官方、四折或地形/多期监督checkpoint作为起点",
+    "arms": [
+     {
+      "name": "SegFormer B0｜单期S2与固定光谱指数｜受控细节融合",
+      "change": "NDVI、NDMI、NBR、红边指数四个预声明关系"
+     },
+     {
+      "name": "SegFormer B0｜单期S2与普通通道混合｜受控细节融合",
+      "change": "同容量轻量MLP，不提供物理元数据"
+     },
+     {
+      "name": "SegFormer B0｜单期S2与波长分辨率嵌入｜受控细节融合",
+      "change": "波长与原生GSD物理身份；不能把通道ID当波长收益"
+     },
+     {
+      "name": "SegFormer B0｜单期S2与加性光谱混合｜受控细节融合",
+      "change": "同参数量加性控制，对照乘性交互"
+     },
+     {
+      "name": "SegFormer B0｜单期S2与低秩光谱交互｜受控细节融合",
+      "change": "rank8轻量乘性交互，与物理嵌入/加性容量控制比较"
+     },
+     {
+      "name": "SegFormer B0｜单期S2与波长分辨率嵌入｜固定门控融合",
+      "change": "固定gate=0.5，对照同配置可学习gate"
+     }
+    ],
+    "configuration_status": "六组原固定留出配置待实现；不以历史官方v6_main或四折配置代替",
+    "architecture": "官方MiT与decoder不重写、原网格细节保留；分类前单尺度Dnew=D+alpha*sigmoid(G(D,S))*Proj(S)。alpha初始0，Proj非零初始化，门控末层零初始化使初值0.5；恒等输出与梯度要实测。",
+    "spectral_contract": "指数在z-score前、正确原始反射率上计算，epsilon1e-4；指数新增统计仅固定TRAIN，十波段沿用原stats_core25。公式与波段映射先冻结；波长/原生GSD注明可靠来源，带宽只在来源验证后加入。20m重采样不当成真实10m新细节。",
+    "budget": "取消乘四折：六组共6次正式训练；3600次成功更新、有效batch64、FP32、原BCE+Dice、LR及warmup/poly；双DEV等权IoU选模，不额外引入光谱预训练",
+    "diagnostics": "可学习与固定门控；同容量无物理元数据；冻结模型后错配/错位光谱特征敏感性，不用这些诊断输出参与选模",
+    "outputs": "逐事件IoU/AP、事件宏平均与最差事件、小对象及边界、gate均值方差/空间图、漏检误检画廊、参数显存速度和完整产物",
+    "preflight": "所有原固定留出配置检查后先smoke/过拟合再正式训练；不扩四折，不新增完整光谱Transformer、DINO、B2/LR网格或新decoder",
+    "split": "固定九TRAIN2223；DEV=Hiroshima448+Thrissur221；不跑四折"
+   },
+   "comparisons": [
+    {
+     "name": "计划：独立光谱信息与融合",
+     "evaluation_context": "拟沿用原2223/669成员，不默认四折。",
+     "comparison": "计划比较固定指数、普通通道混合、物理波段信息、加性与低秩交互、固定门控。",
+     "observation": "尚未形成这批正式训练与评价证据；已有计划文件不是实验结果。",
+     "possible_answer": "只能说明待研究的问题，目前不能作有效或无效结论。"
+    }
+   ],
+   "evidence_level": "仅计划，未运行",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "reader_status": "尚未执行"
+  }
+ ],
+ "evidence_review_note": "每个comparison显式列评价集合、比较对象、观察、可能含义和证据；归档报告不等于本次重新训练或逐run复算。"
+}

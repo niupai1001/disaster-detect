@@ -1,0 +1,81 @@
+# EVENT_CV_V5 · F1 · 完整系统控制组
+#
+# 新折协议下的 SegFormer-B0 + direct10 + 原网格末端细节分支。
+# 外部留出（outer）不参与任何选择；选模用内部验证的事件平均 IoU@0.5。
+# 归一化统计只由本折 TRAIN 拟合。
+segformer:
+  experiment: SegFormer-LateDetail-EventCVV5-F1
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/segformer
+  data:
+    version: event_cv_v5
+    source_root: data/sen12
+    cache_dir: data/s2_official_single_geo
+    manifest: manifests/event_cv_v5/F1/pool_100.jsonl
+    quarantine: manifests/official_single/exclusions.jsonl
+    stats: manifests/event_cv_v5/F1/stats_train.json
+    test_event: italy
+    val_event: newzealand
+    max_cloud: 0.5
+    min_valid_ratio: 0.5
+    max_label_invalid_ratio: 0.6
+    warn_days_after_event: 365
+    post_event_window_days: 120
+    image_size: 128
+    num_workers: 0
+    preload: true
+    pool_fraction: 100
+    protocol: manifests/event_cv_v5/F1/protocol.json
+  model:
+    type: segformer
+    backbone: b0
+    adapter: direct10
+    stem: true
+    refine: none
+    exchange: none
+    in_chans: 10
+    band_order:
+    - B02
+    - B03
+    - B04
+    - B05
+    - B06
+    - B07
+    - B08
+    - B8A
+    - B11
+    - B12
+    extra_channel: none
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+    pos_weight: 1.0
+  optim:
+    encoder_lr: 6.0e-05
+    head_lr: 0.0006
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+  train:
+    epochs: 150
+    batch_size: 64
+    amp: false
+    amp_dtype: bf16
+    log_every: 20
+    max_steps: 3600
+    budget_mode: updates
+    eval_every_updates: 100
+  eval:
+    threshold: 0.5
+    scale_thresholds_ha:
+    - 0.5
+    - 2.0
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1
+    selection_metric: dev_event_mean_iou

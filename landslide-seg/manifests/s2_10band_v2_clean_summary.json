@@ -1,0 +1,101 @@
+{
+ "data_version": "s2_10band_v2_clean",
+ "parent_version": "s2_10band_v1",
+ "n_v1": 2107,
+ "n_kept": 2067,
+ "n_quarantined": 40,
+ "rules": {
+  "window_days": 120,
+  "keep": "chosen_date >= latest event date",
+  "reselect": "earliest usable timestep within window after latest event date",
+  "quarantine": "no usable timestep in window",
+  "note": "只裁决时间契约；未改标签、未用模型输出、未把日期简单改成 max(event_date)。"
+ },
+ "timing_rule_counts": {
+  "single_date": 1892,
+  "reselect_within_window": 80,
+  "chosen_after_latest": 95,
+  "quarantined": 40
+ },
+ "reselect_days_after_latest": {
+  "n": 80,
+  "min": 0,
+  "p50": 5.0,
+  "max": 120
+ },
+ "quarantine_by_region": {
+  "china": 5,
+  "indonesia": 35
+ },
+ "splits": {
+  "train": {
+   "n_samples": 1237,
+   "events": {
+    "chimanimani": 406,
+    "china": 72,
+    "dominicamaria": 374,
+    "hokkaido": 150,
+    "indonesia": 235
+   },
+   "n_positive_tiles": 1237,
+   "n_negative_tiles": 0,
+   "positive_px": 823163,
+   "n_reselected": 80
+  },
+  "val": {
+   "n_samples": 448,
+   "events": {
+    "hiroshima": 448
+   },
+   "n_positive_tiles": 446,
+   "n_negative_tiles": 2,
+   "positive_px": 129078,
+   "n_reselected": 0
+  },
+  "test": {
+   "n_samples": 382,
+   "events": {
+    "italy": 382
+   },
+   "n_positive_tiles": 382,
+   "n_negative_tiles": 0,
+   "positive_px": 18459,
+   "n_reselected": 0
+  }
+ },
+ "stats": {
+  "mean": [
+   520.5382498892209,
+   742.8522200369657,
+   659.2402427177691,
+   1182.8396285838735,
+   2355.72929518266,
+   2754.413685239323,
+   2803.1377723600517,
+   3045.7520623676287,
+   1934.8306777679877,
+   1092.4535629880622
+  ],
+  "std": [
+   846.5640746998939,
+   839.5603717746224,
+   876.883102087994,
+   869.8057857179334,
+   1014.2773026654435,
+   1116.3998141967575,
+   1154.2351675979123,
+   1140.8091186815786,
+   753.6743775172245,
+   627.2413228438216
+  ],
+  "fit_split": "train"
+ },
+ "identity": {
+  "parent_manifest": "9142afbbee280fbe29873f166352f5db47aa0b193d565a0c64eafdf942f2ce9f",
+  "parent_stats": "2b74bf0c29d99523006878186ba7995b8f66a27fd7a6409d0844e3a90a010b9c",
+  "script_sha256": "318ae63318f8c3a238cb9d6baa046c3b4cb84e36ed12fcc1916bcea3e0663685",
+  "manifest_sha256": "cee256690f407d5e7fcfe515fb4f123cd2482eda1c7ebbce4f31702f53ddc949",
+  "stats_sha256": "d5f83146be7efa1d9b96391e58758b23661c99701045977d17c4be8ffcbfb8e1",
+  "quarantine_sha256": "6bf8ac57d631c22c64199251d43f7a089639d7145d149fab1f83485450b7e6c6"
+ }
+}

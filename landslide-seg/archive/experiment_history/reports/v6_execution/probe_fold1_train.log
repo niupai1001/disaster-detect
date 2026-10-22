@@ -1,0 +1,49 @@
+[updates] DOFA-CorrectWavelengths-FrozenProbe-EventFold1 device=cuda:0 start=2300 target=3600 train=2486 dev=453 interval=100
+[step 2400] loss=0.5171 train=0.1115 dev_mean=0.0472 newzealand=0.0472 best=0.0521@2300 time=6.3m
+[step 2500] loss=0.5172 train=0.1128 dev_mean=0.0475 newzealand=0.0475 best=0.0521@2300 time=6.5m
+[step 2600] loss=0.5165 train=0.1139 dev_mean=0.0473 newzealand=0.0473 best=0.0521@2300 time=6.8m
+[step 2700] loss=0.5170 train=0.1163 dev_mean=0.0489 newzealand=0.0489 best=0.0521@2300 time=7.1m
+[step 2800] loss=0.5159 train=0.1165 dev_mean=0.0489 newzealand=0.0489 best=0.0521@2300 time=7.3m
+[step 2900] loss=0.5159 train=0.1141 dev_mean=0.0461 newzealand=0.0461 best=0.0521@2300 time=7.6m
+[step 3000] loss=0.5158 train=0.1162 dev_mean=0.0478 newzealand=0.0478 best=0.0521@2300 time=7.9m
+[step 3100] loss=0.5161 train=0.1168 dev_mean=0.0483 newzealand=0.0483 best=0.0521@2300 time=8.1m
+[step 3200] loss=0.5156 train=0.1173 dev_mean=0.0485 newzealand=0.0485 best=0.0521@2300 time=8.4m
+[step 3300] loss=0.5153 train=0.1167 dev_mean=0.0479 newzealand=0.0479 best=0.0521@2300 time=8.7m
+[step 3400] loss=0.5162 train=0.1164 dev_mean=0.0475 newzealand=0.0475 best=0.0521@2300 time=9.0m
+[step 3500] loss=0.5152 train=0.1170 dev_mean=0.0480 newzealand=0.0480 best=0.0521@2300 time=9.3m
+[step 3600] loss=0.5157 train=0.1170 dev_mean=0.0480 newzealand=0.0480 best=0.0521@2300 time=9.5m
+[done] updates=3600/3600 dev_mean=0.05213@2300 9.5min
+{
+ "experiment": "DOFA-CorrectWavelengths-FrozenProbe-EventFold1",
+ "seed": 1234,
+ "run_dir": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\event_cv_v6_wave_repair\\DOFA-CorrectWavelengths-FrozenProbe-EventFold1\\1234",
+ "n_train": 2486,
+ "n_val": 453,
+ "params": {
+  "total": 111212292,
+  "trainable": 3076,
+  "encoder": 111209216,
+  "decoder": 3076,
+  "new": 0
+ },
+ "global_step": 3600,
+ "target_updates": 3600,
+ "complete": true,
+ "selection_metric": "dev_event_mean_iou",
+ "best_val_iou": 0.05212997768178984,
+ "best_step": 2300,
+ "seconds": 572.7641248703003,
+ "device": "cuda:0",
+ "best_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\event_cv_v6_wave_repair\\DOFA-CorrectWavelengths-FrozenProbe-EventFold1\\1234\\best.pt",
+ "last_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\event_cv_v6_wave_repair\\DOFA-CorrectWavelengths-FrozenProbe-EventFold1\\1234\\last.pt",
+ "skipped_batches": 0,
+ "samples_exposed": 230400,
+ "unique_samples_exposed": 2486,
+ "exposures_min": 92,
+ "exposures_max": 93,
+ "dev_events": {
+  "newzealand": 453
+ },
+ "peak_alloc_mib": 717.5869140625,
+ "peak_reserved_mib": 874.0
+}

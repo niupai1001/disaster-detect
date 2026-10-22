@@ -1,0 +1,73 @@
+{
+ "source": "https://github.com/PaulH97/Sen12Landslides",
+ "commit": "2eb025bd76bef449d2f7cf4aaea861bc4cfeed51",
+ "split_definition": {
+  "config": "configs/splits/s12ls_ld.yaml",
+  "sha256": "07dee808fd3686d6d8b056b62a490b06ced30b90517f1ff0f25d6d5b6e27c18c",
+  "min_annotated_pixel": 50,
+  "annotated_only": true,
+  "exclude_patterns": [
+   "usa_alaska",
+   "nepal"
+  ],
+  "split_sizes": {
+   "test_size": 0.2,
+   "val_size": 0.2
+  },
+  "seed": 42,
+  "nature": "随机分层划分（非事件级互斥）",
+  "counts": {
+   "train": 3192,
+   "val": 798,
+   "test": 998,
+   "total": 4988
+  }
+ },
+ "training_definition": {
+  "lit_module": "configs/lit_module/binary.yaml",
+  "sha256": "23c1a80ac33a4e0e7585239b281bb6401ccf33ba7aa378d490d4b946c8c4d1c3",
+  "task": "binary",
+  "loss": {
+   "type": "BCEDiceLoss",
+   "pos_weight": 5,
+   "dice_w": 0.5,
+   "smooth": 1.0
+  },
+  "optimizer": {
+   "type": "AdamW",
+   "lr": 0.001,
+   "weight_decay": 0.01
+  },
+  "monitor_metric": "val/IoU",
+  "epochs_reported": 75,
+  "seeds_reported": [
+   42,
+   123,
+   777
+  ]
+ },
+ "metric_definition": {
+  "impl": "src/lit_module.py",
+  "sha256": "8ceb6b0b13d28ad196be9b4fe2c9148b26d6c76bd64e3ac7f29f40aa502bbf5e",
+  "inputs": "probs.flatten() vs (targets>0.5).flatten()",
+  "pixel_scope": "全部 128x128 像素，未按 valid/SCL 排除无效像素",
+  "metrics": {
+   "F1": "BinaryF1Score@0.5",
+   "Precision": "BinaryPrecision@0.5",
+   "Recall": "BinaryRecall@0.5",
+   "IoU": "BinaryJaccardIndex@0.5",
+   "AUROC": "BinaryAUROC",
+   "AP": "BinaryAveragePrecision"
+  },
+  "aggregation": "torchmetrics 累积混淆矩阵 → 池化（非逐瓦片平均）"
+ },
+ "differences_vs_project": {
+  "input": "官方多时相15期 + DEM；本项目单期10波段无 DEM",
+  "pixel_scope": "官方全像素；本项目仅 valid 像素（SCL 允许 ∩ 非 nodata ∩ 标签已知）",
+  "loss": "官方 pos_weight=5；本项目 pos_weight=1",
+  "optimizer": "官方 AdamW lr=1e-3 单组；本项目 encoder 6e-5 / 其余 6e-4",
+  "budget": "官方 75 epochs × 3 seeds；本项目 3600 更新 × seed 1234",
+  "split": "官方随机分层；本项目事件级互斥 OOD"
+ },
+ "implication": "官方 IoU/F1/Precision/Recall/AP 与本项目同名指标不完全同口径（像素范围、损失权重、预算均不同）；若要并表，需另跑一次「全像素池化」口径并明确命名，不得直接贴官方表值。"
+}

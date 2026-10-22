@@ -1,0 +1,37 @@
+# 四折事件协议 · U-TAE 时间对照的公共配置
+#
+# 三组（single / multi / history）共用本文件：折、成员、统计、损失、预算完全一致，
+# 只有 ``--mode`` 不同。批序由 (seed, epoch) 决定，三组逐 step 看到同一批图块，
+# 因此每 epoch 的更新次数与曝光数相同，不需要按序列长度分桶。
+utae_cv:
+  seed: 1234
+  deterministic: true
+  protocol:
+    pool: manifests/event_cv_v5/F1/pool_100.jsonl      # TRAIN + INNER，顺序即批序基准
+    outer: manifests/event_cv_v5/F1/test.jsonl         # OUTER，只评测不参与选择
+    stats: manifests/event_cv_v5/F1/stats_dem.json     # 十波段 + DEM（本折 TRAIN 拟合）
+    temporal_root: data/s2_temporal_v5
+    quality: data/s2_temporal_v6_quality
+    roles:
+      train: TRAIN     # pool_100.jsonl 中的 protocol_role
+      inner: VAL       # 清单里叫 VAL，即计划中的 INNER；只用于每 epoch 选模
+  data:
+    dem: true
+    in_channels: 11
+    image_size: 128
+    preload: false        # memmap 读 X15；预载 16 GB/折 在双折并行时会挤压内存
+  train:
+    epochs: 75
+    batch_size: 16
+    lr: 0.001
+    weight_decay: 0.01
+    grad_clip: 1.0
+    pos_weight: 5.0
+    bce_weight: 0.5
+    dice_weight: 0.5
+    amp: false
+    log_every: 10
+  eval:
+    threshold: 0.5
+    selection: inner_event_mean_iou
+  output_dir: outputs/utae_cv

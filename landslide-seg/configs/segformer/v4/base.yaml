@@ -1,0 +1,68 @@
+# 历史 v4 公共配置（保留用于复盘）；正式实验使用 configs/segformer/v4r1/。
+# 此文件的旧统计包含后来重划为 DEV/FINAL 的事件，禁止直接用于严格 OOD 新训练。
+# 与 v3 一样走两段式：s2_10band_v4（原始准入）→ s2_10band_v4_p20（多事件裁决），
+# 否则多事件图块会用到早于最晚事件日期的影像，等同于静默丢掉了 v3 的修正。
+# 相对 v3 的差异只有数据版本与预算口径；模型/损失/优化/增强一律沿用，保证与 v3 可直接对照。
+segformer:
+  experiment: BASE
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/segformer
+
+  data:
+    version: s2_10band_v4_p20
+    source_root: data/sen12
+    cache_dir: data/s2_10band_v4_p20
+    manifest: manifests/s2_10band_v4_p20.jsonl
+    quarantine: manifests/s2_10band_v4_p20_quarantine.jsonl
+    stats: data/s2_10band_v4_p20/stats.json
+    protocol: manifests/v4r1/protocol.json  # 启动校验会拒绝此旧清单；请用 v4r1 独立配置
+    test_event: italy          # 与历史一致，仅作诊断/回归；OOD_V4 另建协议
+    val_event: hiroshima       # 与历史一致，可回归比较；v4 主实验的 DEV/FINAL 见 protocols/
+    max_cloud: 0.5
+    min_valid_ratio: 0.5
+    max_label_invalid_ratio: 0.6
+    warn_days_after_event: 365
+    post_event_window_days: 120
+    image_size: 128
+    num_workers: 0
+    preload: true
+
+  model:
+    backbone: b0
+    adapter: direct10
+    stem: true                  # v4 主组固定 direct10 + Spectral Stem
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+
+  optim:
+    encoder_lr: 6.0e-5
+    head_lr: 6.0e-4
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+
+  # 预算口径：固定优化步数（fixed-update），不再用"固定 epoch"。
+  # v3 的 3,600 步来自 150 epoch × ceil(1480/64)=24；v4 训练集变大后 epoch 数不再决定预算，
+  # 否则"数据变多"与"预算变多"会被绑定，学习曲线无法归因。见 reports/P0_run_reconciliation.md。
+  train:
+    epochs: 150                 # 仅作为 dataset 遍历上限；实际以 target_steps 为准
+    target_steps: 3600          # 与 v3 完全对齐的预算
+    batch_size: 64
+    amp: false
+    amp_dtype: bf16
+    log_every: 20
+    max_steps: 3600             # trainer 实际读取的字段；与 target_steps 保持一致
+
+  eval:
+    threshold: 0.5
+    scale_thresholds_ha: [0.5, 2.0]
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1

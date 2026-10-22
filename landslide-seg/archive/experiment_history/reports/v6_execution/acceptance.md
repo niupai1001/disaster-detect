@@ -1,0 +1,38 @@
+# v6 输入/评测/模型契约验收
+
+- 通过 33 / 33；失败 0
+- 设备 cuda:0，torch 2.11.0+cu128
+
+- [x] 波长按波段名映射：`{"bands": ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"], "wavelengths": [0.49, 0.56, 0.665, 0.705, 0.74, 0.783, 0.832, 0.864, 1.61, 2.2]}`
+- [x] RGB 抽取波长与 RGB 分支一致：`{"rgb_channels": [2, 1, 0], "rgb_wavelengths": [0.665, 0.56, 0.49]}`
+- [x] 旧版波长仍可读且可区分：`{"legacy_first_three": [0.443, 0.49, 0.56], "named_first_three": [0.49, 0.56, 0.665]}`
+- [x] 影像与波段身份联合重排不产生错配：`{"permutation": [9, 0, 8, 1, 7, 2, 6, 3, 5, 4], "first_pair": ["B02", 0.49], "first_pair_permuted": ["B12", 2.2]}`
+- [x] 只重排影像会造成身份错配：`{"note": "证明重排测试有区分力"}`
+- [x] 单期=多期中同一目标帧（逐像素）：`{"n": 6, "per_sample": [true, true, true, true, true, true]}`
+- [x] 单期=多期目标帧日期：`{"n": 6, "per_sample": [true, true, true, true, true, true]}`
+- [x] 多期 anchor 与清单 time_index 一致：`{"n": 6}`
+- [x] 单期日期不是帧序号/0：`{"dates": [1203.0, 1469.0, 676.0, 956.0, 1052.0, 554.0]}`
+- [x] U-TAE 启用日期位置编码组件：`{"positional_encoder": true}`
+- [x] 固定影像、改变真实日期会改变 U-TAE 输出：`{"max_abs_diff": 0.06714078783988953}`
+- [x] 帧与日期同步重排后 U-TAE 输出一致：`{"max_abs_diff": 4.848092794418335e-05}`
+- [x] 主模型零初始化时日期不改变输出（按设计）：`{"max_abs_diff": 0.0, "note": "score conv 零初始化 → 初始为等权平均；日期路径在首次更新后生效，见梯度检查"}`
+- [x] 主模型帧+日期同步重排输出一致：`{"max_abs_diff": 2.2351741790771484e-08}`
+- [x] 主模型填充帧不影响有效帧：`{"max_abs_diff": 0.0}`
+- [x] T=1 严格退化为原空间模型：`{"max_abs_diff": 0.0}`
+- [x] 光谱模块初始恒等：`{"max_abs_diff": 0.0}`
+- [x] 保存/重载输出一致：`{"max_abs_diff": 0.0}`
+- [x] 四组空间主干初始化摘要一致：`{"digests": ["47ae52550178fe73", "47ae52550178fe73", "47ae52550178fe73", "47ae52550178fe73"]}`
+- [x] 缺失侧表与当前 index 哈希一致：`{"index_sha256": "9ca5224b54c7350a"}`
+- [x] 缺失像素比例已统计：`{"nodata_fraction": 0.0, "n_missing_pixels": 0, "n": 4715, "nonfinite_band_values": 0}`
+- [x] 云/阴影/雪与 SCL255 记录但不填缺失：`{"cloud_shadow_snow_fraction_mean": 0.216278, "unknown_scl_fraction_mean": 0.014464, "policy": "SCL=0 OR source nonfinite OR explicit finite fillvalue; fill with TRAIN mean after normalization; clouds and SCL255 recorded, not silently filled"}`
+- [x] 缺失像素填 TRAIN 均值（z-score=0）：`{"note": "侧表显示没有显式缺失像素（SCL=0/非有限/FillValue 均未触发）；填充规则保留，云与 SCL255 只记录未填"}`
+- [x] v2 输出对象/边界字段：`{"keys": ["bins", "boundary", "event_id", "fine_bins", "fn", "fp", "gt_px", "is_negative_tile", "metric_version", "n_gt_objects", "n_gt_objects_evaluable", "n_matched_all"]}`
+- [x] v2 对象匹配为 IoU≥0.25 一对一：`{"n_matched_evaluable": 1, "small": {"n_objects": 0, "n_objects_evaluable": 0, "n_matched_all": 0, "n_matched_evaluable": 0, "gt_px": 0, "hit_px": 0, "pixel_recall": null, "object_recall_all": null, "object_recall_evaluable": null}}`
+- [x] v2 边界 F1 计数可用：`{"gt_px": 212, "pred_px": 144}`
+- [x] 无效像素不计入混淆矩阵：`{"tp": 15104, "valid_px": 15104}`
+- [x] 最大配置真实前反向无 NaN、梯度有限：`{"losses": [0.857708752155304, 0.8280124068260193, 0.7969867587089539, 0.7685694098472595]}`
+- [x] 峰值显存已记录：`{"peak_alloc_GiB": 13.94}`
+- [x] 时间聚合参数离开零初始化：`{"score_weight_abs_sum": 0.304878830909729, "content_weight_abs_sum": 674.21337890625, "time_weight_abs_sum": 143.2667236328125}`
+- [x] 光谱读出/关系/深层获得更新：`{"readout_weight_abs_sum": 1.9006474018096924, "relation_last_weight_abs_sum": 0.11508674919605255, "layer0_qkv_weight_abs_sum": 766.5009155273438, "layer1_mlp_weight_abs_sum": 1024.710693359375}`
+- [x] 首步光谱读出有梯度、深层随后有梯度：`{"note": "零初始化按设计首步恒等；4 步后各层已有非零权重"}`
+- [x] 更新后改变真实日期间隔会改变主模型输出：`{"max_abs_diff": 3.394484519958496e-05}`
