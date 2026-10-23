@@ -1,0 +1,11 @@
+_base: _base.yaml
+segformer:
+  experiment: SegFormer-B0-Temporal-Date7
+  data:
+    version: v4r1_temporal_frame_count
+  temporal:
+    mode: multi
+    aggregation: date
+    n_frames: 7
+  eval:
+    latency_frames: 7

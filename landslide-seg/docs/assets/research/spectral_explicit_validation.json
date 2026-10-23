@@ -1,0 +1,30 @@
+{
+  "config": "configs/segformer/v4r1_spectral_explicit/indices_gated.yaml",
+  "config_sha256": "7b996a020121c8e1648fdb3501f694473f12f3774aaccf89e42bcbde800e8e59",
+  "stats_sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc",
+  "sample_ids": [
+    "chimanimani_s2_1001",
+    "chimanimani_s2_1002",
+    "chimanimani_s2_1003",
+    "chimanimani_s2_1004",
+    "chimanimani_s2_1005",
+    "chimanimani_s2_1006",
+    "chimanimani_s2_1027",
+    "chimanimani_s2_1029"
+  ],
+  "n_train_samples_checked": 8,
+  "initial_baseline_max_abs_diff": 0.0,
+  "old_vs_new_indices_max_abs_diff": 0.0014624595642089844,
+  "old_vs_new_indices_mean_abs_diff": 0.00012795606744475663,
+  "report": {
+    "feature": "indices",
+    "fusion": "gated",
+    "implementation": "explicit",
+    "radiometry": "harmonized_dn_v1",
+    "alpha": 0.0,
+    "branch_params": 3622,
+    "note": "注入位置：官方解码特征之后、分类器之前"
+  },
+  "formal_training_complete": false,
+  "checks": "按实际配置工厂构造；无classifier hook；alpha=0时同权重基线等价；8个TRAIN真实输入指数变化"
+}

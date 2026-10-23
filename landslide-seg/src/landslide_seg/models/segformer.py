@@ -145,6 +145,7 @@ class SegFormerSeg(nn.Module):
         stem_width: int = 32,
         exchange: str = "none",
         exchange_stage: int = 2,
+        capture_decoder: bool = True,
     ) -> None:
         super().__init__()
         from landslide_seg.data.segformer_dataset import S2_10_BANDS
@@ -232,8 +233,10 @@ class SegFormerSeg(nn.Module):
             "error_msgs": list(load_info.get("error_msgs", [])),
         }
         self._decoder_feat: torch.Tensor | None = None
+        self.capture_decoder = bool(capture_decoder)
         # 受控特征捕获：分类器之前的那一层输出就是官方解码器特征 D
-        self.model.decode_head.classifier.register_forward_pre_hook(self._capture)
+        if self.capture_decoder:
+            self.model.decode_head.classifier.register_forward_pre_hook(self._capture)
 
     def _capture(self, _module, args):
         self._decoder_feat = args[0]

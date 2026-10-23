@@ -35,17 +35,57 @@ DATE_UNIT = "days"
 MODES = ("single", "multi", "history")
 
 
+def select_frame_indices(days: np.ndarray, anchor: int, mode: str,
+                         n_frames: int | None = None) -> tuple[np.ndarray, int]:
+    """按观测日期选择帧，返回（原始帧下标，参考帧在返回序列中的位置）。
+
+    ``history`` 只保留观测日期不晚于参考日期的帧，并显式排序；不假定源数组
+    已按日期有序。参考日期相同的帧会一起保留（当前缓存无重复日期）。
+    """
+    days = np.asarray(days)
+    if days.ndim != 1 or not len(days) or not np.isfinite(days).all():
+        raise ValueError("日期必须为非空有限一维数组")
+    if not 0 <= int(anchor) < len(days):
+        raise ValueError("参考帧下标越界")
+    order = np.argsort(days, kind="stable")
+    if mode == "single":
+        idx = np.asarray([int(anchor)], dtype=np.int64)
+    elif mode == "history":
+        idx = order[days[order] <= days[int(anchor)]]
+    elif mode == "multi":
+        idx = order
+    else:
+        raise ValueError(f"mode 必须是 {MODES}，得到 {mode!r}")
+    if n_frames is not None:
+        if isinstance(n_frames, bool) or not isinstance(n_frames, (int, np.integer)) or n_frames < 1:
+            raise ValueError("n_frames 必须为正整数")
+        if len(idx) < n_frames:
+            raise ValueError(f"NOT_ELIGIBLE: 只有 {len(idx)} 帧，要求 {n_frames}")
+        # 固定保留参考帧，其余在合法日期序列等秩取样，不使用标签或预测。
+        others = idx[idx != int(anchor)]
+        chosen = others[np.rint(np.linspace(0, len(others) - 1, n_frames - 1)).astype(int)] if n_frames > 1 else []
+        idx = np.asarray(sorted([int(anchor), *chosen], key=lambda i: (days[i], i)), dtype=np.int64)
+    hits = np.flatnonzero(idx == int(anchor))
+    if hits.size != 1:
+        raise ValueError(f"参考帧 {anchor} 不在所选序列中：{idx.tolist()}")
+    if mode != "single" and days[idx].tolist() != sorted(days[idx].tolist()):
+        raise AssertionError("history/multi 帧未按日期排序")
+    return idx, int(hits[0])
+
+
+
 class TemporalV6(Dataset):
     def __init__(self, rows: list[dict], stats: dict, *, mode: str = "single",
                  augment: bool = False, seed: int = 1234, dem: bool = False,
                  root: str = "data/s2_temporal_v5",
                  quality: str = "data/s2_temporal_v6_quality",
-                 preload: bool = False) -> None:
+                 preload: bool = False, n_frames: int | None = None) -> None:
         if mode not in MODES:
             raise ValueError(f"mode 必须是 {MODES}")
         self.rows = list(rows)
         self.stats = stats
         self.mode = mode
+        self.n_frames = n_frames
         self.augment = bool(augment)
         self.seed = int(seed)
         self.epoch = 0
@@ -116,21 +156,12 @@ class TemporalV6(Dataset):
         row = self.pos[rec["sample_id"]]
         anchor = int(rec["time_index"])
         days = self.date_days(rec["sample_id"])
+        frame_index, anchor_pos = select_frame_indices(days, anchor, self.mode, self.n_frames)
 
-        if self.mode == "single":
-            sl = slice(anchor, anchor + 1)
-            frame_index = np.array([anchor], dtype=np.int32)
-        elif self.mode == "history":
-            sl = slice(0, anchor + 1)
-            frame_index = np.arange(0, anchor + 1, dtype=np.int32)
-        else:
-            sl = slice(None)
-            frame_index = np.arange(len(days), dtype=np.int32)
-
-        x = np.array(self.X[row, sl], dtype=np.float32)                       # (T,10,H,W)
+        x = np.asarray(self.X[row][frame_index], dtype=np.float32)             # (T,10,H,W)
         x = (x - self.mean[None]) / self.std[None]
         if self.nodata is not None:
-            bad = np.asarray(self.nodata[row, sl])                           # (T,H,W)
+            bad = np.asarray(self.nodata[row][frame_index])                   # (T,H,W)
             if bad.any():
                 x = np.where(bad[:, None], 0.0, x)                           # z-score 空间 0 = TRAIN 均值
         if self.dem:
@@ -167,10 +198,31 @@ class TemporalV6(Dataset):
             "dates": torch.from_numpy(days[frame_index].astype(np.float32)),
             "frame_index": torch.from_numpy(frame_index.astype(np.int32)),
             "time_index": int(anchor),
-            "anchor": 0 if self.mode == "single" else int(np.searchsorted(frame_index, anchor)),
+            "anchor": int(anchor_pos),
             "sample_id": rec["sample_id"],
             "event_id": rec["event_id"],
         }
+
+    def frame_plan(self) -> list[dict]:
+        """逐样本记录实际送入模型的帧，供 arm 复核与结果复现。"""
+        out = []
+        for rec in self.rows:
+            days = self.date_days(rec["sample_id"])
+            anchor = int(rec["time_index"])
+            idx, anchor_pos = select_frame_indices(days, anchor, self.mode, self.n_frames)
+            out.append({
+                "sample_id": rec["sample_id"],
+                "event_id": rec.get("event_id"),
+                "split": rec.get("split"),
+                "anchor_frame": anchor,
+                "anchor_date": str(DATE_EPOCH + np.timedelta64(int(days[anchor]), "D")),
+                "anchor_position": anchor_pos,
+                "n_frames": int(len(idx)),
+                "frame_indices": [int(i) for i in idx],
+                "frame_dates": [str(DATE_EPOCH + np.timedelta64(int(d), "D")) for d in days[idx]],
+                "has_later_frames_unused": bool(len(idx) < len(days) and days[idx[-1]] < days.max()),
+            })
+        return out
 
 
 def collate_v6(items: list[dict]) -> dict:

@@ -1,0 +1,200 @@
+{
+  "scope": "成熟细节基线、时间控制与固定期数、修正坡度后的六组地形；只纳入已完成3600步训练摘要",
+  "metric": "训练时每100步计算的两个验证事件等权IoU；与最终重评小数有数值差异",
+  "boundary": "回顾性诊断，同seed与反复使用的两个验证事件；不能保证新结构的最优预算",
+  "segformer": [
+    {
+      "run": "segformer_b0_direct10_detailres_n100_u3600_s1234",
+      "source": "outputs/segformer/s2_10band_v4r1_p20/segformer_b0_direct10_detailres_n100_u3600_s1234/1234/train_summary.json",
+      "sha256": "ea919b112eaa300964a288debaf4b89a4422365bdb1b9522acffabbcacb03fc9",
+      "best_step": 500,
+      "best_iou": 0.30813804525753863,
+      "best_through_2000": 0.30813804525753863,
+      "last_iou": 0.24297172653478472,
+      "loss_at_best": 0.4047644504904747,
+      "loss_at_last": 0.32459192752838134,
+      "seconds": 738.4243853092194
+    },
+    {
+      "run": "SegFormer-B0-Temporal-Content15",
+      "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/train_summary.json",
+      "sha256": "2e847363eb7d6a2258d694dfb9fe30495e8bd359c681d8be9d5a83347d6b3bc0",
+      "best_step": 600,
+      "best_iou": 0.31451975454908115,
+      "best_through_2000": 0.31451975454908115,
+      "last_iou": 0.25278604944487987,
+      "loss_at_best": 0.3435957084061075,
+      "loss_at_last": 0.262756353995693,
+      "seconds": 7003.254312992096
+    },
+    {
+      "run": "SegFormer-B0-Temporal-Date15",
+      "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/train_summary.json",
+      "sha256": "df88da404b39fdbb52610c47d5f606e52171defbc99858b8bf4f12357004d8fe",
+      "best_step": 600,
+      "best_iou": 0.3244544569160371,
+      "best_through_2000": 0.3244544569160371,
+      "last_iou": 0.24703589930632253,
+      "loss_at_best": 0.3410947991718687,
+      "loss_at_last": 0.2608532683552117,
+      "seconds": 6850.375940322876
+    },
+    {
+      "run": "SegFormer-B0-Temporal-History-Date",
+      "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/train_summary.json",
+      "sha256": "d44f01d9f9a41ff9d9d8962dd45fa347c51b85fb93a962bef072026f051f1a75",
+      "best_step": 500,
+      "best_iou": 0.3377207646518292,
+      "best_through_2000": 0.3377207646518292,
+      "last_iou": 0.2874386336549979,
+      "loss_at_best": 0.38167817998394715,
+      "loss_at_last": 0.2959110670396321,
+      "seconds": 4312.874064922333
+    },
+    {
+      "run": "SegFormer-B0-Temporal-Mean15",
+      "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/train_summary.json",
+      "sha256": "808989ea683009180cfa484cea64c9c419659e1ed63454fc802a6f53c47ede1b",
+      "best_step": 1400,
+      "best_iou": 0.2984245193785366,
+      "best_through_2000": 0.2984245193785366,
+      "last_iou": 0.25301346459107904,
+      "loss_at_best": 0.31264594550875136,
+      "loss_at_last": 0.2743085047307044,
+      "seconds": 6816.005615711212
+    },
+    {
+      "run": "SegFormer-B0-Temporal-Single",
+      "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/train_summary.json",
+      "sha256": "78d9fde1d18eb7b848e1bdb47d613e5d16fe125366b672f47a60ad37c3ed7ae1",
+      "best_step": 300,
+      "best_iou": 0.28829330264371356,
+      "best_through_2000": 0.28829330264371356,
+      "last_iou": 0.23959842712368767,
+      "loss_at_best": 0.43158913662936116,
+      "loss_at_last": 0.330785339417743,
+      "seconds": 1213.8415751457214
+    },
+    {
+      "run": "SegFormer-B0-Temporal-Date3",
+      "source": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/train_summary.json",
+      "sha256": "3c85ebd1130a6f94cbad3f63bb8d7fc79c98da75e54ae796f3131d20e9b6fb53",
+      "best_step": 1000,
+      "best_iou": 0.29254675848338263,
+      "best_through_2000": 0.29254675848338263,
+      "last_iou": 0.23412509157957317,
+      "loss_at_best": 0.34806910171536565,
+      "loss_at_last": 0.2947111403625037,
+      "seconds": 2099.2222912311554
+    },
+    {
+      "run": "SegFormer-B0-Temporal-Date5",
+      "source": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/train_summary.json",
+      "sha256": "afdd0b10940e13d4a6c9e97d61526105280e5b9027be7bb147d1318977e13c5f",
+      "best_step": 1000,
+      "best_iou": 0.30554060411883016,
+      "best_through_2000": 0.30554060411883016,
+      "last_iou": 0.24735922346757436,
+      "loss_at_best": 0.3334213995876298,
+      "loss_at_last": 0.2813965489514517,
+      "seconds": 2602.9739928245544
+    },
+    {
+      "run": "SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw",
+      "source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw/1234/train_summary.json",
+      "sha256": "0d6ab12ae1be005d5bd32d2927f4722a4858dbbf6b47bdec6d64b768e0c6c511",
+      "best_step": 300,
+      "best_iou": 0.30666507294563766,
+      "best_through_2000": 0.30666507294563766,
+      "last_iou": 0.2565824542982124,
+      "loss_at_best": 0.4182987406849861,
+      "loss_at_last": 0.3166687685251236,
+      "seconds": 709.531268119812
+    },
+    {
+      "run": "SegFormer-B0-LateDetail-OODv4-TerrainCapControl",
+      "source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainCapControl/1234/train_summary.json",
+      "sha256": "cba6918aef9dab6e9ba4e66e50edaba22b4d613fc77d2d170a1f4ea90571e724",
+      "best_step": 500,
+      "best_iou": 0.30883026968162186,
+      "best_through_2000": 0.30883026968162186,
+      "last_iou": 0.25217845062620003,
+      "loss_at_best": 0.4034262880682945,
+      "loss_at_last": 0.32068629264831544,
+      "seconds": 742.4611241817474
+    },
+    {
+      "run": "SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha",
+      "source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha/1234/train_summary.json",
+      "sha256": "fdde1233a204814c3f63bbe3bc3bbe227b14d9918959fceb6a1c58d4e9693419",
+      "best_step": 500,
+      "best_iou": 0.30799701961878956,
+      "best_through_2000": 0.30799701961878956,
+      "last_iou": 0.24352923494293957,
+      "loss_at_best": 0.4047074556350708,
+      "loss_at_last": 0.32453028053045274,
+      "seconds": 646.4111185073853
+    },
+    {
+      "run": "SegFormer-B0-LateDetail-OODv4-TerrainSSL",
+      "source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSL/1234/train_summary.json",
+      "sha256": "5d4a2ca9d5c9d929f38e7187746fab1589c1ccbdc078355f3bcc33327c8acfb0",
+      "best_step": 500,
+      "best_iou": 0.3096215403793534,
+      "best_through_2000": 0.3096215403793534,
+      "last_iou": 0.2512434082738812,
+      "loss_at_best": 0.4034492152929306,
+      "loss_at_last": 0.3206950691342354,
+      "seconds": 768.1005771160126
+    },
+    {
+      "run": "SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget",
+      "source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget/1234/train_summary.json",
+      "sha256": "62d0e6f8a6a3316a1498d79f46170c731208807a23dd8b5b57688079313bde31",
+      "best_step": 500,
+      "best_iou": 0.3091675099342268,
+      "best_through_2000": 0.3091675099342268,
+      "last_iou": 0.25240770037359717,
+      "loss_at_best": 0.40346176743507384,
+      "loss_at_last": 0.32081260621547697,
+      "seconds": 670.8825523853302
+    },
+    {
+      "run": "SegFormer-B0-LateDetail-OODv4-TerrainSSLSup",
+      "source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLSup/1234/train_summary.json",
+      "sha256": "3adb783fcd977da91467c566c603887c92bbb7666ac1629b9c08ab7882d7a5f6",
+      "best_step": 500,
+      "best_iou": 0.3076430628894513,
+      "best_through_2000": 0.3076430628894513,
+      "last_iou": 0.24582278706643493,
+      "loss_at_best": 0.40435755014419555,
+      "loss_at_last": 0.3229338496923447,
+      "seconds": 667.0443968772888
+    }
+  ],
+  "utae": [
+    {
+      "mode": "multi",
+      "source": "outputs/utae_v4r1/v4r1/multi/1234/train_summary.json",
+      "sha256": "8e22dc2cf1ef78a68772ff5567e2fa9a3a036ed21b7c7a6d0a2fd53c6e99f00f",
+      "best_epoch": 17,
+      "actual_updates_at_best": 2363,
+      "batch": 16,
+      "best_iou": 0.3706106222792521,
+      "epochs": 75
+    },
+    {
+      "mode": "single",
+      "source": "outputs/utae_v4r1/v4r1/single/1234/train_summary.json",
+      "sha256": "0da3dee5f3f40a484d5f329069532475307fb0385ffaf05f02b9a13724f19657",
+      "best_epoch": 46,
+      "actual_updates_at_best": 6394,
+      "batch": 16,
+      "best_iou": 0.32618494641751794,
+      "epochs": 75
+    }
+  ],
+  "n_completed_segformer": 14,
+  "n_best_within_2000": 14,
+  "nominal_update_saving": 0.4444444444444444
+}

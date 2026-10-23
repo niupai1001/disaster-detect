@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "updated": "2026-10-22",
+ "updated": "2026-10-23",
  "default_protocol": "event_ood_v4r1",
  "manifest_root": "manifests/v4r1",
  "folds": [],
@@ -26,7 +26,9 @@
  "stage_ledger": "docs/assets/research/stage_ledger.json",
  "phase_order": [
   "terrain-prior",
-  "spectral-controlled"
+  "spectral-controlled",
+  "utae-v4r1",
+  "temporal-mechanism"
  ],
  "temporal": {
   "groups": [
@@ -37,9 +39,16 @@
   "prediction_cutoff": "原始所选单期日期，不延后",
   "history": "只使用不晚于prediction_cutoff的真实观测",
   "multi": "完整15期回顾性条件，必须明确含截止日期之后观测",
-  "deferred": "此前3/5/7帧资格限制属于历史四折设计，不自动套用原固定留出；本次不安排新时相网格，不改变原始截止日期或复制帧。"
+  "aggregation": [
+   "mean",
+   "content",
+   "date"
+  ],
+  "history_filter": "按源观测日期≤参考日期筛选并排序，不按数组下标；不假定日期已排序。",
+  "history_note": "每图块帧数可不同（训练2–15、验证7–10），与其他组不是同算力条件。",
+  "deferred": "四组时间汇聚已完成；本轮明确授权补齐回顾性3/5/7期（沿用已有1/15期）、截止参考日期组以及地形修复。其余条件实验须按数据合格性执行，不更换固定成员冒充可比。"
  },
- "independent_branches": "回到原固定事件留出基线，先地形再光谱独立对照；不扩四折、不因时间负结果取消后续信息条件研究，也不提前联合叠加",
+ "independent_branches": "地形及光谱入口六组已完成；下一步计划以同架构时间信息对照为主，单期任务独立保留；真正光谱注意力仅收尾最小对照，不与地形叠加。",
  "preflight": "scripts/check_research_protocol.py --config <实际配置> [--set key=value]",
  "preflight_limit": "核查清单、协议锁和统计来源元数据；不重算图像统计、不检查完整预训练语料，不能代替模型与数据运行验证",
  "stats_file": "stats_core25.json",
@@ -86,5 +95,15 @@
   "DIAG": "意大利错误诊断，不参与常规选模",
   "FINAL": "新西兰保留评价，开发期间不使用"
  },
- "data_split_display": "我们的数据划分（留事件验证）"
+ "data_split_display": "我们的数据划分（留事件验证）",
+ "current_plan": "temporal-mechanism",
+ "future_training_budget": {
+  "segformer_stop_updates": 2000,
+  "segformer_schedule_updates": 3600,
+  "warmup_updates": 180,
+  "status": "PLANNED_REQUIRES_TRAINER_AND_ACCEPTANCE_ADAPTATION",
+  "existing_registered_queue": "原3600步批次不改写，见outputs/research_completion/status.json",
+  "utae_15_frame_mechanism_epochs": 30,
+  "detail": "阶段台账execution_plan为唯一计划来源；不将U-TAE轮数视作SegFormer更新数"
+ }
 }

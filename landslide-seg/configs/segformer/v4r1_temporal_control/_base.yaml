@@ -1,0 +1,64 @@
+# 时间控制四组（single/mean/content/date）的公共配置。
+# 协议：event_ood_v4r1（TRAIN 2223 / DEV 669），seed 1234，不跑四折。
+# 数据：十波段 128×128 时间缓存 data/s2_temporal_v4r1；无 DEM、无光谱模块。
+# 选模：每 100 次成功更新按两个验证事件平均 IoU；同分取较早。
+# 训练：3600 次成功更新、有效 batch 64、统一 microbatch 8 × accumulation 8。
+segformer:
+  experiment: SegFormer-B0-Temporal-Single
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/segformer
+  data:
+    version: v4r1_temporal_control
+    manifest: manifests/v4r1/pool_100.jsonl
+    stats: manifests/v4r1/stats_core25.json
+    protocol: manifests/v4r1/protocol.json
+    temporal_root: data/s2_temporal_v4r1
+    quality: data/s2_temporal_v4r1_none
+    pool_fraction: 100
+    image_size: 128
+    preload: false
+  model:
+    type: temporal_spectral
+    backbone: b0
+    spectral: false
+    in_chans: 10
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+  temporal:
+    mode: single
+    aggregation: identity
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+  optim:
+    encoder_lr: 6.0e-05
+    head_lr: 0.0006
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+  train:
+    epochs: 150
+    batch_size: 64
+    microbatch: 8
+    accumulation: 8
+    max_steps: 3600
+    eval_every_updates: 100
+    report_steps:
+    - 1200
+    - 2400
+    - 3600
+    budget_mode: updates
+  eval:
+    threshold: 0.5
+    batch_size: 8
+    selection_metric: dev_event_mean_iou
+    scale_thresholds_ha:
+    - 0.5
+    - 2.0
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1
+    latency_frames: 1

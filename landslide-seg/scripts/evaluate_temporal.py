@@ -1,4 +1,4 @@
-"""主模型（单期/多期 × 光谱）的统一评测：best/last × VAL/TEST。
+"""时间控制模型的统一评测：默认只评 DEV；有 test_manifest 时才评 TEST。
 
 指标口径与主评测一致（``segformer_metrics`` v2）：
 pooled IoU/Dice/Precision/Recall、AP、逐事件、对象召回（IoU≥0.25 / 严格≥0.5）、
@@ -7,7 +7,7 @@ pooled IoU/Dice/Precision/Recall、AP、逐事件、对象召回（IoU≥0.25 / 
 
 用法::
 
-    python scripts/evaluate_temporal.py --checkpoint outputs/.../best.pt --splits val,test --device cuda:0
+    python scripts/evaluate_temporal.py --checkpoint outputs/.../best.pt --splits val --device cuda:0
 """
 
 from __future__ import annotations
@@ -117,8 +117,9 @@ def evaluate_split(model, ds, cfg, device, *, split: str, batch_size: int | None
 
 
 def _latency(model, cfg, device, iters: int = 20) -> dict:
-    mode = str(cfg["segformer"]["temporal"]["mode"])
-    t = 1 if mode == "single" else 15
+    s = cfg["segformer"]
+    mode = str(s["temporal"]["mode"])
+    t = int(s["eval"].get("latency_frames", 1 if mode == "single" else (15 if mode == "multi" else 10)))
     x = torch.randn(1, t, 10, 128, 128, device=device)
     dates = torch.arange(t, device=device, dtype=torch.float32)[None] + 1500
     keep = torch.ones(1, t, dtype=torch.bool, device=device)
@@ -141,10 +142,18 @@ def _latency(model, cfg, device, iters: int = 20) -> dict:
             "mean_ms": round(float(np.mean(lat)), 2)}
 
 
+def training_cost(run_dir: Path, ckpt: dict) -> dict:
+    path = run_dir / "train_summary.json"
+    summary = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    return {"train_seconds": summary.get("seconds") if summary.get("complete") else None,
+            "selected_checkpoint_elapsed_seconds": ckpt.get("elapsed_seconds"),
+            "training_complete": bool(summary.get("complete"))}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--checkpoint", required=True)
-    ap.add_argument("--splits", default="val,test")
+    ap.add_argument("--splits", default="val")
     ap.add_argument("--device", default=None)
     ap.add_argument("--tag-prefix", default=None)
     ap.add_argument("--batch-size", type=int, default=None)
@@ -166,7 +175,8 @@ def main() -> None:
     threshold = float(s["eval"]["threshold"])
 
     trainval = read_manifest(resolve_path(s["data"]["manifest"]))
-    test_rows = read_manifest(resolve_path(s["data"]["test_manifest"]))
+    test_manifest = s["data"].get("test_manifest")
+    test_rows = read_manifest(resolve_path(test_manifest)) if test_manifest else []
     protocol_path = resolve_path(s["data"]["protocol"])
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
     want = {"val": "val", "test": "test"}
@@ -176,14 +186,19 @@ def main() -> None:
     prefix = args.tag_prefix or ckpt_path.stem
     report = {"checkpoint": str(ckpt_path).replace("\\", "/"),
               "checkpoint_sha256": file_sha256(ckpt_path),
+              "global_step": ckpt.get("global_step"),
               "mode": mode, "threshold": threshold,
-              "role": {"val": "DEV", "test": "DEVELOPMENT_BENCHMARK"},
+              "temporal": {"mode": mode,
+                           "aggregation": str(s["temporal"].get("aggregation", "date"))},
+              "role": {"val": "DEV", "test": "TEST"},
               "metric_version": "v2"}
 
     for split in [x.strip() for x in args.splits.split(",") if x.strip()]:
+        if split not in want:
+            raise ValueError(f"split 必须是 val/test，得到 {split!r}")
         rows = filter_split(trainval, split) if split == "val" else test_rows
-        if split == "test":
-            rows = [r for r in test_rows if r["split"] == "test"]
+        if split == "test" and not test_manifest:
+            raise RuntimeError("配置没有 data.test_manifest，不能评测 test")
         if not rows:
             raise RuntimeError(f"split={split} 为空")
         # 协议成员校验：身份/缓存/日期/时间帧必须与锁定协议一致
@@ -197,6 +212,7 @@ def main() -> None:
             if member["role"] != want[split]:
                 raise ValueError(f"{rec['sample_id']} 角色 {member['role']} != {split}")
         ds = TemporalV6(rows, stats, mode=mode, augment=False, seed=int(s["seed"]),
+                        n_frames=s["temporal"].get("n_frames"),
                         root=s["data"]["temporal_root"], quality=s["data"]["quality"])
         t0 = time.time()
         overall, tile_rows, extra = evaluate_split(model, ds, cfg, dev, split=split,
@@ -250,7 +266,7 @@ def main() -> None:
 
     report["efficiency"] = {"params": ckpt.get("params"),
                             "latency_b1": _latency(model, cfg, dev),
-                            "train_seconds": ckpt.get("elapsed_seconds")}
+                            **training_cost(run_dir, ckpt)}
     (out_dir / f"eval_{prefix}.json").write_text(json.dumps(report, indent=1, ensure_ascii=False),
                                                 encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if k not in ("by_event",)}, indent=1,

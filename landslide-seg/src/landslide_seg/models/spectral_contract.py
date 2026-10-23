@@ -12,3 +12,22 @@ def wavelengths_for(bands):
     if len(set(bands)) != len(bands):
         raise ValueError('Duplicate band identities')
     return tuple(S2_WAVELENGTH_UM[b] for b in bands)
+
+
+RADIOMETRY_MODES = ("legacy_dn", "harmonized_dn_v1")
+
+
+def harmonized_reflectance(x, mean, std):
+    """官方harmonized存储DN/10000；不重复校正日期偏移，负舍入误差截为零。"""
+    if x.ndim != 4 or x.shape[1] != 10 or mean.numel() != 10 or std.numel() != 10:
+        raise ValueError("反射率契约要求十波段四维输入及十波段统计")
+    dn = x * std.reshape(1, 10, 1, 1) + mean.reshape(1, 10, 1, 1)
+    return (dn / 10000.0).clamp_min(0.0)
+
+
+def spectral_indices(rho, eps=1e-4):
+    """固定顺序NDVI(B8A/B04)、NDMI、NBR、红边差；eps单位与rho一致。"""
+    import torch
+    pairs = ((7, 2), (7, 8), (7, 9), (4, 3))
+    return torch.cat([(rho[:, a:a+1] - rho[:, b:b+1]) /
+                      (rho[:, a:a+1] + rho[:, b:b+1] + eps) for a, b in pairs], dim=1)

@@ -172,6 +172,7 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
     tc = s["train"]
     target = int(tc["max_steps"])
     interval = int(tc.get("eval_every_updates", 100))
+    report_steps = sorted({int(x) for x in tc.get("report_steps", [target])})
     micro = int(tc.get("microbatch", 8))
     batch = int(tc["batch_size"])
     if batch % micro:
@@ -185,7 +186,7 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
     optimizer = torch.optim.AdamW([
         {"params": model.core.param_groups()["encoder"], "lr": float(s["optim"]["encoder_lr"])},
         {"params": model.core.param_groups()["decoder"] + model.core.param_groups()["new"]
-         + list(model.pools.parameters())
+         + (list(model.pools.parameters()) if model.pools is not None else [])
          + (list(model.spectral.parameters()) if model.spectral is not None else []),
          "lr": float(s["optim"]["head_lr"])},
     ], weight_decay=float(s["optim"]["weight_decay"]))
@@ -202,6 +203,7 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
     last_path, best_path = run_dir / "last.pt", run_dir / "best.pt"
     history: list[dict] = []
     step, best_step, best_score = 0, -1, -1.0
+    best_dev: dict | None = None
     stream_state = None
     elapsed_before = 0.0
 
@@ -287,10 +289,19 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
                               batch_size=eval_batch,
                               threshold=float(s["eval"]["threshold"]))
         model.train()
-        value = dev["pooled_iou"]
+        sel = str(s["eval"].get("selection_metric", "dev_event_mean_iou"))
+        if sel == "dev_event_mean_iou":
+            value = dev["event_mean_iou"]
+        elif sel == "dev_pooled_iou":
+            value = dev["pooled_iou"]
+        else:
+            raise ValueError(f"未知 eval.selection_metric: {sel!r}")
+        if value is None or not np.isfinite(value):
+            raise RuntimeError(f"选模指标 {sel} 未定义")
         improved = value > best_score
         if improved:
             best_score, best_step = value, step
+            best_dev = dev
         elapsed = elapsed_before + time.time() - started
         row = {
             "global_step": step,
@@ -299,7 +310,9 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
                            + float(s["loss"]["dice_weight"]) * epoch_dice / max(epoch_samples, 1)),
             "dev": dev,
             "val_iou": value,
-            "selection_metric": "dev_pooled_iou",
+            "dev_pooled_iou": dev["pooled_iou"],
+            "dev_event_mean_iou": dev["event_mean_iou"],
+            "selection_metric": sel,
             "lr": [float(g["lr"]) for g in optimizer.param_groups],
             "samples_exposed": int(stream.exposures.sum()),
             "seconds": elapsed,
@@ -314,10 +327,16 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
             _save(best_path, model, optimizer, scheduler, step=step, best_step=best_step,
                   best_score=best_score, cfg=cfg, meta=meta, stream=stream, history=history,
                   elapsed=elapsed)
+        if step in report_steps:
+            _save(run_dir / f"step{step}.pt", model, optimizer, scheduler, step=step,
+                  best_step=best_step, best_score=best_score, cfg=cfg, meta=meta,
+                  stream=stream, history=history, elapsed=elapsed)
+            log(f"[checkpoint] step{step}.pt")
         ev_text = " ".join(f"{ev}={iou:.4f}" for ev, iou in dev["by_event"].items())
         log(f"[step {step:4d}] bce={float(s['loss']['bce_weight']) * epoch_bce / max(epoch_valid, 1e-12):.4f} "
             f"dice={float(s['loss']['dice_weight']) * epoch_dice / max(epoch_samples, 1):.4f} "
-            f"dev_pooled={value:.4f} {ev_text} best={best_score:.4f}@{best_step} time={elapsed/60:.1f}m")
+            f"dev_mean={dev['event_mean_iou']:.4f} dev_pooled={dev['pooled_iou']:.4f} "
+            f"{ev_text} best={best_score:.4f}@{best_step} time={elapsed/60:.1f}m")
         if stop_after is not None and step >= int(stop_after):
             break
 
@@ -327,7 +346,10 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
         "n_train": len(train_indices), "n_val": len(val_indices), "params": model.count_params(),
         "global_step": step, "target_updates": target, "complete": step == target,
         "batch_size": batch, "microbatch": micro, "accumulation": accum,
-        "selection_metric": "dev_pooled_iou", "best_val_iou": best_score, "best_step": best_step,
+        "selection_metric": sel, "best_val_iou": best_score, "best_step": best_step,
+        "best_dev_event_mean_iou": best_dev["event_mean_iou"] if best_dev else None,
+        "best_dev_pooled_iou": best_dev["pooled_iou"] if best_dev else None,
+        "best_dev_by_event": best_dev["by_event"] if best_dev else None,
         "seconds": elapsed, "device": str(device), "history": history,
         "best_checkpoint": str(best_path), "last_checkpoint": str(last_path),
         "samples_exposed": int(stream.exposures.sum()),
@@ -337,8 +359,8 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
         "module_activity": model.module_activity(),
         "peak_alloc_mib": torch.cuda.max_memory_allocated(device) / 2**20 if device.type == "cuda" else None,
         "peak_reserved_mib": torch.cuda.max_memory_reserved(device) / 2**20 if device.type == "cuda" else None,
-        "batchnorm_note": "decoder BatchNorm 统计基于 microbatch 8（四组一致），不等价于历史 batch64",
+        "batchnorm_note": f"decoder BatchNorm 统计基于 microbatch {micro}（四组一致），不等价于历史 batch64",
     }
     (run_dir / "train_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
-    log(f"[done] updates={step}/{target} dev_pooled={best_score:.5f}@{best_step} {elapsed/60:.1f}min")
+    log(f"[done] updates={step}/{target} {sel}={best_score:.5f}@{best_step} {elapsed/60:.1f}min")
     return summary

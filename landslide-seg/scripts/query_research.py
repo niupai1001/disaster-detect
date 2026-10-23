@@ -31,6 +31,32 @@ def refresh():
     print(f"Refreshed {len(data['stages'])} stages in MODEL_EVOLUTION.md")
     refresh_evidence(data)
     refresh_current_models(data)
+    refresh_plan(data)
+
+
+def refresh_plan(data):
+    stage = next(s for s in data['stages'] if s['id'] == data['current_stage'])
+    plan = stage.get('execution_plan')
+    if not plan:
+        return
+    lines = [plan['basis'], '', '**共同实验条件。** ' + plan['contract'], '',
+             plan['inputs'], '', '**统一训练与初始化。** ' + plan['budget'], '', plan['initialization'], '',
+             '| 顺序 | 模型或工作 | 相对参照改变什么 | 实验可能回答什么 | 执行状态 |',
+             '|---|---|---|---|---|']
+    for step in plan['steps']:
+        lines.append('| ' + ' | '.join(step[k].replace('|', '／') for k in ('order','model','change','question','status')) + ' |')
+    for title, key in [('进入训练前的有限验收', 'acceptance'), ('继续、停止与后续条件', 'decisions')]:
+        lines += ['', '**' + title + '。**', '']
+        lines += [f'{i}. {item}' for i, item in enumerate(plan[key], 1)]
+    lines += ['', '**交给执行 Agent。** ' + plan['handoff'], '', '**结果交付。** ' + plan['deliverables']]
+    p = ROOT/'docs/RESEARCH_INDEX.md'
+    body = p.read_text(encoding='utf-8')
+    start, end = '<!-- NEXT_PLAN_START -->', '<!-- NEXT_PLAN_END -->'
+    assert body.count(start) == body.count(end) == 1
+    before, rest = body.split(start)
+    _, after = rest.split(end)
+    p.write_text(before + start + '\n\n' + '\n'.join(lines) + '\n\n' + end + after, encoding='utf-8')
+    print('Refreshed next experiment plan from stage ledger')
 
 
 def refresh_evidence(data):
@@ -39,7 +65,7 @@ def refresh_evidence(data):
            '|---|---|---|---|']
     count=0
     for stage in data['stages']:
-        if stage['id'] in ('terrain-prior','spectral-controlled'):
+        if stage['id'] == 'terrain-prior':
             continue
         for comparison in stage.get('comparisons', []):
             evidence=comparison.get('evidence',stage.get('evidence',[]))

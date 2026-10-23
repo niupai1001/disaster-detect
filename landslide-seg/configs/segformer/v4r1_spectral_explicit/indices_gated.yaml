@@ -1,0 +1,13 @@
+# 接口验收配置，尚未完成正式光谱实验；不叠加地形或时间模块。
+_base: ../v4r1/segformer_b0_direct10_detailres_n100_u3600_s1234.yaml
+segformer:
+  experiment: SegFormer-B0-LateDetail-ExplicitSpectralIndicesGateV1
+  data:
+    version: s2_10band_v4r1_spectral_explicit
+  model:
+    type: spectral_fusion
+    spectral:
+      feature: indices
+      fusion: gated
+      implementation: explicit
+      radiometry: harmonized_dn_v1

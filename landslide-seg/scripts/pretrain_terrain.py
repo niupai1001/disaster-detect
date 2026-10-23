@@ -38,7 +38,7 @@ from torch.utils.data import DataLoader  # noqa: E402
 
 from landslide_seg.config import file_sha256, resolve_path  # noqa: E402
 from landslide_seg.data.segformer_dataset import S2SegDataset, load_stats, read_manifest  # noqa: E402
-from landslide_seg.models.terrain import TerrainEncoder, TerrainScoreHead  # noqa: E402
+from landslide_seg.models.terrain import TerrainEncoder, TerrainScoreHead, valid_block_fraction  # noqa: E402
 
 OUT = ROOT / "weights" / "terrain"
 BLOCK = 16
@@ -86,6 +86,13 @@ def main() -> None:
     ap.add_argument("--init", default=None, help="scoring/ssl_extra 的起点权重")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
+    if args.fold != "v4r1":
+        raise ValueError("此入口只读取 v4r1，不能用 --fold 改名冒充其他协议")
+    if args.steps <= 0 or args.batch <= 0:
+        raise ValueError("steps 与 batch 必须为正数")
+    out_path = Path(args.out) if args.out else OUT / f"v4r1raw_{args.task}_valid_v2.pt"
+    if out_path.exists():
+        raise FileExistsError(f"不覆盖已有地形权重: {out_path}")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -97,6 +104,8 @@ def main() -> None:
     rows = [r for r in pool if r["protocol_role"] == "TRAIN"]
     stats = load_stats(man / "stats_geoboth_raw.json")
     loader = batches(rows, stats, args.seed, args.batch, augment=args.task != "scoring")
+    if len(loader) == 0:
+        raise ValueError("batch 大于训练样本数，drop_last 会产生空训练循环")
 
     encoder = TerrainEncoder(2, pretrained=False).to(dev)
     head = TerrainScoreHead(encoder.out_channels).to(dev) if args.task == "scoring" else None
@@ -107,6 +116,10 @@ def main() -> None:
         init = str(OUT / "v4r1raw_ssl.pt")
     if init:
         ckpt = torch.load(Path(init), map_location="cpu", weights_only=False)
+        for key, path in (("stats_sha256", man / "stats_geoboth_raw.json"),
+                          ("pool_sha256", man / "pool_100.jsonl")):
+            if ckpt.get(key) != file_sha256(path):
+                raise ValueError(f"初始化 {key} 与当前训练协议不符")
         encoder.load_state_dict(ckpt["encoder"])
         if args.task == "ssl_extra":
             decoder.load_state_dict(ckpt["decoder"])
@@ -119,7 +132,6 @@ def main() -> None:
     params += list(decoder.parameters()) if decoder is not None else []
     opt = torch.optim.AdamW(params, lr=args.lr, weight_decay=0.01)
 
-    out_path = Path(args.out) if args.out else OUT / f"v4r1raw_{'ssl_extra' if args.task == 'ssl_extra' else args.task}.pt"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     rng = torch.Generator().manual_seed(args.seed)
     t0, step, running = time.time(), 0, 0.0
@@ -132,17 +144,17 @@ def main() -> None:
             dem = image[:, 10:11]
             opt.zero_grad(set_to_none=True)
             if args.task == "scoring":
-                target = F.avg_pool2d(batch["mask"].to(dev).unsqueeze(1), BLOCK)
-                target = F.interpolate(target, size=(128, 128), mode="bilinear", align_corners=False)
-                logits = head(encoder(terrain), (128, 128))
-                weights = batch["valid"].to(dev).unsqueeze(1).float()
+                target, weights = valid_block_fraction(batch["mask"].to(dev).unsqueeze(1),
+                                                       batch["valid"].to(dev).unsqueeze(1), BLOCK)
+                logits = F.avg_pool2d(head(encoder(terrain), (128, 128)), BLOCK)
                 loss = (F.binary_cross_entropy_with_logits(logits, target, reduction="none") * weights).sum() \
-                    / weights.sum().clamp_min(1.0)
+                    / weights.sum().clamp_min(1e-12)
             else:
                 mask = block_mask(terrain.shape[0], dev, rng)
                 masked = terrain * (~mask).float()
                 recon = decoder(encoder(masked))
-                loss = (recon - dem).abs().mul(mask.float()).sum() / mask.float().sum().clamp_min(1.0)
+                weights = mask & batch["valid"].to(dev).unsqueeze(1).bool()
+                loss = torch.where(weights, (recon - dem).abs(), 0.0).sum() / weights.sum().clamp_min(1)
             if not torch.isfinite(loss):
                 raise FloatingPointError(f"{args.task} loss 非有限")
             loss.backward()
@@ -161,6 +173,8 @@ def main() -> None:
         "encoder": encoder.state_dict(),
         "steps": args.steps,
         "task": args.task,
+        "target_version": 2,
+        "target_definition": "valid 像素的16×16区块滑坡比例；空区块不参与损失" if head is not None else "仅在遮挡且valid的像素重建DEM",
         "fold": args.fold,
         "seed": args.seed,
         "lr": args.lr,

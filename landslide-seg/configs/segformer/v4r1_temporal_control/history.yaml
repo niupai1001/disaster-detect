@@ -1,0 +1,12 @@
+# 条件组：只有某多期组事件平均 IoU ≥ +0.02 且两个验证事件都不低于单期时才执行。
+# 触发记录（2026-10-23）：15期内容+日期组事件平均 IoU 0.3245，相对单期 0.2883 为
+# +0.0362；广岛 0.3192 > 0.2662、特里苏尔 0.3298 > 0.3104，条件满足。
+# 本组仍只保留观测日期 ≤ 参考日期的帧（含参考影像），用于判断去掉未来观测后收益是否还在。
+_base: _base.yaml
+segformer:
+  experiment: SegFormer-B0-Temporal-History-Date
+  temporal:
+    mode: history
+    aggregation: date
+  eval:
+    latency_frames: 10

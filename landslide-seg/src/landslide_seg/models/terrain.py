@@ -20,6 +20,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+def valid_block_fraction(mask: torch.Tensor, valid: torch.Tensor, block: int = 16):
+    """仅对有效像素计算区块滑坡占比；空区块权重为零。"""
+    weights = F.avg_pool2d(valid.float(), block)
+    numerator = F.avg_pool2d(torch.where(valid.bool(), mask, 0.0), block)
+    return numerator / weights.clamp_min(1e-12), weights
+
+
 class TerrainEncoder(nn.Module):
     """ResNet18 stem + layer1：``[B,2,H,W] -> [B,64,H/4,W/4]``。"""
 
@@ -87,6 +94,9 @@ class TerrainFusionSeg(nn.Module):
         terrain_weights: str | Path | None = None,
         load_head: bool = False,
         head_weights: str | Path | None = None,
+        joint_weights: str | Path | None = None,
+        expected_stats_sha256: str | None = None,
+        expected_pool_sha256: str | None = None,
         alpha: float = 0.01,
         alpha_learnable: bool = True,
     ) -> None:
@@ -102,6 +112,22 @@ class TerrainFusionSeg(nn.Module):
         else:
             self.register_buffer("alpha", torch.tensor(float(alpha)))
         self.terrain_init = {"kind": str(terrain_pretrained), "weights": None, "head_weights": None}
+        if joint_weights:
+            if terrain_weights or head_weights:
+                raise ValueError("联合评分权重不能与分开加载的地形权重混用")
+            ckpt = torch.load(Path(joint_weights), map_location="cpu", weights_only=False)
+            if ckpt.get("task") != "scoring" or ckpt.get("target_version") != 2:
+                raise ValueError("联合迁移要求 valid 加权评分 v2 checkpoint")
+            for key, expected in (("stats_sha256", expected_stats_sha256),
+                                  ("pool_sha256", expected_pool_sha256)):
+                if not expected or ckpt.get(key) != expected:
+                    raise ValueError(f"联合评分权重 {key} 与当前配置不一致")
+            self.terrain.load_state_dict(ckpt["encoder"], strict=True)
+            self.head.load_state_dict(ckpt["head"], strict=True)
+            from ..config import file_sha256
+            self.terrain_init.update(kind="scoring_full_v2", weights=str(joint_weights),
+                                     head_weights=str(joint_weights),
+                                     sha256=file_sha256(joint_weights))
         if terrain_weights:
             self._load(terrain_weights, target="terrain")
             self.terrain_init["weights"] = str(terrain_weights).replace("\\", "/")

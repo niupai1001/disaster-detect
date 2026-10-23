@@ -2,8 +2,8 @@
 
 三种光谱输入：
 
-- ``indices``：四个确定性指数（NDVI、NDMI、NBR、红边归一化差），在反归一化后的
-  反射率上计算，ε=1e-4；
+- ``indices``：四个确定性指数；legacy_dn沿用存储DN，harmonized_dn_v1使用
+  共享DN/10000契约。来源审计支持harmonized产品，不代表独立逐像素定标；
 - ``identity``：同数量、同结构的四个原始波段通道（B04/B08/B8A/B11 的 z-score），
   不含任何物理公式，用作"容量控制"；
 - ``wavelength``：十个波段经一个 1×1 线性映射，权重按中心波长的高斯核初始化，
@@ -12,12 +12,12 @@
 三种融合方式：
 
 - ``gated``：``D' = D + α · sigmoid(G([D, S])) · Proj(S)``；
-- ``additive``：``D' = D + α · Proj(S)``，同参数量的加性对照；
-- ``lowrank``：``Proj(S) = U(V(S))``，rank=8 的乘性对照；
+- ``additive``：``D' = D + α · Proj(S)``；不包含gate参数，不能称同参数量对照；
+- ``lowrank``：``Proj(S) = U(V(S))``，rank=8 的线性投影，另有输入依赖门控；
 - ``fixed_gate``：门控固定为 0.5，不学习。
 
-α 是可学习标量，初值 0；读出头/投影正常初始化，因此第一步只有 α 与投影之外的
-参数不动，α 从第一步起被 ``∂L/∂α`` 推动，第二步起旁路拿到梯度。
+α 是可学习标量，初值 0；读出头/投影正常初始化。初始旁路中只有α可获得
+非零任务梯度；α离开0后投影与门控才可获得非零任务梯度，视觉主路正常训练。
 """
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ..data.segformer_dataset import S2_10_BANDS
+from .spectral_contract import RADIOMETRY_MODES, harmonized_reflectance, spectral_indices
 
 #: 各波段中心波长（微米）与原生空间分辨率（米），来自 Sentinel-2 官方规格
 WAVELENGTH_UM = {
@@ -45,13 +46,16 @@ FUSIONS = ("gated", "additive", "lowrank", "fixed_gate")
 
 class SpectralBranch(nn.Module):
     def __init__(self, feature: str, fusion: str, dec_ch: int, rank: int = 8,
-                 n_out: int = 4, eps: float = 1e-4) -> None:
+                 n_out: int = 4, eps: float = 1e-4, radiometry: str = "legacy_dn") -> None:
         super().__init__()
         if feature not in FEATURES:
             raise ValueError(f"feature 必须是 {FEATURES}")
         if fusion not in FUSIONS:
             raise ValueError(f"fusion 必须是 {FUSIONS}")
         self.feature, self.fusion, self.eps = feature, fusion, float(eps)
+        if radiometry not in RADIOMETRY_MODES:
+            raise ValueError(f"radiometry 必须为 {RADIOMETRY_MODES}")
+        self.radiometry = radiometry
         self.n_out = int(n_out)
         if feature == "wavelength":
             self.embed = nn.Conv2d(len(S2_10_BANDS), self.n_out, 1, bias=False)
@@ -77,6 +81,8 @@ class SpectralBranch(nn.Module):
             self.embed.weight.copy_(w[:, :, None, None])
 
     def spectral_maps(self, x10: torch.Tensor, mean: torch.Tensor, std: torch.Tensor) -> torch.Tensor:
+        if self.feature == "indices" and self.radiometry == "harmonized_dn_v1":
+            return spectral_indices(harmonized_reflectance(x10, mean, std), self.eps)
         dn = x10 * std + mean                     # 反归一化到 DN
         b = {name: dn[:, i:i + 1] for i, name in enumerate(S2_10_BANDS)}
         if self.feature == "indices":
@@ -111,18 +117,25 @@ class SpectralFusionSeg(nn.Module):
     """把 ``SpectralBranch`` 挂到视觉模型的分类器之前。"""
 
     def __init__(self, visual: nn.Module, mean: list[float], std: list[float],
-                 feature: str = "indices", fusion: str = "gated", rank: int = 8) -> None:
+                 feature: str = "indices", fusion: str = "gated", rank: int = 8,
+                 implementation: str = "legacy_hook", radiometry: str = "legacy_dn") -> None:
         super().__init__()
+        if implementation not in ("legacy_hook", "explicit"):
+            raise ValueError("implementation 必须是 legacy_hook/explicit")
+        if implementation == "explicit" and (visual.capture_decoder or visual.exchange is not None or visual.refine != "none"):
+            raise ValueError("explicit 仅支持无捕获钩子、无阶段交换、无精分头的标准视觉基线")
+        self.implementation = implementation
         self.visual = visual
         dec_ch = int(visual.model.config.decoder_hidden_size)
-        self.branch = SpectralBranch(feature, fusion, dec_ch, rank=rank)
+        self.branch = SpectralBranch(feature, fusion, dec_ch, rank=rank, radiometry=radiometry)
         self.register_buffer("band_mean", torch.tensor(mean, dtype=torch.float32)[None, :, None, None])
         self.register_buffer("band_std", torch.tensor(std, dtype=torch.float32)[None, :, None, None])
         self._S: torch.Tensor | None = None
         self._last: dict = {}
         self.feature, self.fusion = feature, fusion
         # 视觉模型已在同一模块上注册了捕获钩子；本钩子在其后运行并替换分类器输入。
-        visual.model.decode_head.classifier.register_forward_pre_hook(self._inject)
+        if implementation == "legacy_hook":
+            visual.model.decode_head.classifier.register_forward_pre_hook(self._inject)
         for attr in ("adapter_type", "backbone", "use_stem", "refine", "fusion_mode",
                      "exchange_mode", "adapter_report", "load_info"):
             if hasattr(visual, attr):
@@ -139,9 +152,41 @@ class SpectralFusionSeg(nn.Module):
             raise ValueError(f"期望 [B,10,H,W]，得到 {tuple(x.shape)}")
         mean = self.band_mean.to(x.dtype)
         std = self.band_std.to(x.dtype)
+        if self.implementation == "explicit":
+            return self._forward_explicit(x, self.branch.spectral_maps(x, mean, std), **kwargs)
         self._S = self.branch.spectral_maps(x, mean, std)
         out = self.visual(x, **kwargs)
         out["spectral_info"] = dict(self._last)
+        return out
+
+    def _forward_explicit(self, x, spectral, *, return_features=False, return_delta=False,
+                          cond_override=None):
+        """官方解码算子顺序；局部变量传递特征，历史细节头仍读取融合前特征。"""
+        visual = self.visual
+        inp = visual.projection(x) if visual.projection is not None else x
+        hidden = visual.model.segformer(pixel_values=inp, output_hidden_states=True,
+                                         return_dict=True).hidden_states
+        decoder = visual.model.decode_head
+        projected = []
+        for feat, mlp in zip(hidden, decoder.linear_c):
+            if feat.ndim != 4:
+                raise ValueError("explicit 解码要求四维分层特征")
+            b, _, h, w = feat.shape
+            z = mlp(feat).permute(0, 2, 1).reshape(b, -1, h, w)
+            projected.append(F.interpolate(z, size=hidden[0].shape[-2:], mode="bilinear", align_corners=False))
+        feat = decoder.linear_fuse(torch.cat(projected[::-1], dim=1))
+        feat = decoder.dropout(decoder.activation(decoder.batch_norm(feat)))
+        correction, info = self.branch(feat, spectral)
+        low_logits = decoder.classifier(feat + correction)
+        stem = visual.stem(x) if visual.use_stem else None
+        base = F.interpolate(low_logits, size=x.shape[-2:], mode="bilinear", align_corners=False)
+        detail = visual.fusion(feat, stem, x.shape[-2:]) if visual.use_stem else None
+        out = {"logits": base + detail if detail is not None else base,
+               "base_logits": base, "spectral_info": info}
+        if return_features:
+            out["decoder_feat"] = feat
+        if return_delta:
+            out["delta_logits"] = detail
         return out
 
     def param_groups(self) -> dict[str, list[nn.Parameter]]:
@@ -168,6 +213,8 @@ class SpectralFusionSeg(nn.Module):
 
     def spectral_report(self) -> dict:
         return {"feature": self.feature, "fusion": self.fusion,
+                "implementation": self.implementation,
+                "radiometry": self.branch.radiometry,
                 "alpha": float(self.branch.alpha.detach()),
                 "branch_params": sum(p.numel() for p in self.branch.parameters()),
                 "note": "注入位置：官方解码特征之后、分类器之前"}

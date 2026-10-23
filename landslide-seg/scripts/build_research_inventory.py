@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'docs/assets/research'
-DATE = '2026-10-22'
+DATE = '2026-10-23'
 
 
 def read(path):
@@ -69,7 +69,10 @@ def naming(config):
     temporal = typ == 'temporal_spectral'
     source = '单张十波段直接输入' if m.get('adapter', 'direct10') == 'direct10' else '十波段可学习投影为三通道'
     if temporal:
-        source = ('多期' if config.get('temporal', {}).get('mode') == 'multi' else '单期') + '十波段共享入口'
+        tc = config.get('temporal', {})
+        mode = tc.get('mode')
+        source = ('截至参考日期的观测' if mode == 'history' else
+                  f"{tc.get('n_frames', 15)}期" if mode == 'multi' else '单期') + '十波段共享入口'
     bands = m.get('band_order', [])
     if any('slope' in str(b).lower() for b in bands):
         source += '＋坡度'
@@ -98,7 +101,11 @@ def naming(config):
     if temporal:
         mode = config.get('temporal', {}).get('mode', 'unknown')
         suffix += '-temporal-' + str(mode)
-        structure += '＋' + ('观测日期间隔与内容参与的时间加权' if mode == 'multi' else '仅参考影像的时间接口')
+        aggregation = config.get('temporal', {}).get('aggregation', 'date')
+        structure += '＋' + ('仅参考影像的时间接口' if mode == 'single' else
+                            {'mean': '有效帧均值汇聚', 'content': '仅内容时间加权',
+                             'date': '内容与观测日期间隔时间加权'}[aggregation])
+        suffix += '-' + aggregation
         if m.get('spectral'):
             suffix += '-band-relation'
             structure += '＋光谱关系编码'
@@ -167,6 +174,8 @@ def inventory():
                 tags.append('地形分支不先单独训练，直接随分割任务学习')
             elif start == 'ssl_supervised':
                 tags.append('编码器先做地形补全训练；评分头先用滑坡标注训练，未迁移该阶段编码器')
+            elif start == 'ssl_scoring_full_v2':
+                tags.append('有效区区块占比监督v2；成对迁移评分阶段编码器与预测头')
             elif start == 'ssl':
                 tags.append('分割前先遮挡地形、训练补回原高程' + ('6000步' if 'extra' in str(terrain.get('weights')) else '3000步'))
             tags.append('地形融合系数可学习' if terrain.get('alpha_learnable', True) else '地形融合系数固定0.01')
@@ -396,7 +405,9 @@ def check():
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true')
+    parser.add_argument('--no-figures', action='store_true', help='只刷新机器索引与别名，保留现有图')
+    args=parser.parse_args()
     if args.check:
         check();return
     OUT.mkdir(parents=True,exist_ok=True)
@@ -411,7 +422,9 @@ def main():
     with (OUT/'experiment_aliases.csv').open('w',encoding='utf-8-sig',newline='') as f:
         keys=['run_id','display_name','run_display_name','treatment','architecture_id','protocol','data_context','seed','status','run_dir','legacy_experiment']
         w=csv.DictWriter(f,fieldnames=keys);w.writeheader();w.writerows({k:r[k] for k in keys} for r in runs)
-    figures();check()
+    if not args.no_figures:
+        figures()
+    check()
     print(json.dumps({'runs':len(runs),'excluded_engineering_runs':len(excluded)},ensure_ascii=False))
 
 

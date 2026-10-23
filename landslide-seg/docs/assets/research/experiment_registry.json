@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-22",
+  "as_of": "2026-10-23",
   "policy": "原固定事件留出基线默认开发；不默认四折，明显进步后才新增官方比较",
   "default_protocol": "event_ood_v4r1",
   "scope": "磁盘现有SegFormer工程resolved_config；U-TAE由对应协议文档及阶段证据另列",
@@ -497,6 +497,107 @@
       "best_exists": true,
       "last_exists": true,
       "metrics_jsonl": "outputs/segformer/_blocked_probe_b2/Probe-segformer_b2-F4/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "286985d2176053ef",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-single-identity",
+      "display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口",
+      "run_display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_control｜TRAIN=?｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_control",
+      "data_version_recorded": "v4r1_temporal_control",
+      "seed": 1234,
+      "status": "未完成／需核对恢复状态",
+      "run_dir": "outputs/segformer/_failed_runs/temporal_single_optimizer_bug_20261022/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-Single",
+      "config_path": "outputs/segformer/_failed_runs/temporal_single_optimizer_bug_20261022/1234/resolved_config.json",
+      "config_sha256": "9ef7eaf9b442b4ecd6391ce16c07bab0d3b9d6f44688acffa104e6d57f99ca1b",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "single",
+        "aggregation": "identity"
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": null,
+      "global_step": null,
+      "best_selection_value": null,
+      "selection_metric": "历史VAL IoU，见原run",
+      "n_train": null,
+      "n_val": null,
+      "params": null,
+      "seconds": null,
+      "best_exists": false,
+      "last_exists": false,
+      "metrics_jsonl": null,
       "evaluations": []
     },
     {
@@ -10297,6 +10398,791 @@
       "evaluations": []
     },
     {
+      "run_id": "ce83bfcdec03bc2f",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入＋坡度＋DEM｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入＋坡度＋DEM｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_geo_raw｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_geo_raw",
+      "data_version_recorded": "s2_10band_v4r1_geo_raw",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw",
+      "config_path": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw/1234/resolved_config.json",
+      "config_sha256": "0630e93d33c48ba1e25002d8550a65e5b98b75ade02d6bfa58772985d7f1d5df",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_geoboth_raw.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "segformer",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "exchange": "none",
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ],
+        "extra_channel": "both"
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.30666507294563766,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3756802,
+        "trainable": 3756802,
+        "encoder": 3333504,
+        "decoder": 395009,
+        "new": 28289
+      },
+      "seconds": 709.531268119812,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-DEMSlopeRaw/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "8c96e9220efdbbaa",
+      "architecture_id": "segformer-b0-direct10-late-detail-terrain-score",
+      "display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加",
+      "run_display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_geo_raw｜TRAIN=2223｜seed=1234｜地形分支不先单独训练，直接随分割任务学习；地形融合系数可学习",
+      "treatment": "地形分支不先单独训练，直接随分割任务学习；地形融合系数可学习",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_geo_raw",
+      "data_version_recorded": "s2_10band_v4r1_geo_raw",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainCapControl/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-TerrainCapControl",
+      "config_path": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainCapControl/1234/resolved_config.json",
+      "config_sha256": "30dc44c89dabe1d8f16ce9325835f8edea2879ecbb8dd10f65a8aa0e0673b44f",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_geoboth_raw.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "terrain_fusion",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ],
+        "extra_channel": "both",
+        "terrain": {
+          "start": "random",
+          "alpha": 0.01,
+          "alpha_learnable": true
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainCapControl/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.30883026968162186,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3926500,
+        "trainable": 3926500,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 201123,
+        "terrain_encoder": 154368,
+        "terrain_head": 18529
+      },
+      "seconds": 742.4611241817474,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainCapControl/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "5c86c02549d9fc5f",
+      "architecture_id": "segformer-b0-direct10-late-detail-terrain-score",
+      "display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加",
+      "run_display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_geo_raw｜TRAIN=2223｜seed=1234｜分割前先遮挡地形、训练补回原高程3000步；地形融合系数固定0.01",
+      "treatment": "分割前先遮挡地形、训练补回原高程3000步；地形融合系数固定0.01",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_geo_raw",
+      "data_version_recorded": "s2_10band_v4r1_geo_raw",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha",
+      "config_path": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha/1234/resolved_config.json",
+      "config_sha256": "d46eef0b9bf4b2533d5db18de18332fc771bf08271e29d6304a8956a56fa4ac6",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_geoboth_raw.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "terrain_fusion",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ],
+        "extra_channel": "both",
+        "terrain": {
+          "start": "ssl",
+          "alpha": 0.01,
+          "alpha_learnable": false,
+          "weights": "weights/terrain/v4r1raw_ssl.pt"
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.30799701961878956,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3926499,
+        "trainable": 3926499,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 201122,
+        "terrain_encoder": 154368,
+        "terrain_head": 18529
+      },
+      "seconds": 646.4111185073853,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainFrozenAlpha/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "e9a45649ef8d6cad",
+      "architecture_id": "segformer-b0-direct10-late-detail-terrain-score",
+      "display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加",
+      "run_display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_geo_raw｜TRAIN=2223｜seed=1234｜分割前先遮挡地形、训练补回原高程3000步；地形融合系数可学习",
+      "treatment": "分割前先遮挡地形、训练补回原高程3000步；地形融合系数可学习",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_geo_raw",
+      "data_version_recorded": "s2_10band_v4r1_geo_raw",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSL/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-TerrainSSL",
+      "config_path": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSL/1234/resolved_config.json",
+      "config_sha256": "4a9e8ad81788df11d6d16a60557c892c749b0b401baca7a1c0e1b5a4551a41b6",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_geoboth_raw.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "terrain_fusion",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ],
+        "extra_channel": "both",
+        "terrain": {
+          "start": "ssl",
+          "alpha": 0.01,
+          "alpha_learnable": true,
+          "weights": "weights/terrain/v4r1raw_ssl.pt"
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSL/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.3096215403793534,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3926500,
+        "trainable": 3926500,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 201123,
+        "terrain_encoder": 154368,
+        "terrain_head": 18529
+      },
+      "seconds": 768.1005771160126,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSL/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "0de1905ac8a1cb02",
+      "architecture_id": "segformer-b0-direct10-late-detail-terrain-score",
+      "display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加",
+      "run_display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_geo_raw｜TRAIN=2223｜seed=1234｜分割前先遮挡地形、训练补回原高程6000步；地形融合系数可学习",
+      "treatment": "分割前先遮挡地形、训练补回原高程6000步；地形融合系数可学习",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_geo_raw",
+      "data_version_recorded": "s2_10band_v4r1_geo_raw",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget",
+      "config_path": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget/1234/resolved_config.json",
+      "config_sha256": "beebeb3942a2fff7b82a2dc29cb4248a8e3f3a8be73f101565c5235a3960e557",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_geoboth_raw.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "terrain_fusion",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ],
+        "extra_channel": "both",
+        "terrain": {
+          "start": "ssl",
+          "alpha": 0.01,
+          "alpha_learnable": true,
+          "weights": "weights/terrain/v4r1raw_ssl_extra.pt"
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.3091675099342268,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3926500,
+        "trainable": 3926500,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 201123,
+        "terrain_encoder": 154368,
+        "terrain_head": 18529
+      },
+      "seconds": 670.8825523853302,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLBudget/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "f2dfe87bd9359bab",
+      "architecture_id": "segformer-b0-direct10-late-detail-terrain-score",
+      "display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加",
+      "run_display_name": "SegFormer B0｜单张十波段；高程和坡度独立输入｜影像细节修正＋地形预测分数相加｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_geo_raw｜TRAIN=2223｜seed=1234｜编码器先做地形补全训练；评分头先用滑坡标注训练，未迁移该阶段编码器；地形融合系数可学习",
+      "treatment": "编码器先做地形补全训练；评分头先用滑坡标注训练，未迁移该阶段编码器；地形融合系数可学习",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_geo_raw",
+      "data_version_recorded": "s2_10band_v4r1_geo_raw",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLSup/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-TerrainSSLSup",
+      "config_path": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLSup/1234/resolved_config.json",
+      "config_sha256": "15c0be224aef65d59409f3c9edecbbfa6dc6995a7f20d7cf56648711fb279520",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_geoboth_raw.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "terrain_fusion",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 12,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12",
+          "DEM",
+          "SLOPE"
+        ],
+        "extra_channel": "both",
+        "terrain": {
+          "start": "ssl_supervised",
+          "alpha": 0.01,
+          "alpha_learnable": true,
+          "weights": "weights/terrain/v4r1raw_ssl.pt",
+          "head_weights": "weights/terrain/v4r1raw_scoring.pt"
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLSup/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.3076430628894513,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3926500,
+        "trainable": 3926500,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 201123,
+        "terrain_encoder": 154368,
+        "terrain_head": 18529
+      },
+      "seconds": 667.0443968772888,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_geo_raw/SegFormer-B0-LateDetail-OODv4-TerrainSSLSup/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
       "run_id": "02be53d61f70dca4",
       "architecture_id": "segformer-b0-direct10-late-detail",
       "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
@@ -12144,6 +13030,1129 @@
       "evaluations": []
     },
     {
+      "run_id": "89971f3038af8590",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral｜TRAIN=?｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral",
+      "data_version_recorded": "s2_10band_v4r1_spectral",
+      "seed": 1234,
+      "status": "未完成／需核对恢复状态",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral/SegFormer-B0-LateDetail-OODv4-SpectralIdentity/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-SpectralIdentity",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral/SegFormer-B0-LateDetail-OODv4-SpectralIdentity/1234/resolved_config.json",
+      "config_sha256": "7e07858c5b7afc3c208f29e96120e7ade905832bd18ecac855a6409f3e03bb03",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_fusion",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral": {
+          "feature": "identity",
+          "fusion": "gated",
+          "rank": 8
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": null,
+      "global_step": null,
+      "best_selection_value": null,
+      "selection_metric": "历史VAL IoU，见原run",
+      "n_train": null,
+      "n_val": null,
+      "params": null,
+      "seconds": null,
+      "best_exists": false,
+      "last_exists": false,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral/SegFormer-B0-LateDetail-OODv4-SpectralIdentity/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "3241d31f016284af",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral",
+      "data_version_recorded": "s2_10band_v4r1_spectral",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral/SegFormer-B0-LateDetail-OODv4-SpectralIndices/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-SpectralIndices",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral/SegFormer-B0-LateDetail-OODv4-SpectralIndices/1234/resolved_config.json",
+      "config_sha256": "063de464428b19bb432e5074555b6f96e7769138e4672786addea309e8c31594",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_fusion",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral": {
+          "feature": "indices",
+          "fusion": "gated",
+          "rank": 8
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_spectral/SegFormer-B0-LateDetail-OODv4-SpectralIndices/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.30796859618532235,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3757224,
+        "trainable": 3757224,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 31847,
+        "spectral_branch": 3622
+      },
+      "seconds": 661.5218434333801,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral/SegFormer-B0-LateDetail-OODv4-SpectralIndices/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "3944418e362c7767",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral_ladder｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral_ladder",
+      "data_version_recorded": "s2_10band_v4r1_spectral_ladder",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Control/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-S1Control",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Control/1234/resolved_config.json",
+      "config_sha256": "4dc75c037e05b650e8f6e15f3ed155830b4490c65d5c2ff76233beb49b3f4ab4",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_ladder",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral_ladder": {
+          "level": "S1",
+          "variant": "control",
+          "rank": 4
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Control/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.2907726902392528,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3760002,
+        "trainable": 3760002,
+        "encoder": 3336640,
+        "decoder": 395009,
+        "new": 28353,
+        "ladder": 0
+      },
+      "seconds": 630.0880448818207,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Control/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "e22d257b9848e5fb",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral_ladder｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral_ladder",
+      "data_version_recorded": "s2_10band_v4r1_spectral_ladder",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Indices/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-S1Indices",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Indices/1234/resolved_config.json",
+      "config_sha256": "a4dc8a58c9e41db4633ef68e846f609156104c0d856445afde8ba476f2f7edfb",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_ladder",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral_ladder": {
+          "level": "S1",
+          "variant": "treatment",
+          "rank": 4
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Indices/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.2795336578657104,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3760002,
+        "trainable": 3760002,
+        "encoder": 3336640,
+        "decoder": 395009,
+        "new": 28353,
+        "ladder": 0
+      },
+      "seconds": 645.1412839889526,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S1Indices/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "35f13499de1c24ab",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral_ladder｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral_ladder",
+      "data_version_recorded": "s2_10band_v4r1_spectral_ladder",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Control/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-S2Control",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Control/1234/resolved_config.json",
+      "config_sha256": "1b108b7583decee57aa6c70053bca02dacecaec783b059d5ce8f9ba5a6a90fbb",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_ladder",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral_ladder": {
+          "level": "S2",
+          "variant": "control",
+          "rank": 4
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Control/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.3081310250508019,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3753612,
+        "trainable": 3753612,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 28235,
+        "ladder": 10
+      },
+      "seconds": 690.327653169632,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Control/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "6f7ceadf13cb0d15",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral_ladder｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral_ladder",
+      "data_version_recorded": "s2_10band_v4r1_spectral_ladder",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Wavelength/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-S2Wavelength",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Wavelength/1234/resolved_config.json",
+      "config_sha256": "d901463fff546150c95029de21eac22b76617283f89cd16704f6655210e012bf",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_ladder",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral_ladder": {
+          "level": "S2",
+          "variant": "treatment",
+          "rank": 4
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Wavelength/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.30524572898820057,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3753779,
+        "trainable": 3753779,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 28402,
+        "ladder": 177
+      },
+      "seconds": 623.7318153381348,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S2Wavelength/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "2ba84bca522ce6b0",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral_ladder｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral_ladder",
+      "data_version_recorded": "s2_10band_v4r1_spectral_ladder",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3Control/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-S3Control",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3Control/1234/resolved_config.json",
+      "config_sha256": "2b1e3e475e3f25bcc1188b2f74462f32157386dee930bb9eb534efd44d537591",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_ladder",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral_ladder": {
+          "level": "S3",
+          "variant": "control",
+          "rank": 4
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3Control/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.30410982996119623,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3753802,
+        "trainable": 3753802,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 28425,
+        "ladder": 200
+      },
+      "seconds": 688.8777568340302,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3Control/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "91ad60fe46fcf96b",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral_ladder｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral_ladder",
+      "data_version_recorded": "s2_10band_v4r1_spectral_ladder",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3LowRank/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-S3LowRank",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3LowRank/1234/resolved_config.json",
+      "config_sha256": "612ea4487845c504b225bddc97843e049ea4efcb58ff0b3ba5898fd44d23b81b",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_ladder",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral_ladder": {
+          "level": "S3",
+          "variant": "treatment",
+          "rank": 4
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3LowRank/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.30432716133363114,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3753682,
+        "trainable": 3753682,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 28305,
+        "ladder": 80
+      },
+      "seconds": 719.4305889606476,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral_ladder/SegFormer-B0-LateDetail-OODv4-S3LowRank/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "8aee9a5e2514eb66",
+      "architecture_id": "segformer-b0-direct10-late-detail",
+      "display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正",
+      "run_display_name": "SegFormer B0｜单张十波段直接输入｜原始网格细节修正｜EVENT_HOLDOUT_V4R1｜s2_10band_v4r1_spectral_relation｜TRAIN=?｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "s2_10band_v4r1_spectral_relation",
+      "data_version_recorded": "s2_10band_v4r1_spectral_relation",
+      "seed": 1234,
+      "status": "未完成／需核对恢复状态",
+      "run_dir": "outputs/segformer/s2_10band_v4r1_spectral_relation/SegFormer-B0-LateDetail-OODv4-BandRelation/1234",
+      "legacy_experiment": "SegFormer-B0-LateDetail-OODv4-BandRelation",
+      "config_path": "outputs/segformer/s2_10band_v4r1_spectral_relation/SegFormer-B0-LateDetail-OODv4-BandRelation/1234/resolved_config.json",
+      "config_sha256": "8561f822a30ef4f8649ec7435cca84e24bf9ccbbaba7d0ad4467cba092c6e2d5",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "spectral_relation",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": true,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "in_chans": 10,
+        "band_order": [
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B06",
+          "B07",
+          "B08",
+          "B8A",
+          "B11",
+          "B12"
+        ],
+        "extra_channel": "none",
+        "spectral_relation": {
+          "patch": 4,
+          "width": 64,
+          "heads": 4,
+          "layers": 2,
+          "relation_mode": "measured",
+          "identity": "wavelength"
+        }
+      },
+      "temporal": null,
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "budget_mode": "updates",
+        "eval_every_updates": 100
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": null,
+      "global_step": null,
+      "best_selection_value": null,
+      "selection_metric": "历史VAL IoU，见原run",
+      "n_train": null,
+      "n_val": null,
+      "params": null,
+      "seconds": null,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/s2_10band_v4r1_spectral_relation/SegFormer-B0-LateDetail-OODv4-BandRelation/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
       "run_id": "1abd2084c5397e49",
       "architecture_id": "segformer-b0-direct10-standard-frozen-1200",
       "display_name": "SegFormer B0｜单张十波段直接输入｜标准解码预测（冻结第1200步编码器、重训解码器）",
@@ -13114,10 +15123,899 @@
       ]
     },
     {
+      "run_id": "d2c86a30fc281ded",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-content",
+      "display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋仅内容时间加权",
+      "run_display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋仅内容时间加权｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_control｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_control",
+      "data_version_recorded": "v4r1_temporal_control",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-Content15",
+      "config_path": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/resolved_config.json",
+      "config_sha256": "6a49fbef8c24a3b59a4bd34b15034f427c019e9a8e119617fe6c10942e629fdd",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "multi",
+        "aggregation": "content"
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.31451975454908115,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3770246,
+        "trainable": 3770246,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 44869,
+        "temporal_aggregation": 16644,
+        "spectral": 0
+      },
+      "seconds": 7003.254312992096,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/metrics.jsonl",
+      "evaluations": [
+        {
+          "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/eval/eval_best.json",
+          "split": "val",
+          "n_samples": 669,
+          "pixel": {
+            "tp": 87496,
+            "fp": 75729,
+            "fn": 116036,
+            "tn": 10294526,
+            "iou": 0.3133126358496174,
+            "dice": 0.4771333607811167,
+            "precision": 0.5360453361923725,
+            "recall": 0.4298881748324588,
+            "false_positive_rate": 0.00730252052625514,
+            "average_precision": 0.4651230046225564
+          },
+          "event_mean_iou": 0.3145271337954115,
+          "objects": {
+            "n_gt_evaluable": 1679,
+            "n_matched_evaluable": 757,
+            "object_recall_evaluable": 0.4508636092912448
+          },
+          "boundary_f1": 0.4724282594627064,
+          "metric_version": "v2",
+          "manifest_sha256": null,
+          "checkpoint_sha256_recorded": "a02005667ea218662f73dec04a08e261a8ef3bf461db56476489416a8cdc0f4e"
+        }
+      ]
+    },
+    {
+      "run_id": "587f3a08e3cff8f4",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-date",
+      "display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权",
+      "run_display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_control｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_control",
+      "data_version_recorded": "v4r1_temporal_control",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-Date15",
+      "config_path": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/resolved_config.json",
+      "config_sha256": "e55dd03167adbbb4ce475903139150d30ab8546d9fb75c904c46a13792bc6a9b",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "multi",
+        "aggregation": "date"
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.3244544569160371,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3775238,
+        "trainable": 3775238,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 49861,
+        "temporal_aggregation": 21636,
+        "spectral": 0
+      },
+      "seconds": 6850.375940322876,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/metrics.jsonl",
+      "evaluations": [
+        {
+          "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/eval/eval_best.json",
+          "split": "val",
+          "n_samples": 669,
+          "pixel": {
+            "tp": 81650,
+            "fp": 49322,
+            "fn": 121882,
+            "tn": 10320933,
+            "iou": 0.3229136181353667,
+            "dice": 0.4881854925501638,
+            "precision": 0.623415691903613,
+            "recall": 0.4011654187056581,
+            "false_positive_rate": 0.004756102911644892,
+            "average_precision": 0.5133936929938915
+          },
+          "event_mean_iou": 0.3244965443443566,
+          "objects": {
+            "n_gt_evaluable": 1679,
+            "n_matched_evaluable": 683,
+            "object_recall_evaluable": 0.406789755807028
+          },
+          "boundary_f1": 0.47611421648272023,
+          "metric_version": "v2",
+          "manifest_sha256": null,
+          "checkpoint_sha256_recorded": "8ef8bcfc69547f42dd16d4212e46a7d621056848db4c488aa6ed0ed849d4da45"
+        }
+      ]
+    },
+    {
+      "run_id": "82091c08dc87e84e",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-history-date",
+      "display_name": "SegFormer B0｜截至参考日期的观测十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权",
+      "run_display_name": "SegFormer B0｜截至参考日期的观测十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_control｜TRAIN=?｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_control",
+      "data_version_recorded": "v4r1_temporal_control",
+      "seed": 1234,
+      "status": "未完成／需核对恢复状态",
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-History-Date",
+      "config_path": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/resolved_config.json",
+      "config_sha256": "0e850ae7d69cd560450478ead78bd0d8e352726a4b5a5e573185b5410964f802",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "history",
+        "aggregation": "date"
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": null,
+      "global_step": null,
+      "best_selection_value": null,
+      "selection_metric": "历史VAL IoU，见原run",
+      "n_train": null,
+      "n_val": null,
+      "params": null,
+      "seconds": null,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
+      "run_id": "dc22f9f5d63168f6",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-mean",
+      "display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋有效帧均值汇聚",
+      "run_display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋有效帧均值汇聚｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_control｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_control",
+      "data_version_recorded": "v4r1_temporal_control",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-Mean15",
+      "config_path": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/resolved_config.json",
+      "config_sha256": "451d75807af37b613f2d5a84de60ed9d39b5aaf7d4885a770a063e6126613e00",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "multi",
+        "aggregation": "mean"
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.2984245193785366,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3753602,
+        "trainable": 3753602,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 28225,
+        "temporal_aggregation": 0,
+        "spectral": 0
+      },
+      "seconds": 6816.005615711212,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/metrics.jsonl",
+      "evaluations": [
+        {
+          "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/eval/eval_best.json",
+          "split": "val",
+          "n_samples": 669,
+          "pixel": {
+            "tp": 73657,
+            "fp": 44540,
+            "fn": 129875,
+            "tn": 10325715,
+            "iou": 0.29691783030733016,
+            "dice": 0.45788225494127044,
+            "precision": 0.6231714848938636,
+            "recall": 0.3618939527936639,
+            "false_positive_rate": 0.004294976353040499,
+            "average_precision": 0.47359240117634427
+          },
+          "event_mean_iou": 0.29844510373710176,
+          "objects": {
+            "n_gt_evaluable": 1679,
+            "n_matched_evaluable": 563,
+            "object_recall_evaluable": 0.3353186420488386
+          },
+          "boundary_f1": 0.4356276173382812,
+          "metric_version": "v2",
+          "manifest_sha256": null,
+          "checkpoint_sha256_recorded": "95225d888b517a93a7dad6218a212d2ba96126b60fc364833eda393a602a4ee2"
+        }
+      ]
+    },
+    {
+      "run_id": "6c7c79d6b7daee32",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-single-identity",
+      "display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口",
+      "run_display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_control｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_control",
+      "data_version_recorded": "v4r1_temporal_control",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-Single",
+      "config_path": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/resolved_config.json",
+      "config_sha256": "9ef7eaf9b442b4ecd6391ce16c07bab0d3b9d6f44688acffa104e6d57f99ca1b",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "single",
+        "aggregation": "identity"
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.28829330264371356,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3753602,
+        "trainable": 3753602,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 28225,
+        "temporal_aggregation": 0,
+        "spectral": 0
+      },
+      "seconds": 1213.8415751457214,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/metrics.jsonl",
+      "evaluations": [
+        {
+          "source": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/eval/eval_best.json",
+          "split": "val",
+          "n_samples": 669,
+          "pixel": {
+            "tp": 90815,
+            "fp": 121871,
+            "fn": 112717,
+            "tn": 10248384,
+            "iou": 0.27908470419756426,
+            "dice": 0.4363818960256404,
+            "precision": 0.42699096320397206,
+            "recall": 0.4461951928935008,
+            "false_positive_rate": 0.011751977169317437,
+            "average_precision": 0.3874468825139493
+          },
+          "event_mean_iou": 0.28827897003906044,
+          "objects": {
+            "n_gt_evaluable": 1679,
+            "n_matched_evaluable": 858,
+            "object_recall_evaluable": 0.5110184633710542
+          },
+          "boundary_f1": 0.44409793133959224,
+          "metric_version": "v2",
+          "manifest_sha256": null,
+          "checkpoint_sha256_recorded": "5672d3ef6ecb46745e7ef82d8f7dcdd5918c00960434186bbf41a8a35558c4c0"
+        }
+      ]
+    },
+    {
+      "run_id": "fee6509a157015fd",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-date",
+      "display_name": "SegFormer B0｜3期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权",
+      "run_display_name": "SegFormer B0｜3期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_frame_count｜TRAIN=2223｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_frame_count",
+      "data_version_recorded": "v4r1_temporal_frame_count",
+      "seed": 1234,
+      "status": "完成训练",
+      "run_dir": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-Date3",
+      "config_path": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/resolved_config.json",
+      "config_sha256": "437b171c3ca3fe72bee1ef29258a7cee4b2f495993daf95c4e8cf96dffaf2bc0",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "multi",
+        "aggregation": "date",
+        "n_frames": 3
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/train_summary.json",
+      "global_step": 3600,
+      "best_selection_value": 0.29254675848338263,
+      "selection_metric": "dev_event_mean_iou",
+      "n_train": 2223,
+      "n_val": 669,
+      "params": {
+        "total": 3775238,
+        "trainable": 3775238,
+        "encoder": 3330368,
+        "decoder": 395009,
+        "new": 49861,
+        "temporal_aggregation": 21636,
+        "spectral": 0
+      },
+      "seconds": 2099.2222912311554,
+      "best_exists": true,
+      "last_exists": true,
+      "metrics_jsonl": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/metrics.jsonl",
+      "evaluations": [
+        {
+          "source": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/eval/eval_best.json",
+          "split": "val",
+          "n_samples": 669,
+          "pixel": {
+            "tp": 81340,
+            "fp": 73699,
+            "fn": 122192,
+            "tn": 10296556,
+            "iou": 0.29340153157475174,
+            "dice": 0.453689785286596,
+            "precision": 0.5246421868046105,
+            "recall": 0.39964231668730227,
+            "false_positive_rate": 0.007106768348512163,
+            "average_precision": 0.44223450322742697
+          },
+          "event_mean_iou": 0.2925533726551924,
+          "objects": {
+            "n_gt_evaluable": 1679,
+            "n_matched_evaluable": 731,
+            "object_recall_evaluable": 0.43537820131030375
+          },
+          "boundary_f1": 0.45522343619840955,
+          "metric_version": "v2",
+          "manifest_sha256": null,
+          "checkpoint_sha256_recorded": "9dd1b7ebd0a50e64a8854e1a6cdc11fab86218b10dbb2d5e4fe900a58a0fbdfb"
+        }
+      ]
+    },
+    {
+      "run_id": "1873e0b2a1784505",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-date",
+      "display_name": "SegFormer B0｜5期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权",
+      "run_display_name": "SegFormer B0｜5期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权｜EVENT_HOLDOUT_V4R1｜v4r1_temporal_frame_count｜TRAIN=?｜seed=1234｜原训练处理，详见配置",
+      "treatment": "原训练处理，详见配置",
+      "protocol": "EVENT_HOLDOUT_V4R1",
+      "data_context": "v4r1_temporal_frame_count",
+      "data_version_recorded": "v4r1_temporal_frame_count",
+      "seed": 1234,
+      "status": "未完成／需核对恢复状态",
+      "run_dir": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234",
+      "legacy_experiment": "SegFormer-B0-Temporal-Date5",
+      "config_path": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/resolved_config.json",
+      "config_sha256": "0c6fdc963f8acfebc33e7728eca73af366892d479d2e8683c755c8dda769ab55",
+      "manifest": "manifests/v4r1/pool_100.jsonl",
+      "stats": "manifests/v4r1/stats_core25.json",
+      "input": {
+        "adapter": "direct10",
+        "in_chans": 10,
+        "band_order": null
+      },
+      "effective_structure": {
+        "stem": true,
+        "input_seen_by_encoder": "S2十波段及配置声明的额外通道",
+        "source": "配置并结合temporal_spectral／probe类的实际构造语义"
+      },
+      "model_config": {
+        "type": "temporal_spectral",
+        "backbone": "b0",
+        "adapter": "direct10",
+        "stem": false,
+        "refine": "none",
+        "fusion": "sum",
+        "fusion_width": 64,
+        "pretrained_dir": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "pretrained_source": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "unet": {
+          "encoder_name": "resnet18",
+          "encoder_weights": "imagenet"
+        },
+        "spectral": false,
+        "in_chans": 10
+      },
+      "temporal": {
+        "mode": "multi",
+        "aggregation": "date",
+        "n_frames": 5
+      },
+      "loss": {
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "coarse_weight": 0.0,
+        "boundary_weight": 0.0,
+        "boundary_width": 2
+      },
+      "optim": {
+        "encoder_lr": 6e-05,
+        "head_lr": 0.0006,
+        "first_conv_lr": null,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "warmup_frac": 0.05,
+        "schedule": "poly",
+        "poly_power": 1.0
+      },
+      "train": {
+        "epochs": 150,
+        "batch_size": 64,
+        "amp": false,
+        "amp_dtype": "bf16",
+        "log_every": 20,
+        "max_steps": 3600,
+        "microbatch": 8,
+        "accumulation": 8,
+        "eval_every_updates": 100,
+        "report_steps": [
+          1200,
+          2400,
+          3600
+        ],
+        "budget_mode": "updates"
+      },
+      "sampling": {
+        "mode": "natural",
+        "event_power": 0.5,
+        "scale_power": 0.5,
+        "max_weight": 4.0
+      },
+      "summary_source": null,
+      "global_step": null,
+      "best_selection_value": null,
+      "selection_metric": "历史VAL IoU，见原run",
+      "n_train": null,
+      "n_val": null,
+      "params": null,
+      "seconds": null,
+      "best_exists": false,
+      "last_exists": false,
+      "metrics_jsonl": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/metrics.jsonl",
+      "evaluations": []
+    },
+    {
       "run_id": "22e1059da8002020",
-      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-band-relation",
-      "display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权＋光谱关系编码",
-      "run_display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权＋光谱关系编码｜OFFICIAL_USABLE｜v6_main｜TRAIN=?｜seed=SegFormer-Temporal-Multi15-Spectral｜原训练处理，详见配置",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-date-band-relation",
+      "display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权＋光谱关系编码",
+      "run_display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权＋光谱关系编码｜OFFICIAL_USABLE｜v6_main｜TRAIN=?｜seed=SegFormer-Temporal-Multi15-Spectral｜原训练处理，详见配置",
       "treatment": "原训练处理，详见配置",
       "protocol": "OFFICIAL_USABLE",
       "data_context": "v6_main",
@@ -13213,9 +16111,9 @@
     },
     {
       "run_id": "957681fb76fd0c36",
-      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-band-relation",
-      "display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权＋光谱关系编码",
-      "run_display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权＋光谱关系编码｜OFFICIAL_USABLE｜v6_main｜TRAIN=?｜seed=SegFormer-Temporal-Multi15-Spectral_oom｜原训练处理，详见配置",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-date-band-relation",
+      "display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权＋光谱关系编码",
+      "run_display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权＋光谱关系编码｜OFFICIAL_USABLE｜v6_main｜TRAIN=?｜seed=SegFormer-Temporal-Multi15-Spectral_oom｜原训练处理，详见配置",
       "treatment": "原训练处理，详见配置",
       "protocol": "OFFICIAL_USABLE",
       "data_context": "v6_main",
@@ -13311,9 +16209,9 @@
     },
     {
       "run_id": "e82d0d1ba19fd48c",
-      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi",
-      "display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权",
-      "run_display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权｜OFFICIAL_USABLE｜v6_main｜TRAIN=3012｜seed=1234｜原训练处理，详见配置",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-date",
+      "display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权",
+      "run_display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权｜OFFICIAL_USABLE｜v6_main｜TRAIN=3012｜seed=1234｜原训练处理，详见配置",
       "treatment": "原训练处理，详见配置",
       "protocol": "OFFICIAL_USABLE",
       "data_context": "v6_main",
@@ -13472,9 +16370,9 @@
     },
     {
       "run_id": "87dd52ea6f0b010a",
-      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-band-relation",
-      "display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权＋光谱关系编码",
-      "run_display_name": "SegFormer B0｜多期十波段共享入口｜原始网格细节修正＋观测日期间隔与内容参与的时间加权＋光谱关系编码｜OFFICIAL_USABLE｜v6_main｜TRAIN=?｜seed=1234｜原训练处理，详见配置",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-multi-date-band-relation",
+      "display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权＋光谱关系编码",
+      "run_display_name": "SegFormer B0｜15期十波段共享入口｜原始网格细节修正＋内容与观测日期间隔时间加权＋光谱关系编码｜OFFICIAL_USABLE｜v6_main｜TRAIN=?｜seed=1234｜原训练处理，详见配置",
       "treatment": "原训练处理，详见配置",
       "protocol": "OFFICIAL_USABLE",
       "data_context": "v6_main",
@@ -13570,7 +16468,7 @@
     },
     {
       "run_id": "40d941dbed5d240a",
-      "architecture_id": "segformer-b0-direct10-late-detail-temporal-single",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-single-date",
       "display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口",
       "run_display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口｜OFFICIAL_USABLE｜v6_main｜TRAIN=3012｜seed=1234｜原训练处理，详见配置",
       "treatment": "原训练处理，详见配置",
@@ -13731,7 +16629,7 @@
     },
     {
       "run_id": "461949cfe4910701",
-      "architecture_id": "segformer-b0-direct10-late-detail-temporal-single-band-relation",
+      "architecture_id": "segformer-b0-direct10-late-detail-temporal-single-date-band-relation",
       "display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口＋光谱关系编码",
       "run_display_name": "SegFormer B0｜单期十波段共享入口｜原始网格细节修正＋仅参考影像的时间接口＋光谱关系编码｜OFFICIAL_USABLE｜v6_main｜TRAIN=3012｜seed=1234｜原训练处理，详见配置",
       "treatment": "原训练处理，详见配置",
@@ -13902,6 +16800,7 @@
     "outputs/segformer/s2_10band_v4r1_p20+geo/SMOKE-TerrainCap/1234",
     "outputs/segformer/s2_10band_v4r2_probe/validation_frozen_best_decodeprobe_u13/1234",
     "outputs/segformer/s2_10band_v4r3_low_encoder_lr/validation_detailres_low_encoder_lr_u3/1234",
+    "outputs/segformer/v4r1_temporal_control/SMOKE-Mean40/1234",
     "outputs/segformer/v4r1_test_temp_01/test_empty_valid_batches_are_n0/runs/toy/toy/1234",
     "outputs/segformer/v4r1_test_temp_01/test_exact_budget_ignores_epoc0/runs/toy/toy/1234",
     "outputs/segformer/v4r1_test_temp_01/test_exact_budget_ignores_epoc1/runs/toy/toy/1234",

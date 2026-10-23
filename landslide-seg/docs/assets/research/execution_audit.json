@@ -1,0 +1,494 @@
+{
+  "as_of": "2026-10-23",
+  "scope": "原固定单期基线、时间控制与新补全队列；其他历史运行未在此重验权重",
+  "commit": "eaad44d8b0066311954cdce79d9c2a728123879b",
+  "runs": [
+    {
+      "run_dir": "outputs/segformer/s2_10band_v4r1_p20/segformer_b0_direct10_detailres_n100_u3600_s1234/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "aa1a32aceabdeb8c8d83df5c9c1f659fed3aab6529521dc19d86123182f6f567",
+          "step": 500,
+          "evaluation": "outputs/segformer/s2_10band_v4r1_p20/segformer_b0_direct10_detailres_n100_u3600_s1234/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "27eed16877521eb797b42cc44e670f5a23b0931b9d09557cc82285d1061fb9d9",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "b91d4fc189dbf82ad9522c333ec4f6dab9b647bc662540315f8d20be056300ea",
+          "step": 3600,
+          "evaluation": "outputs/segformer/s2_10band_v4r1_p20/segformer_b0_direct10_detailres_n100_u3600_s1234/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "3aa5a166b2507c9c434f8bbfef5d479b784641f8fa8094e556b1a7730fb1a047",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "ff5481dc788a65665d1e72754d0660fedb0e971984ff36e1d4e0f21a69c74693",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SegFormerSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "a02005667ea218662f73dec04a08e261a8ef3bf461db56476489416a8cdc0f4e",
+          "step": 600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/eval/eval_best.json",
+          "evaluation_sha256": "f169890e2505cdac617e374181e7c3ae9c6bf369075ff8631212ba732e1827eb",
+          "event_mean_iou": 0.3145271337954115
+        },
+        "last": {
+          "sha256": "29101d1d0a9528692ba38d0b25e690fa4081f1e7877e78200d914501b5da9c66",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/eval/eval_last.json",
+          "evaluation_sha256": "1a129a72af2bb523da9f3aa56b1f6d2483b503dd5efa678d788689b44fddf735",
+          "event_mean_iou": 0.2527817587541291
+        },
+        "step1200": {
+          "sha256": "ff1fd9a80e56e760456fe8e525df74f014b9e7e5292c85256a08c92485d02ef8",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "78dc2dfc8d07ac6f47ef4e8449eb914f9d5c4ae069b511fbef979a08088ee93f",
+          "event_mean_iou": 0.26104111693112586
+        },
+        "step2400": {
+          "sha256": "2e7b722b58a29c4b4c5d890e5fb7dfb9b0e0de223e166e47e8fb33520a9258cb",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "724af94032229059ed1b67eb614c310ab72710c0263bb054dbee62fb3d45b7cf",
+          "event_mean_iou": 0.252538817714546
+        },
+        "step3600": {
+          "sha256": "94047e5ad015d5f22c618c5d37c7262251249a2d65d6627293596dcefcbf7f30",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Content15/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "5bb2a5d610b866f636d10eb7de9592d0a761d33c1e71ecf9216e0b85d9645800",
+          "event_mean_iou": 0.2527817587541291
+        }
+      },
+      "config_sha256": "6a49fbef8c24a3b59a4bd34b15034f427c019e9a8e119617fe6c10942e629fdd",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "8ef8bcfc69547f42dd16d4212e46a7d621056848db4c488aa6ed0ed849d4da45",
+          "step": 600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/eval/eval_best.json",
+          "evaluation_sha256": "b76a24b42e27634ae6afc30249e267884740f5d767ab3755d0d0b6b988e5543f",
+          "event_mean_iou": 0.3244965443443566
+        },
+        "last": {
+          "sha256": "8fda33ac6f5917f07cfb9748822d9045acf81f859c7e2d014f1ec91d04723bd1",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/eval/eval_last.json",
+          "evaluation_sha256": "6a3621671c927e04b3f45859a35e67e28482f0c429e630a520244e819eba11d2",
+          "event_mean_iou": 0.24704587551669077
+        },
+        "step1200": {
+          "sha256": "adccad96ceb7e281caad12d6f3683f6492477ec7fbbed7c6b1a433b8f125fbb3",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "705ac3bb2f8e3ff1d71582ed0c4e7903ae71205f3af25db011b1a39052e4cfde",
+          "event_mean_iou": 0.31748403712569573
+        },
+        "step2400": {
+          "sha256": "5e4df785884aed259f6ecb4abd115c2c66360fdb9c5f3b25a9a1ce123da10f47",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "5e713fe69476f5797fd1ceb151440ca3e5cd4ebde91a06d2b039e207b2a99348",
+          "event_mean_iou": 0.25100079536182685
+        },
+        "step3600": {
+          "sha256": "0aa06e30b75bee293f84672c1d971347d8424b21e58f0099bbf6a16f170a0f11",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "2e277c68420c18c3b3e67041de5a0182df3ad5fc7f5db3198bbce0d1960059fd",
+          "event_mean_iou": 0.24704587551669077
+        }
+      },
+      "config_sha256": "e55dd03167adbbb4ce475903139150d30ab8546d9fb75c904c46a13792bc6a9b",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "4df6c3a82b2cfa7e58895cca8486fe158b2dcaa0f9ba6430e86469c013831379",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_best.json",
+          "evaluation_sha256": "7c3187bee89a2378050a3fdb5e263df28c95f6dd3d2e86ee5e0a50aa9a065327",
+          "event_mean_iou": 0.3377269510488232
+        },
+        "last": {
+          "sha256": "2f29ff96c639087c6799fec2cad99f9eef339548c859de57b050b5e324997c82",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_last.json",
+          "evaluation_sha256": "545eb166332bfbf2bcddda2ffdec3c0f37a8fd887f0296bafcf75b51bf7a8485",
+          "event_mean_iou": 0.2874056316612046
+        },
+        "step1200": {
+          "sha256": "031293a91d8f6b5740a65506929be0751bb436c46b96ff7ff56c3734a9a1c878",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "fe33e96276b2a90a6476c4c530a5b35c49826e38a201aa1951e0e46abc35a476",
+          "event_mean_iou": 0.3025880443743709
+        },
+        "step2400": {
+          "sha256": "9639fdc6a9bd4580bd471108843206ef621899ab117ceaf12527ce7e54cc75a7",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "fbd0864b62faa3bd22a7be0689f3c12b79210ae8376bda93f7e9708d71bfbd50",
+          "event_mean_iou": 0.28784379904392454
+        },
+        "step3600": {
+          "sha256": "31928fe8cd20045e4ebb4fcdf27d50e3fa3eb5b839fde04fa3bc5af27c9df97a",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "05dbd3b5b73f713b80259addf1d78875e61a8354bd83915ec3b187b36030f4be",
+          "event_mean_iou": 0.2874056316612046
+        }
+      },
+      "config_sha256": "0e850ae7d69cd560450478ead78bd0d8e352726a4b5a5e573185b5410964f802",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "95225d888b517a93a7dad6218a212d2ba96126b60fc364833eda393a602a4ee2",
+          "step": 1400,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/eval/eval_best.json",
+          "evaluation_sha256": "1c9c26ee6b15b8136c191a9d0fc41182ec724193a5c58fd92944eec647bb46e0",
+          "event_mean_iou": 0.29844510373710176
+        },
+        "last": {
+          "sha256": "1deda3af5887bae3e0fbfbbf1112589bf262e29f1717e689d1e1dde7910c5230",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/eval/eval_last.json",
+          "evaluation_sha256": "613475825dfab24c49a5a2434024d2b38e8abff0dae5c052d73f171d713e3021",
+          "event_mean_iou": 0.25301351041351033
+        },
+        "step1200": {
+          "sha256": "b1279443320859dec14acbbb2a1e7d602aaf728a047887b6f0eadd0e24d6721e",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "1e2a7c3e7ff5d207f411a3cde1d033b4bb78d8e5c69a2c232144386bc5e44ecd",
+          "event_mean_iou": 0.27994446156888003
+        },
+        "step2400": {
+          "sha256": "e75c1aa711e7b380a800f1fca5f4bd1982b51a9ad6245b9a928b926c7d621ecf",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "51ddf076f44e60c32a5307073bc0b54f46b198a3e52dd877f992d72b229216c9",
+          "event_mean_iou": 0.2711903596726154
+        },
+        "step3600": {
+          "sha256": "717542276111e1b6d9b0db486679e1146a43a3abdd788e271bef812fa7f10efc",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Mean15/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "e8c1de21389b43155ec2630c16aa60ef58ca92fec9e64f8963144e9f25643e96",
+          "event_mean_iou": 0.25301351041351033
+        }
+      },
+      "config_sha256": "451d75807af37b613f2d5a84de60ed9d39b5aaf7d4885a770a063e6126613e00",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "5672d3ef6ecb46745e7ef82d8f7dcdd5918c00960434186bbf41a8a35558c4c0",
+          "step": 300,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/eval/eval_best.json",
+          "evaluation_sha256": "64958474e98684a68d3eae930b67b31a05c1f4e0346660502a78b7c4a11a9798",
+          "event_mean_iou": 0.28827897003906044
+        },
+        "last": {
+          "sha256": "28567323800e48280b35691bf292d9d675be91dbf297b39671694b9f4c52b654",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/eval/eval_last.json",
+          "evaluation_sha256": "cc0656f8febb4204e3f3a5bbdf7bb0d9a90f14d5a153911442bc3dfb9fc20b9b",
+          "event_mean_iou": 0.2396118595278173
+        },
+        "step1200": {
+          "sha256": "9ccef322c679e9860225412ec943a341892e4abfced20e84dfff5868e6e1d30c",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "8d524a29ddd0f1aeb6acf7831fd5c6d3595161bf89770acc745277f78488a5f5",
+          "event_mean_iou": 0.25468464839334204
+        },
+        "step2400": {
+          "sha256": "1a2ad0a08f0cb7a963d1bc65d68c2191a42aa08bbb1353b1486825e139c1b675",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "31423eff2bd8843adc50689b0bb9891d7a0f0475f9971106700312f2a51c052c",
+          "event_mean_iou": 0.2478682024418828
+        },
+        "step3600": {
+          "sha256": "eb68756adba1fb6bea24cb263aeb88cb84b540a5282995f0dc9199905c8e1ab2",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "0e3d51bf73ce155c20838dcdb6a28cd56b7bffac66be219a37511b3a777821fd",
+          "event_mean_iou": 0.2396118595278173
+        }
+      },
+      "config_sha256": "9ef7eaf9b442b4ecd6391ce16c07bab0d3b9d6f44688acffa104e6d57f99ca1b",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single-BN64/1234",
+      "errors": [],
+      "checkpoints": {},
+      "status": "PARTIAL_NO_COMPLETION_SUMMARY"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "9dd1b7ebd0a50e64a8854e1a6cdc11fab86218b10dbb2d5e4fe900a58a0fbdfb",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/eval/eval_best.json",
+          "evaluation_sha256": "85644e6fcdfe292c3f66d8a384e41d358150227ac86467b209afa4c5083c2ce2",
+          "event_mean_iou": 0.2925533726551924
+        },
+        "last": {
+          "sha256": "83a82582ad447d7a543ab18a90938baeddd73b8c0c0c8bc8c7ae117e40ddaf17",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/eval/eval_last.json",
+          "evaluation_sha256": "45ef1ef2a4878b7384e3a2b3e21ee39f8f18f8a1b6ccc2325621faf3e9185303",
+          "event_mean_iou": 0.23408004766387652
+        },
+        "step1200": {
+          "sha256": "1267350d6592d1537812e6c48f525b426cf832bf2543855dd1276a3e74df13d4",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "ad26058263185511251e060f944f1e500cedaa510ab3c30d899f976cb133f064",
+          "event_mean_iou": 0.26350145556231186
+        },
+        "step2400": {
+          "sha256": "8888965fc980ad4fd5076fc16a4d960a46b77d58709eca318fd1f95e0b3ca3df",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "2e0bc601c3bd3482571c4bab67e9942b7652e8d002afadb0cefd7eb45767c3b2",
+          "event_mean_iou": 0.2428611264361621
+        },
+        "step3600": {
+          "sha256": "3e75a25541f86eced3fa4c04e3b530f183ed71abec94f586a547adf05d2420c2",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "30af750a8c63085ab9e495bc99c034386fdb5381a11d70d6de5d853ff3c7503c",
+          "event_mean_iou": 0.23408004766387652
+        }
+      },
+      "config_sha256": "437b171c3ca3fe72bee1ef29258a7cee4b2f495993daf95c4e8cf96dffaf2bc0",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "a5a7ba12366bca833c9cc9d7edc26e31523c9015cd2e62a226aa8a259bbd5f13",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/eval/eval_best.json",
+          "evaluation_sha256": "0fd646a509f1aa618ee0001d722baf933f8f4c4d1ba2d2f3bf2b2cd480bce804",
+          "event_mean_iou": 0.30553761780141553
+        },
+        "last": {
+          "sha256": "d509f329760515e359b20388c82e280b7888bcd45c32753540ef50a8d7f70f3d",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/eval/eval_last.json",
+          "evaluation_sha256": "10d0175386bec510acb1e8c7ee564d5ce3e4b278687159b7f325302dceb3a55f",
+          "event_mean_iou": 0.24736876321842216
+        },
+        "step1200": {
+          "sha256": "a7c586fb7609ac5a74fe20ebf0f1a2743d806fa3f12dd3633e3a44e69dcdac1c",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "604d82887e1fed22585133c31774d2d489c37c4e4155470aa4cda0c1f7040992",
+          "event_mean_iou": 0.2749751023301601
+        },
+        "step2400": {
+          "sha256": "e038eb70582bd0c81f832376a04f0b4a85e61fb3f5449a9095cb4643a78031fd",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "e9a148a873cc0a3add4de79d4d6d3e0516b47caaf6f1a0e83aa54ccbc7642995",
+          "event_mean_iou": 0.2610049141624854
+        },
+        "step3600": {
+          "sha256": "aad35793aa14f34ac13fd607b8550f151aab55137c1e6556b9a42e4973750262",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date5/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "001e06653f3934c2146acd26b0c1688fcd082865096c15a267e51aaaa75153b0",
+          "event_mean_iou": 0.24736876321842216
+        }
+      },
+      "config_sha256": "0c6fdc963f8acfebc33e7728eca73af366892d479d2e8683c755c8dda769ab55",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date7/1234",
+      "errors": [],
+      "checkpoints": {},
+      "status": "PARTIAL_NO_COMPLETION_SUMMARY"
+    }
+  ]
+}

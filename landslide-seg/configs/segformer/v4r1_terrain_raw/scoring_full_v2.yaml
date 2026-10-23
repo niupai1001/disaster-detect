@@ -1,0 +1,11 @@
+# 新版本同时修正有效区比例监督与评分编码器/预测头成对迁移；不是单因素消融。
+_base: sslsup.yaml
+segformer:
+  experiment: SegFormer-B0-LateDetail-OODv4-TerrainScoringFullV2
+  data:
+    version: s2_10band_v4r1_geo_scoring_v2
+  model:
+    terrain:
+      start: ssl_scoring_full_v2
+      weights: weights/terrain/v4r1raw_scoring_valid_v2.pt
+      head_weights: null

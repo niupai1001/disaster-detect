@@ -1,0 +1,8 @@
+_base: _base.yaml
+segformer:
+  experiment: SegFormer-B0-Temporal-Content15
+  temporal:
+    mode: multi
+    aggregation: content
+  eval:
+    latency_frames: 15

@@ -80,7 +80,7 @@ def main() -> None:
     run_dir = ROOT / cfg["output_dir"] / str(cfg["fold"]) / args.mode / str(cfg["seed"])
     pool = read_manifest(resolve_path(prot["pool"]))
     inner = [r for r in pool if r["protocol_role"] == prot["roles"]["inner"]]
-    outer = read_manifest(resolve_path(prot["outer"]))
+    outer = read_manifest(resolve_path(prot["outer"])) if prot.get("outer") else []
     stats = load_stats(resolve_path(prot["stats"]))
     model = UTAERealDates(in_channels=int(cfg["data"]["in_channels"]), num_classes=1).to(dev)
     (run_dir / "eval").mkdir(parents=True, exist_ok=True)
@@ -96,7 +96,8 @@ def main() -> None:
         model.load_state_dict(ckpt["model"])
         model.eval()
         out[ck] = {}
-        for split, rows in (("inner", inner), ("outer", outer)):
+        splits = [("inner", inner)] + ([("outer", outer)] if outer else [])
+    for split, rows in splits:
             t0 = time.time()
             overall, tile_rows, extra = run_split(model, rows, stats, args.mode, dev)
             tag = f"{ck}_{split}"

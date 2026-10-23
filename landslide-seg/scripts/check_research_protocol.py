@@ -119,6 +119,57 @@ def audit_utae_baseline(path: Path, cfg: dict, policy: dict, root: Path, policy_
             "warnings": ["DEV is a development set, not blind TEST; FINAL/Italy diagnostic evaluation is not performed by this checker"]}
 
 
+def audit_temporal(data: dict, s: dict, rows: list[dict], root: Path) -> dict:
+    """只读核对时间缓存：成员、参考帧日期、帧数、quality 侧表哈希、汇聚开关。"""
+    tdir = resolve(data["temporal_root"], root)
+    index_path = tdir / "index.json"
+    require(index_path.is_file(), f"Temporal cache index missing: {index_path}")
+    index = read_json(index_path)
+    members = {r["sample_id"]: r for r in index.get("rows", [])}
+    require(bool(members), "Temporal cache index has no rows")
+    missing = [r["sample_id"] for r in rows if r["sample_id"] not in members]
+    require(not missing, f"Temporal cache lacks {len(missing)} samples, e.g. {missing[:3]}")
+    for row in rows:
+        rec = members[row["sample_id"]]
+        dates = rec["dates"]
+        require(len(dates) >= 1, f"Empty date list: {row['sample_id']}")
+        require(0 <= int(row["time_index"]) < len(dates), f"time_index out of range: {row['sample_id']}")
+        require(dates[int(row["time_index"])] == row["date"],
+                f"Reference frame date mismatch: {row['sample_id']}")
+    mode = str(s.get("temporal", {}).get("mode", "single"))
+    aggregation = str(s.get("temporal", {}).get("aggregation", "identity"))
+    require(mode in ("single", "multi", "history"), f"Unknown temporal mode: {mode!r}")
+    require(aggregation in ("identity", "mean", "content", "date"),
+            f"Unknown temporal aggregation: {aggregation!r}")
+    require((mode == "single") == (aggregation == "identity"),
+            "single must use aggregation=identity; multi/history must use mean/content/date")
+    count = s.get("temporal", {}).get("n_frames")
+    if count is not None:
+        require(type(count) is int and count > 0, "n_frames must be a positive integer")
+        for row in rows:
+            dates = members[row["sample_id"]]["dates"]
+            available = 1 if mode == "single" else (sum(d <= row["date"] for d in dates) if mode == "history" else len(dates))
+            require(available >= count, f"NOT_ELIGIBLE: {row['sample_id']} has {available} frames, needs {count}")
+    qinfo = None
+    quality = data.get("quality")
+    if quality:
+        qdir = resolve(quality, root)
+        complete = qdir / "complete.json"
+        if complete.is_file():
+            qmeta = read_json(complete)
+            require(qmeta.get("index_sha256") == sha(index_path),
+                    "Quality sidecar index hash mismatch")
+            qinfo = {"path": str(qdir), "enabled": True,
+                     "complete_sha256": sha(complete)}
+        else:
+            qinfo = {"path": str(qdir), "enabled": False,
+                     "note": "No complete.json; missing-value filling disabled"}
+    n_frames = sorted({len(r["dates"]) for r in index["rows"]})
+    return {"root": str(tdir), "index_sha256": sha(index_path),
+            "n_index_rows": len(index["rows"]), "frames_per_sample": n_frames,
+            "mode": mode, "aggregation": aggregation, "requested_n_frames": count, "quality": qinfo}
+
+
 def audit_baseline(path: Path, cfg: dict, policy: dict, root: Path, policy_path: Path) -> dict:
     require("segformer" in cfg, "Original held-out baseline config required; adapt other trainer interfaces first")
     s = cfg["segformer"]
@@ -169,6 +220,9 @@ def audit_baseline(path: Path, cfg: dict, policy: dict, root: Path, policy_path:
     require(norm["mean"][:10] == reference["mean"] and norm["std"][:10] == reference["std"], "Original S2 normalization changed; declare a separate data experiment")
     n_channels = int(s.get("model", {}).get("in_chans", 10))
     require(len(norm["mean"]) == len(norm["std"]) == n_channels, "Normalization/input channel mismatch")
+    temporal = None
+    if data.get("temporal_root"):
+        temporal = audit_temporal(data, s, rows, root)
     return {"ok": True, "config": str(path), "config_sha256": sha(path),
             "effective_config_sha256": hashlib.sha256(json.dumps(cfg, sort_keys=True, ensure_ascii=False).encode()).hexdigest(),
             "policy_sha256": sha(policy_path), "protocol": policy["default_protocol"], "fold": None,
@@ -176,6 +230,7 @@ def audit_baseline(path: Path, cfg: dict, policy: dict, root: Path, policy_path:
             "events": {"train": sorted(train_events), "dev": sorted(dev_events)},
             "normalization_fit_n": len(fit),
             "files": {str(p.relative_to(root)): sha(p) for p in (lock, pool, stats)},
+            "temporal": temporal,
             "warnings": ["DEV is a development set, not blind TEST; FINAL/Italy diagnostic evaluation is not performed by this checker"]}
 
 

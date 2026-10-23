@@ -1,0 +1,30 @@
+{
+  "command": "python -X utf8 -m pytest tests/test_spectral_radiometry.py tests/test_spectral_explicit.py tests/test_execution_acceptance.py tests/test_frame_count_summary.py tests/test_band_relation_contract.py tests/test_temporal_frame_count.py tests/test_terrain_transfer.py tests/test_temporal_control.py tests/test_research_protocol.py --junitxml outputs/contract_acceptance_followup.xml",
+  "tests": 65,
+  "failures": 0,
+  "errors": 0,
+  "junit": "outputs\\contract_acceptance_followup.xml",
+  "junit_sha256": "9753fae80c9a801dd9deebbb6c020d37250a18ecfdc61b9d4032b342a2e232ca",
+  "scope": "CPU接口、反事实与兼容测试；不等于全部科研实验完成或泛化改善",
+  "source_sha256": {
+    "src\\landslide_seg\\models\\segformer.py": "d48e585c788a1d8cde9fe04b99c93f9436c956d074008371659a0ca3a5a3db14",
+    "src\\landslide_seg\\models\\spectral_contract.py": "42d0278470f20e1bca879547830a6515eaec0f706e67319ea705988a100fc77a",
+    "src\\landslide_seg\\models\\spectral_fusion.py": "e23401175c6b82eab4457529f37350bdf1179b59603482d099cd6d6999b93148",
+    "src\\landslide_seg\\models\\spectral_ladder.py": "7863adf783ac737770913f430cd219af42f651f55dfd7c0458143043cf0dcea3",
+    "src\\landslide_seg\\models\\spectral_temporal.py": "7627959efb3e0e77b91348c6f6b2fa531cc0181144596c7c4dffeacb3ef4329c",
+    "src\\landslide_seg\\models\\factory.py": "259c4c3196eea49ff874cd57ae9e82557a874fc098397f5a2323c9aeea88bb8a",
+    "src\\landslide_seg\\models\\terrain.py": "8f1af10ef70ffb7c84e1a8fe7f0f1a90e96519a9755c3f658d2eb16f2d4b0dd6"
+  },
+  "supplemental_suites": [
+    {
+      "junit": "outputs\\contract_acceptance_cost_composition.xml",
+      "sha256": "d2ea2edc2e5716a27fccdf85e0c62d71f6d8102c79923bff7127492857cfe7ce",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "overlap_with_primary": 2,
+      "note": "含2项已计入主验收的汇总测试、2项新增组成测试和3项新增成本测试"
+    }
+  ],
+  "unique_tests_passed": 70
+}

@@ -122,7 +122,7 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
         )
         st = load_stats(resolve_path(cfg_segformer["data"]["stats"]))
         return SpectralLadderSeg(visual, st, level=level, variant=variant,
-                                 rank=int(sp.get("rank", 4)))
+                                rank=int(sp.get("rank", 4)), radiometry=str(sp.get("radiometry", "legacy_dn")))
 
     if typ == "spectral_relation":
         from ..data.segformer_dataset import S2_10_BANDS, load_stats
@@ -153,6 +153,7 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
         from ..data.segformer_dataset import S2_10_BANDS, load_stats
         from .spectral_fusion import SpectralFusionSeg
         sp = m.get("spectral", {}) or {}
+        implementation = str(sp.get("implementation", "legacy_hook"))
         pd = pretrained_dir if pretrained_dir is not None else m.get("pretrained_dir")
         visual = SegFormerSeg(
             adapter=str(m.get("adapter", "direct10")),
@@ -162,6 +163,7 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
             pretrained_dir=str(resolve_path(pd)),
             in_chans=len(S2_10_BANDS),
             band_order=list(S2_10_BANDS),
+            capture_decoder=implementation != "explicit",
         )
         st = load_stats(resolve_path(cfg_segformer["data"]["stats"]))
         return SpectralFusionSeg(
@@ -171,6 +173,8 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
             feature=str(sp.get("feature", "indices")),
             fusion=str(sp.get("fusion", "gated")),
             rank=int(sp.get("rank", 8)),
+            implementation=implementation,
+            radiometry=str(sp.get("radiometry", "legacy_dn")),
         )
 
     if typ == "terrain_fusion":
@@ -191,7 +195,7 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
             band_order=list(S2_10_BANDS),
         )
         start = str(t.get("start", "random"))
-        if start not in ("random", "ssl", "ssl_supervised"):
+        if start not in ("random", "ssl", "ssl_supervised", "ssl_scoring_full_v2"):
             raise ValueError(f"model.terrain.start 必须是 random/ssl/ssl_supervised，得到 {start!r}")
         weights = t.get("weights")
         if start != "random" and not weights:
@@ -199,12 +203,17 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
         head_weights = t.get("head_weights") if start == "ssl_supervised" else None
         if start == "ssl_supervised" and not head_weights:
             raise ValueError("model.terrain.start=ssl_supervised 需要 model.terrain.head_weights")
+        joint = start == "ssl_scoring_full_v2"
+        from ..config import file_sha256
         return TerrainFusionSeg(
             visual,
             n_visual=len(S2_10_BANDS),
             terrain_chans=2,
             terrain_pretrained=False,
-            terrain_weights=str(resolve_path(weights)) if weights else None,
+            terrain_weights=str(resolve_path(weights)) if weights and not joint else None,
+            joint_weights=str(resolve_path(weights)) if joint else None,
+            expected_stats_sha256=file_sha256(resolve_path(cfg_segformer["data"]["stats"])) if joint else None,
+            expected_pool_sha256=file_sha256(resolve_path(cfg_segformer["data"]["manifest"])) if joint else None,
             load_head=bool(head_weights),
             head_weights=str(resolve_path(head_weights)) if head_weights else None,
             alpha=float(t.get("alpha", 0.01)),

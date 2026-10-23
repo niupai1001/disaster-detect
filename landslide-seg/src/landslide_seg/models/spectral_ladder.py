@@ -4,7 +4,7 @@
 
 S1 显式物理关系（输入侧）
     处理组：在十波段后追加四个指数（NDVI、NDMI、NBR、红边归一化差），
-            在反归一化反射率上计算，ε=1e-4，共 14 个输入通道；
+            在反归一化的存储DN上计算，ε=1e-4，共14通道；物理反射率来源未核实；
     对照：  同样追加四个通道，但取原始波段（B04/B08/B8A/B11 的 z-score），
             不含任何物理公式。两者通道数、首层参数量完全相同。
 
@@ -15,7 +15,7 @@ S2 波段身份（输入侧，10 通道不变）
 
 S3 波段关系（输入侧，10 通道不变）
     处理组：低秩通道交互 ``x + B(A(x))``，A: 10→r，B: r→10，r=4；
-    对照：  同为乘性通道混合，但用满秩 10×10 的 1×1 卷积。
+    对照：  用满秩10×10的1×1卷积；两层之间没有激活，不属于非线性交互。
     两者都只做逐像元的跨波段线性组合。
 
 所有变体都作用在归一化后的十波段输入上，修正后的输入同时进入 SegFormer 主路
@@ -29,6 +29,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ..data.segformer_dataset import S2_10_BANDS
+from .spectral_contract import RADIOMETRY_MODES, harmonized_reflectance, spectral_indices
 
 RANK_DEFAULT = 4
 EPS = 1e-4
@@ -52,13 +53,17 @@ def wavelength_features(wl: torch.Tensor) -> torch.Tensor:
 class SpectralLadder(nn.Module):
     """在十波段入口前施加 S1/S2/S3 之一；输出通道数由 ``out_chans`` 决定。"""
 
-    def __init__(self, level: str, variant: str, stats: dict, rank: int = RANK_DEFAULT) -> None:
+    def __init__(self, level: str, variant: str, stats: dict, rank: int = RANK_DEFAULT,
+                 radiometry: str = "legacy_dn") -> None:
         super().__init__()
         if level not in LEVELS:
             raise ValueError(f"level 必须是 {LEVELS}")
         if variant not in ("treatment", "control"):
             raise ValueError("variant 必须是 treatment/control")
         self.level, self.variant = level, variant
+        if radiometry not in RADIOMETRY_MODES:
+            raise ValueError(f"radiometry 必须为 {RADIOMETRY_MODES}")
+        self.radiometry = radiometry
         mean = torch.as_tensor(stats["mean"], dtype=torch.float32).flatten()
         std = torch.as_tensor(stats["std"], dtype=torch.float32).flatten()
         if mean.numel() != 10:
@@ -84,6 +89,8 @@ class SpectralLadder(nn.Module):
 
     # ------------------------------------------------------------------
     def _indices(self, x: torch.Tensor) -> torch.Tensor:
+        if self.radiometry == "harmonized_dn_v1":
+            return spectral_indices(harmonized_reflectance(x, self.dn_mean, self.dn_std), EPS)
         dn = x * self.dn_std[None, :, None, None] + self.dn_mean[None, :, None, None]
         b = {n: dn[:, i:i + 1] for i, n in enumerate(S2_10_BANDS)}
         ndvi = (b["B8A"] - b["B04"]) / (b["B8A"] + b["B04"] + EPS)
@@ -111,15 +118,19 @@ class SpectralLadder(nn.Module):
 
     def report(self) -> dict:
         return {"level": self.level, "variant": self.variant, "out_chans": self.out_chans,
+                "radiometry": self.radiometry,
+                "mechanism": {"S1": "stored_dn_indices" if self.variant == "treatment" else "extra_raw_channels",
+                              "S2": "static_wavelength_bias" if self.variant == "treatment" else "free_channel_bias",
+                              "S3": "lowrank_linear_mix" if self.variant == "treatment" else "fullrank_linear_mix"}[self.level],
                 "note": "入口侧变换；修正后的输入同时进入主路与细节分支"}
 
 
 class SpectralLadderSeg(nn.Module):
     def __init__(self, visual: nn.Module, stats: dict, level: str, variant: str,
-                 rank: int = RANK_DEFAULT) -> None:
+                 rank: int = RANK_DEFAULT, radiometry: str = "legacy_dn") -> None:
         super().__init__()
         self.visual = visual
-        self.ladder = SpectralLadder(level, variant, stats, rank=rank)
+        self.ladder = SpectralLadder(level, variant, stats, rank=rank, radiometry=radiometry)
         self.level, self.variant = level, variant
         for attr in ("adapter_type", "backbone", "use_stem", "refine", "fusion_mode",
                      "exchange_mode", "adapter_report", "load_info"):

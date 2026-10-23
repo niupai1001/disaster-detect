@@ -6,8 +6,8 @@
 全部复用官方 SegFormer（``SegFormerSeg``，direct10 + stem）；本模块只做两件可独立
 开关的事：
 
-1. ``DateAttentionPool``：在四级空间特征上按「内容 + 真实日期间隔」做时间注意力，
-   T=1 时严格退化为原空间特征（softmax 只有一个元素，权重恒为 1）；
+1. ``TemporalPool``：在四级空间特征上按「均值 / 仅内容 / 内容 + 相对参考日期」做时间汇聚，
+   T=1 时三种方式都严格退化为原空间特征；
 2. ``BandRelationBlock``：每个 4×4 小块内把十个波段当成十个 token，
    含波长连续位置编码与可学习关系偏置（波长差 / 局部反射率差 / 归一化差），
    残差重构十个波段，输出投影零初始化 → 初始恒等。
@@ -32,7 +32,7 @@ import torch.nn.functional as F
 from ..config import resolve_path
 from ..data.segformer_dataset import S2_10_BANDS
 from .segformer import SegFormerSeg
-from .spectral_contract import wavelengths_for
+from .spectral_contract import wavelengths_for, harmonized_reflectance
 
 #: 归一化差的分母保护与裁剪范围（计划 §3.2：实现前写入，随后固定）
 RELATION_EPS = 1e-3
@@ -67,10 +67,14 @@ SPECTRAL_SPEC = {
 }
 
 TEMPORAL_SPEC = {
-    "pooling": "per-level content conv + date MLP -> 1x1 score -> softmax over T -> weighted sum",
+    "aggregation": "identity | mean | content | date（T=1 三种均恒等）",
+    "mean": "有效帧等权平均，1/有效帧数，无参数",
+    "content": "每帧内容 conv → 1x1 score → softmax over T（不输入日期）",
+    "date": "内容 + 相对参考日期特征 → 1x1 score → softmax over T（现有实现）",
+    "pooling": "per-level content conv + optional date MLP -> 1x1 score -> softmax over T -> weighted sum",
     "time_features": "dt=(date - anchor_date)/365.25（天→年），[dt, sin, cos, sin2, cos2]",
-    "init": "score conv zero-init（初始为有效帧等权平均）",
-    "t1_identity": "单个有效帧的 softmax 权重恒为 1 → 严格恒等",
+    "init": "score conv zero-init（date/content 初始为有效帧等权平均）",
+    "t1_identity": "单个有效帧：mean 权重恒为 1；content/date 的 softmax 权重恒为 1 → 严格恒等",
     "padding": "keep 掩码把 score 置 -inf；填充帧无法影响结果",
 }
 
@@ -164,8 +168,7 @@ class BandRelationBlock(nn.Module):
     # ------------------------------------------------------------------
     def reflectance(self, x: torch.Tensor) -> torch.Tensor:
         """z-score → DN → 反射率（0–1），负值按 0 处理。"""
-        dn = x * self.dn_std[None, :, None, None] + self.dn_mean[None, :, None, None]
-        return (dn / 10000.0).clamp_min(0.0)
+        return harmonized_reflectance(x, self.dn_mean, self.dn_std)
 
     def relation_bias(self, dn: torch.Tensor) -> torch.Tensor:
         b, c, h, w = dn.shape
@@ -207,25 +210,47 @@ class BandRelationBlock(nn.Module):
         return x + delta
 
 
-class DateAttentionPool(nn.Module):
-    """``[B,T,C,h,w]`` + 真实日期 → ``[B,C,h,w]``。T=1 严格恒等。"""
+class TemporalPool(nn.Module):
+    """``[B,T,C,h,w]`` + 观测日期 → ``[B,C,h,w]``。
 
-    def __init__(self, channels: int, width: int = 32) -> None:
+    ``mode``：
+    - ``mean``：有效帧等权平均（1/有效帧数），不新增参数；
+    - ``content``：只由每帧特征预测空间权重，不输入日期；
+    - ``date``：内容 + 相对参考日期的特征共同预测权重（原实现）。
+    """
+
+    def __init__(self, channels: int, mode: str = "date", width: int = 32) -> None:
         super().__init__()
+        if mode not in ("mean", "content", "date"):
+            raise ValueError(f"TemporalPool 只接受 mean/content/date，得到 {mode!r}")
+        self.mode = mode
         self.width = int(width)
-        self.content = nn.Conv2d(channels, width, 1)
-        self.time = nn.Sequential(nn.Linear(5, width), nn.GELU(), nn.Linear(width, width))
-        self.score = nn.Conv2d(width, 1, 1)
+        if mode == "mean":
+            return
+        self.content = nn.Conv2d(channels, self.width, 1)
+        self.score = nn.Conv2d(self.width, 1, 1)
         nn.init.zeros_(self.score.weight)
         nn.init.zeros_(self.score.bias)
+        if mode == "date":
+            self.time = nn.Sequential(
+                nn.Linear(5, self.width), nn.GELU(), nn.Linear(self.width, self.width)
+            )
 
-    def forward(self, x: torch.Tensor, dates: torch.Tensor, keep: torch.Tensor, anchor: torch.Tensor):
+    def forward(self, x: torch.Tensor, dates: torch.Tensor, keep: torch.Tensor,
+                anchor: torch.Tensor) -> torch.Tensor:
         b, t, c, h, w = x.shape
-        ref = dates.gather(1, anchor[:, None])
-        dt = (dates - ref) / 365.25                                  # 天 → 年
-        feat = torch.stack([dt, dt.sin(), dt.cos(), (2 * dt).sin(), (2 * dt).cos()], dim=-1)
+        if not bool(keep.any()):
+            raise ValueError("时间汇聚没有可用帧（keep 全为 False）")
+        if self.mode == "mean":
+            weight = keep.to(dtype=x.dtype)
+            weight = weight / weight.sum(dim=1, keepdim=True).clamp_min(1.0)
+            return (weight[:, :, None, None, None] * x).sum(dim=1)
         z = self.content(x.reshape(b * t, c, h, w)).reshape(b, t, self.width, h, w)
-        z = z + self.time(feat)[..., None, None]
+        if self.mode == "date":
+            ref = dates.gather(1, anchor[:, None])
+            dt = (dates - ref) / 365.25                                  # 天 → 年
+            feat = torch.stack([dt, dt.sin(), dt.cos(), (2 * dt).sin(), (2 * dt).cos()], dim=-1)
+            z = z + self.time(feat)[..., None, None]
         s = self.score(z.tanh().reshape(b * t, self.width, h, w)).reshape(b, t, 1, h, w)
         s = s.masked_fill(~keep[:, :, None, None, None], float("-inf"))
         weight = s.softmax(dim=1)
@@ -238,8 +263,13 @@ class TemporalSpectralSegFormer(nn.Module):
     def __init__(self, *, spectral: bool = False, backbone: str = "b0",
                  pretrained_dir: str = "weights/segformer/segformer-b0-finetuned-ade-512-512",
                  stats: dict | None = None, patch: int = 4, width: int = 64,
-                 heads: int = 4, layers: int = 2) -> None:
+                 heads: int = 4, layers: int = 2, aggregation: str = "date") -> None:
         super().__init__()
+        if aggregation not in ("identity", "mean", "content", "date"):
+            raise ValueError(
+                f"temporal.aggregation 必须是 identity/mean/content/date，得到 {aggregation!r}"
+            )
+        self.aggregation = aggregation
         self.core = SegFormerSeg(
             adapter="direct10", backbone=backbone, stem=True, refine="none", exchange="none",
             pretrained_dir=str(resolve_path(pretrained_dir)), in_chans=BAND_TOKENS,
@@ -252,7 +282,10 @@ class TemporalSpectralSegFormer(nn.Module):
         )
         hidden = [int(v) for v in self.core.model.config.hidden_sizes]
         self.hidden_sizes = hidden
-        self.pools = nn.ModuleList([DateAttentionPool(c) for c in hidden])
+        self.pools = (
+            None if aggregation == "identity"
+            else nn.ModuleList([TemporalPool(c, aggregation) for c in hidden])
+        )
         # 训练器/checkpoint 直接读取的身份字段
         self.adapter_type = self.core.adapter_type
         self.backbone = backbone
@@ -267,6 +300,7 @@ class TemporalSpectralSegFormer(nn.Module):
             "spectral_enabled": self.spectral_enabled,
             "spectral_spec": SPECTRAL_SPEC if self.spectral_enabled else None,
             "temporal_spec": TEMPORAL_SPEC,
+            "temporal_aggregation": aggregation,
             "date_spec": DATE_SPEC,
             "bands": list(S2_10_BANDS),
             "wavelengths_um": list(wavelengths_for(S2_10_BANDS)),
@@ -297,15 +331,22 @@ class TemporalSpectralSegFormer(nn.Module):
         hidden = self.core.model.segformer(
             pixel_values=inp, output_hidden_states=True
         ).hidden_states
-        if len(hidden) != len(self.pools):
+        if len(hidden) != len(self.hidden_sizes):
+            raise RuntimeError(f"编码器输出 {len(hidden)} 级，期望 {len(self.hidden_sizes)} 级")
+        if self.pools is not None and len(hidden) != len(self.pools):
             raise RuntimeError(f"编码器输出 {len(hidden)} 级，期望 {len(self.pools)} 级")
         pooled = []
-        for i, (feat, pool) in enumerate(zip(hidden, self.pools)):
+        for i, feat in enumerate(hidden):
             ch = self.hidden_sizes[i]
             if feat.ndim != 4 or feat.shape[1] != ch:
                 raise RuntimeError(f"第 {i} 级特征形状意外: {tuple(feat.shape)}")
             f = feat.reshape(b, t, ch, feat.shape[2], feat.shape[3])
-            pooled.append(pool(f, dates, keep, anchor))
+            if self.pools is None:
+                if t != 1:
+                    raise ValueError("temporal.aggregation=identity 只接受 T=1")
+                pooled.append(f[:, 0])
+            else:
+                pooled.append(self.pools[i](f, dates, keep, anchor))
 
         self.core._decoder_feat = None
         logits = self.core.model.decode_head(tuple(pooled))
@@ -321,7 +362,7 @@ class TemporalSpectralSegFormer(nn.Module):
     # ------------------------------------------------------------------
     def param_groups(self) -> dict[str, list[nn.Parameter]]:
         groups = self.core.param_groups()
-        extra = list(self.pools.parameters())
+        extra = list(self.pools.parameters()) if self.pools is not None else []
         if self.spectral is not None:
             extra += list(self.spectral.parameters())
         groups["new"] = groups["new"] + extra
@@ -332,7 +373,7 @@ class TemporalSpectralSegFormer(nn.Module):
         trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
         groups = self.param_groups()
         spectral = sum(p.numel() for p in self.spectral.parameters()) if self.spectral is not None else 0
-        temporal = sum(p.numel() for p in self.pools.parameters())
+        temporal = sum(p.numel() for p in self.pools.parameters()) if self.pools is not None else 0
         return {
             "total": total,
             "trainable": trainable,
@@ -349,20 +390,26 @@ class TemporalSpectralSegFormer(nn.Module):
 
     def module_activity(self) -> dict:
         """训练后诊断：时间/光谱新增参数是否真的离开零初始化。"""
-        out = {
-            "temporal": {
+        if self.pools is None:
+            temporal = {"mode": "identity", "score_weight_abs_sum": 0.0,
+                        "content_weight_abs_sum": 0.0, "time_weight_abs_sum": 0.0}
+        else:
+            temporal = {
+                "mode": self.aggregation,
                 "score_weight_abs_sum": float(sum(
                     p.score.weight.detach().abs().sum() for p in self.pools
+                    if hasattr(p, "score")
                 )),
                 "content_weight_abs_sum": float(sum(
                     p.content.weight.detach().abs().sum() for p in self.pools
+                    if hasattr(p, "content")
                 )),
                 "time_weight_abs_sum": float(sum(
                     p.time[0].weight.detach().abs().sum() for p in self.pools
+                    if hasattr(p, "time")
                 )),
-            },
-            "spectral": None,
-        }
+            }
+        out = {"temporal": temporal, "spectral": None}
         if self.spectral is not None:
             out["spectral"] = {
                 "readout_weight_abs_sum": float(self.spectral.readout.weight.detach().abs().sum()),
@@ -397,4 +444,5 @@ def build_temporal_model(cfg_segformer: dict, stats: dict) -> TemporalSpectralSe
         width=int(m.get("spectral_width", 64)),
         heads=int(m.get("spectral_heads", 4)),
         layers=int(m.get("spectral_layers", 2)),
+        aggregation=str(cfg_segformer.get("temporal", {}).get("aggregation", "date")),
     )

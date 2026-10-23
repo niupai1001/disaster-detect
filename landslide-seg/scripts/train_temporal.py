@@ -1,12 +1,12 @@
-"""主模型四组正交试验的训练入口（单期/多期 × 光谱开/关）。
+"""项目固定事件留出协议下的时间控制训练入口（单期/多期 × 汇聚方式）。
 
 用法::
 
-    python scripts/train_temporal.py --config configs/segformer/v6_main/temporal_single_baseline.yaml --device cuda:0
-    python scripts/train_temporal.py --config ... --resume
+    python scripts/check_research_protocol.py --config configs/segformer/v4r1_temporal_control/single.yaml
+    python scripts/train_temporal.py --config configs/segformer/v4r1_temporal_control/single.yaml --device cuda:0
 
-数据固定为官方可用子集 3012/758/945 的十波段单期缓存 + 同源 15 期缓存；
-不使用 DEM。目标标签、valid、归一化统计与历史单期主模型一致。
+数据为 event_ood_v4r1 清单（TRAIN 2223 / DEV 669）的十波段时间缓存；
+不读 TEST，不使用 DEM；目标标签、valid、归一化统计与单期基线一致。
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ except Exception:
     pass
 
 import torch  # noqa: E402
+import numpy as np  # noqa: E402
 
 from landslide_seg.config import (  # noqa: E402
     PROJECT_ROOT, file_sha256, load_segformer_config, manifest_identity, resolve_path, set_seed,
@@ -41,6 +42,16 @@ from landslide_seg.training.temporal_trainer import run_temporal_training  # noq
 def _run_dir(cfg: dict) -> Path:
     s = cfg["segformer"]
     return resolve_path(s["output_dir"]) / s["data"]["version"] / s["experiment"] / str(s["seed"])
+
+
+def _module_digest(module) -> str | None:
+    if module is None:
+        return None
+    h = hashlib.sha256()
+    for k, v in sorted(module.state_dict().items()):
+        h.update(k.encode())
+        h.update(v.detach().cpu().numpy().tobytes())
+    return h.hexdigest()
 
 
 def main() -> None:
@@ -66,64 +77,110 @@ def main() -> None:
         s["train"]["accumulation"] = int(s["train"]["batch_size"]) // int(args.microbatch)
     if args.experiment is not None:
         s["experiment"] = args.experiment
+    if "PLACEHOLDER" in str(s["experiment"]):
+        raise RuntimeError("history 是条件组：先按步骤2–4结果确定 aggregation，并改掉实验名中的 PLACEHOLDER")
 
     dev = torch.device(args.device or ("cuda:0" if torch.cuda.is_available() else "cpu"))
     seed = int(s["seed"])
     seed_info = set_seed(seed, bool(s.get("deterministic", True)))
 
     manifest = resolve_path(s["data"]["manifest"])
-    test_manifest = resolve_path(s["data"]["test_manifest"])
     stats_path = resolve_path(s["data"]["stats"])
     protocol_path = resolve_path(s["data"]["protocol"])
     temporal_root = resolve_path(s["data"]["temporal_root"])
-    quality_dir = resolve_path(s["data"]["quality"])
+    quality = s["data"].get("quality")
+    quality_dir = resolve_path(quality) if quality else None
     pretrained = resolve_path(s["model"]["pretrained_dir"])
 
     rows = read_manifest(manifest)
     train = filter_split(rows, "train")
     val = filter_split(rows, "val")
-    test = read_manifest(test_manifest)
-    if len(train) != 3012 or len(val) != 758 or len(test) != 945:
-        raise RuntimeError(f"官方子集规模不符：train={len(train)} val={len(val)} test={len(test)}")
-    if {r["sample_id"] for r in train} & {r["sample_id"] for r in test}:
-        raise RuntimeError("TRAIN 与 TEST 样本重叠")
-    if {r["sample_id"] for r in val} & {r["sample_id"] for r in test}:
-        raise RuntimeError("VAL 与 TEST 样本重叠")
+    if len(train) + len(val) != len(rows):
+        raise RuntimeError("清单角色必须只有 train/val")
+    protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
+    if {r["sample_id"] for r in train} != set(protocol["pools"]["100"]):
+        raise RuntimeError("TRAIN 成员与冻结协议不一致")
+    if {r["sample_id"] for r in val} != set(protocol["dev_ids"]):
+        raise RuntimeError("DEV 成员与冻结协议不一致")
+    ids = [r["sample_id"] for r in rows]
+    if len(ids) != len(set(ids)):
+        raise RuntimeError("清单存在重复 sample_id")
+    test_manifest = s["data"].get("test_manifest")
+    test = read_manifest(resolve_path(test_manifest)) if test_manifest else []
+    if test and ({r["sample_id"] for r in train} | {r["sample_id"] for r in val}) & {
+            r["sample_id"] for r in test}:
+        raise RuntimeError("TRAIN/DEV 与 TEST 样本重叠")
 
     stats = load_stats(stats_path)
     mode = str(s["temporal"]["mode"])
-    if mode not in ("single", "multi"):
-        raise ValueError("主模型只比较 single/multi")
+    aggregation = str(s["temporal"].get("aggregation", "date"))
+    if mode not in ("single", "multi", "history"):
+        raise ValueError("temporal.mode 必须是 single/multi/history")
+    if aggregation not in ("identity", "mean", "content", "date"):
+        raise ValueError("temporal.aggregation 必须是 identity/mean/content/date")
+    if (mode == "single") != (aggregation == "identity"):
+        raise ValueError("single 必须配 aggregation=identity；multi/history 必须配 mean/content/date")
     run_dir = _run_dir(cfg)
     if not args.resume and run_dir.exists() and any(run_dir.iterdir()):
         raise FileExistsError(f"run 目录非空；换实验名或 --resume: {run_dir}")
     run_dir.mkdir(parents=True, exist_ok=True)
 
     model = build_temporal_model(s, stats).to(dev)
+    root_arg = str(temporal_root)
+    quality_arg = str(quality_dir) if quality_dir is not None else "data/s2_temporal_v4r1_none"
     train_ds = TemporalV6(train, stats, mode=mode, augment=True, seed=seed,
-                          root=s["data"]["temporal_root"], quality=s["data"]["quality"],
+                          n_frames=s["temporal"].get("n_frames"),
+                          root=root_arg, quality=quality_arg,
                           preload=bool(s["data"].get("preload", False)))
     val_ds = TemporalV6(val, stats, mode=mode, augment=False, seed=seed,
-                        root=s["data"]["temporal_root"], quality=s["data"]["quality"])
+                        n_frames=s["temporal"].get("n_frames"),
+                        root=root_arg, quality=quality_arg)
 
-    quality_meta = []
-    qpath = quality_dir / "complete.json"
-    if qpath.is_file():
-        quality_meta = [json.loads(qpath.read_text(encoding="utf-8")),
-                        {"sha256": file_sha256(qpath)}]
+    plan = train_ds.frame_plan() + val_ds.frame_plan()
+    (run_dir / "frame_selection.jsonl").write_text(
+        "".join(json.dumps(x, ensure_ascii=False) + "\n" for x in plan), encoding="utf-8")
+    frame_stats = {}
+    for split in ("train", "val"):
+        n = [p["n_frames"] for p in plan if p["split"] == split]
+        if n:
+            frame_stats[split] = {"n_samples": len(n), "min": int(min(n)),
+                                  "median": float(np.median(n)), "max": int(max(n))}
+
+    quality_meta = None
+    qpath = quality_dir / "complete.json" if quality_dir is not None else None
+    if qpath is not None and qpath.is_file():
+        qmeta = json.loads(qpath.read_text(encoding="utf-8"))
+        if qmeta.get("index_sha256") != file_sha256(temporal_root / "index.json"):
+            raise ValueError("质量侧表与当前时间缓存索引不一致")
+        quality_meta = {"path": str(qpath).replace("\\", "/"),
+                        "sha256": file_sha256(qpath),
+                        "index_sha256": qmeta["index_sha256"]}
 
     meta = {
         "experiment": s["experiment"], "seed": seed, "seed_info": seed_info,
         "data_version": s["data"]["version"], "temporal_mode": mode,
-        "manifest": manifest_identity(manifest), "test_manifest": manifest_identity(test_manifest),
+        "manifest": manifest_identity(manifest),
+        "test_manifest": manifest_identity(test_manifest) if test_manifest else None,
         "stats_sha256": file_sha256(stats_path),
         "protocol_sha256": file_sha256(protocol_path),
-        "temporal_index_sha256": file_sha256(temporal_root / "index.json"),
-        "quality_sidecar": quality_meta,
+        "temporal": {
+            "mode": mode, "aggregation": aggregation,
+            "n_frames": s["temporal"].get("n_frames"),
+            "frame_selection_rule": "参考帧必保留；其余合法帧按日期排序等秩取样v1，无重复，不足时报NOT_ELIGIBLE",
+            "root": str(temporal_root).replace("\\", "/"),
+            "index_sha256": file_sha256(temporal_root / "index.json"),
+            "quality_path": str(quality_dir).replace("\\", "/") if quality_dir is not None else None,
+            "quality_sidecar": quality_meta,
+            "frames": frame_stats,
+            "history_rule": "观测日期≤参考日期并按日期排序；不按数组下标，不假定源数组有序",
+        },
         "date_policy": {"reference": train_ds.date_reference, "unit": train_ds.date_unit,
                         "single_frame": "time_index 的真实日期（非 0、非帧序号）",
-                        "multi_frame": "15 帧真实日期；时间注意力用相对 anchor 的间隔",
-                        "missing": "SCL=0/非有限/显式 FillValue 填 TRAIN 均值；云与 SCL255 仅记录"},
+                        "multi_frame": "15 帧真实日期；时间汇聚用相对 anchor 的间隔",
+                        "missing": ("未启用缺测侧表（quality 目录不存在或没有 complete.json）；"
+                                    if quality_meta is None else
+                                    "启用匹配的质量侧表，缺测像素填 TRAIN 均值；")
+                        + "云与 SCL255 仅记录"},
         "source_sha256": {
             str(p.relative_to(PROJECT_ROOT)).replace("\\", "/"): file_sha256(p)
             for p in sorted((PROJECT_ROOT / "src/landslide_seg").rglob("*.py"))
@@ -134,6 +191,7 @@ def main() -> None:
                    "sha256": file_sha256(pretrained / "model.safetensors")},
         "params": model.count_params(),
         "spatial_init_digest": model.spatial_digest(),
+        "temporal_init_digest": _module_digest(model.pools),
         "adapter_report": model.adapter_report,
         "torch": torch.__version__, "cuda": torch.version.cuda,
         "device": str(dev),
@@ -147,7 +205,8 @@ def main() -> None:
         "train_samples": [r["sample_id"] for r in train],
         "val_samples": [r["sample_id"] for r in val],
         "test_samples": [r["sample_id"] for r in test],
-        "batchnorm_note": "decoder BatchNorm 统计基于 microbatch，四组一致；不等价历史 batch64",
+        "batchnorm_note": (f"decoder BatchNorm 统计基于 microbatch "
+                           f"{int(s['train']['microbatch'])}，四组一致；不等价历史 batch64"),
     }
     if not args.resume:
         (run_dir / "resolved_config.json").write_text(json.dumps(cfg, ensure_ascii=False, indent=1),
