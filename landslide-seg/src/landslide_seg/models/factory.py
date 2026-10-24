@@ -26,7 +26,8 @@ from .unet import UNetSeg
 from .exchange import EXCHANGE_MODES
 
 MODEL_TYPES = ("segformer", "unet", "single", "dofa", "probe", "temporal_spectral",
-               "terrain_fusion", "spectral_fusion", "spectral_relation", "spectral_ladder")
+               "terrain_fusion", "spectral_fusion", "spectral_relation", "spectral_ladder",
+               "spectral_gate", "use")
 REFINE_MODES = ("none", "guided", "zero_cond")
 
 
@@ -35,6 +36,22 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
     typ = str(m.get("type", "segformer"))
     if typ not in MODEL_TYPES:
         raise ValueError(f"model.type 必须是 {MODEL_TYPES}，得到 {typ!r}")
+
+    if typ == 'use':
+        from .segformer_use import SegFormerUSE
+        visual = SegFormerSeg(adapter='direct10', backbone='b0', stem=True,
+                              pretrained_dir=str(resolve_path(pretrained_dir or m['pretrained_dir'])))
+        model = SegFormerUSE(visual, m.get('use'))
+        if m.get('use_pretrained'):
+            import torch
+            from ..config import file_sha256
+            path = resolve_path(m['use_pretrained'])
+            if file_sha256(path) != m.get('use_pretrained_sha256'):
+                raise ValueError('USE pretraining checkpoint hash differs')
+            state = torch.load(path, map_location='cpu', weights_only=False)
+            model.use.load_state_dict(state['use'], strict=True)
+            model.load_info = {'visual': visual.load_info, 'use_pretrained_sha256': file_sha256(path)}
+        return model
 
     if typ == "probe":
         from .frozen_probe import FrozenProbe
@@ -121,8 +138,43 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
             band_order=bands,
         )
         st = load_stats(resolve_path(cfg_segformer["data"]["stats"]))
+        extra_path = sp.get("extra_stats")
+        extra_stats = None
+        if extra_path:
+            import json
+            extra_stats = json.loads(resolve_path(extra_path).read_text(encoding="utf-8"))
+            extra_stats["source"] = str(extra_path).replace("\\", "/")
         return SpectralLadderSeg(visual, st, level=level, variant=variant,
-                                rank=int(sp.get("rank", 4)), radiometry=str(sp.get("radiometry", "legacy_dn")))
+                                rank=int(sp.get("rank", 4)), radiometry=str(sp.get("radiometry", "legacy_dn")),
+                                extra_stats=extra_stats)
+
+    if typ == "spectral_gate":
+        from ..data.segformer_dataset import S2_10_BANDS, load_stats
+        from .spectral_gate import SpectralGateSeg
+        g = m.get("spectral_gate", {}) or {}
+        pd = pretrained_dir if pretrained_dir is not None else m.get("pretrained_dir")
+        visual = SegFormerSeg(
+            adapter=str(m.get("adapter", "direct10")),
+            backbone=str(m.get("backbone", "b0")),
+            stem=True,
+            refine="none",
+            pretrained_dir=str(resolve_path(pd)),
+            in_chans=len(S2_10_BANDS),
+            band_order=list(S2_10_BANDS),
+            capture_decoder=False,
+        )
+        st = load_stats(resolve_path(cfg_segformer["data"]["stats"]))
+        return SpectralGateSeg(
+            visual, st,
+            fusion=str(g.get("fusion", "learn")),
+            patch=int(g.get("patch", 4)),
+            width=int(g.get("width", 64)),
+            heads=int(g.get("heads", 4)),
+            layers=int(g.get("layers", 2)),
+            relation_mode=str(g.get("relation_mode", "measured")),
+            identity=str(g.get("identity", "wavelength")),
+            fixed_gate=float(g.get("fixed_gate", 0.5)),
+        )
 
     if typ == "spectral_relation":
         from ..data.segformer_dataset import S2_10_BANDS, load_stats
@@ -271,4 +323,6 @@ def model_identity(cfg_segformer: dict, model: nn.Module) -> dict:
         info["probe"] = model.probe_report
     if hasattr(model, "terrain_report"):
         info["terrain"] = model.terrain_report()
+    if hasattr(model, "spectral_report"):
+        info["spectral"] = model.spectral_report()
     return info

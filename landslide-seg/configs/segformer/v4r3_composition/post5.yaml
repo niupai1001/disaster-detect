@@ -1,0 +1,15 @@
+# 组成对照：5 张灾后帧（含参考帧）；同成员 1141/669，2000 步，回顾性条件。
+_base: ../v4r2_temporal_cutoff/_base.yaml
+segformer:
+  experiment: SegFormer-B0-Temporal-Composition-Post5
+  data:
+    version: v4r3_composition
+    manifest: manifests/v4r3/pool_composition.jsonl
+    subset_protocol: manifests/v4r3/subset_protocol_composition.json
+  temporal:
+    mode: multi
+    aggregation: date
+    n_frames: 5
+    plan: manifests/v4r3/plans/post5.json
+  eval:
+    latency_frames: 5

@@ -179,7 +179,11 @@ def main() -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
 
     seed_info = set_seed(seed, bool(cfg.get("deterministic", True)))
-    model = UTAERealDates(in_channels=in_ch, num_classes=1).to(dev)
+    knobs = cfg.get("model", {})
+    positional = str(knobs.get("positional", "dates"))
+    aggregation = str(knobs.get("aggregation", "attention"))
+    model = UTAERealDates(in_channels=in_ch, num_classes=1,
+                          positional=positional, aggregation=aggregation).to(dev)
     init_digest = model.digest()
     cfg_sha = config_sha(cfg)
     n_updates = (len(train_rows) + batch - 1) // batch
@@ -195,13 +199,17 @@ def main() -> None:
         "pool": str(prot["pool"]), "pool_sha256": file_sha256(resolve_path(prot["pool"])),
         "outer": str(prot.get("outer")), "outer_sha256": file_sha256(resolve_path(prot["outer"])) if prot.get("outer") else None,
         "temporal_index_sha256": file_sha256(resolve_path(prot.get("temporal_root", "data/s2_temporal_v5")) / "index.json"),
-        "quality_complete_sha256": (file_sha256(resolve_path(prot["quality"]) / "complete.json")
-                                    if prot.get("quality") else None),
+        "quality_complete_sha256": (
+            file_sha256(resolve_path(prot["quality"]) / "complete.json")
+            if prot.get("quality") and (resolve_path(prot["quality"]) / "complete.json").is_file()
+            else None),
         "n_train": len(train_rows), "n_inner": len(inner_rows), "n_outer": len(outer_rows),
         "train_events": sorted({r["event_id"] for r in train_rows}),
         "inner_events": sorted({r["event_id"] for r in inner_rows}),
         "outer_events": sorted({r["event_id"] for r in outer_rows}),
         "params": model.count_params(), "init_digest": init_digest, "config_sha256": cfg_sha,
+        "model_knobs": {"positional": positional, "aggregation": aggregation},
+        "temporal": {"n_frames": cfg.get("temporal", {}).get("n_frames")},
         "batch_order": "same permutation for all modes: torch.randperm(seed*100003+epoch)",
         "padding": "explicit keep mask; variable lengths grouped inside UTAERealDates; no length bucketing",
         "dates": {"source": str(Path(prot.get("temporal_root", "data/s2_temporal_v5")) / "index.json"), "mode": args.mode},
@@ -209,11 +217,14 @@ def main() -> None:
     (run_dir / "run_meta.json").write_text(json.dumps(meta, indent=1, ensure_ascii=False), encoding="utf-8")
 
     quality = prot.get("quality")
+    n_frames = cfg.get("temporal", {}).get("n_frames")
     tr_ds = TemporalV6(train_rows, stats, mode=args.mode, augment=True, seed=seed,
                        dem=dem, preload=bool(cfg["data"].get("preload", False)),
+                       n_frames=n_frames,
                        root=prot.get("temporal_root", "data/s2_temporal_v5"),
                        quality=quality or "data/s2_temporal_v4r1_none")
     in_ds = TemporalV6(inner_rows, stats, mode=args.mode, augment=False, seed=seed, dem=dem,
+                       n_frames=n_frames,
                        root=prot.get("temporal_root", "data/s2_temporal_v5"),
                        quality=quality or "data/s2_temporal_v4r1_none")
     opt = torch.optim.AdamW(model.parameters(), lr=float(tcfg["lr"]),

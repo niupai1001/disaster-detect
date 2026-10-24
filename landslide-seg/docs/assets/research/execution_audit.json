@@ -1,7 +1,7 @@
 {
   "as_of": "2026-10-23",
   "scope": "原固定单期基线、时间控制与新补全队列；其他历史运行未在此重验权重",
-  "commit": "eaad44d8b0066311954cdce79d9c2a728123879b",
+  "commit": "fc3c7036dacf193751cf516030ea37ab06f04f66",
   "runs": [
     {
       "run_dir": "outputs/segformer/s2_10band_v4r1_p20/segformer_b0_direct10_detailres_n100_u3600_s1234/1234",
@@ -26,6 +26,8 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -88,6 +90,12 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -150,6 +158,12 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -212,6 +226,12 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -274,6 +294,12 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -336,6 +362,12 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -358,7 +390,38 @@
       "run_dir": "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single-BN64/1234",
       "errors": [],
       "checkpoints": {},
-      "status": "PARTIAL_NO_COMPLETION_SUMMARY"
+      "config_sha256": "4ce690cc195d0e1cdbb06b3cb1c8de2e7cc8fc3bd8bb7560d208f3b127594d87",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "status": "TRAINED_AWAITING_EVALUATION",
+      "missing_evaluations": [
+        "outputs\\segformer\\v4r1_temporal_control\\SegFormer-B0-Temporal-Single-BN64\\1234\\eval\\eval_last.json",
+        "outputs\\segformer\\v4r1_temporal_control\\SegFormer-B0-Temporal-Single-BN64\\1234\\eval\\eval_step1200.json",
+        "outputs\\segformer\\v4r1_temporal_control\\SegFormer-B0-Temporal-Single-BN64\\1234\\eval\\eval_step2400.json",
+        "outputs\\segformer\\v4r1_temporal_control\\SegFormer-B0-Temporal-Single-BN64\\1234\\eval\\eval_step3600.json"
+      ]
     },
     {
       "run_dir": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date3/1234",
@@ -404,6 +467,12 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -466,6 +535,12 @@
       "seed": 1234,
       "global_step": 3600,
       "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
       "selection": "dev_event_mean_iou",
       "files": {
         "manifest": {
@@ -487,8 +562,1341 @@
     {
       "run_dir": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date7/1234",
       "errors": [],
-      "checkpoints": {},
-      "status": "PARTIAL_NO_COMPLETION_SUMMARY"
+      "checkpoints": {
+        "best": {
+          "sha256": "5b86fdb7301cadd61f3612a4cc5c04bbd49969e557c7fe0e04ce97a76e94b18d",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date7/1234/eval/eval_best.json",
+          "evaluation_sha256": "2a734e347120ce039035bae45b1f0e82ffad7a6fef1e77fd867bb79cffa02895",
+          "event_mean_iou": 0.3347735461590834
+        },
+        "last": {
+          "sha256": "4cedb9f9180fbf4df59ea2f1186de8477b38ddcddf2dd242256233b8e81f44ed",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date7/1234/eval/eval_last.json",
+          "evaluation_sha256": "26d95cf956db602bb162fd57045711e1848175bf7385e0a4936840b89235aeb7",
+          "event_mean_iou": 0.281240094469006
+        },
+        "step1200": {
+          "sha256": "b7ce088755e5a82fbbf7cf8506d66f1285eedaebab3a33f97f44c7fb0022066b",
+          "step": 1200,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date7/1234/eval/eval_step1200.json",
+          "evaluation_sha256": "94bb86e8ba00327d26bd25250d40b88f2329875ca2065d9a925fd06cdd8bcb6f",
+          "event_mean_iou": 0.2961124876075719
+        },
+        "step2400": {
+          "sha256": "b29a1e5c45c0ae9c94d23ffbaefee513aff59e1a13cba400b1d6b78a1c36fac6",
+          "step": 2400,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date7/1234/eval/eval_step2400.json",
+          "evaluation_sha256": "5bd4eb81c345fa9759fd28eeac8eb97b12dbbd186bf6f8dd35d021b1fc8fae85",
+          "event_mean_iou": 0.28298494001629754
+        },
+        "step3600": {
+          "sha256": "ca437e26dcb443bf264696aea8f4edd4c721763ff828578f566e4d7de59fb63c",
+          "step": 3600,
+          "evaluation": "outputs/segformer/v4r1_temporal_frame_count/SegFormer-B0-Temporal-Date7/1234/eval/eval_step3600.json",
+          "evaluation_sha256": "b2d931ee1bfacef7598bfb7ba4ae6e1922e47ae991d1bd4e21dcd631dabbffa9",
+          "event_mean_iou": 0.281240094469006
+        }
+      },
+      "config_sha256": "eb56c4d60f63d69a09d0d1e325e6e378bae375596c9016f4d620aebcaa862908",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1200,
+        2400,
+        3600
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/s2_10band_v4r1_geo_scoring_v2/SegFormer-B0-LateDetail-OODv4-TerrainScoringFullV2/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "fbaad40aeb40383cd0c4eaa8b8f603b59ff928152d355b9e122a80b19458f419",
+          "step": 500,
+          "evaluation": "outputs/segformer/s2_10band_v4r1_geo_scoring_v2/SegFormer-B0-LateDetail-OODv4-TerrainScoringFullV2/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "fb990aa730d11b0b2a543fe1ce7d151d43312cf0950900b9c2cf6e9276b4c37a",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "b8b8faf4621b0168c373d8613447eb42bda66a11794d4ff497720ea8aec2391c",
+          "step": 3600,
+          "evaluation": "outputs/segformer/s2_10band_v4r1_geo_scoring_v2/SegFormer-B0-LateDetail-OODv4-TerrainScoringFullV2/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "bfe83db3c75e38f2ff85c34a00b62d24f08dfcf1a640e35c94e58e984a1cc51e",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "804b620d2cf784c04397631b4dd66348caaf0fc2839f5352c4c7cdf7353476c5",
+      "seed": 1234,
+      "global_step": 3600,
+      "target_updates": 3600,
+      "schedule_updates": 3600,
+      "report_steps": [],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_geoboth_raw.json",
+          "sha256": "e459e73eb50b715f0f5321aa3963468df16c8db836534805724183ccc68d6f1e"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol_geoboth_raw.json",
+          "sha256": "6fe4cc5f62ee2ab9a23216a16695224cf8afb33a76c5cc04aa1888d886fd5518"
+        }
+      },
+      "actual_model_class": "TerrainFusionSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff1/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "a392fdab51fa64cae947c950fc4773eeb65beba7a8879b933aaa53f664116764",
+          "step": 700,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff1/1234/eval/eval_best.json",
+          "evaluation_sha256": "b166308e2dfd1901666e53873bc2397e1ca3a36f969446985da0dc78439a3b92",
+          "event_mean_iou": 0.29326572235178894
+        },
+        "last": {
+          "sha256": "fa005a8c0c313838627a9b4c8318f2f86b8aa3fae101026da6212ca61de0a8f3",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff1/1234/eval/eval_last.json",
+          "evaluation_sha256": "68714b49c3a4432ba6dbc5c8e2508cf225154161ef1e81e9b4408615484bf519",
+          "event_mean_iou": 0.24311228285212771
+        },
+        "step1000": {
+          "sha256": "5dfc100357f2ae35ee33ea17bfff695eba14eae5e6f9e27e7b8410a8df0b4c81",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff1/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "b672558a308a6ddfbb2977765fa40f61fcdc9babbb92e9d7482ce0efc0a6a876",
+          "event_mean_iou": 0.27039967059288217
+        },
+        "step1500": {
+          "sha256": "5bf2fd021ffc5af502f94b0edf80daf128fc024df1cd708d2f4aaa2df478db96",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff1/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "a27d71c1608169f100fabfc8af7ac63a3dddab053f3daece9fe003076ddf7240",
+          "event_mean_iou": 0.25044486095510304
+        },
+        "step2000": {
+          "sha256": "98b77f27f414c3eca57dcf9e5e179447d422a9b3a0e4b1065c5dbbdd89fce085",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff1/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "65f95e089012d99b390e0d2aa4f395d2428c92af36bbcf39e79497a2060f7892",
+          "event_mean_iou": 0.24311228285212771
+        }
+      },
+      "config_sha256": "5d7c140f0d89dc4690e46355a37c9dac78533c3106c6e3e3a74f190f4effbcf5",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r2/pool_cutoff7.jsonl",
+          "sha256": "053cb660cf55ff27f644094f56b67310d8f8c07a285b3a57f1e6e2078888008a"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff3/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "f0630c961b503a56e41378fbeed9eec6ad09aa708ede14a94e2c76a2362b9546",
+          "step": 600,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff3/1234/eval/eval_best.json",
+          "evaluation_sha256": "f971068b38db5d70f39ec88e3aa419cac345313dcc4a3607c6b89732b56a7c1c",
+          "event_mean_iou": 0.30609584654248023
+        },
+        "last": {
+          "sha256": "10e84161084846c6088943f3a83e86ea01ad28f41fce9e86f6da85496bff24a3",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff3/1234/eval/eval_last.json",
+          "evaluation_sha256": "230e11cb999647cd451ab96e0d8d81dd2207c40d7c2fd476d3146551b72ded31",
+          "event_mean_iou": 0.2608652391159501
+        },
+        "step1000": {
+          "sha256": "782f4aabce8f7c0cbacf08871b02e2cc14cda67ed84e3e3174d756605eec3a57",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff3/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "1ed5481f9dd15b16f3519885dd370a30ecd811018df7e48d9d7dee170a04a1be",
+          "event_mean_iou": 0.2784010327761406
+        },
+        "step1500": {
+          "sha256": "1211685315720ea59581cc92449d0d42098ded4e98f20e00ca651c88aae4ed77",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff3/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "ef1a07b55fecde627e8efd5b2c042082c9f3487ab23e185824caca5bf6eb61f2",
+          "event_mean_iou": 0.2596959173946082
+        },
+        "step2000": {
+          "sha256": "bfad1ba3eb942de7d08225d57af6ffe9e0f637e4e45dc35fe3c13eb907f02960",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff3/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "dfc09176b3db4c84cd202d404b5483360e71505d6ebda0375018ce767819927a",
+          "event_mean_iou": 0.2608652391159501
+        }
+      },
+      "config_sha256": "7d260fa64d9c8d85a9e1198af6b9977ec9d0e7215a3085c7c81396128e65c994",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r2/pool_cutoff7.jsonl",
+          "sha256": "053cb660cf55ff27f644094f56b67310d8f8c07a285b3a57f1e6e2078888008a"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff5/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "bf075745735b49d9487c4950677d56f3f4772d4ac18a05294effb3397ddd1402",
+          "step": 400,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff5/1234/eval/eval_best.json",
+          "evaluation_sha256": "77c38175f8d072395ba0ed47c8e4f36f86b696e9ca3786f00dc7eb2321e08df6",
+          "event_mean_iou": 0.34323051599157606
+        },
+        "last": {
+          "sha256": "69a1a734c37bab863f186b84ca21c951c56cbabff0fc70fa42ea014aa6efdeb7",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff5/1234/eval/eval_last.json",
+          "evaluation_sha256": "d0d9b62ce24913c589d618622286a50660f157dd4b4510364b4e483b84443480",
+          "event_mean_iou": 0.27778947422635775
+        },
+        "step1000": {
+          "sha256": "490b5c3863c8d87692891fae275f30ca9c0d10744cb526eb0ac17e0cd7a9362e",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff5/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "6409c759c5a8dcad03b2f4919fb790bf010e6f3b680b14df5875257584db20b4",
+          "event_mean_iou": 0.32093573069726916
+        },
+        "step1500": {
+          "sha256": "827b75e3ae2a46f8f37b4d7948b738f6154beef31ded58177d8ca8716e691ab0",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff5/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "823d6f465192370ed22ed7bf64a1d825029736f792262039e229143c94abbcec",
+          "event_mean_iou": 0.2958418861945534
+        },
+        "step2000": {
+          "sha256": "85b5a5fc9667e432397e6aa4c43fb201b007e462a97de42191cb07158b82824a",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff5/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "9fda35ba47f879a31595537a92159fad667d3c49627de1d2a7b56189541b347b",
+          "event_mean_iou": 0.27778947422635775
+        }
+      },
+      "config_sha256": "85604e786fccfee2451311df227bf91a5908fe6d47611561fca246356eeb1ae4",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r2/pool_cutoff7.jsonl",
+          "sha256": "053cb660cf55ff27f644094f56b67310d8f8c07a285b3a57f1e6e2078888008a"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff7/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "246fa67f59b6ea3f0c639a2243c089c75d65791f6e368c6592c9ee1961cdd71f",
+          "step": 400,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff7/1234/eval/eval_best.json",
+          "evaluation_sha256": "b97fbd4f61234c9056f3b5135ae041812171646c9aa65e77051303429f49bca7",
+          "event_mean_iou": 0.32770708640621404
+        },
+        "last": {
+          "sha256": "fe3de5773cefe6d11f933f9cd46cd50a3ef62ebee73a4804e9aa4ee0a1feb579",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff7/1234/eval/eval_last.json",
+          "evaluation_sha256": "bd4d5fb3eefb40b10b58447850203fbaf56afb3e5d3b880c038d8b28cab53cb8",
+          "event_mean_iou": 0.2644945361964494
+        },
+        "step1000": {
+          "sha256": "e02ab6868c34e0959adea6736ae4d5f45772d32da323f516923350a2d781f365",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff7/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "30a498bb8bae67244040eefb00497d7928403b1945b9cdc1b09d8daade9d4c2a",
+          "event_mean_iou": 0.3054226761211025
+        },
+        "step1500": {
+          "sha256": "293420d7a03ddcd1d4b9e0b01bc7025a106b5c51b3aa89cd79b59cdd6d22e75b",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff7/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "f226ef485b72bf51350e5c328cc437d4013f446e79a6de0de9eca5a799f95466",
+          "event_mean_iou": 0.29385119646021085
+        },
+        "step2000": {
+          "sha256": "d39d65f66f176e9140ab2382f36e505a8545e1a735f2a8222f6854daa2e92157",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_cutoff/SegFormer-B0-Temporal-Cutoff7/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "19b85e0da44ede66cde69922c71c1c3ba2b159f239412758f9d3e52e427c4826",
+          "event_mean_iou": 0.2644945361964494
+        }
+      },
+      "config_sha256": "473c55fd4b1439d3bb76bcd32c3e4580e7579c632854877c62ce51173fe57a79",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r2/pool_cutoff7.jsonl",
+          "sha256": "053cb660cf55ff27f644094f56b67310d8f8c07a285b3a57f1e6e2078888008a"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window180/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "695ae10f4b525f21ee7cbc4208918e8f41be069e28d60143fc87e73ba58f1c4c",
+          "step": 300,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window180/1234/eval/eval_best.json",
+          "evaluation_sha256": "5c35b85696d1d60727194dbef9817ba66fcc783d8b628dded684a89a83e55a6c",
+          "event_mean_iou": 0.30264584899652935
+        },
+        "last": {
+          "sha256": "348688b6bcc33a362aa74355f91bd006a4f0e34aaa851882f3fe14fc0f1bbe7c",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window180/1234/eval/eval_last.json",
+          "evaluation_sha256": "eb8f38efeeae6708ce884f927fab5fe80058bca386bb324dfbed339f8d92bd31",
+          "event_mean_iou": 0.24428807768703284
+        },
+        "step1000": {
+          "sha256": "d4a37ecfd0ca9330c744e1f199330b34da685cfae1ca4f453a1e4bc010dd2023",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window180/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "2fac6a1e6b2a54bda78b75e630199e092e54101aa13fc8d6fb981de5be0e1e3e",
+          "event_mean_iou": 0.2527741118257224
+        },
+        "step1500": {
+          "sha256": "f60ab289a627b13d283c48dc291a8c71334a0d0eb55a20a632006dbe2a07e10b",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window180/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "c626d2ebe9c649b9d0a2042b7fb6d8a1e9858e64b263cb595fe51256d11dd4df",
+          "event_mean_iou": 0.25571549410947947
+        },
+        "step2000": {
+          "sha256": "39b127dc8416806d2a1ab63650d332484a829be2ddfc4ab43692aa2e22319b41",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window180/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "57242dc4bf4089b71d8b65518eb6f2452d185a8c1d6ca5f47dc1e2a9366a7e90",
+          "event_mean_iou": 0.24428807768703284
+        }
+      },
+      "config_sha256": "6bec59889e211e59d8c935c708a00bde6d3c619af4e248d81ee2190a02ba3e93",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r2/pool_window180.jsonl",
+          "sha256": "fc8e758460e1992a3dbecad1435c418ad172c2024f4ed27f92962987422a0677"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window365/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "e6d5857c7522f4abdbf4a715973a784851cc7cf4c7b99cc4c63b668d698481e1",
+          "step": 300,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window365/1234/eval/eval_best.json",
+          "evaluation_sha256": "6ba179bc7de47f9aa1faaa5285ef8bae677b8f7b0b116c4e2b10a7bebeceea8b",
+          "event_mean_iou": 0.29621945400630406
+        },
+        "last": {
+          "sha256": "ce82b8d4cfb7ae94371bfc00018f7dc3b6df155f8ce86e482d7db306c812f076",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window365/1234/eval/eval_last.json",
+          "evaluation_sha256": "0dd00cc4450ebb3aba1bcfec694bd1a6dc165bd62667179ee1e826d52773a3c7",
+          "event_mean_iou": 0.25676762332890934
+        },
+        "step1000": {
+          "sha256": "b2491c2ccd6be12c8df09829489b4d74a6e56db46341a2fa9f60c841b9238e4d",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window365/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "9b6df403d17c0ecee55fb2aeb5d75646b114f1af7a18d1270c44a72ea4703306",
+          "event_mean_iou": 0.28108537143227036
+        },
+        "step1500": {
+          "sha256": "1a0f1def371dbf6bd80b770c12c1bc78ebe7d6aa16c6c78fb75358841a4394e8",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window365/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "93f5dc8c5736f3cd7b136c9cdde2eb24e4e34121cc241833feb3a90a95e0b717",
+          "event_mean_iou": 0.26821616988178465
+        },
+        "step2000": {
+          "sha256": "a2c32e474316bfa3814ad72b549e936c0f12e111427669b38f6810c5fd13e9c4",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_temporal_window/SegFormer-B0-Temporal-Window365/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "93b3b0812e7b879ccad7d9dd796fc4bd0e73c4cca4064659be4779472ff9b4e5",
+          "event_mean_iou": 0.25676762332890934
+        }
+      },
+      "config_sha256": "7d98e6181bb9f288f5d00daa94fa30d9f64984eaf40bd3f0fdd4438c84f2a6f6",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r2/pool_window180.jsonl",
+          "sha256": "fc8e758460e1992a3dbecad1435c418ad172c2024f4ed27f92962987422a0677"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post3/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "b1ac36558753ada6d654a50986e187500d82dbf1b8fb088aa69624a2611beacb",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post3/1234/eval/eval_best.json",
+          "evaluation_sha256": "4cabd61110a53b5c8dd47719dd122d3d479eafb75757c6158cbf812a8c2fe448",
+          "event_mean_iou": 0.2789012880952586
+        },
+        "last": {
+          "sha256": "186171dfac70ebda24454c1d31d8d52ebfca55a7b9846e9e64463c6efb7702b3",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post3/1234/eval/eval_last.json",
+          "evaluation_sha256": "82a38f4d3081942b422800fea59b6fc12629a33056a7c243339bfa4ca66c7a83",
+          "event_mean_iou": 0.2581655482268953
+        },
+        "step1000": {
+          "sha256": "5374db52056216de9159e60a077542b06c4a9cdab6eb833b9fd13f0deefdcdc1",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post3/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "b1fb100eba35ccfb2892d88a03b16c404dd1ce30160f84debc7bcdf932b99f5d",
+          "event_mean_iou": 0.2623677769993154
+        },
+        "step1500": {
+          "sha256": "6622cd95b9eb02240d6b5a00d827ef068ce88b51dc96a60a73e611b25d7972a8",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post3/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "173b6bd364b10690d0c986ec8c2160fdf3ecce6f747623a342ab7b19bc2d78cd",
+          "event_mean_iou": 0.23639333069736362
+        },
+        "step2000": {
+          "sha256": "73f325b889d65a81a2a20eb5851db3481c7d1a3938dcab023e28d67ff1eef9b8",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post3/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "660fdb1c7f2a2f5aa2f995d142ab55c48e1672ea1b3d39021732a45e5fd3bd07",
+          "event_mean_iou": 0.2581655482268953
+        }
+      },
+      "config_sha256": "155e27166e26ddbea97a12d2d8df9450824f9bbb8789cd33600728d4cd0ef678",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r3/pool_composition.jsonl",
+          "sha256": "174228e5d654c0a7ab5b62f53f15f5ce08d59af5be983d8f6125d376a2c6ec4f"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post5/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "f0b7c140ec9fbd04ebf4e72be42df6c5003d78c3cd77b52372bda467ed031541",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post5/1234/eval/eval_best.json",
+          "evaluation_sha256": "b7f906f1d6b135e42102075cd9beee37f25ff1d952dd7bd860088db9ed3e5bee",
+          "event_mean_iou": 0.2699310901442756
+        },
+        "last": {
+          "sha256": "cecb590e1ba4ca0195f96c954dca45b189d202952f66233ebbef8fcd2374036c",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post5/1234/eval/eval_last.json",
+          "evaluation_sha256": "ad391b30d077b5d85633507cc60817f0d7d8e60d38b72decf1d8afe3a3b4d391",
+          "event_mean_iou": 0.24120158133274866
+        },
+        "step1000": {
+          "sha256": "3c19e302fa51441983b2a0208474ab349d9db8274404413f2c063df912f81ddd",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post5/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "a5756655660b5dc34b742c023e683f1ab48bf79e36a5989a9ff7702f78efb1d8",
+          "event_mean_iou": 0.22440478550859122
+        },
+        "step1500": {
+          "sha256": "02bbf39d912a91fda34f73a6bc23da74814961ead441c2f65aa343f401fca093",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post5/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "63e5bf8716288a458f5c6be0efa082ff3573864d7a4a913678e9ccd4c5b9f5dd",
+          "event_mean_iou": 0.23203841805242578
+        },
+        "step2000": {
+          "sha256": "bb19ccb2eea6e234a14ba9618098e6ae96767c58f1976288f357807cbc6fcb34",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Post5/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "80ac7399bac0a754434c2344dcd7048f7287a977c4856b22a75007f49be9160e",
+          "event_mean_iou": 0.24120158133274866
+        }
+      },
+      "config_sha256": "ffeaedc554d318152aacbc51a438a7f35828ff23c6ad01ecf9f7a5e61865bd1f",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r3/pool_composition.jsonl",
+          "sha256": "174228e5d654c0a7ab5b62f53f15f5ce08d59af5be983d8f6125d376a2c6ec4f"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Pre2Post3/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "9aa3fb8d4efffd7566f211896d5ddf637a0be6eb6915c9b07e16e67bf4f13eab",
+          "step": 800,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Pre2Post3/1234/eval/eval_best.json",
+          "evaluation_sha256": "496946ffa53299f152cf9b74030338ed52f2342fdce3b7a1de037f1486f704f5",
+          "event_mean_iou": 0.2825666022398262
+        },
+        "last": {
+          "sha256": "b6b97a174d488a41d458a597b5c25a15636233c72de54381faeb460e139d27bf",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Pre2Post3/1234/eval/eval_last.json",
+          "evaluation_sha256": "7411996170237f453ff8cd5f8a163b6c6d2667ff0f4294c102425abbcc750d8d",
+          "event_mean_iou": 0.26098756088340314
+        },
+        "step1000": {
+          "sha256": "4d0e8a5f0c061e2f7956cbb0dd42c50d7bd1cf20c3855c5102be7c6e85b3d4a7",
+          "step": 1000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Pre2Post3/1234/eval/eval_step1000.json",
+          "evaluation_sha256": "d07dbc11583685788791011ec90062e76b87da975945b614984fa164ca30fa48",
+          "event_mean_iou": 0.25832182191239483
+        },
+        "step1500": {
+          "sha256": "c7060d4c9dff67af25be9c01d129818e372937eff6473103ea24fb3dde888736",
+          "step": 1500,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Pre2Post3/1234/eval/eval_step1500.json",
+          "evaluation_sha256": "1fccf410f8e0c54b2651daeaf46ddecd9df392ca8cd9fb435b70092781e3d7d1",
+          "event_mean_iou": 0.2504951977071676
+        },
+        "step2000": {
+          "sha256": "13b057fee6fc3aaa914d3772b47aebb25a3d42c4e72c13c402a8941c53c14e2e",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r3_composition/SegFormer-B0-Temporal-Composition-Pre2Post3/1234/eval/eval_step2000.json",
+          "evaluation_sha256": "0a07de1bedee3a670af445118fcd15f6eaf9a4779f88d6254bde9c681844b7e7",
+          "event_mean_iou": 0.26098756088340314
+        }
+      },
+      "config_sha256": "ede559f174bfded56d96baeac79ef2de97eeac25ca20cf403087318c5e2cc1b2",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r3/pool_composition.jsonl",
+          "sha256": "174228e5d654c0a7ab5b62f53f15f5ce08d59af5be983d8f6125d376a2c6ec4f"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "TemporalSpectralSegFormer",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2FreeMap/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "6c996b55e0ff51a3c17786864ea4595464ddd74717d76f4b7618464a9933296c",
+          "step": 300,
+          "evaluation": "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2FreeMap/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "918d712e89693760790c76c5de3eac4d369ff6d256a3ffe33201065300fb06c6",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "1e13dc0d439a995169b64b8e80d18edb171053c7c822da46e4ccccb9f7e3d5e5",
+          "step": 2000,
+          "evaluation": "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2FreeMap/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "704fb4ec97b43e35ef4ba062d1e0e2c4c337be1c0b20b720f49072367ba0189f",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "1a6ad56518f76f63dbd0b3f477f53956951f5daabd2fb4bb69376cf7426cc518",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralLadderSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2WavelengthMap/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "e34b0e59f8898796f3e57ba05b49479fc6afe1c365d3c219816c30968d180d90",
+          "step": 500,
+          "evaluation": "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2WavelengthMap/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "c707ad78b178c656f123a6b0d5b8d6987050048d8c3164332e5e3a416168a345",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "f3fb30f9e5f755889ac7494c9e9a8d3304f1bfea94f4f767bc2c221253e0b70f",
+          "step": 2000,
+          "evaluation": "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2WavelengthMap/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "ace22eed69b5b3f7bd4ed2fc7a623f0171e43fabd7b532c0dc63cbf5bc1032f4",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "15771e82d58e7c3ff33b7ea57bba14973abe9bc192fd84b9f108b702a5f5e354",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralLadderSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Control-14ch/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "67d8207e65e3ebcdcc28566a11f8c3f1fcee0880a4907e8dbbedad2167cfd419",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Control-14ch/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "b4bf88cfc8c20a0eca35b45f202b6fdd1c91cf34d6d99177401f9277b683e833",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "e88182e7e452beb11193162dcb69aab8cff5daf845ca906a013175689c5acb25",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Control-14ch/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "54e77139562f2bd749cb9a5094f262ea41c034987fe67cb6971c57f284a5c28c",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "1b4a96bbeb3e47e4b31d3ee5a5e44ea8bfcdab580346fe7ea0348ef758910952",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralLadderSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Indices-14ch/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "998e7509c94a5c8dbfcdbc43f234f7d389e1a44dc17deca6eed5f11fc9a55cca",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Indices-14ch/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "ddb00c80196149d85de4ee6bbc910824f967cac9169fa7765a2fc6da129ec780",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "8abdbc479ee72c3f98fbedd64fa72e83eb96bfc38191d1056e445ea380fe499e",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Indices-14ch/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "6d868896cb178b434bf9312b69df58cc1e98f8492692b8cf86f9233e73df6697",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "4f2274c9e12051c484ac1c88089221ca31d8f6cb5e53f7b3a1d264f1c00f7fe3",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "extra_stats": {
+        "path": "manifests/v4r1/stats_s1_indices4.json",
+        "sha256": "793e84c8ee262814784a3b41e74673474b966404270f589bb901764fca57f018"
+      },
+      "actual_model_class": "SpectralLadderSeg",
+      "extra_stats_normalization": "VERIFIED_IN_MODEL_BUFFERS",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3A-LinearMix/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "43b26077dba673f349d15880db7dc243455c93adb3b2a8a3e64574c585d9abda",
+          "step": 300,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3A-LinearMix/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "40de697a2c162980ae01546cbf05ba77d2ff5b5f7db45240404577bf1fdcc4d4",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "1c98933687f3d61f8900f972b3d90cee439187e85b86904e7cceaabd0c1a9d06",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3A-LinearMix/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "9472bcb1012587e57fe2957c5d5c3bc8d1eb76e19d0c7988905f164a3412f960",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "cd40b818522a7a9253297b728dfa3ff07a28dc25c3a9f686b6de65d086014fdf",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralLadderSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3B-IDAttention/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "f9e21685636c1efc7fed275c1b8bffc366ffe9b0204d4ec1ae8b204855b82128",
+          "step": 300,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3B-IDAttention/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "325999953e65d8af4bdb1f775e516465fd2b64b81f8f12ce40a4633db520964f",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "f7abfb35970174d23502143988645cd57c7be80565985f50ab4653cccf36fa23",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3B-IDAttention/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "e543827f93249c468e3ecb37d30c3afe83c98b778dcbcc57096a8c4933fe329e",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "5da4f4e0bf62acaee818bb5b7217020f41b2bda719c7181522c7900f85aea578",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralRelationSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3C-WavelengthAttention/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "094c6b48b1b8bb2d3451280e942bd078fd5c9ddb07ff18de1c4c409567aed592",
+          "step": 400,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3C-WavelengthAttention/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "3803519542890c8436a9c68b3ad1dbbed35651be33d92b5a290734ded65717d9",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "43cd56297ff6c570c476eab24c20444380577121fcebafe8571647620d9d78ba",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3C-WavelengthAttention/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "d5a7e8b9d332295dfa8408c890b40a55849416302e954e0a21ceb5311a0eef8a",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "d68de0322d401078c2c6bda0f44d2cf087959ff57b1d3d6a4121306ce1d9154b",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralRelationSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3D-LocalBias/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "cf01c02e4f86400c5e57b77a2380faefe646e611ac4c2d749adb4e636c8e6f73",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3D-LocalBias/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "7cba3502148dcdc0084a30e26ef37ff64c52888a1b361169a98ad204010ed2fb",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "c96acd31d3ba669e6b8cc30df7f6ee952381005824d6ebfb2557b5bd87577247",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3D-LocalBias/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "4927c56bd25b52b54be4345b7dbcc8afd5da0aeaba6962213ae2ad0adede6260",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "fa7d2ea1f59871a23cb46832d1ff2313b4042ba6943ad271b474ef1bcccfc4c0",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralRelationSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3E-GlobalBias/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "df2ecd8ef013b3a3d18557d4a67e28da818cf6443e0e9b877dddd8509f82ccb1",
+          "step": 400,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3E-GlobalBias/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "16dd98009397535695cd2fe619dcc9e8b9d7ae39b9b2f7f188a22e4eee4c774f",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "b4bdbef52b8d719ec057d7e38d007addbd8947aeee5b0f89f41af526e48d3c6c",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3E-GlobalBias/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "c5a2087a6a8947c25b2cffe4011c443e651747bffe7dfca040b30380f377ac54",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "099b981c302e18430986b93dd5d18ef4149d1c809a09729948d6767fa1403595",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralRelationSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4Add/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "60792bb55bb9b1ccc9b8145bce7ea79af36c750b4f4498372c10d92f9b9e5e41",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4Add/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "66063e459236fea4d4a758b3a575ccda6590b9f266e9d724f180ae482eb0a7b7",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "ab91a1fe73c35ac9f3ef03ac98b2f960160ab709cd11a2c5c9fa58eb577ba87a",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4Add/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "a29c9f61a894e8c99f56f815843fda9a8e8b91c3b194a5cc6e60d0e84562189e",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "5c8d7e1012e1303e34d4a8d55a3671842b714ff97f545665fca4e868e6cf5236",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralGateSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4CapCtrl/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "f5baabee91c42891843acf9d812ec92ca49f03e0da9564c5cabd3d51d2712d63",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4CapCtrl/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "68e644e9a5ee44daf1f438acb6cd4f5248b3ecf2f1866cd298cfe0124553832a",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "0f891afd52530162fb1945c0dd6cd9d7926f6f16b2d34bab2e2dedb1b75e3d25",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4CapCtrl/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "ca738bb1df5a6406a635db7fcc963b1d3615e426781697c1a3329029cf0ddc3a",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "3f0583406d3e12f34f1223f4a32fc2ceadaada59ceee88e9027c3371926d5d47",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralGateSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4FixedGate/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "bde699e905201c851200a7dc402f03914feeb1636747e6c76afc2537bd38590d",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4FixedGate/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "4851d541217c583b6d6d7ec0c74dc6ef8d8b9157300d67cf562d8f5581ce1ba7",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "a625d1e8c77f2c2f0a9f443832869312661055e2c7532fae5142c30301d2efc0",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4FixedGate/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "b9b2f6da1578c1fbc07653f7eec533ce72456c716373561ed4605a138208bf52",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "37ff73b36bb9fd085f20fa5934cdc48db7fb1dc25857134e2ac4b291217c26e2",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralGateSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
+    },
+    {
+      "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4LearnGate/1234",
+      "errors": [],
+      "checkpoints": {
+        "best": {
+          "sha256": "4d9c6d634b777df30e711a81df3755621e0a7cb1d84bcc22dbd884493fae9b15",
+          "step": 500,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4LearnGate/1234/eval/eval_best_val.json",
+          "evaluation_sha256": "c522f1c58bd5233a73cfb95b9a03abb30e08245699cfce73da3d04dc01bf2eab",
+          "event_mean_iou": null
+        },
+        "last": {
+          "sha256": "3de0ea2cd31c9b018e8a995f57d9ee46c773a4ffaa1d071877a08c42b3d8c371",
+          "step": 2000,
+          "evaluation": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4LearnGate/1234/eval/eval_last_val.json",
+          "evaluation_sha256": "6092e3f6b4a22e5e3cd5bcf5f58d09769c1d22afd99dc01f3dc81e54099bd47c",
+          "event_mean_iou": null
+        }
+      },
+      "config_sha256": "80984dd3df80f1e534094543b1f76a9cf56bcddd4486c5efbd8cc3ddae01e21e",
+      "seed": 1234,
+      "global_step": 2000,
+      "target_updates": 2000,
+      "schedule_updates": 3600,
+      "report_steps": [
+        1000,
+        1500,
+        2000
+      ],
+      "selection": "dev_event_mean_iou",
+      "files": {
+        "manifest": {
+          "path": "manifests/v4r1/pool_100.jsonl",
+          "sha256": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53"
+        },
+        "stats": {
+          "path": "manifests/v4r1/stats_core25.json",
+          "sha256": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+        },
+        "protocol": {
+          "path": "manifests/v4r1/protocol.json",
+          "sha256": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63"
+        }
+      },
+      "actual_model_class": "SpectralGateSeg",
+      "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE"
     }
   ]
 }

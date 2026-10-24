@@ -54,12 +54,12 @@ class SpectralLadder(nn.Module):
     """在十波段入口前施加 S1/S2/S3 之一；输出通道数由 ``out_chans`` 决定。"""
 
     def __init__(self, level: str, variant: str, stats: dict, rank: int = RANK_DEFAULT,
-                 radiometry: str = "legacy_dn") -> None:
+                 radiometry: str = "legacy_dn", extra_stats: dict | None = None) -> None:
         super().__init__()
         if level not in LEVELS:
             raise ValueError(f"level 必须是 {LEVELS}")
-        if variant not in ("treatment", "control"):
-            raise ValueError("variant 必须是 treatment/control")
+        if variant not in ("treatment", "control", "conditional", "free"):
+            raise ValueError("variant 必须是 treatment/control/conditional/free")
         self.level, self.variant = level, variant
         if radiometry not in RADIOMETRY_MODES:
             raise ValueError(f"radiometry 必须为 {RADIOMETRY_MODES}")
@@ -72,15 +72,41 @@ class SpectralLadder(nn.Module):
         self.register_buffer("dn_std", std.clamp_min(1e-6).clone())
         self.register_buffer("waves", torch.tensor([WAVELENGTH_UM[b] for b in S2_10_BANDS]))
         self.out_chans = 10
+        # S1 新增四个指数通道的 TRAIN 统计；仅在 treatment 使用。
+        # 非持久 buffer：历史 checkpoint 没有这些键，严格加载不受影响。
+        self.register_buffer("extra_mean", torch.zeros(4), persistent=False)
+        self.register_buffer("extra_std", torch.ones(4), persistent=False)
+        self.extra_normalized = False
+        self.extra_stats_source: str | None = None
+        if extra_stats is not None:
+            ex_mean = torch.as_tensor(extra_stats["mean"], dtype=torch.float32).flatten()
+            ex_std = torch.as_tensor(extra_stats["std"], dtype=torch.float32).flatten()
+            if ex_mean.numel() != 4 or ex_std.numel() != 4:
+                raise ValueError("S1 新增通道统计必须是四个指数通道")
+            self.extra_mean.copy_(ex_mean)
+            self.extra_std.copy_(ex_std.clamp_min(1e-6))
+            self.extra_normalized = True
+            self.extra_stats_source = str(extra_stats.get("source", "external"))
+        # 历史 S1 配置没有额外统计；保留其未归一化行为以兼容旧 checkpoint，
+        # 新正式配置由 check_research_protocol 强制要求 extra_stats。
 
         if level == "S1":
             self.out_chans = 14
         elif level == "S2":
             if variant == "treatment":
                 self.band_bias = nn.Sequential(nn.Linear(9, 16), nn.GELU(), nn.Linear(16, 1))
-            else:
+            elif variant == "control":
                 self.band_bias = None
                 self.channel_bias = nn.Parameter(torch.zeros(10))
+            else:
+                # 同参数量对照：10×10 入口混合 + 偏置；conditional 的矩阵由各波段波长生成
+                self.mix_bias = nn.Parameter(torch.zeros(10))
+                if variant == "conditional":
+                    self.wave_to_row = nn.Linear(9, 10, bias=True)
+                    nn.init.zeros_(self.wave_to_row.weight)
+                    nn.init.zeros_(self.wave_to_row.bias)
+                else:
+                    self.free_mix = nn.Parameter(torch.zeros(10, 10))
         else:  # S3
             r = rank if variant == "treatment" else 10
             self.down = nn.Conv2d(10, r, 1, bias=False)
@@ -103,34 +129,61 @@ class SpectralLadder(nn.Module):
         idx = [S2_10_BANDS.index(k) for k in ("B04", "B08", "B8A", "B11")]
         return torch.cat([x[:, i:i + 1] for i in idx], dim=1)
 
+    def _normalized_indices(self, x: torch.Tensor) -> torch.Tensor:
+        idx = self._indices(x)
+        if not self.extra_normalized:
+            return idx
+        return (idx - self.extra_mean[None, :, None, None]) / self.extra_std[None, :, None, None]
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.level == "S1":
-            extra = self._indices(x) if self.variant == "treatment" else self._identity_channels(x)
+            if self.variant == "treatment":
+                extra = self._normalized_indices(x)
+            else:
+                # 对照的四个原始通道已由 dataset 用 TRAIN 十波段统计标准化。
+                extra = self._identity_channels(x)
             return torch.cat([x, extra], dim=1)
         if self.level == "S2":
             if self.variant == "treatment":
                 bias = self.band_bias(wavelength_features(self.waves))[:, 0]     # [10]
-            else:
-                bias = self.channel_bias
-            return x + bias[None, :, None, None]
+                return x + bias[None, :, None, None]
+            if self.variant == "control":
+                return x + self.channel_bias[None, :, None, None]
+            weight = (self.wave_to_row(wavelength_features(self.waves))
+                      if self.variant == "conditional" else self.free_mix)
+            return (x + torch.einsum("bchw,dc->bdhw", x, weight)
+                    + self.mix_bias[None, :, None, None])
         # S3
         return x + self.up(self.down(x))
 
     def report(self) -> dict:
+        mechanism = {
+            "S1": ("harmonized_indices_normalized" if self.extra_normalized
+                   else "stored_dn_indices_unnormalized_historical") if self.variant == "treatment"
+            else "extra_raw_channels_dataset_normalized",
+            "S2": {"treatment": "static_wavelength_bias", "control": "free_channel_bias",
+                   "conditional": "wavelength_conditional_input_mix",
+                   "free": "free_channel_input_mix"}[self.variant],
+            "S3": "lowrank_linear_mix" if self.variant == "treatment" else "fullrank_linear_mix",
+        }
         return {"level": self.level, "variant": self.variant, "out_chans": self.out_chans,
                 "radiometry": self.radiometry,
-                "mechanism": {"S1": "stored_dn_indices" if self.variant == "treatment" else "extra_raw_channels",
-                              "S2": "static_wavelength_bias" if self.variant == "treatment" else "free_channel_bias",
-                              "S3": "lowrank_linear_mix" if self.variant == "treatment" else "fullrank_linear_mix"}[self.level],
+                "mechanism": mechanism[self.level],
+                "extra_stats": (None if not self.extra_normalized else {
+                    "mean": self.extra_mean.tolist(), "std": self.extra_std.tolist(),
+                    "source": self.extra_stats_source,
+                    "note": "四个指数通道用 TRAIN 统计独立标准化；十波段仍用 data.stats"}),
                 "note": "入口侧变换；修正后的输入同时进入主路与细节分支"}
 
 
 class SpectralLadderSeg(nn.Module):
     def __init__(self, visual: nn.Module, stats: dict, level: str, variant: str,
-                 rank: int = RANK_DEFAULT, radiometry: str = "legacy_dn") -> None:
+                 rank: int = RANK_DEFAULT, radiometry: str = "legacy_dn",
+                 extra_stats: dict | None = None) -> None:
         super().__init__()
         self.visual = visual
-        self.ladder = SpectralLadder(level, variant, stats, rank=rank, radiometry=radiometry)
+        self.ladder = SpectralLadder(level, variant, stats, rank=rank, radiometry=radiometry,
+                                     extra_stats=extra_stats)
         self.level, self.variant = level, variant
         for attr in ("adapter_type", "backbone", "use_stem", "refine", "fusion_mode",
                      "exchange_mode", "adapter_report", "load_info"):

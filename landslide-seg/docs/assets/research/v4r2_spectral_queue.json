@@ -1,0 +1,500 @@
+{
+ "batch": "v4r2_spectral",
+ "purpose": "S1 新增通道统计/首层同初始化与 S3 五组关系、S4 五种融合条件",
+ "protocol": "event_ood_v4r1",
+ "data_split_display": "我们的数据划分（留事件验证）",
+ "evaluation": "广岛448＋特里苏尔221共669块DEV；事件等权IoU选模；阈值0.5；单seed1234",
+ "inputs": {
+  "members": "manifests/v4r1/pool_100.jsonl（TRAIN 2223 / DEV 669）",
+  "stats": "manifests/v4r1/stats_core25.json",
+  "extra_stats_s1": "manifests/v4r1/stats_s1_indices4.json（559块TRAIN核心，四指数）",
+  "bands": "十波段单期；S1 内部扩为14通道；S3/S4 十波段"
+ },
+ "budget": {
+  "stop_updates": 2000,
+  "schedule_updates": 3600,
+  "warmup_updates": 180,
+  "eval_every_updates": 100,
+  "report_steps": [
+   1000,
+   1500,
+   2000
+  ],
+  "batch_size": 64,
+  "note": "单期批次；step2000 与 last 同一权重"
+ },
+ "device": "cuda:1",
+ "runs": [
+  {
+   "arm": "s1_indices",
+   "display": "S1 指数",
+   "experiment": "SegFormer-B0-S1Indices-14ch",
+   "config": "configs/segformer/v4r2_spectral/s1_indices.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Indices-14ch/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 500,
+   "best_event_mean_iou": 0.2916893767219807,
+   "best_ap": 0.42869734583640107,
+   "by_event_iou": {
+    "hiroshima": 0.29779417218412063,
+    "thrissur": 0.2855845812598407
+   },
+   "tiny": {
+    "matched_evaluable": 7,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.2319228006049709,
+   "params": {
+    "total": 3760002,
+    "trainable": 3760002,
+    "encoder": 3336640,
+    "decoder": 395009,
+    "new": 28353,
+    "ladder": 0
+   },
+   "branch_activity": {},
+   "evals_missing": []
+  },
+  {
+   "arm": "s1_control",
+   "display": "S1 容量对照",
+   "experiment": "SegFormer-B0-S1Control-14ch",
+   "config": "configs/segformer/v4r2_spectral/s1_control.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S1Control-14ch/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 500,
+   "best_event_mean_iou": 0.29112971826726686,
+   "best_ap": 0.4206957720915745,
+   "by_event_iou": {
+    "hiroshima": 0.2985634550279074,
+    "thrissur": 0.2836959815066264
+   },
+   "tiny": {
+    "matched_evaluable": 8,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.23950284936018595,
+   "params": {
+    "total": 3760002,
+    "trainable": 3760002,
+    "encoder": 3336640,
+    "decoder": 395009,
+    "new": 28353,
+    "ladder": 0
+   },
+   "branch_activity": {},
+   "evals_missing": []
+  },
+  {
+   "arm": "s3_a_linear",
+   "display": "S3-A 线性混合",
+   "experiment": "SegFormer-B0-S3A-LinearMix",
+   "config": "configs/segformer/v4r2_spectral/s3_a_linear.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3A-LinearMix/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 300,
+   "best_event_mean_iou": 0.30423502854001494,
+   "best_ap": 0.4109335630460636,
+   "by_event_iou": {
+    "hiroshima": 0.2828671968756992,
+    "thrissur": 0.3256028602043306
+   },
+   "tiny": {
+    "matched_evaluable": 11,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.24042216772962652,
+   "params": {
+    "total": 3753802,
+    "trainable": 3753802,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 28425,
+    "ladder": 200
+   },
+   "branch_activity": {},
+   "evals_missing": []
+  },
+  {
+   "arm": "s3_b_idattn",
+   "display": "S3-B ID 注意力",
+   "experiment": "SegFormer-B0-S3B-IDAttention",
+   "config": "configs/segformer/v4r2_spectral/s3_b_idattn.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3B-IDAttention/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 300,
+   "best_event_mean_iou": 0.29159338444061245,
+   "best_ap": 0.38818307933876106,
+   "by_event_iou": {
+    "hiroshima": 0.2675603617970249,
+    "thrissur": 0.3156264070841999
+   },
+   "tiny": {
+    "matched_evaluable": 9,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.23061853163905932,
+   "params": {
+    "total": 3860758,
+    "trainable": 3860758,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 135381,
+    "unused_relation_params": 132,
+    "effective_trainable": 3860626,
+    "relation_block": 107156
+   },
+   "branch_activity": {
+    "relation.relation.2.weight": 0.0,
+    "relation.readout.weight": 9.279823303222656
+   },
+   "evals_missing": []
+  },
+  {
+   "arm": "s3_c_wavelength_attn",
+   "display": "S3-C 波长注意力",
+   "experiment": "SegFormer-B0-S3C-WavelengthAttention",
+   "config": "configs/segformer/v4r2_spectral/s3_c_wavelength_attn.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3C-WavelengthAttention/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 400,
+   "best_event_mean_iou": 0.29126168993349144,
+   "best_ap": 0.39464522366470167,
+   "by_event_iou": {
+    "hiroshima": 0.2793611384839837,
+    "thrissur": 0.3031622413829992
+   },
+   "tiny": {
+    "matched_evaluable": 6,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.23957674910555576,
+   "params": {
+    "total": 3860758,
+    "trainable": 3860758,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 135381,
+    "unused_relation_params": 132,
+    "effective_trainable": 3860626,
+    "relation_block": 107156
+   },
+   "branch_activity": {
+    "relation.relation.2.weight": 0.0,
+    "relation.readout.weight": 11.437912940979004
+   },
+   "evals_missing": []
+  },
+  {
+   "arm": "s3_d_local_bias",
+   "display": "S3-D 局部偏置",
+   "experiment": "SegFormer-B0-S3D-LocalBias",
+   "config": "configs/segformer/v4r2_spectral/s3_d_local_bias.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3D-LocalBias/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 500,
+   "best_event_mean_iou": 0.2854840322151416,
+   "best_ap": 0.39820618065838675,
+   "by_event_iou": {
+    "hiroshima": 0.2845335144927536,
+    "thrissur": 0.2864345499375297
+   },
+   "tiny": {
+    "matched_evaluable": 9,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.2377740545908981,
+   "params": {
+    "total": 3860758,
+    "trainable": 3860758,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 135381,
+    "unused_relation_params": 0,
+    "effective_trainable": 3860758,
+    "relation_block": 107156
+   },
+   "branch_activity": {
+    "relation.relation.2.weight": 2.988947868347168,
+    "relation.readout.weight": 12.154879570007324
+   },
+   "evals_missing": []
+  },
+  {
+   "arm": "s3_e_global_bias",
+   "display": "S3-E 全局偏置",
+   "experiment": "SegFormer-B0-S3E-GlobalBias",
+   "config": "configs/segformer/v4r2_spectral/s3_e_global_bias.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S3E-GlobalBias/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 400,
+   "best_event_mean_iou": 0.28476078286790196,
+   "best_ap": 0.3894948947406555,
+   "by_event_iou": {
+    "hiroshima": 0.278981395733062,
+    "thrissur": 0.29054017000274196
+   },
+   "tiny": {
+    "matched_evaluable": 6,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.238926852983342,
+   "params": {
+    "total": 3860758,
+    "trainable": 3860758,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 135381,
+    "unused_relation_params": 0,
+    "effective_trainable": 3860758,
+    "relation_block": 107156
+   },
+   "branch_activity": {
+    "relation.relation.2.weight": 2.6665499210357666,
+    "relation.readout.weight": 11.360074996948242
+   },
+   "evals_missing": []
+  },
+  {
+   "arm": "s4_add",
+   "display": "S4-ADD",
+   "experiment": "SegFormer-B0-S4Add",
+   "config": "configs/segformer/v4r2_spectral/s4_add.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4Add/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 500,
+   "best_event_mean_iou": 0.3085226096668345,
+   "best_ap": 0.44268060873204884,
+   "by_event_iou": {
+    "hiroshima": 0.31360385615291386,
+    "thrissur": 0.3034413631807551
+   },
+   "tiny": {
+    "matched_evaluable": 9,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.22708569571180975,
+   "params": {
+    "total": 3877399,
+    "trainable": 3877399,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 152022,
+    "feature_branch": 123796,
+    "relation_block": 107156,
+    "gate": 0,
+    "unused_relation_params": 0,
+    "effective_trainable": 3877399
+   },
+   "branch_activity": {
+    "alpha": 0.01391198392957449,
+    "feature.block.relation.2.weight": 1.448241114616394,
+    "feature.proj.weight": 1031.6376953125
+   },
+   "evals_missing": []
+  },
+  {
+   "arm": "s4_fixed_gate",
+   "display": "S4-FIXEDGATE",
+   "experiment": "SegFormer-B0-S4FixedGate",
+   "config": "configs/segformer/v4r2_spectral/s4_fixed_gate.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4FixedGate/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 500,
+   "best_event_mean_iou": 0.30947048019162693,
+   "best_ap": 0.44235716633111277,
+   "by_event_iou": {
+    "hiroshima": 0.31199938420578394,
+    "thrissur": 0.30694157617746987
+   },
+   "tiny": {
+    "matched_evaluable": 11,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.23263671991434232,
+   "params": {
+    "total": 3877399,
+    "trainable": 3877399,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 152022,
+    "feature_branch": 123796,
+    "relation_block": 107156,
+    "gate": 0,
+    "unused_relation_params": 0,
+    "effective_trainable": 3877399
+   },
+   "branch_activity": {
+    "alpha": 0.015224755741655827,
+    "feature.block.relation.2.weight": 1.5280221700668335,
+    "feature.proj.weight": 1033.833984375
+   },
+   "evals_missing": []
+  },
+  {
+   "arm": "s4_learn_gate",
+   "display": "S4-LEARNGATE",
+   "experiment": "SegFormer-B0-S4LearnGate",
+   "config": "configs/segformer/v4r2_spectral/s4_learn_gate.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4LearnGate/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 500,
+   "best_event_mean_iou": 0.3081029376221789,
+   "best_ap": 0.4446105307383082,
+   "by_event_iou": {
+    "hiroshima": 0.31373914981957,
+    "thrissur": 0.30246672542478775
+   },
+   "tiny": {
+    "matched_evaluable": 11,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.22378975569351484,
+   "params": {
+    "total": 3882008,
+    "trainable": 3882008,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 156631,
+    "feature_branch": 123796,
+    "relation_block": 107156,
+    "gate": 4609,
+    "unused_relation_params": 0,
+    "effective_trainable": 3882008
+   },
+   "branch_activity": {
+    "alpha": 0.014155997894704342,
+    "feature.block.relation.2.weight": 1.4013681411743164,
+    "feature.proj.weight": 1031.8302001953125,
+    "gate.weight": 63.83302307128906
+   },
+   "evals_missing": []
+  },
+  {
+   "arm": "s4_capctrl",
+   "display": "S4-CAPCTRL",
+   "experiment": "SegFormer-B0-S4CapCtrl",
+   "config": "configs/segformer/v4r2_spectral/s4_capctrl.yaml",
+   "run_dir": "outputs/segformer/v4r2_spectral/SegFormer-B0-S4CapCtrl/1234",
+   "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE",
+   "best_step": 500,
+   "best_event_mean_iou": 0.31011143854284856,
+   "best_ap": 0.4465401417793572,
+   "by_event_iou": {
+    "hiroshima": 0.3147228045548157,
+    "thrissur": 0.3055000725308814
+   },
+   "tiny": {
+    "matched_evaluable": 10,
+    "evaluable": 77
+   },
+   "last_event_mean_iou": 0.22441140559286796,
+   "params": {
+    "total": 3882008,
+    "trainable": 3882008,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 156631,
+    "feature_branch": 123796,
+    "relation_block": 107156,
+    "gate": 4609,
+    "unused_relation_params": 132,
+    "effective_trainable": 3881876
+   },
+   "branch_activity": {
+    "alpha": 0.015468349680304527,
+    "feature.block.relation.2.weight": 0.0,
+    "feature.proj.weight": 1036.5640869140625,
+    "gate.weight": 61.187477111816406
+   },
+   "evals_missing": []
+  }
+ ],
+ "gate_diagnostics": [
+  {
+   "arm": "s4_add",
+   "run_dir": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4Add\\1234",
+   "checkpoint": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4Add\\1234\\best.pt",
+   "alpha": -0.01391198392957449,
+   "fusion": "add",
+   "n_dev": 669,
+   "corr_abs_mean": 0.059373605996370316,
+   "corr_abs_p95": 0.08288530260324478,
+   "status": "COMPLETED"
+  },
+  {
+   "arm": "s4_fixed_gate",
+   "run_dir": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4FixedGate\\1234",
+   "checkpoint": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4FixedGate\\1234\\best.pt",
+   "alpha": -0.015224755741655827,
+   "fusion": "fixed",
+   "n_dev": 669,
+   "corr_abs_mean": 0.0273031797260046,
+   "corr_abs_p95": 0.07685916870832443,
+   "gate_mean": 0.5,
+   "gate_std": 0.0,
+   "gate_p05": 0.5,
+   "gate_p50": 0.5,
+   "gate_p95": 0.5,
+   "gate_pos_mean": 0.5,
+   "gate_bg_mean": 0.5,
+   "gate_fp_mean": 0.5,
+   "gate_fn_mean": 0.5,
+   "gate_image_std_mean": 0.0,
+   "gate_constant_fraction": 1.0,
+   "status": "COMPLETED"
+  },
+  {
+   "arm": "s4_learn_gate",
+   "run_dir": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4LearnGate\\1234",
+   "checkpoint": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4LearnGate\\1234\\best.pt",
+   "alpha": -0.014155997894704342,
+   "fusion": "learn",
+   "n_dev": 669,
+   "corr_abs_mean": 0.001942144357599318,
+   "corr_abs_p95": 0.010535398498177528,
+   "gate_mean": 0.04702846705913544,
+   "gate_std": 0.20445650815963745,
+   "gate_p05": 0.0,
+   "gate_p50": 0.0,
+   "gate_p95": 0.328125,
+   "gate_pos_mean": 0.01515955664217472,
+   "gate_bg_mean": 0.047653939574956894,
+   "gate_fp_mean": 0.005789935123175383,
+   "gate_fn_mean": 0.023579509928822517,
+   "gate_image_std_mean": 0.07305030448368391,
+   "gate_constant_fraction": 0.0012086492757987276,
+   "status": "COMPLETED"
+  },
+  {
+   "arm": "s4_capctrl",
+   "run_dir": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4CapCtrl\\1234",
+   "checkpoint": "outputs\\segformer\\v4r2_spectral\\SegFormer-B0-S4CapCtrl\\1234\\best.pt",
+   "alpha": -0.015468349680304527,
+   "fusion": "learn",
+   "n_dev": 669,
+   "corr_abs_mean": 1.7570837371749803e-05,
+   "corr_abs_p95": 1.2954398630855715e-22,
+   "gate_mean": 0.0005788347916677594,
+   "gate_std": 0.02070644311606884,
+   "gate_p05": 0.0,
+   "gate_p50": 0.0,
+   "gate_p95": 1.5337950060134416e-21,
+   "gate_pos_mean": 0.000516032159794122,
+   "gate_bg_mean": 0.000580067397095263,
+   "gate_fp_mean": 0.0003115659928880632,
+   "gate_fn_mean": 0.0006751888431608677,
+   "gate_image_std_mean": 0.003433529271100191,
+   "gate_constant_fraction": 0.9987149353396281,
+   "status": "COMPLETED"
+  }
+ ],
+ "notes": [
+  "S3-D 同时是 S4-INPUTRES：入口前 x+Δx，不重复训练。",
+  "S4-CAPCTRL 与 LEARNGATE 存储参数相同；关系偏置 MLP 在 none 模式不参与前向，有效参数少132。",
+  "S1 首层审计：输出见 outputs/segformer/v4r2_spectral/s1_init_audit.json。",
+  "单 seed；2000步只与同日程前缀比较，不宣称显著性。"
+ ],
+ "started": null,
+ "finished": "2026-10-23T14:47:04-0400"
+}

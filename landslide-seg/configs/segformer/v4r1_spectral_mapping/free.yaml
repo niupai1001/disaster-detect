@@ -1,0 +1,9 @@
+# S2 对照：同参数量的自由 10×10 通道混合矩阵，不看波长。
+_base: _base.yaml
+segformer:
+  experiment: SegFormer-B0-LateDetail-OODv4-S2FreeMap
+  model:
+    spectral_ladder:
+      level: S2
+      variant: free
+      rank: 4

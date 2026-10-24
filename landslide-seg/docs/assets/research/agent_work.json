@@ -1,0 +1,432 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-24T07:09:51.352535+00:00",
+  "sources": {
+    "rules": "AGENTS.md",
+    "research_facts": "docs/assets/research/stage_ledger.json",
+    "live_queue": "outputs/research_completion/status.json",
+    "boundary": "聊天贡献仅据2026-10-23读取到的最近完成回合；不声称已审计全部历史作者。队列登记状态不等于进程存活或研究验收。"
+  },
+  "tasks": [
+    {
+      "id": "historical-engineering-plan",
+      "title": "历史时间与光谱修改方案",
+      "owner": "01a15886-486a-71b3-97f3-0080e17eaca9",
+      "chat_title": "项目是面向单期 Sentinel-2 影像的灾害分割，需要识别不同大小的灾害、类别并保留边界细节。当前首先完成滑坡任务…",
+      "status": "completed",
+      "scopes": [],
+      "contribution": "最近完成回合交付修改计划，记录停止误启动任务；早期四折复跑方案已被当前协议取代。",
+      "evidence": [
+        "archive/experiment_history/docs/planned_temporal_spectral_experiments_2026-10-20.md"
+      ],
+      "note": "历史交付，不代表该方案已经训练完成；不继续执行旧计划。"
+    },
+    {
+      "id": "research-review",
+      "title": "研究审阅、结果口径与时间机制路线修订",
+      "owner": "01a14cc4-f0d9-7813-b6d3-4d54018be7f9",
+      "chat_title": "请首先阅读我给你的这个MD 我们将合作构建一个面向单期 Sentinel-2 滑坡识别和分割的研究模型。 第一阶段必须…",
+      "status": "completed",
+      "scopes": [],
+      "contribution": "最近完成回合纠正U-TAE像素汇总/事件平均混用，规划同接口SegFormer四组时间控制；该回合未启动新训练。",
+      "evidence": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "docs/MODEL_EVOLUTION.md"
+      ],
+      "note": "当时四组待实施的说法已过期；实际完成情况查阶段台账。"
+    },
+    {
+      "id": "budget-and-alignment-plan",
+      "title": "训练预算复核、设计实现审查与后续计划",
+      "owner": "01a16805-4eb7-7ff3-b88e-6ef43f16b663",
+      "chat_title": "根据项目以及当前的结果，按照文件开头的直接执行指令开展计划制定",
+      "status": "completed",
+      "scopes": [],
+      "contribution": "最近完成回合核对14个完成运行的最佳步数、5期结果与实现缺口，将后续2000步方案写回台账；未启动新批次。",
+      "evidence": [
+        "docs/assets/research/training_budget.json",
+        "docs/assets/research/stage_ledger.json",
+        "docs/MODEL_EVOLUTION.md"
+      ],
+      "note": "2000步仍为待适配计划；现有3600步队列另查状态。"
+    },
+    {
+      "id": "registered-completion-queue",
+      "title": "已登记的3/5/7期与地形修复队列",
+      "owner": "待核实：既有执行会话/队列脚本",
+      "status": "active",
+      "scopes": [
+        "outputs/research_completion",
+        "outputs/segformer/v4r1_temporal_frame_count",
+        "outputs/segformer/s2_10band_v4r1_geo_scoring_v2"
+      ],
+      "evidence": [
+        "outputs/research_completion/status.json",
+        "scripts/run_research_completion.py"
+      ],
+      "note": "导入时登记状态RUNNING；不据此认定进程存活，也不推定原作者。先查实际命令、进程与产物；禁止重复启动。范围含保守预留，实际路径以状态中的命令为准。"
+    },
+    {
+      "id": "documentation-consolidation",
+      "title": "文档合并、维护路由与Agent协作登记",
+      "owner": "01a16870-3035-76e0-a0be-30dff718ffc0",
+      "status": "completed",
+      "scopes": [
+        "AGENTS.md",
+        "README.md",
+        "docs",
+        "scripts/query_research.py",
+        "scripts/manage_agent_work.py",
+        "tests/test_agent_work.py",
+        "archive/experiment_history/catalog.json"
+      ],
+      "evidence": [
+        "docs/RESEARCH_INDEX.md",
+        "AGENTS.md",
+        "scripts/manage_agent_work.py",
+        "tests/test_agent_work.py"
+      ],
+      "note": "已完成入口精简、规则去除过期状态、计划单一位置、贡献登记与认领冲突检查；157个链接、5份快照哈希、刷新幂等及认领测试通过。未启动或停止训练，未核验全部历史作者或后台队列存活。",
+      "updated_at": "2026-10-23T11:19:18.931140+00:00"
+    },
+    {
+      "id": "plan-exec-2026-10-23",
+      "title": "执行 temporal-mechanism 计划：预算适配与后续批次",
+      "owner": "dsh-agent-2026-10-23",
+      "scopes": [
+        "configs/segformer/v4r2_temporal_cutoff",
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "manifests/v4r2",
+        "outputs/segformer/v4r2_temporal_cutoff",
+        "scripts/audit_research_execution.py",
+        "scripts/build_temporal_subset.py",
+        "scripts/check_research_protocol.py",
+        "src/landslide_seg/training",
+        "tests/test_update_budget.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T11:27:01.524602+00:00",
+      "updated_at": "2026-10-23T13:43:53.243601+00:00",
+      "evidence": [
+        "manifests/v4r2/subset_protocol_cutoff7.json",
+        "outputs/segformer/v4r2_temporal_cutoff/summary_temporal_cutoff.json",
+        "outputs/segformer/v4r2_temporal_window/summary_temporal_window.json",
+        "docs/assets/research/execution_audit.json",
+        "src/landslide_seg/training/budget.py",
+        "tests/test_update_budget.py"
+      ],
+      "note": "实现并验证预算适配：stop_updates/schedule_updates解耦、验收读resolved_config的report_steps、派生子集subset_protocol预检、history+window_days窗口选择；新增派生共同子集2007/669与2108/669。训练并验收6个2000步正式run：截止参考日期1/3/5/7=0.2933/0.3061/0.3432/0.3277，窗口180/365=0.3026/0.2962；200步smoke不计正式成绩。旧队列3/5/7与地形v2已结束，7期best0.3348、地形v2 best0.3072。未验证：单seed无显著性、派生共同子集不能与2223块全体混排、组成训练与U-TAE开关未实现、未做多卡/编译验证。"
+    },
+    {
+      "id": "composition-batch-2026-10-23",
+      "title": "执行组成对照批次：逐样本帧计划与三组2000步",
+      "owner": "dsh-agent-2026-10-23",
+      "scopes": [
+        "configs/segformer/v4r3_composition",
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "manifests/v4r3",
+        "outputs/segformer/v4r3_composition",
+        "scripts/audit_research_execution.py",
+        "scripts/build_composition_plans.py",
+        "scripts/check_research_protocol.py",
+        "src/landslide_seg/data",
+        "tests/test_composition_plans.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T13:45:32.757240+00:00",
+      "updated_at": "2026-10-23T15:01:53.314606+00:00",
+      "evidence": [
+        "manifests/v4r3/subset_protocol_composition.json",
+        "outputs/segformer/v4r3_composition/summary_composition.json",
+        "docs/assets/research/execution_audit.json",
+        "src/landslide_seg/models/utae_dates.py",
+        "configs/utae/v4r1/mean.yaml",
+        "tests/test_composition_plans.py"
+      ],
+      "note": "完成组成对照批次：新增逐样本帧计划入口（dataset/train/evaluate）、三份计划与1141/669共同清单、预检的计划校验（登记哈希/成员/锚帧/未来帧/期数）、三组2000步训练与验收：5灾后0.2699、3灾后0.2789、2灾前+3灾后0.2826。另在认领范围外实现U-TAE均值/内容开关（src/landslide_seg/models/utae_seg.py、utae_dates.py、scripts/train_utae_cv.py、evaluate_utae_v4r1.py、configs/utae/v4r1/{mean,content}.yaml、tests/test_utae_controls.py、docs/assets/research/utae_controls_queue.json）并修掉训练入口对缺失quality侧表的崩溃；两组30轮已排队并在训练。未验证：单seed无显著性、组成子集只有6个训练事件且为回顾性条件（灾后帧最长865天）、U-TAE新组尚未训练完成验收。"
+    },
+    {
+      "id": "systematic-improvement",
+      "title": "最新结果诊断与系统改进路线",
+      "owner": "01a16805-4eb7-7ff3-b88e-6ef43f16b663",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T15:40:19.289234+00:00",
+      "updated_at": "2026-10-23T15:49:06.120732+00:00",
+      "evidence": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "docs/assets/research/systematic_evidence.png"
+      ],
+      "note": "核对最新截止日期/跨度/组成结果，制定数据错误审计→训练归一化→事件采样/对象监督→条件模型改动→冻结候选复核的系统路线；修正单seed噪声与BN归因过强表述。新增方案未训练，不中止已有队列。"
+    },
+    {
+      "id": "external-test-audit",
+      "title": "用户新增滑坡样本配对与输入契约审计",
+      "owner": "01a16805-4eb7-7ff3-b88e-6ef43f16b663",
+      "scopes": [
+        "docs/assets/research/external_landslide_audit.json",
+        "docs/assets/research/systematic_evidence.png",
+        "scripts/audit_external_landslide.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T15:43:13.625946+00:00",
+      "updated_at": "2026-10-23T15:49:05.991682+00:00",
+      "evidence": [
+        "docs/assets/research/external_landslide_audit.json",
+        "scripts/audit_external_landslide.py"
+      ],
+      "note": "只读完成364对影像标注审计，记录缺影像、非有限值与包围盒重叠；用户确认9通道不对应S2、无日期，仅参考且排除主线。未推理或改原数据。"
+    },
+    {
+      "id": "size-first-diagnosis",
+      "title": "目标尺寸分布与漏检贡献审查，排除日期标注问题",
+      "owner": "01a16805-4eb7-7ff3-b88e-6ef43f16b663",
+      "scopes": [
+        "docs/assets/research/size_diagnosis.json",
+        "docs/assets/research/size_diagnosis.png",
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "scripts/audit_target_sizes.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T15:52:58.183325+00:00",
+      "updated_at": "2026-10-23T15:58:01.697674+00:00",
+      "evidence": [
+        "docs/assets/research/size_diagnosis.json",
+        "docs/assets/research/size_diagnosis.png",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "按用户要求排除日期标注一致性，完成原2892份mask/valid全量尺寸分布、逐事件统计及成熟基线FN分解，尺寸统计与已有评价一致；更新数据优先计划。未训练/推理，逐对象概率和案例检查尚未完成。"
+    },
+    {
+      "id": "object-data-review",
+      "title": "逐对象概率、裁块增强监督与固定案例审查",
+      "owner": "01a16805-4eb7-7ff3-b88e-6ef43f16b663",
+      "scopes": [
+        "docs/assets/research/object_data_review",
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/data_review",
+        "scripts/audit_object_errors.py",
+        "tests/test_object_error_audit.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T16:01:41.149643+00:00",
+      "updated_at": "2026-10-23T18:20:40.651221+00:00",
+      "evidence": [
+        "docs/assets/research/object_data_review/summary.json",
+        "docs/assets/research/object_data_review/pipeline.json",
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "scripts/audit_object_errors.py"
+      ],
+      "note": "完成2892源数组/缓存/增强审查、best与末态曝光、实际损失梯度、669块CPU重推理、48固定对象案例及逐对象分类；历史混淆计数完全复现；6测试和223文档链接通过。未训练；日期标注一致性不查，外部九通道不纳入；未证明全景对象身份、人工标注语义正确及改进因果效果。"
+    },
+    {
+      "id": "spectral-s3s4-2026-10-23",
+      "title": "执行 S1 统计/初始化与 S3 五组、S4 五种融合",
+      "owner": "dsh-agent-2026-10-23",
+      "scopes": [
+        "configs/segformer/v4r2_spectral",
+        "manifests/v4r1/stats_s1_indices4.json",
+        "manifests/v4r2",
+        "outputs/segformer/v4r2_spectral",
+        "scripts/audit_spectral_gate.py",
+        "scripts/audit_spectral_init.py",
+        "scripts/build_s1_extra_stats.py",
+        "scripts/run_v4r2_spectral.py",
+        "scripts/summarize_spectral_s2s4.py",
+        "tests/test_spectral_s1_s3_s4.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T16:53:05.807843+00:00",
+      "updated_at": "2026-10-23T18:54:22.998572+00:00",
+      "evidence": [
+        "outputs/segformer/v4r2_spectral/summary_spectral.json",
+        "outputs/segformer/v4r2_spectral/s1_init_audit.json",
+        "manifests/v4r1/stats_s1_indices4.json",
+        "docs/assets/research/v4r2_spectral_queue.json",
+        "docs/assets/research/execution_audit.json"
+      ],
+      "note": "实现并验收 S1 新增四指数通道统计与首层同初始化审计、S3 五组关系、S4 独立F_spec四种融合与同容量非物理控制；11个2000步正式run全部通过预检、训练、best/last/step1000/1500评测与execution_audit严格加载。S1指数0.2917对原始通道0.2911（+0.0006），历史-0.0113差未复现；S3-A线性0.3042对注意力0.2916/0.2913/0.2855/0.2848；S4-ADD/FIXED/LEARN/CAPCTRL=0.3085/0.3095/0.3081/0.3101，入口前残差0.2855，学习门末段关闭。未验证：单seed无显著性、门控饱和/关闭的优化原因、S3线性与注意力未严格同容量、未做编译/多卡。注：本会话同时有另一活动任务在改 factory/update_training 的 USE 分支，未覆盖其改动。"
+    },
+    {
+      "id": "spectral-s3s4-audit-2026-10-23",
+      "title": "S1/S3/S4 验收审计、图与固定文档回写",
+      "owner": "dsh-agent-2026-10-23",
+      "scopes": [
+        "docs/assets/research/v4r2_spectral_queue.json",
+        "scripts/audit_research_execution.py",
+        "scripts/make_spectral_s2s4_figure.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T17:05:23.007371+00:00",
+      "updated_at": "2026-10-23T18:54:23.583150+00:00",
+      "evidence": [
+        "docs/assets/research/execution_audit.json",
+        "docs/assets/research/v4r2_spectral.png",
+        "docs/assets/research/v4r2_spectral_queue.json"
+      ],
+      "note": "扩展统一execution_audit纳入v4r2_spectral 11个run并核验权重/配置/成员/评价哈希与S1新增通道统计；新增S1/S3/S4汇总图、门控诊断图与队列证据JSON；回写阶段台账、DATA_EVENT_PROTOCOL、MODEL_EVOLUTION并刷新RESEARCH_INDEX。全量pytest通过。未验证：图为单seed结果，不具显著性。"
+    },
+    {
+      "id": "use-input-contract",
+      "title": "USE完整首轮实施",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "configs/segformer/use",
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "outputs/use",
+        "scripts/build_use_quality.py",
+        "scripts/check_research_protocol.py",
+        "scripts/manage_agent_work.py",
+        "src/landslide_seg/data/optical_observation.py",
+        "src/landslide_seg/data/use_dataset.py",
+        "src/landslide_seg/models",
+        "src/landslide_seg/training/update_training.py",
+        "tests/test_optical_observation.py",
+        "tests/test_universal_spectral_encoder.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T18:48:29.100591+00:00",
+      "updated_at": "2026-10-24T07:09:51.352535+00:00",
+      "evidence": [
+        "outputs/use/segmentation_interface_acceptance.json",
+        "outputs/use/pretraining_engineering_acceptance.json",
+        "outputs/use/completion_status.json"
+      ],
+      "note": "继续完整首轮：九组监督与669块独立五组合评价完成；严格FP32全分割模型奇数尺寸C=3/4/6/10/13置换/补齐通过。真实S2+Landsat批量8重建与恢复下一采样/遮挡/损失一致，后续参数误差在FP32容差内。外部扩量仍运行，completion队列在等待数据，预训练与第10组尚未开始，不可标阶段完成。"
+    },
+    {
+      "id": "use-doc-sync",
+      "title": "USE阶段事实生成同步",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "docs/data_official.md",
+        "docs/research_index.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-23T18:36:13.326618+00:00",
+      "updated_at": "2026-10-23T18:36:52.256163+00:00",
+      "evidence": [
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "记录USE已实现范围与接入阻塞，未将工程测试记为模型或训练完成。"
+    },
+    {
+      "id": "use-integration",
+      "title": "USE训练和评价集成",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "scripts/evaluate_segformer.py",
+        "src/landslide_seg/data/segformer_dataset.py",
+        "src/landslide_seg/training/segformer_trainer.py",
+        "tests/test_agent_work.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T18:50:19.489136+00:00",
+      "updated_at": "2026-10-23T18:50:19.489136+00:00"
+    },
+    {
+      "id": "use-external",
+      "title": "USE工程验收与外部数据链路",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "scripts/audit_use.py",
+        "scripts/prepare_use_external.py",
+        "scripts/pretrain_use.py",
+        "scripts/run_use.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T18:55:54.435694+00:00",
+      "updated_at": "2026-10-23T18:55:54.435694+00:00"
+    },
+    {
+      "id": "use-extra-tests",
+      "title": "USE外部预训练头验收",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "tests/test_use_pretraining.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T19:09:28.058748+00:00",
+      "updated_at": "2026-10-23T19:09:28.058748+00:00"
+    },
+    {
+      "id": "use-scale-metrics",
+      "title": "USE精确对象尺度分档与测试",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "src/landslide_seg/training/segformer_metrics.py",
+        "tests/test_use_scale_metrics.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T19:13:11.935159+00:00",
+      "updated_at": "2026-10-23T19:13:11.935159+00:00"
+    },
+    {
+      "id": "use-doc-progress",
+      "title": "USE固定入口与结果正文同步",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "docs/research_index.md"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T19:21:35.210144+00:00",
+      "updated_at": "2026-10-23T19:21:35.210144+00:00"
+    },
+    {
+      "id": "use-report",
+      "title": "USE合并结果与科学图",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "docs/assets/research/use",
+        "scripts/summarize_use.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T19:32:02.799233+00:00",
+      "updated_at": "2026-10-23T19:32:02.799233+00:00"
+    },
+    {
+      "id": "use-index",
+      "title": "USE运行索引与结构显示名",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "docs/assets/research/experiment_aliases.csv",
+        "docs/assets/research/experiment_registry.json",
+        "scripts/build_research_inventory.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-23T19:53:47.608599+00:00",
+      "updated_at": "2026-10-23T19:53:47.608599+00:00"
+    }
+  ],
+  "transfers": [
+    {
+      "at": "2026-10-23T18:48:54.640179+00:00",
+      "source": "spectral-s3s4-2026-10-23",
+      "target": "use-input-contract",
+      "scopes": [
+        "scripts/check_research_protocol.py",
+        "src/landslide_seg/models",
+        "src/landslide_seg/training/update_training.py"
+      ],
+      "authorization": "用户本轮明确授权：授权移交这三处，继续完整首轮。仅移交登记范围，不改变旧运行和其他认领。"
+    }
+  ]
+}

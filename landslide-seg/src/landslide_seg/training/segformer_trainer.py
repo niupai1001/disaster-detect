@@ -42,6 +42,7 @@ from ..data.segformer_dataset import (
     read_manifest,
 )
 from ..models.factory import build_model, model_identity, model_type
+from .budget import resolve_update_budget
 from .losses import bce_loss, dice_loss
 from .metrics import summarize
 
@@ -313,6 +314,10 @@ def _train_epoch(
     device: torch.device,
 ) -> tuple[float, int, int]:
     model.train()
+    if cfg['segformer']['train'].get('freeze_bn_running_stats', False):
+        for module in model.modules():
+            if isinstance(module, torch.nn.modules.batchnorm._BatchNorm):
+                module.eval()
     total, seen, skipped, steps = 0.0, 0, 0, 0
     coarse_total = 0.0
     clip = float(cfg["segformer"]["optim"]["grad_clip"])
@@ -457,7 +462,7 @@ def train_one(
         raise FileNotFoundError(f"清单不存在: {manifest}（先跑 scripts/prepare_segformer_data.py）")
     if not stats_path.is_file():
         raise FileNotFoundError(f"统计文件不存在: {stats_path}")
-    if model_type(s) in ("segformer", "single") and not pretrained.is_dir():
+    if model_type(s) in ("segformer", "single", "use") and not pretrained.is_dir():
         raise FileNotFoundError(f"预训练权重目录不存在: {pretrained}")
     if model_type(s) == "single" and float(s["loss"].get("coarse_weight", 0.0) or 0.0) > 0:
         raise ValueError("单头模型（type=single）没有粗输出，不能启用 loss.coarse_weight")
@@ -488,17 +493,25 @@ def train_one(
     epochs = int(train_cfg["epochs"])
     max_steps = train_cfg.get("max_steps")
     steps_per_epoch = math.ceil(len(train_recs) / batch_size)
-    total_steps = int(max_steps) if max_steps else steps_per_epoch * epochs
+    # 更新制：停止步数与 poly 日程长度分开；日程长度可能大于停止步数。
+    budget = resolve_update_budget(train_cfg) if str(train_cfg.get("budget_mode")) == "updates" else None
+    total_steps = budget.schedule_updates if budget else (int(max_steps) if max_steps else steps_per_epoch * epochs)
 
     optimizer = _make_optimizer(model, cfg)
     scheduler = _make_scheduler(optimizer, cfg, total_steps)
 
     extra = str(s["model"].get("extra_channel", "none"))
     sidecar = d.get("extra_sidecar")
-    train_ds = S2SegDataset(train_recs, stats, augment=True, seed=seed, preload=preload,
+    dataset_class = S2SegDataset
+    if model_type(s) == 'use':
+        from ..data.use_dataset import USESegDataset
+        dataset_class = USESegDataset
+    train_ds = dataset_class(train_recs, stats, augment=True, seed=seed, preload=preload,
                             extra=extra, sidecar=sidecar)
-    val_ds = S2SegDataset(val_recs, stats, augment=False, seed=seed, preload=preload,
+    val_ds = dataset_class(val_recs, stats, augment=False, seed=seed, preload=preload,
                           extra=extra, sidecar=sidecar)
+    if model_type(s) == 'use':
+        train_ds.mixed = bool(d.get('mixed_bands', False))
 
     meta = {
         "experiment": s["experiment"],
@@ -513,8 +526,9 @@ def train_one(
             for p in sorted((PROJECT_ROOT / "src/landslide_seg").rglob("*.py"))
         },
         "dependencies": {name: importlib.metadata.version(name) for name in ("torch", "transformers", "numpy", "scipy", "PyYAML")},
+        "use_quality_sha256": file_sha256(train_ds.quality_root / 'index.json') if hasattr(train_ds, 'quality_root') else None,
         "model_identity": model_identity(s, model),
-        "weight": weight_identity(pretrained) if (model_type(s) in ("segformer", "single") and pretrained.is_dir()) else None,
+        "weight": weight_identity(pretrained) if (model_type(s) in ("segformer", "single", "use") and pretrained.is_dir()) else None,
         "params": model.count_params(),
         "adapter_report": model.adapter_report,
         "load_info": model.load_info,
@@ -524,6 +538,7 @@ def train_one(
         "device_name": torch.cuda.get_device_name(dev) if dev.type == "cuda" else "cpu",
         "steps_per_epoch": steps_per_epoch,
         "total_steps": total_steps,
+        "budget": budget.as_dict() if budget else None,
         "n_train": len(train_recs),
         "n_val": len(val_recs),
         "preload": preload,

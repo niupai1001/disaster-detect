@@ -1,0 +1,10 @@
+# 同架构 U-TAE 的时间均值控制：去掉 L-TAE 注意力与日期编码，CNN/解码器/skip 不变。
+# 30 轮、batch16、原恒定学习率与损失；与已有 15 期日期组（best@17）同预算窗口。
+_base: _base.yaml
+utae_cv:
+  model:
+    aggregation: mean
+    positional: none
+  output_dir: outputs/utae_v4r1_controls/mean
+  train:
+    epochs: 30

@@ -12,7 +12,7 @@
 ├── README.md                 # 本文件
 ├── landslide-seg/            # 当前研究主体
 │   ├── AGENTS.md             # 项目接力规则（协议、成员锁、阶段回写）
-│   ├── README.md             # 项目介绍（历史 V1 工程 + 当前入口）
+│   ├── README.md             # 项目定位与目录路由
 │   ├── src/                  # 源码：数据、模型、训练、评价、融合与工具
 │   ├── scripts/              # 训练/评价/查询/检查脚本
 │   ├── configs/              # 实验配置（按版本分目录）
@@ -56,9 +56,11 @@ python -X utf8 scripts/check_research_protocol.py --config configs/segformer/v4r
 - [`landslide-seg/docs/DATA_EVENT_PROTOCOL.md`](landslide-seg/docs/DATA_EVENT_PROTOCOL.md)：九事件训练、广岛＋特里苏尔验证的成员与指标
 - [`landslide-seg/docs/DATA_OFFICIAL.md`](landslide-seg/docs/DATA_OFFICIAL.md)：官方划分的历史对照
 - [`landslide-seg/docs/MODEL_EVOLUTION.md`](landslide-seg/docs/MODEL_EVOLUTION.md)：模型结构、监督来源与训练方式
-- [`landslide-seg/docs/RESEARCH_INDEX.md#实验可能回答了什么`](landslide-seg/docs/RESEARCH_INDEX.md)：全部实验比较与证据路径
+- [`landslide-seg/docs/RESEARCH_INDEX.md#实验可能回答了什么`](landslide-seg/docs/RESEARCH_INDEX.md)：按需展开全部实验比较与证据路径
 
 ## 分支
 
 - `master`：当前主干（本仓库内容 + `old/` 归档）。
 - `main`：重建前的原始主干，保留早期工程与提交历史。
+
+协作维护、任务认领与贡献记录统一从[研究入口维护路由](landslide-seg/docs/RESEARCH_INDEX.md#文档与维护路由)进入。日常Agent只读最小接力，不默认全文读研究正文或old历史。

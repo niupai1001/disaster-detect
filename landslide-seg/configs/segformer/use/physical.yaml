@@ -1,0 +1,70 @@
+segformer:
+  experiment: use_physical
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/use
+  data:
+    version: s2_10band_v4r1_p20
+    source_root: data/sen12
+    cache_dir: data/s2_10band_v4_p20
+    manifest: manifests/v4r1/pool_100.jsonl
+    quarantine: manifests/s2_10band_v4_p20_quarantine.jsonl
+    stats: manifests/v4r1/stats_core25.json
+    test_event: italy
+    val_event: hiroshima
+    max_cloud: 0.5
+    min_valid_ratio: 0.5
+    max_label_invalid_ratio: 0.6
+    warn_days_after_event: 365
+    post_event_window_days: 120
+    image_size: 128
+    num_workers: 0
+    preload: true
+    pool_fraction: 100
+    protocol: manifests/v4r1/protocol.json
+    mixed_bands: false
+  model:
+    backbone: b0
+    adapter: direct10
+    stem: true
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+    type: use
+    use: {}
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+  optim:
+    encoder_lr: 6.0e-05
+    head_lr: 0.0006
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+  train:
+    epochs: 150
+    batch_size: 8
+    amp: false
+    amp_dtype: bf16
+    log_every: 20
+    max_steps: 2000
+    budget_mode: updates
+    eval_every_updates: 100
+    stop_updates: 2000
+    schedule_updates: 3600
+    report_steps:
+    - 500
+    - 1000
+    - 1500
+    - 2000
+    freeze_bn_running_stats: true
+  eval:
+    threshold: 0.5
+    scale_thresholds_ha:
+    - 0.5
+    - 2.0
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1
+    selection_metric: dev_event_mean_iou

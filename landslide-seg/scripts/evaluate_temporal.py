@@ -213,6 +213,8 @@ def main() -> None:
                 raise ValueError(f"{rec['sample_id']} 角色 {member['role']} != {split}")
         ds = TemporalV6(rows, stats, mode=mode, augment=False, seed=int(s["seed"]),
                         n_frames=s["temporal"].get("n_frames"),
+                        window_days=s["temporal"].get("window_days"),
+                        plan=s["temporal"].get("plan"),
                         root=s["data"]["temporal_root"], quality=s["data"]["quality"])
         t0 = time.time()
         overall, tile_rows, extra = evaluate_split(model, ds, cfg, dev, split=split,

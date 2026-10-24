@@ -2,7 +2,9 @@
 
 对应计划 §1、§3、§4：
 
-- 固定 3600 次**成功更新**、有效 batch 64、230400 次目标图块曝光；
+- 停止于 ``train.stop_updates``（缺省为 ``train.max_steps``）、有效 batch 64；
+  学习率日程长度取 ``train.schedule_updates``（缺省等于停止步数），因此把停止
+  步数改成 2000 而日程仍写 3600 时，得到的是旧日程的前 2000 步；
 - 为适配多帧显存，统一使用 ``microbatch × accumulation = 64``；四组使用同一
   微批量与累积方式（本批实测后锁定为 8 × 8），不因单期更快而改成 batch64；
 - 梯度累积时 BCE 按**全有效 batch 的有效像素总数**归一化，Dice 按**样本数**加权，
@@ -29,6 +31,7 @@ import torch.nn.functional as F
 
 from ..config import file_sha256, manifest_identity, set_seed
 from ..data.temporal_v6 import collate_v6
+from .budget import poly_lr_scale, resolve_update_budget
 from .metrics import confusion, summarize
 
 
@@ -170,9 +173,11 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
                           *, resume: bool = False, log=print, stop_after: int | None = None) -> dict:
     s = cfg["segformer"]
     tc = s["train"]
-    target = int(tc["max_steps"])
-    interval = int(tc.get("eval_every_updates", 100))
-    report_steps = sorted({int(x) for x in tc.get("report_steps", [target])})
+    budget = resolve_update_budget(tc)
+    target = budget.stop_updates          # 停止步数
+    schedule = budget.schedule_updates    # 学习率日程长度（可与停止步数不同）
+    interval = budget.eval_every_updates
+    report_steps = list(budget.report_steps)
     micro = int(tc.get("microbatch", 8))
     batch = int(tc["batch_size"])
     if batch % micro:
@@ -181,7 +186,7 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
     if int(tc.get("accumulation", accum)) != accum:
         raise ValueError("accumulation 与 batch_size/microbatch 不一致")
     if target % interval:
-        raise ValueError("max_steps 必须是 eval_every_updates 的整数倍")
+        raise ValueError("stop_updates 必须是 eval_every_updates 的整数倍")
 
     optimizer = torch.optim.AdamW([
         {"params": model.core.param_groups()["encoder"], "lr": float(s["optim"]["encoder_lr"])},
@@ -190,14 +195,12 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
          + (list(model.spectral.parameters()) if model.spectral is not None else []),
          "lr": float(s["optim"]["head_lr"])},
     ], weight_decay=float(s["optim"]["weight_decay"]))
-    warmup = max(1, int(target * float(s["optim"]["warmup_frac"])))
+    warmup = budget.warmup_updates(float(s["optim"]["warmup_frac"]))
     power = float(s["optim"].get("poly_power", 1.0))
 
     def lr_lambda(step: int) -> float:
-        if step < warmup:
-            return (step + 1) / warmup
-        progress = (step - warmup) / max(1, target - warmup)
-        return max(0.0, (1.0 - progress) ** power)
+        return poly_lr_scale(step, schedule_updates=schedule,
+                             warmup_updates=warmup, power=power)
 
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
     last_path, best_path = run_dir / "last.pt", run_dir / "best.pt"
@@ -232,7 +235,8 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
     if device.type == "cuda":
         torch.cuda.reset_peak_memory_stats(device)
     log(f"[updates] {s['experiment']} device={device} start={step} target={target} "
-        f"train={len(train_indices)} val={len(val_indices)} batch={batch} micro={micro} accum={accum}")
+        f"schedule={schedule} warmup={warmup} train={len(train_indices)} val={len(val_indices)} "
+        f"batch={batch} micro={micro} accum={accum}")
     started = time.time()
     eval_batch = int(s["eval"].get("batch_size", 8))
 
@@ -344,7 +348,10 @@ def run_temporal_training(cfg: dict, model, train_ds, val_ds, train_indices, val
     summary = {
         "experiment": s["experiment"], "seed": int(s["seed"]), "run_dir": str(run_dir),
         "n_train": len(train_indices), "n_val": len(val_indices), "params": model.count_params(),
-        "global_step": step, "target_updates": target, "complete": step == target,
+        "global_step": step, "target_updates": target,
+        "stop_updates": target, "schedule_updates": schedule,
+        "warmup_updates": warmup, "report_steps": list(report_steps),
+        "complete": step == target,
         "batch_size": batch, "microbatch": micro, "accumulation": accum,
         "selection_metric": sel, "best_val_iou": best_score, "best_step": best_step,
         "best_dev_event_mean_iou": best_dev["event_mean_iou"] if best_dev else None,

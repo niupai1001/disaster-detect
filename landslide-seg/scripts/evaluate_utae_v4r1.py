@@ -31,9 +31,9 @@ THRESH = 0.5
 
 
 @torch.no_grad()
-def run_split(model, rows, stats, mode, device, root, quality):
+def run_split(model, rows, stats, mode, device, root, quality, n_frames=None):
     ds = TemporalV6(rows, stats, mode=mode, augment=False, seed=1234, dem=False,
-                    root=root, quality=quality)
+                    n_frames=n_frames, root=root, quality=quality)
     loader = DataLoader(ds, batch_size=16, shuffle=False, num_workers=0, collate_fn=collate_v6)
     tiles, probs, gts, ids, events = [], [], [], [], []
     model.eval()
@@ -77,7 +77,9 @@ def main() -> None:
     run_dir = ROOT / cfg["output_dir"] / str(cfg["fold"]) / args.mode / str(cfg["seed"])
     rows = [r for r in read_manifest(resolve_path(prot["pool"])) if r["split"] == "val"]
     stats = load_stats(resolve_path(prot["stats"]))
-    model = UTAERealDates(in_channels=int(cfg["data"]["in_channels"]), num_classes=1).to(dev)
+    model = UTAERealDates(in_channels=int(cfg["data"]["in_channels"]), num_classes=1,
+                          positional=str(cfg.get("model", {}).get("positional", "dates")),
+                          aggregation=str(cfg.get("model", {}).get("aggregation", "attention"))).to(dev)
     out = {}
     for ck in [c.strip() for c in args.checkpoints.split(",") if c.strip()]:
         p = run_dir / f"{ck}.pt"
@@ -89,7 +91,8 @@ def main() -> None:
         t0 = time.time()
         overall, by_event, tiles = run_split(model, rows, stats, args.mode, dev,
                                              prot.get("temporal_root", "data/s2_temporal_v5"),
-                                             prot.get("quality") or "data/s2_temporal_v4r1_none")
+                                             prot.get("quality") or "data/s2_temporal_v4r1_none",
+                                             n_frames=cfg.get("temporal", {}).get("n_frames"))
         px = overall["pixel"]
         out[ck] = {"n_samples": len(rows), "overall": overall, "by_event": by_event,
                    "epoch": int(state["epoch"]), "seconds": round(time.time() - t0, 1),

@@ -211,6 +211,11 @@ class S2SegDataset(Dataset):
 
 
 def collate(batch: list[dict]) -> dict:
+    from .optical_observation import OpticalObservation, collate_optical
+    if isinstance(batch[0]['image'], OpticalObservation):
+        return {'image': collate_optical([b['image'] for b in batch]),
+                **{k: torch.stack([b[k] for b in batch]) for k in ('mask', 'valid')},
+                **{k: [b[k] for b in batch] for k in ('sample_id', 'event_id')}}
     return {
         "image": torch.stack([b["image"] for b in batch]),
         "mask": torch.stack([b["mask"] for b in batch]),

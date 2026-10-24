@@ -1,0 +1,8 @@
+# U-TAE 固定 5 期（multi 模式等秩取样，参考帧必保留）；30 轮、batch16、原学习率与损失。
+_base: _base.yaml
+utae_cv:
+  temporal:
+    n_frames: 5
+  output_dir: outputs/utae_v4r1_frame_count/frames5
+  train:
+    epochs: 30

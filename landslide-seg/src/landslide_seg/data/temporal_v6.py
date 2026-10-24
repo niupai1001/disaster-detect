@@ -36,11 +36,13 @@ MODES = ("single", "multi", "history")
 
 
 def select_frame_indices(days: np.ndarray, anchor: int, mode: str,
-                         n_frames: int | None = None) -> tuple[np.ndarray, int]:
+                         n_frames: int | None = None,
+                         window_days: int | None = None) -> tuple[np.ndarray, int]:
     """按观测日期选择帧，返回（原始帧下标，参考帧在返回序列中的位置）。
 
     ``history`` 只保留观测日期不晚于参考日期的帧，并显式排序；不假定源数组
-    已按日期有序。参考日期相同的帧会一起保留（当前缓存无重复日期）。
+    已按日期有序。``window_days`` 进一步只保留参考日期前 N 天内的合法帧，
+    用于分离"观测数量"与"时间跨度"。
     """
     days = np.asarray(days)
     if days.ndim != 1 or not len(days) or not np.isfinite(days).all():
@@ -56,6 +58,12 @@ def select_frame_indices(days: np.ndarray, anchor: int, mode: str,
         idx = order
     else:
         raise ValueError(f"mode 必须是 {MODES}，得到 {mode!r}")
+    if window_days is not None:
+        if mode != "history":
+            raise ValueError("window_days 只用于 history（截止参考日期）")
+        if isinstance(window_days, bool) or int(window_days) < 1:
+            raise ValueError("window_days 必须为正整数")
+        idx = idx[days[idx] >= days[int(anchor)] - int(window_days)]
     if n_frames is not None:
         if isinstance(n_frames, bool) or not isinstance(n_frames, (int, np.integer)) or n_frames < 1:
             raise ValueError("n_frames 必须为正整数")
@@ -79,13 +87,23 @@ class TemporalV6(Dataset):
                  augment: bool = False, seed: int = 1234, dem: bool = False,
                  root: str = "data/s2_temporal_v5",
                  quality: str = "data/s2_temporal_v6_quality",
-                 preload: bool = False, n_frames: int | None = None) -> None:
+                 preload: bool = False, n_frames: int | None = None,
+                 window_days: int | None = None, plan: str | None = None) -> None:
         if mode not in MODES:
             raise ValueError(f"mode 必须是 {MODES}")
         self.rows = list(rows)
         self.stats = stats
         self.mode = mode
         self.n_frames = n_frames
+        self.window_days = window_days
+        # 逐样本帧计划（组成对照）：显式给出每块送哪几帧，覆盖 mode/n_frames 选择
+        self.plan = None
+        if plan:
+            raw = json.loads(resolve_path(plan).read_text(encoding="utf-8"))
+            self.plan = {k: [int(i) for i in v] for k, v in raw.items()}
+            missing = [r["sample_id"] for r in self.rows if r["sample_id"] not in self.plan]
+            if missing:
+                raise KeyError(f"帧计划缺少 {len(missing)} 个样本，例如 {missing[:3]}")
         self.augment = bool(augment)
         self.seed = int(seed)
         self.epoch = 0
@@ -151,12 +169,28 @@ class TemporalV6(Dataset):
         all_dates = np.asarray(self.index_dates[sample_id], dtype="datetime64[D]")
         return (all_dates - DATE_EPOCH).astype(np.int32)
 
+    def _frames(self, rec: dict) -> tuple[np.ndarray, int]:
+        """返回（按日期排序的帧下标，参考帧位置）；有帧计划时以计划为准。"""
+        days = self.date_days(rec["sample_id"])
+        anchor = int(rec["time_index"])
+        if self.plan is None:
+            return select_frame_indices(days, anchor, self.mode, self.n_frames, self.window_days)
+        index = np.asarray(self.plan[rec["sample_id"]], dtype=np.int64)
+        if len(set(index.tolist())) != len(index):
+            raise ValueError(f"{rec['sample_id']} 帧计划含重复帧")
+        if self.mode == "history" and not (days[index] <= days[anchor]).all():
+            raise ValueError(f"{rec['sample_id']} 帧计划含参考日期之后的观测")
+        if int((index == anchor).sum()) != 1:
+            raise ValueError(f"{rec['sample_id']} 帧计划必须恰好含一次参考帧")
+        index = index[np.argsort(days[index], kind="stable")]
+        return index, int(np.flatnonzero(index == anchor)[0])
+
     def __getitem__(self, i: int) -> dict:
         rec = self.rows[i]
         row = self.pos[rec["sample_id"]]
         anchor = int(rec["time_index"])
         days = self.date_days(rec["sample_id"])
-        frame_index, anchor_pos = select_frame_indices(days, anchor, self.mode, self.n_frames)
+        frame_index, anchor_pos = self._frames(rec)
 
         x = np.asarray(self.X[row][frame_index], dtype=np.float32)             # (T,10,H,W)
         x = (x - self.mean[None]) / self.std[None]
@@ -209,7 +243,7 @@ class TemporalV6(Dataset):
         for rec in self.rows:
             days = self.date_days(rec["sample_id"])
             anchor = int(rec["time_index"])
-            idx, anchor_pos = select_frame_indices(days, anchor, self.mode, self.n_frames)
+            idx, anchor_pos = self._frames(rec)
             out.append({
                 "sample_id": rec["sample_id"],
                 "event_id": rec.get("event_id"),

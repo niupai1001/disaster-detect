@@ -1,0 +1,70 @@
+F........................................................................................................................................... [ 64%]
+........................................................................ [ 97%]
+.....                                                                    [100%]
+================================== FAILURES ===================================
+____________ WorkRegisterTest.test_duplicate_scope_owner_and_lock _____________
+
+self = <test_agent_work.WorkRegisterTest testMethod=test_duplicate_scope_owner_and_lock>
+
+    def test_duplicate_scope_owner_and_lock(self):
+        temp_root = Path(__file__).resolve().parents[1] / '.tmp'
+        temp_root.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=temp_root) as directory:
+            path = Path(directory) / 'work.json'
+            path.write_text('{"tasks": []}', encoding='utf-8')
+>           work.update(path, 'claim', 'one', 'agent1', '文档', ['docs'])
+
+tests\test_agent_work.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('N:/Users/yzh/Disater/landslide-seg/.tmp/tmp018ivrb8/work.json')
+action = 'claim', task_id = 'one', owner = 'agent1', title = '文档'
+scopes = ['docs'], evidence = None, note = None
+
+    def update(path, action, task_id, owner, title=None, scopes=None, evidence=None, note=None):
+        if not owner.strip() or not task_id.strip():
+            raise ValueError('任务和负责人不能为空')
+        with locked(path):
+            data = json.loads(path.read_text(encoding='utf-8-sig'))
+            tasks = data['tasks']
+            task = next((t for t in tasks if t['id'] == task_id), None)
+            now = datetime.now(timezone.utc).isoformat()
+            if action == 'claim':
+                if task and not (task['status'] == 'planned' or
+                                 task['status'] == 'blocked' and task['owner'] == owner):
+                    raise ValueError('任务已登记；先核对已有成果/持有者，不能重复认领或自动接管')
+                if not title or not scopes or any(not s.strip() for s in scopes):
+                    raise ValueError('认领需要 --title 和至少一个非空 --scope（文件路径或实验输出目录）')
+                scopes = sorted({s.replace('\\', '/').rstrip('/').casefold() for s in scopes})
+                if any(not s or ':' in s or PurePosixPath(s).is_absolute() or
+                       '..' in PurePosixPath(s).parts or s == '.' for s in scopes):
+                    raise ValueError('范围必须是相对项目根目录的路径，不能包含盘符、.. 或根目录本身')
+                scopes = sorted({str(PurePosixPath(s)) for s in scopes})
+                for other in tasks:
+                    if other['status'] != 'active':
+                        continue
+                    for left in scopes:
+                        for right in other['scopes']:
+                            right = right.replace('\\', '/').rstrip('/').casefold()
+                            if left == right or left.startswith(right + '/') or right.startswith(left + '/'):
+                                raise ValueError(f"范围已被 {other['owner']} 的 {other['id']} 占用：{left}")
+                if task is None:
+                    task = {'id': task_id}
+                    tasks.append(task)
+                task.update(title=title, owner=owner, scopes=scopes, status='active', started_at=now)
+            else:
+                if task is None or task['status'] != 'active' or task['owner'] != owner:
+                    raise ValueError('只能由登记持有者结束正在进行的任务')
+                if not evidence or not note:
+                    raise ValueError('结束任务必须给 --evidence 和 --note；受阻要写原因与下一步')
+                task.update(status='completed' if action == 'finish' else 'blocked', evidence=evidence, note=note)
+            task['updated_at'] = now
+            data['updated_at'] = now
+            temp = path.with_suffix('.tmp')
+            temp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+>           os.replace(temp, path)
+E           PermissionError: [WinError 5] 拒绝访问。: 'N:\\Users\\yzh\\Disater\\landslide-seg\\.tmp\\tmp018ivrb8\\work.tmp' -> 'N:\\Users\\yzh\\Disater\\landslide-seg\\.tmp\\tmp018ivrb8\\work.json'
+
+scripts\manage_agent_work.py:69: PermissionError
+=========================== short test summary info ===========================
+FAILED tests/test_agent_work.py::WorkRegisterTest::test_duplicate_scope_owner_and_lock

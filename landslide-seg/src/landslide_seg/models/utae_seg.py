@@ -30,10 +30,12 @@ def _load_utae():
 
 
 class UTAESeg(nn.Module):
-    def __init__(self, in_channels: int = 11, num_classes: int = 1) -> None:
+    def __init__(self, in_channels: int = 11, num_classes: int = 1,
+                 agg_mode: str = "att_group") -> None:
         super().__init__()
         UTAE = _load_utae()
-        self.net = UTAE(in_channels=in_channels, num_classes=num_classes, encoder=False)
+        self.net = UTAE(in_channels=in_channels, num_classes=num_classes, encoder=False,
+                        agg_mode=agg_mode)
         self.in_channels = int(in_channels)
         self.adapter_type = "official_utae"
         self.backbone = "utae"
@@ -46,7 +48,7 @@ class UTAESeg(nn.Module):
                           "note": "官方未提供该任务 checkpoint，按计划单 seed 复训"}
         self.adapter_report = {"type": "official_utae", "in_channels": self.in_channels,
                                "num_classes": num_classes, "dem": "广播到每个时相",
-                               "agg_mode": "att_group", "encoder_norm": "group"}
+                               "agg_mode": agg_mode, "encoder_norm": "group"}
         self._init_digest = self.digest()
 
     def forward(self, x: torch.Tensor, dates: torch.Tensor | None = None) -> dict:

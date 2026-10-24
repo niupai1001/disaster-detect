@@ -1,0 +1,15 @@
+# 固定 3 期、参考日期前 365 天窗口（含参考帧）；与 180 天组同成员，只改跨度。
+_base: ../v4r2_temporal_cutoff/_base.yaml
+segformer:
+  experiment: SegFormer-B0-Temporal-Window365
+  data:
+    version: v4r2_temporal_window
+    manifest: manifests/v4r2/pool_window180.jsonl
+    subset_protocol: manifests/v4r2/subset_protocol_window180.json
+  temporal:
+    mode: history
+    aggregation: date
+    n_frames: 3
+    window_days: 365
+  eval:
+    latency_frames: 3

@@ -1,0 +1,120 @@
+............................................................................................................................................ [ 64%]
+.FF..................................................................... [ 97%]
+.....                                                                    [100%]
+================================== FAILURES ===================================
+_____________ test_three_paths_share_explicit_physical_definition _____________
+
+    def test_three_paths_share_explicit_physical_definition():
+        stats = {"mean": [2000.] * 10, "std": [500.] * 10}
+        dn = torch.linspace(0, 10000, 160).reshape(1, 10, 4, 4)
+        x = (dn - 2000) / 500
+        mean, std = torch.tensor(stats["mean"]), torch.tensor(stats["std"])
+        rho = harmonized_reflectance(x, mean, std)
+        assert torch.allclose(rho, dn / 10000, atol=1e-7)
+>       ladder = SpectralLadder("S1", "treatment", stats, radiometry="harmonized_dn_v1")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_spectral_radiometry.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = SpectralLadder(), level = 'S1', variant = 'treatment'
+stats = {'mean': [2000.0, 2000.0, 2000.0, 2000.0, 2000.0, 2000.0, ...], 'std': [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, ...]}
+rank = 4, radiometry = 'harmonized_dn_v1', extra_stats = None
+
+    def __init__(self, level: str, variant: str, stats: dict, rank: int = RANK_DEFAULT,
+                 radiometry: str = "legacy_dn", extra_stats: dict | None = None) -> None:
+        super().__init__()
+        if level not in LEVELS:
+            raise ValueError(f"level 必须是 {LEVELS}")
+        if variant not in ("treatment", "control", "conditional", "free"):
+            raise ValueError("variant 必须是 treatment/control/conditional/free")
+        self.level, self.variant = level, variant
+        if radiometry not in RADIOMETRY_MODES:
+            raise ValueError(f"radiometry 必须为 {RADIOMETRY_MODES}")
+        self.radiometry = radiometry
+        mean = torch.as_tensor(stats["mean"], dtype=torch.float32).flatten()
+        std = torch.as_tensor(stats["std"], dtype=torch.float32).flatten()
+        if mean.numel() != 10:
+            raise ValueError("光谱模块需要十波段统计")
+        self.register_buffer("dn_mean", mean.clone())
+        self.register_buffer("dn_std", std.clamp_min(1e-6).clone())
+        self.register_buffer("waves", torch.tensor([WAVELENGTH_UM[b] for b in S2_10_BANDS]))
+        self.out_chans = 10
+        # S1 新增四个指数通道的 TRAIN 统计；仅在 treatment 使用。
+        # 非持久 buffer：历史 checkpoint 没有这些键，严格加载不受影响。
+        self.register_buffer("extra_mean", torch.zeros(4), persistent=False)
+        self.register_buffer("extra_std", torch.ones(4), persistent=False)
+        self.extra_normalized = False
+        self.extra_stats_source: str | None = None
+        if extra_stats is not None:
+            ex_mean = torch.as_tensor(extra_stats["mean"], dtype=torch.float32).flatten()
+            ex_std = torch.as_tensor(extra_stats["std"], dtype=torch.float32).flatten()
+            if ex_mean.numel() != 4 or ex_std.numel() != 4:
+                raise ValueError("S1 新增通道统计必须是四个指数通道")
+            self.extra_mean.copy_(ex_mean)
+            self.extra_std.copy_(ex_std.clamp_min(1e-6))
+            self.extra_normalized = True
+            self.extra_stats_source = str(extra_stats.get("source", "external"))
+        elif variant == "treatment" and level == "S1":
+>           raise ValueError("S1 treatment 必须提供新增四个指数通道的 TRAIN 统计，不能未归一化训练")
+E           ValueError: S1 treatment 必须提供新增四个指数通道的 TRAIN 统计，不能未归一化训练
+
+src\landslide_seg\models\spectral_ladder.py:91: ValueError
+_______ test_legacy_indices_remain_dn_based_and_new_version_is_explicit _______
+
+    def test_legacy_indices_remain_dn_based_and_new_version_is_explicit():
+        stats = {"mean": [1.] * 10, "std": [1.] * 10}
+        x = torch.zeros(1, 10, 4, 4)
+        x[:, 7] = 2
+>       old = SpectralLadder("S1", "treatment", stats)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_spectral_radiometry.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = SpectralLadder(), level = 'S1', variant = 'treatment'
+stats = {'mean': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, ...], 'std': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, ...]}
+rank = 4, radiometry = 'legacy_dn', extra_stats = None
+
+    def __init__(self, level: str, variant: str, stats: dict, rank: int = RANK_DEFAULT,
+                 radiometry: str = "legacy_dn", extra_stats: dict | None = None) -> None:
+        super().__init__()
+        if level not in LEVELS:
+            raise ValueError(f"level 必须是 {LEVELS}")
+        if variant not in ("treatment", "control", "conditional", "free"):
+            raise ValueError("variant 必须是 treatment/control/conditional/free")
+        self.level, self.variant = level, variant
+        if radiometry not in RADIOMETRY_MODES:
+            raise ValueError(f"radiometry 必须为 {RADIOMETRY_MODES}")
+        self.radiometry = radiometry
+        mean = torch.as_tensor(stats["mean"], dtype=torch.float32).flatten()
+        std = torch.as_tensor(stats["std"], dtype=torch.float32).flatten()
+        if mean.numel() != 10:
+            raise ValueError("光谱模块需要十波段统计")
+        self.register_buffer("dn_mean", mean.clone())
+        self.register_buffer("dn_std", std.clamp_min(1e-6).clone())
+        self.register_buffer("waves", torch.tensor([WAVELENGTH_UM[b] for b in S2_10_BANDS]))
+        self.out_chans = 10
+        # S1 新增四个指数通道的 TRAIN 统计；仅在 treatment 使用。
+        # 非持久 buffer：历史 checkpoint 没有这些键，严格加载不受影响。
+        self.register_buffer("extra_mean", torch.zeros(4), persistent=False)
+        self.register_buffer("extra_std", torch.ones(4), persistent=False)
+        self.extra_normalized = False
+        self.extra_stats_source: str | None = None
+        if extra_stats is not None:
+            ex_mean = torch.as_tensor(extra_stats["mean"], dtype=torch.float32).flatten()
+            ex_std = torch.as_tensor(extra_stats["std"], dtype=torch.float32).flatten()
+            if ex_mean.numel() != 4 or ex_std.numel() != 4:
+                raise ValueError("S1 新增通道统计必须是四个指数通道")
+            self.extra_mean.copy_(ex_mean)
+            self.extra_std.copy_(ex_std.clamp_min(1e-6))
+            self.extra_normalized = True
+            self.extra_stats_source = str(extra_stats.get("source", "external"))
+        elif variant == "treatment" and level == "S1":
+>           raise ValueError("S1 treatment 必须提供新增四个指数通道的 TRAIN 统计，不能未归一化训练")
+E           ValueError: S1 treatment 必须提供新增四个指数通道的 TRAIN 统计，不能未归一化训练
+
+src\landslide_seg\models\spectral_ladder.py:91: ValueError
+=========================== short test summary info ===========================
+FAILED tests/test_spectral_radiometry.py::test_three_paths_share_explicit_physical_definition
+FAILED tests/test_spectral_radiometry.py::test_legacy_indices_remain_dn_based_and_new_version_is_explicit

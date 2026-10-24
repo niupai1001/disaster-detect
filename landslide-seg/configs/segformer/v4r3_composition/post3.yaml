@@ -1,0 +1,15 @@
+# 组成对照：3 张灾后帧（与 5 灾后组、混合组共享同一组 3 张灾后帧）
+_base: ../v4r2_temporal_cutoff/_base.yaml
+segformer:
+  experiment: SegFormer-B0-Temporal-Composition-Post3
+  data:
+    version: v4r3_composition
+    manifest: manifests/v4r3/pool_composition.jsonl
+    subset_protocol: manifests/v4r3/subset_protocol_composition.json
+  temporal:
+    mode: multi
+    aggregation: date
+    n_frames: 3
+    plan: manifests/v4r3/plans/post3.json
+  eval:
+    latency_frames: 3

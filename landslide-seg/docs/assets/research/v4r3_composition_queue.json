@@ -1,0 +1,38 @@
+{
+  "batch": "v4r3_composition",
+  "purpose": "灾前灾后组成：同成员、同时期数/共享帧下比较 5灾后、3灾后、2灾前+3灾后",
+  "protocol": "event_ood_v4r1",
+  "data_split_display": "我们的数据划分（留事件验证）",
+  "subset": {
+    "manifest": "manifests/v4r3/pool_composition.jsonl",
+    "protocol": "manifests/v4r3/subset_protocol_composition.json",
+    "rule": "灾害日期唯一且高置信、至少2张灾前与5张灾后、灾后含参考帧；三组共用同一批成员",
+    "counts": {"train": 1141, "dev": 669},
+    "min_frames_at_or_before_reference": 5,
+    "plans": {
+      "post5": "manifests/v4r3/plans/post5.json",
+      "post3": "manifests/v4r3/plans/post3.json",
+      "pre2_post3": "manifests/v4r3/plans/pre2_post3.json"
+    }
+  },
+  "budget": {
+    "stop_updates": 2000,
+    "schedule_updates": 3600,
+    "warmup_updates": 180,
+    "eval_every_updates": 100,
+    "report_steps": [1000, 1500, 2000],
+    "batch_size": 64,
+    "microbatch": 8,
+    "accumulation": 8
+  },
+  "device": "cuda:0",
+  "started": "2026-10-23T09:50:07-04:00",
+  "finished": "2026-10-23T10:58:50-04:00",
+  "log": "outputs/segformer/v4r3_composition/queue.log",
+  "runs": [
+    {"experiment": "SegFormer-B0-Temporal-Composition-Post5", "config": "configs/segformer/v4r3_composition/post5.yaml", "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE", "best_step": 500, "best_event_mean_iou": 0.2699},
+    {"experiment": "SegFormer-B0-Temporal-Composition-Post3", "config": "configs/segformer/v4r3_composition/post3.yaml", "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE", "best_step": 500, "best_event_mean_iou": 0.2789},
+    {"experiment": "SegFormer-B0-Temporal-Composition-Pre2Post3", "config": "configs/segformer/v4r3_composition/mix.yaml", "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE", "best_step": 800, "best_event_mean_iou": 0.2826}
+  ],
+  "note": "本文件只记执行状态；训练完成不等于通过验收。回顾性条件：灾后帧可能晚于参考日期（最长约865天），不能当作前瞻识别能力；TRAIN只剩6个事件，单列子集结果。工程 smoke（Post5-Smoke200）不计正式成绩。"
+}

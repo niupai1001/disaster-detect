@@ -41,3 +41,7 @@
 - 中文回答；直接执行，不要反复确认。
 - 失败、未验证、受阻要如实标注；不 overclaim（“上限”写“参考上限”，推测写“未验证”）。
 - 产物要可复现：配置、命令、哈希、逐 epoch 曲线。
+
+## 文档整理后的执行入口
+
+日常Agent只读 `landslide-seg/docs/RESEARCH_INDEX.md` 的最小接力，按维护路由取一份专题的小节；先用 `scripts/manage_agent_work.py list` 查分工，再认领写入范围。当前工作状态不再按日期追加到规则末尾。具体认领与回写见 `landslide-seg/AGENTS.md`；本文件长期用户偏好继续生效。

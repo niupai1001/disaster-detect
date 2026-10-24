@@ -92,6 +92,7 @@ def _latency(model, device, iters: int = 100, in_chans: int = 10) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--checkpoint", required=True)
+    ap.add_argument('--band-subset', default='full', choices=['full','rgb','rgb_nir','six','unseen5'])
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
     ap.add_argument("--device", default=None)
     ap.add_argument("--threshold", type=float, default=None)
@@ -137,14 +138,27 @@ def main() -> None:
     metric_tile = evaluate_tile_v2 if protocol_path else evaluate_tile
     metric_summary = summarize_tiles_v2 if protocol_path else summarize_tiles
     event_summary = summarize_by_event_v2 if protocol_path else summarize_by_event
-    ds = S2SegDataset(records, stats, augment=False, preload=True,
+    dataset_class = S2SegDataset
+    if cfg['model'].get('type') == 'use':
+        from landslide_seg.data.use_dataset import USESegDataset
+        dataset_class = USESegDataset
+    ds = dataset_class(records, stats, augment=False, preload=True,
                       extra=str(cfg["model"].get("extra_channel", "none")),
                       sidecar=cfg["data"].get("extra_sidecar"))
+    if cfg['model'].get('type') == 'use':
+        ds.eval_subset = args.band_subset
+        quality_hash = ckpt.get('meta', {}).get('use_quality_sha256')
+        if quality_hash is not None and file_sha256(ds.quality_root / 'index.json') != quality_hash:
+            raise ValueError('USE input quality index differs from checkpoint')
+        if not args.skip_efficiency:
+            raise ValueError('USE效率需实际观测对象；请显式--skip-efficiency，训练峰值另报')
+    elif args.band_subset != 'full':
+        raise ValueError('Variable band subsets require USE')
 
     rows: list[dict] = []
     ap_parts = {}
     predictions, truths, validity = [], [], []
-    batch_size = 32
+    batch_size = 8 if cfg['model'].get('type') == 'use' else 32
     model.eval()
     with torch.no_grad():
         for start in range(0, len(ds), batch_size):
@@ -254,6 +268,7 @@ def main() -> None:
 
     event_ious = [v["pixel"]["iou"] for v in by_event.values() if v["pixel"]["iou"] is not None and np.isfinite(v["pixel"]["iou"])]
     report = {
+        'band_subset': args.band_subset,
         "checkpoint": str(ckpt_path).replace("\\", "/"),
         "split": tag,
         "threshold": threshold,
@@ -273,7 +288,7 @@ def main() -> None:
     if args.save_predictions:
         np.savez_compressed(out_dir / f"predictions_{tag}.npz", sample_ids=np.asarray([r["sample_id"] for r in rows]),
                             probability=np.concatenate(predictions), gt=np.concatenate(truths), valid=np.concatenate(validity))
-    (out_dir / f"objects_{tag}.json").write_text(json.dumps([{k: r[k] for k in ("sample_id", "event_id", "bins", "tiny", "fine_bins") if k in r} for r in rows], indent=1), encoding="utf-8")
+    (out_dir / f"objects_{tag}.json").write_text(json.dumps([{k: r[k] for k in ("sample_id", "event_id", "bins", "tiny", "fine_bins", "use_bins") if k in r} for r in rows], indent=1), encoding="utf-8")
 
     # ---- 可选案例图 ----
     if args.figures > 0:

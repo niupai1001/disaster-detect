@@ -482,6 +482,8 @@ def evaluate_tile_v2(
         "bins": bins,
         "tiny": tiny,
         "fine_bins": fine_bins,
+        "use_bins": {"1_4": tiny, "5_25": bin_stats(lambda a: 5 <= a <= 25),
+                     "26_plus": bin_stats(lambda a: a >= 26)},
         "boundary": boundary_metrics(pred, gt_b, valid_b, tol=boundary_tol),
         "is_negative_tile": bool(gt_b.sum() == 0),
         "pred_positive_on_negative": bool(gt_b.sum() == 0 and pred.any()),
@@ -571,6 +573,8 @@ def summarize_tiles_v2(rows: Iterable[dict]) -> dict:
             "tiny": _agg_items([r["tiny"] for r in rows]),
             "fine_bins": {name: _agg_items([r["fine_bins"][name] for r in rows])
                           for name in rows[0].get("fine_bins", {})},
+            "use_bins": {name: _agg_items([r['use_bins'][name] for r in rows])
+                         for name in rows[0].get('use_bins', {})},
         },
         "boundary": {
             "gt_px": gb, "pred_px": pb,

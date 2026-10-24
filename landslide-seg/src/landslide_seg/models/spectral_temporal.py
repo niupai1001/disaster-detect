@@ -150,10 +150,16 @@ class BandRelationBlock(nn.Module):
         if identity == "wavelength":
             self.position = nn.Sequential(nn.Linear(9, width), nn.GELU(), nn.Linear(width, width))
             self.channel_embed = None
+            self.channel_mlp = None
         else:
+            # 自由 band ID 也经过同尺寸的 width×width 线性层，使波长版与自由版
+            # 的身份嵌入层可训练参数完全一致（9W+W+W²+W == 10W+W²+W）。
             self.position = None
             self.channel_embed = nn.Parameter(torch.zeros(BAND_TOKENS, width))
             nn.init.normal_(self.channel_embed, std=0.02)
+            self.channel_mlp = nn.Linear(width, width)
+            nn.init.eye_(self.channel_mlp.weight)
+            nn.init.zeros_(self.channel_mlp.bias)
         self.relation = nn.Sequential(nn.Linear(3, 16), nn.GELU(), nn.Linear(16, heads))
         nn.init.zeros_(self.relation[-1].weight)
         nn.init.zeros_(self.relation[-1].bias)
@@ -187,7 +193,8 @@ class BandRelationBlock(nn.Module):
         bias = self.relation(feat.to(dwl.dtype)).permute(0, 1, 4, 2, 3)       # [B,P,H,10,10]
         return bias.contiguous()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def tokens(self, x: torch.Tensor) -> tuple[torch.Tensor, int, int]:
+        """``[N,10,H,W]`` → 每 4×4 小块的十波段 token 表示 ``[N,P,10,W]``。"""
         b, c, h, w = x.shape
         p = self.patch
         if c != BAND_TOKENS or h % p or w % p:
@@ -197,7 +204,7 @@ class BandRelationBlock(nn.Module):
         if self.identity == "wavelength":
             pos = self.position(wavelength_features(self.waves))              # [10,W]
         else:
-            pos = self.channel_embed
+            pos = self.channel_mlp(self.channel_embed)
         z = self.embed(tokens) + pos[None, None]
         if self.relation_mode == "none":
             bias = torch.zeros(b, gh * gw, self.heads, c, c, device=x.device, dtype=x.dtype)
@@ -205,6 +212,12 @@ class BandRelationBlock(nn.Module):
             bias = self.relation_bias(self.reflectance(x))
         for layer in self.layers:
             z = layer(z, bias)
+        return z, gh, gw
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        z, gh, gw = self.tokens(x)
+        b, c, h, w = x.shape
+        p = self.patch
         delta = self.readout(self.norm(z)).reshape(b, gh, gw, c, p, p)
         delta = delta.permute(0, 3, 1, 4, 2, 5).reshape(b, c, h, w)
         return x + delta

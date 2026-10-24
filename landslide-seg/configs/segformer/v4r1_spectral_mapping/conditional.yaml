@@ -1,0 +1,9 @@
+# S2 真波长条件映射：混合矩阵的每一行由该波段中心波长经小型 MLP 生成。
+_base: _base.yaml
+segformer:
+  experiment: SegFormer-B0-LateDetail-OODv4-S2WavelengthMap
+  model:
+    spectral_ladder:
+      level: S2
+      variant: conditional
+      rank: 4

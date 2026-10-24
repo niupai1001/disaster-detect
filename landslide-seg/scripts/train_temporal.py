@@ -36,6 +36,7 @@ from landslide_seg.config import (  # noqa: E402
 from landslide_seg.data.segformer_dataset import filter_split, load_stats, read_manifest  # noqa: E402
 from landslide_seg.data.temporal_v6 import TemporalV6  # noqa: E402
 from landslide_seg.models.spectral_temporal import build_temporal_model  # noqa: E402
+from landslide_seg.training.budget import resolve_update_budget  # noqa: E402
 from landslide_seg.training.temporal_trainer import run_temporal_training  # noqa: E402
 
 
@@ -64,12 +65,15 @@ def main() -> None:
     ap.add_argument("--stop-after", type=int, default=None)
     ap.add_argument("--microbatch", type=int, default=None)
     ap.add_argument("--experiment", default=None)
+    ap.add_argument("--set", action="append", default=[], help="key.sub=value 覆盖，与预检一致")
     args = ap.parse_args()
 
-    cfg = load_segformer_config(args.config)
+    cfg = load_segformer_config(args.config, args.set)
     s = cfg["segformer"]
     if args.max_steps is not None:
         s["train"]["max_steps"] = int(args.max_steps)
+        if "stop_updates" in s["train"]:
+            s["train"]["stop_updates"] = int(args.max_steps)
     if args.eval_every is not None:
         s["train"]["eval_every_updates"] = int(args.eval_every)
     if args.microbatch is not None:
@@ -79,6 +83,7 @@ def main() -> None:
         s["experiment"] = args.experiment
     if "PLACEHOLDER" in str(s["experiment"]):
         raise RuntimeError("history 是条件组：先按步骤2–4结果确定 aggregation，并改掉实验名中的 PLACEHOLDER")
+    budget = resolve_update_budget(s["train"])
 
     dev = torch.device(args.device or ("cuda:0" if torch.cuda.is_available() else "cpu"))
     seed = int(s["seed"])
@@ -98,9 +103,20 @@ def main() -> None:
     if len(train) + len(val) != len(rows):
         raise RuntimeError("清单角色必须只有 train/val")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if {r["sample_id"] for r in train} != set(protocol["pools"]["100"]):
-        raise RuntimeError("TRAIN 成员与冻结协议不一致")
-    if {r["sample_id"] for r in val} != set(protocol["dev_ids"]):
+    subset = s["data"].get("subset_protocol")
+    if subset:
+        # 派生共同子集：成员以子集登记为准，仍必须是原 TRAIN 的子集且 DEV 不变
+        derived = json.loads(resolve_path(subset).read_text(encoding="utf-8"))
+        if resolve_path(derived["manifest"]) != manifest:
+            raise RuntimeError("配置清单与派生登记不一致")
+        expected_train = set(derived["train_ids"])
+        expected_dev = set(derived["dev_ids"])
+    else:
+        expected_train = set(protocol["pools"]["100"])
+        expected_dev = set(protocol["dev_ids"])
+    if {r["sample_id"] for r in train} != expected_train:
+        raise RuntimeError("TRAIN 成员与冻结协议不一致" if not subset else "TRAIN 成员与派生登记不一致")
+    if {r["sample_id"] for r in val} != expected_dev:
         raise RuntimeError("DEV 成员与冻结协议不一致")
     ids = [r["sample_id"] for r in rows]
     if len(ids) != len(set(ids)):
@@ -128,12 +144,23 @@ def main() -> None:
     model = build_temporal_model(s, stats).to(dev)
     root_arg = str(temporal_root)
     quality_arg = str(quality_dir) if quality_dir is not None else "data/s2_temporal_v4r1_none"
+    window = s["temporal"].get("window_days")
+    plan = s["temporal"].get("plan")
+    plan_meta = None
+    if plan:
+        plan_path = resolve_path(plan)
+        plan_rows = json.loads(plan_path.read_text(encoding="utf-8"))
+        plan_meta = {"path": str(plan_path).replace("\\", "/"), "sha256": file_sha256(plan_path),
+                     "n_samples": len(plan_rows),
+                     "n_frames": sorted({len(v) for v in plan_rows.values()})}
     train_ds = TemporalV6(train, stats, mode=mode, augment=True, seed=seed,
                           n_frames=s["temporal"].get("n_frames"),
+                          window_days=window, plan=plan,
                           root=root_arg, quality=quality_arg,
                           preload=bool(s["data"].get("preload", False)))
     val_ds = TemporalV6(val, stats, mode=mode, augment=False, seed=seed,
                         n_frames=s["temporal"].get("n_frames"),
+                        window_days=window, plan=plan,
                         root=root_arg, quality=quality_arg)
 
     plan = train_ds.frame_plan() + val_ds.frame_plan()
@@ -163,10 +190,18 @@ def main() -> None:
         "test_manifest": manifest_identity(test_manifest) if test_manifest else None,
         "stats_sha256": file_sha256(stats_path),
         "protocol_sha256": file_sha256(protocol_path),
+        "subset_protocol": ({"path": str(resolve_path(subset)).replace("\\", "/"),
+                             "sha256": file_sha256(resolve_path(subset))}
+                            if subset else None),
         "temporal": {
             "mode": mode, "aggregation": aggregation,
             "n_frames": s["temporal"].get("n_frames"),
-            "frame_selection_rule": "参考帧必保留；其余合法帧按日期排序等秩取样v1，无重复，不足时报NOT_ELIGIBLE",
+            "window_days": window,
+            "plan": plan_meta,
+            "frame_selection_rule": ("参考帧必保留；只用参考日期前 N 天内的合法帧，"
+                                     "其余按日期排序等秩取样v1，不足时报NOT_ELIGIBLE"
+                                     if window is not None else
+                                     "参考帧必保留；其余合法帧按日期排序等秩取样v1，无重复，不足时报NOT_ELIGIBLE"),
             "root": str(temporal_root).replace("\\", "/"),
             "index_sha256": file_sha256(temporal_root / "index.json"),
             "quality_path": str(quality_dir).replace("\\", "/") if quality_dir is not None else None,
@@ -200,8 +235,12 @@ def main() -> None:
         "batch_size": int(s["train"]["batch_size"]),
         "microbatch": int(s["train"]["microbatch"]),
         "accumulation": int(s["train"]["batch_size"]) // int(s["train"]["microbatch"]),
-        "max_steps": int(s["train"]["max_steps"]),
-        "target_tile_exposures": int(s["train"]["max_steps"]) * int(s["train"]["batch_size"]),
+        "max_steps": int(budget.stop_updates),
+        "stop_updates": int(budget.stop_updates),
+        "schedule_updates": int(budget.schedule_updates),
+        "warmup_updates": budget.warmup_updates(float(s["optim"]["warmup_frac"])),
+        "report_steps": list(budget.report_steps),
+        "target_tile_exposures": int(budget.stop_updates) * int(s["train"]["batch_size"]),
         "train_samples": [r["sample_id"] for r in train],
         "val_samples": [r["sample_id"] for r in val],
         "test_samples": [r["sample_id"] for r in test],

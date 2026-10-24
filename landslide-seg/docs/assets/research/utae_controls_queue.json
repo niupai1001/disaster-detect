@@ -1,0 +1,37 @@
+{
+  "batch": "utae_v4r1_controls",
+  "purpose": "同架构 U-TAE 时间控制：均值聚合 vs 内容注意力（无日期）vs 已有日期组",
+  "protocol": "event_ood_v4r1",
+  "data_split_display": "我们的数据划分（留事件验证）",
+  "inputs": {
+    "members": "manifests/v4r1/pool_100.jsonl（TRAIN 2223 / DEV 669）",
+    "stats": "manifests/v4r1/stats_core25.json",
+    "temporal_root": "data/s2_temporal_v4r1",
+    "observations": "完整 15 期（mode=multi），不含规划中的日期筛选"
+  },
+  "budget": {
+    "epochs": 30,
+    "batch_size": 16,
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "pos_weight": 5.0,
+    "bce_weight": 0.5,
+    "dice_weight": 0.5,
+    "updates_per_epoch": 139,
+    "expected_total_updates": 4170,
+    "note": "与已有 75 轮日期组不是等轮数；只与同日程前 30 轮及其 best@17 比较"
+  },
+  "device": "cuda:0",
+  "started": "2026-10-23T10:59:22-04:00",
+  "log": "outputs/utae_v4r1_controls/queue.log",
+  "runs": [
+    {"experiment": "mean", "config": "configs/utae/v4r1/mean.yaml", "knobs": {"aggregation": "mean", "positional": "none"}, "status": "RUNNING"},
+    {"experiment": "content", "config": "configs/utae/v4r1/content.yaml", "knobs": {"aggregation": "attention", "positional": "none"}, "status": "PENDING"}
+  ],
+  "reference": {
+    "experiment": "date15", "run_dir": "outputs/utae_v4r1/v4r1/multi/1234", "epochs": 75, "best_epoch": 17,
+    "note": "已有的 15 期真实日期组；best@17 落在 30 轮窗口内，可作为日期编码参照"
+  },
+  "note": "本文件只记执行状态；训练完成不等于通过验收。均值控制会移除 L-TAE 注意力头（有效参数减少），内容注意力控制只移除固定位置编码（无可训练参数）。"
+}

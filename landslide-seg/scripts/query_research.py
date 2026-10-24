@@ -32,6 +32,31 @@ def refresh():
     refresh_evidence(data)
     refresh_current_models(data)
     refresh_plan(data)
+    refresh_work()
+
+
+def refresh_work():
+    """A readable contribution view, generated from the operational register only."""
+    data = read(ASSETS/'agent_work.json')
+    lines = ['| 工作 | 已确认贡献与状态 | 负责人和证据 |', '|---|---|---|']
+    for task in data['tasks']:
+        status = {'active':'登记进行中，须核实实际状态', 'completed':'本项交付完成',
+                  'blocked':'受阻', 'planned':'待认领'}[task['status']]
+        sources = []
+        for source in task.get('evidence', []):
+            relative = os.path.relpath(ROOT/source, ROOT/'docs').replace('\\', '/')
+            sources.append(f'[证据{len(sources)+1}]({relative})')
+        cells = [task['title'], status+'。'+task.get('contribution', '')+task.get('note', ''),
+                 '`'+task['owner']+'` '+ ' '.join(sources)]
+        lines.append('| '+' | '.join(c.replace('|','／').replace('\n',' ') for c in cells)+' |')
+    p = ROOT/'docs/RESEARCH_INDEX.md'
+    body = p.read_text(encoding='utf-8')
+    start, end = '<!-- AGENT_WORK_START -->', '<!-- AGENT_WORK_END -->'
+    assert body.count(start) == body.count(end) == 1
+    before, rest = body.split(start)
+    _, after = rest.split(end)
+    p.write_text(before+start+'\n\n'+'\n'.join(lines)+'\n\n'+end+after, encoding='utf-8')
+    print(f"Refreshed {len(data['tasks'])} work/attribution records")
 
 
 def refresh_plan(data):
@@ -49,7 +74,7 @@ def refresh_plan(data):
         lines += ['', '**' + title + '。**', '']
         lines += [f'{i}. {item}' for i, item in enumerate(plan[key], 1)]
     lines += ['', '**交给执行 Agent。** ' + plan['handoff'], '', '**结果交付。** ' + plan['deliverables']]
-    p = ROOT/'docs/RESEARCH_INDEX.md'
+    p = ROOT/'docs/MODEL_EVOLUTION.md'
     body = p.read_text(encoding='utf-8')
     start, end = '<!-- NEXT_PLAN_START -->', '<!-- NEXT_PLAN_END -->'
     assert body.count(start) == body.count(end) == 1
@@ -144,7 +169,7 @@ def main():
     if a.refresh_stages:refresh();return
     if not any((a.stage,a.runs,a.history,a.history_file)):
         d=stages();s=next(s for s in d['stages'] if s['id']==d['current_stage'])
-        print(json.dumps({'policy':d['policy'],'protocol_contract':'docs/assets/research/research_policy.json；scripts/query_research.py --policy','agent_rules':'AGENTS.md','current_stage':s,'read_next':'docs/RESEARCH_INDEX.md；按问题选一份固定文档，不默认读取历史'},ensure_ascii=False,indent=2));return
+        print(json.dumps({'policy':d['policy'],'protocol_contract':'docs/assets/research/research_policy.json；scripts/query_research.py --policy','agent_rules':'AGENTS.md','current_stage':{k:s[k] for k in ('id','name','status')},'work_register':'scripts/manage_agent_work.py list','read_next':'docs/RESEARCH_INDEX.md最小接力；完整阶段用 --stage '+s['id']},ensure_ascii=False,indent=2));return
     if a.stage:
         all_stages=stages()['stages']
         exact=[s for s in all_stages if a.stage==s['id']]

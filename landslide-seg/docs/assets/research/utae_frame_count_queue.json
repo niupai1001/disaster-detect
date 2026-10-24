@@ -1,0 +1,35 @@
+{
+  "batch": "utae_v4r1_frame_count",
+  "purpose": "U-TAE 固定观测期数 1/3/5（与已有 15 期日期组比较），同架构、同日期编码",
+  "protocol": "event_ood_v4r1",
+  "data_split_display": "我们的数据划分（留事件验证）",
+  "inputs": {
+    "members": "manifests/v4r1/pool_100.jsonl（TRAIN 2223 / DEV 669）",
+    "stats": "manifests/v4r1/stats_core25.json",
+    "selection": "multi 模式等秩取样：参考帧必保留，其余按日期排序等秩取样；与 SegFormer 数量组同一选帧规则"
+  },
+  "budget": {
+    "epochs": 30,
+    "batch_size": 16,
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "pos_weight": 5.0,
+    "bce_weight": 0.5,
+    "dice_weight": 0.5,
+    "note": "与已有 75 轮 15 期日期组不是等轮数；只与同日程前 30 轮及其 best@17 比较"
+  },
+  "device": "cuda:1",
+  "started": null,
+  "log": "outputs/utae_v4r1_frame_count/queue.log",
+  "runs": [
+    {"experiment": "frames1", "config": "configs/utae/v4r1/frames1.yaml", "n_frames": 1, "status": "PENDING"},
+    {"experiment": "frames3", "config": "configs/utae/v4r1/frames3.yaml", "n_frames": 3, "status": "PENDING"},
+    {"experiment": "frames5", "config": "configs/utae/v4r1/frames5.yaml", "n_frames": 5, "status": "PENDING"}
+  ],
+  "reference": {
+    "experiment": "date15", "run_dir": "outputs/utae_v4r1/v4r1/multi/1234", "epochs": 75, "best_epoch": 17,
+    "note": "已有 15 期真实日期组；best@17 落在 30 轮窗口内"
+  },
+  "note": "本文件只记执行状态；训练完成不等于通过验收。跑在 cuda:1，与 cuda:0 上的 U-TAE 开关组和后续 S2 映射组并行，不共享 GPU。"
+}

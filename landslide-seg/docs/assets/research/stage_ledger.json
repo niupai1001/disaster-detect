@@ -1,6 +1,6 @@
 {
  "as_of": "2026-10-23",
- "current_stage": "temporal-mechanism",
+ "current_stage": "universal-spectral-encoder",
  "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
  "stages": [
   {
@@ -587,8 +587,8 @@
    "previous": "utae-v4r1",
    "goal": "解释多期观测的增益来源，验证SegFormer保留参考影像细节时能否同时改善事件平均IoU与小目标检出。",
    "delta": "从单期入口微调转向观测信息与融合机制；保持单期研究参照，另设明确标注的多期回顾性比较，不把多期效果当成单期任务完成。",
-   "result": "四组时间控制已核验：同接口单期/15期均值/内容/内容与日期事件平均IoU=0.2883/0.2984/0.3145/0.3245；日期组微小对象3/77（单期9/77）。截止参考日期组已完成：0.3377（广岛0.3160、特里苏尔0.3595），微小对象6/77，去掉未来观测后仍高于完整15期。新增3期完成3600更新，最佳0.2926、广岛0.2950、特里苏尔0.2901、微小对象6/77；5期已验收：最佳0.3055（1000步）、广岛0.3137、特里苏尔0.2974、微小对象7/77；7期训练中，地形联合迁移排队。各方案均未满足替换单期条件。 另以同接口microbatch64单期对照0.3075（500步）确认与历史0.3081差0.0006，0.2883与0.3081的差异主要来自解码器BatchNorm批量，不是数据或架构。",
-   "status": "同接口四组、截止日期组与3/5期已完成并验收；7期训练中、地形迁移排队，原任务书仍有待实现机制",
+   "result": "四组时间控制已核验：同接口单期/15期均值/内容/内容与日期事件平均IoU=0.2883/0.2984/0.3145/0.3245；日期组微小对象3/77（单期9/77）。截止参考日期组已完成：0.3377（广岛0.3160、特里苏尔0.3595），微小对象6/77，去掉未来观测后仍高于完整15期。新增3期完成3600更新，最佳0.2926、广岛0.2950、特里苏尔0.2901、微小对象6/77；5期已验收：最佳0.3055（1000步）、广岛0.3137、特里苏尔0.2974、微小对象7/77；7期已验收：最佳0.3348（1000步）、广岛0.3141、特里苏尔0.3554、AP0.4972、微小对象6/77，末态0.2812；地形v2分割在旧队列完成：best 0.3072（500步，参照0.3081）；另完成截止参考日期固定数量组（派生同子集2007/669、2000步）：1/3/5/7期=0.2933/0.3061/0.3432/0.3277，5期最高、7期回落；固定3期180/365天窗口=0.3026/0.2962，短窗口略高0.0064；组成组（同子集1141/669、2000步）：5灾后0.2699、3灾后0.2789、2灾前+3灾后0.2826，混合组在相同总帧数与相同灾后帧两种比较下都略高，但微小对象仅1–3/77；地形v2同权重干预：关闭分支−0.0009 IoU、打乱−0.0013，学到的α=0.0554。各方案均未满足替换单期条件。 另以同接口microbatch64单期对照0.3075（500步）与历史0.3081差0.0006；提示微批量设置影响明显，BatchNorm为主要待核验机制，但单seed未隔离随机数和累计梯度计算差异。；U-TAE同架构：期数1/3/5=0.3154/0.2754/0.2783（15期0.3706）、均值控制0.3101，均30轮窗口内与日期组best@17比较；U-TAE开关：均值0.3101、无日期0.3860、日期0.3706（30轮窗口），无日期组最高；S2波长映射0.3030对自由混合0.3026（同2000步、同110参数）；S1 新增四指数通道用559块TRAIN统计独立标准化并完成首层同初始化审计（2000步：指数0.2917对原始通道对照0.2911，差+0.0006，历史−0.0113差未复现，两组均低于十波段参照约0.016–0.017）；S3 五组2000步：线性混合0.3042、自由ID注意力0.2916、波长注意力0.2913、局部偏置0.2855、全局偏置0.2848；S4 同关系表示的四种融合：ADD 0.3085、FIXEDGATE 0.3095、LEARNGATE 0.3081、CAPCTRL 0.3101，入口前残差(S3-D)0.2855；学习门best(500步)均值0.047、目标0.015/背景0.048，末段完全关闭，未学到空间选择性；S4各融合与十波段参照的差都在单seed噪声范围内",
+   "status": "同接口四组、截止日期组、3/5/7期、截止日期固定数量组、跨度组与组成组已完成并验收；地形v2分割完成（0.3072）；U-TAE均值/内容开关已实现并训练；S1新增通道统计与首层审计、S3五组、S4五种融合已完成2000步训练与统一验收；光谱机制未显示可升级为候选的收益",
    "data_split_display": "我们的数据划分（留事件验证）",
    "evidence": [
     "outputs/segformer/s2_10band_v4r1_p20/segformer_b0_direct10_detailres_n100_u3600_s1234/1234/eval/eval_best_val.json",
@@ -605,92 +605,120 @@
     "docs/assets/research/spectral_explicit_validation.json",
     "docs/assets/research/temporal_composition_eligibility.json",
     "outputs/segformer/v4r1_temporal_frame_count/summary_frame_count.json",
-    "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_best.json"
+    "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_best.json",
+    "manifests/v4r2/subset_protocol_cutoff7.json",
+    "manifests/v4r2/subset_protocol_window180.json",
+    "configs/segformer/v4r2_temporal_cutoff/frames7.yaml",
+    "docs/assets/research/v4r2_temporal_cutoff_queue.json",
+    "docs/assets/research/v4r2_temporal_window_queue.json",
+    "manifests/v4r3/subset_protocol_composition.json",
+    "docs/assets/research/v4r3_composition_queue.json",
+    "docs/assets/research/utae_controls_queue.json",
+    "docs/assets/research/spectral_mapping_queue.json",
+    "docs/assets/research/v4r2_spectral_queue.json",
+    "outputs/segformer/v4r2_spectral/summary_spectral.json",
+    "outputs/segformer/v4r2_spectral/s1_init_audit.json",
+    "outputs/segformer/v4r2_spectral/gate_diagnostics.json",
+    "docs/assets/research/v4r2_spectral.png",
+    "manifests/v4r1/stats_s1_indices4.json",
+    "docs/assets/research/utae_frame_count_queue.json",
+    "outputs/research_completion/terrain_interventions.json",
+    "docs/assets/research/object_data_review/summary.json",
+    "docs/assets/research/object_data_review/pipeline.json",
+    "docs/assets/research/object_data_review/fixed_cases.json",
+    "outputs/data_review/per_object.csv"
    ],
-   "next": "先适配2000步与原学习率前缀/动态验收，再按原任务书补齐截止日期数量、固定跨度、灾前灾后组成及U-TAE同架构控制；随后执行真实光谱机制和地形贡献诊断。",
+   "next": "数据链路、曝光、逐对象响应与固定案例审查已完成；按systematic_improvement先固定可比较训练参照，再验收事件/对象采样和对象辅助监督的实际实现。保持2000步停止/3600步调度，不先换骨干；本轮未启动训练。",
    "execution_plan": {
-    "basis": "按用户最新要求缩短后续训练，并逐条回查最初执行任务书。任务书的A→B→C→T→S→D→E范围保留；修复通过、正式实验完成、结论成立分别验收。14个已完成SegFormer运行的最佳点均≤2000步（包含成熟细节基线、六组地形、七组时间实验），这是回顾性预算依据，不是新结构的保证。旧队列属于已登记3600步批次；新批次采用下述预算，不能把修改文档当作调度代码已经生效。",
+    "basis": "按用户最新要求缩短后续训练，并逐条回查最初执行任务书。任务书的A→B→C→T→S→D→E范围保留；修复通过、正式实验完成、结论成立分别验收。14个已完成SegFormer运行的最佳点均≤2000步（包含成熟细节基线、六组地形、七组时间实验），这是回顾性预算依据，不是新结构的保证。旧队列属于已登记3600步批次；新批次采用下述预算，不能把修改文档当作调度代码已经生效。 最新用户要求系统定位瓶颈：先实施错误审计与训练稳定性门禁，再按证据推进数据曝光、监督和模型连接；具体假设、预算和停止条件见本阶段systematic_improvement。新9通道数据仅作参考，不纳入主线。 用户最新纠正：日期与标注一致性不考虑；首先核查数据尺寸分布及小目标漏检是否解释整体低分。第一步全量尺寸审计已完成，后续细节见systematic_improvement。",
     "contract": "协议=event_ood_v4r1原固定事件留出；TRAIN=2223；DEV=广岛448+特里苏尔221；seed=1234；不跑四折，不评估意大利诊断集或新西兰保留集。仅资格不足的组成/截止日期实验使用预先冻结的TRAIN子集，所有配对组使用相同成员，保留原事件角色；需派生清单及显式子集预检，不覆盖原清单。",
     "inputs": "原清单manifests/v4r1/pool_100.jsonl、协议protocol.json及stats_core25.json保持不变；十波段统计来自559块TRAIN核心。时间缓存data/s2_temporal_v4r1、quality=none；所有新组锁定实际成员ID、帧ID/日期/质量、参考帧、mask/valid和SHA256。截止参考日期指观测日期≤参考影像日期，不等于灾害发生前。组成实验只能使用发布日期元数据中唯一且高置信的灾害日期，仍标注未经独立灾害记录验证。",
-    "budget": "后续SegFormer每组固定2000次成功更新，每100步选模，额外保存1000/1500/2000及best/last；有效批量64，时间组microbatch8×累积8，损失0.5BCE+0.5Dice。保持旧前2000步学习率：调度长度3600、预热180、poly幂1，编码器6e-5/其余6e-4，AdamW衰减0.01。须先将停止上限与调度长度解耦（当前代码未实现），并逐步比对0–2000学习率。减少44.4%更新，不承诺同等墙钟节省；不因某组表现差临时续跑。U-TAE的15期机制组改为30轮、batch16、原恒定学习率与损失，每轮验证；全体2223块约4170次更新，已有15期最佳17轮可复用前30轮。单期最佳46轮不在此窗口，不能与30轮组混作等预算。",
+    "budget": "后续SegFormer每组固定2000次成功更新，每100步选模，额外保存1000/1500/2000及best/last；有效批量64，时间组microbatch8×累积8，损失0.5BCE+0.5Dice。保持旧前2000步学习率：调度长度3600、预热180、poly幂1，编码器6e-5/其余6e-4，AdamW衰减0.01。停止上限与调度长度已解耦（train.stop_updates / train.schedule_updates），测试断言0–2000的逐步学习率与旧3600步日程逐位一致。减少44.4%更新，不承诺同等墙钟节省；不因某组表现差临时续跑。U-TAE的15期机制组改为30轮、batch16、原恒定学习率与损失，每轮验证；全体2223块约4170次更新，已有15期最佳17轮可复用前30轮。单期最佳46轮不在此窗口，不能与30轮组混作等预算。",
     "initialization": "SegFormer共享官方MiT-B0/原解码器预训练、direct10映射及同seed细节初始化；时间组空间/共享时间参数摘要逐张量一致。U-TAE保持既有同架构同seed初始化、通道和DEM设置；只切换均值/内容注意力/日期编码。新光谱组先独立单期，不与时间或地形叠加；所有旁路零贡献时与同权重基线等价。新架构不能靠占位参数宣称容量匹配，须报告有效可训练参数与算量。",
     "steps": [
+     {
+      "order": "诊断优先",
+      "model": "数据尺寸审查｜成熟单期参照｜小目标检出与较大目标完整性",
+      "change": "先完成TRAIN/DEV逐事件尺寸分布、裁块截断与FN贡献，随后逐对象响应及采样/监督检查；归一化与结构实验后移。日期标注一致性明确不考虑。",
+      "question": "小目标缺少训练曝光、完全漏检，还是较大对象内部/边界漏分主导低分？",
+      "status": "已完成数据全链路和逐对象审查，见systematic_improvement.object_data_audit；小目标低召回真实，但事件覆盖、重叠未匹配和较大目标内部漏分都需关注。"
+     },
      {
       "order": "0",
       "model": "预算与完成判据适配",
       "change": "把停止步数与学习率调度分开；验收从resolved_config读取report_steps；子集使用显式派生协议",
       "question": "新2000步是否确为旧日程前缀，短运行能否被正确验收？",
-      "status": "待实现：temporal_trainer.py、segformer_trainer.py、预检、审计/汇总和新版本配置；旧权重不改"
+      "status": "已实现并验证：train.stop_updates/schedule_updates 解耦、预算键校验、验收改读 resolved_config 的 report_steps 与 stop_updates、派生子集清单与 subset_protocol 预检；200步smoke与四份新配置预检通过，测试全套通过；旧配置与既有进程未改。"
      },
      {
       "order": "1",
       "model": "SegFormer B0｜1/3/5/7/15期｜内容与日期加权",
       "change": "收尾已登记的3600步期数批次；单期恒等",
       "question": "回顾性帧数效应及两个事件方向如何？",
-      "status": "1/3/5/15及可变长度截止组已验收；5期best1000、IoU0.3055，7期旧队列训练中。已有完整组不重训。"
+      "status": "1/3/5/7/15及可变长度截止组已验收；5期best1000、IoU0.3055，7期best1000、IoU0.3348。已有完整组不重训。"
      },
      {
       "order": "2",
       "model": "SegFormer B0｜截至参考日1/3/5/7期｜同一汇聚",
       "change": "预先冻结可用≥7帧的共同TRAIN子集2007块与DEV669块，四组完全同成员；仅改变N",
       "question": "排除未来观测后，帧数是否仍有收益？",
-      "status": "计划4次×2000步；2007/669为已有资格审计数，须生成派生清单、事件计数和逐帧方案再预检。15期DEV合格数0，NOT_ELIGIBLE"
+      "status": "已完成并验收：1/3/5/7期=0.2933/0.3061/0.3432/0.3277（best 700/600/400/400步），非单调、5期最高；逐样本帧计划不含参考日期之后的观测；四组权重/配置/成员哈希核验通过。"
      },
      {
       "order": "3",
       "model": "SegFormer B0｜固定3期｜180天与365天历史窗口",
       "change": "只取参考日前180/365天，含参考帧；冻结两窗口都够3帧的共同成员，固定同一选帧规则",
       "question": "分离观测数量与时间跨度",
-      "status": "计划2次×2000步；窗口/共同成员预检待实现，若任一验证事件无合格成员则NOT_ELIGIBLE；不得看结果再改窗口"
+      "status": "已完成并验收：180天窗口0.3026、365天窗口0.2962（best均在300步），同为3帧时短窗口高0.0064；共同子集TRAIN2108/DEV669，两组仅改窗口天数，单seed尚不能判断稳定性。"
      },
      {
       "order": "4",
       "model": "SegFormer B0｜5灾后、3灾后、2灾前+3灾后｜同一汇聚",
       "change": "使用已审计共同TRAIN1141+DEV669；混合组与纯灾后组共享同3张灾后影像",
       "question": "分别比较相同总帧数、相同灾后帧数，量化灾前信息",
-      "status": "计划3次×2000步；日期计划已有，训练入口/派生配置未实现；TRAIN只剩6事件，单列子集结果。截止参考日版本DEV=0，NOT_ELIGIBLE"
+      "status": "已完成并验收：5灾后0.2699（500步）、3灾后0.2789（500步）、2灾前＋3灾后0.2826（800步）；同5帧总数时混合组比5灾后高0.0127，同3张灾后帧时加2张灾前帧仅高0.0037；微小对象1–3/77。子集只有6个训练事件，单列结果。截止参考日版本DEV=0，NOT_ELIGIBLE。"
      },
      {
       "order": "5",
       "model": "U-TAE｜15期同输入｜均值、内容注意力、内容与日期",
       "change": "保留CNN、解码器、skip连接，只控制L-TAE日期编码及均值权重",
       "question": "同架构下时间注意力和日期各贡献多少？",
-      "status": "计划新增2次×30轮；有日期组复用同日程前30轮及17轮best，缺30轮权重则只补同配置截断重现。开关、初始化/置换/梯度验收未实现。不是复用旧错误NoPE"
+      "status": "已完成并验收（30轮窗口）：均值0.3101（@21）、内容注意力无日期0.3860（@20）、日期组0.3706（@17，75轮）。无日期组比日期组高0.0154、AP高0.068，均值组最低；即注意力有用、而固定日期编码在本设置下反而略降。三组权重/成员/轮数核验通过。"
      },
      {
       "order": "6",
       "model": "U-TAE｜1/3/5/15期｜固定日期编码",
       "change": "T2主矩阵后再做关键数量复核，配置/通道/日期规则一致",
       "question": "数量效应是否在第二种架构内重复？",
-      "status": "后续条件批次，不作为已完成；3/5期尚未实施，1/15的75轮结果保留。新短预算1期若无合法≤30轮权重需新训，不能拿46轮best冒充"
+      "status": "已完成并验收：1/3/5期=0.3154（best@27）/0.2754（@16）/0.2783（@29），15期参照0.3706（best@17，75轮）；30轮窗口内不是单调，3/5期都低于1期，5期的广岛IoU降到0.1954。三组均通过权重/成员/轮数核验。"
      },
      {
       "order": "7",
       "model": "SegFormer B0｜单期指数与波长条件｜容量对照",
       "change": "先指数vs等通道控制；再真正波长条件映射vs相同参数预算的自由通道身份",
       "question": "指数归纳偏置和物理身份是否有独立贡献？",
-      "status": "T核心完成后实施；S1新增通道TRAIN统计/首层同初始化待验收，至少2个新处理/容量控制。S2条件映射及控制2组待实现；旧静态偏置仅历史控制"
+      "status": "已完成 S2 与 S1 补全（两支均纳入统一 execution_audit 的 COMPLETED_VALID_FOR_AUDITED_SCOPE）：S2 波长条件映射0.3030（AP0.4352、广岛0.3113、特里苏尔0.2948）vs 同参数量自由混合0.3026（AP0.4086、0.2810/0.3242），两支各110参数、同初始化、同2000步，IoU差0.0004在噪声内。S1 新增 NDVI/NDMI/NBR/REND 四个通道改用559块TRAIN核心统计独立标准化（manifests/v4r1/stats_s1_indices4.json，预检强制登记与哈希）；首层审计显示处理组/对照组218个张量逐值相同，相对十波段基线仅首层卷积不同（预训练三列相同、新增四列零初始化）。2000步 S1 指数0.2917 vs 等通道对照0.2911（差+0.0006、AP+0.0081、1–4像素7/77对8/77）；历史未归一化的−0.0113差未复现，但两组都低于十波段参照。S3/S4 见步骤8。"
      },
      {
       "order": "8",
       "model": "SegFormer B0｜单期十波段token｜动态关系与单尺度融合",
       "change": "S3：通道混合、ID注意力、波长注意力、局部偏置、全局偏置；S4：同一关系表示的输入残差、加法、常数门、学习门及有效容量控制",
       "question": "分别检验注意力、波长、关系偏置与融合位置",
-      "status": "按S3五组与S4五种必要条件逐组登记，可严格复用相同配置已完成组；每个新组2000步。真特征输出、容量控制、gate分布日志未实现；四指数旁路不能代替此阶段"
+      "status": "已完成并验收：S3 五组与 S4 四种新融合（S4-INPUTRES 复用 S3-D）均 2000 步、同 2223/669 成员、同统计与初始化、同 DEV 选模。S3-A 线性混合0.3042；S3-B 自由ID注意力0.2916；S3-C 波长注意力0.2913；S3-D 局部偏置0.2855；S3-E 全局偏置0.2848。S4-ADD 0.3085、FIXEDGATE 0.3095、LEARNGATE 0.3081、CAPCTRL 0.3101；入口前残差 S3-D 0.2855。学习门在 best(500步) gate均值0.047、目标0.015/背景0.048/FP 0.006，训练末段完全关闭（gate=0、修正=0），未学到空间选择性；ADD/FIXED 修正幅度0.059/0.027，也只回到十波段参照水平。CAPCTRL 存储参数与 LEARN 相同、有效参数少132，其 gate 几乎全关（均值0.0006）。未验证：单seed、门控饱和/关闭的优化原因、S3 线性混合与注意力未严格同容量。"
      },
      {
       "order": "9",
       "model": "SegFormer B0｜单期+地形｜完整评分迁移与实际贡献",
       "change": "旧队列完成valid评分encoder+head迁移；评测同权重关闭分支/打乱地形/固定α",
       "question": "迁移是否正确，地形是否确实贡献，改善来自什么？",
-      "status": "评分3000步与成对迁移已通过，分割仍在旧队列；先做不重训干预。现修复同时改变valid目标与迁移，不能单因素归因；必要时新增修正目标+旧分离迁移控制2000步。独立标签未取得，D2受阻"
+      "status": "已完成并验收：地形v2分割best 0.3072（500步，参照0.3081）；同权重非重训干预显示学到的α=0.0554，关闭分支−0.0009 IoU/−0.0022 AP，打乱或取批均值约−0.0013/−0.003，即该权重上的贡献很小，尚未估计跨seed波动。修复同时改变valid目标与迁移，仍不能单因素归因；独立标签未取得，D2受阻"
      },
      {
       "order": "10",
       "model": "统一验收与候选判断",
       "change": "同预算选模窗口、事件/尺度表、固定案例、完整成本与哈希",
       "question": "收益是否足够且未牺牲某一事件或微小目标？",
-      "status": "每一阶段回写固定文档/台账，不能只看程序退出；官方划分仍等待候选冻结"
+      "status": "每一阶段回写固定文档/台账，不能只看程序退出；已新增 U-TAE 时间对照验收脚本（口径校准到已验收的 15期日期组 0.3706，缺权重哈希/成员/轮数任一项不标正式结果），SegFormer 批次仍用 execution_audit；官方划分仍等待候选冻结"
      }
     ],
     "acceptance": [
@@ -712,7 +740,7 @@
      "独立易发性标签不可得则停止D2；组成/截止15期无足量成员则NOT_ELIGIBLE，不能补重复帧、改事件日期或引入DEV训练。",
      "现有队列仍执行原3/5/7与地形3600步批次，本轮未改其内存调度；所有新批次先通过短预算适配，再逐批启动，不把本计划当作新实验已经在运行。"
     ],
-    "handoff": "先读取outputs/research_completion/status.json及真实日志，避免重复启动旧队列。新计划的多数配置尚未实现，明确标待实现，不提供看似可运行的假命令。预算适配涉及两训练器、train/evaluate入口、check_research_protocol、audit_research_execution及汇总；生成独立2000步配置后，对实际配置与每个--set执行预检。接着按序完成截止日期、跨度、组成、U-TAE控制，再S、D诊断。",
+    "handoff": "先读取outputs/research_completion/status.json及真实日志，避免重复启动旧队列（3/5/7期与地形修复队列已全部结束）。预算适配已实现：停止步数与日程长度分离、验收读resolved_config的report_steps、派生子集清单预检；截止参考日期固定数量组（2007/669）与180/365天窗口组（2108/669）已训练验收，均为2000步。剩余项的配置多数尚未实现：组成训练需要逐样本帧计划入口与派生清单；U-TAE均值/日期开关、真关系特征旁路与容量控制未实现；明确标待实现，不提供看似可运行的假命令。新批次仍先预检、逐对启动。",
     "deliverables": "阶段事实唯一写本台账；预算证据docs/assets/research/training_budget.json及.png由scripts/audit_training_budget.py生成；DATA_EVENT_PROTOCOL说明曲线/口径，MODEL_EVOLUTION记录设计与实现差异，总入口用query_research.py --refresh-stages生成。每run需配置/源码/成员/统计/初始化/权重哈希、命令、逐100步或逐轮曲线、best/last及预定步评测、逐事件/对象尺度/边界/TP/FP/FN/成本。",
     "audit": {
      "method": "任务书逐项对照实际源码、已存验收和完成摘要",
@@ -728,59 +756,64 @@
     },
     "run_matrix": [
      {
+      "order": "诊断优先",
+      "model": "数据尺寸审查｜成熟单期参照｜小目标检出与较大目标完整性",
+      "status": "尺寸审计已完成：小目标召回低，但≥50像素对象占78.1%的FN；固定案例和训练过程检查待实施，不新训。"
+     },
+     {
       "order": "0",
       "model": "预算与完成判据适配",
-      "status": "待实现：temporal_trainer.py、segformer_trainer.py、预检、审计/汇总和新版本配置；旧权重不改"
+      "status": "已实现并验证：train.stop_updates/schedule_updates 解耦、预算键校验、验收改读 resolved_config 的 report_steps 与 stop_updates、派生子集清单与 subset_protocol 预检；200步smoke与四份新配置预检通过，测试全套通过；旧配置与既有进程未改。"
      },
      {
       "order": "1",
       "model": "SegFormer B0｜1/3/5/7/15期｜内容与日期加权",
-      "status": "1/3/5/15及可变长度截止组已验收；5期best1000、IoU0.3055，7期旧队列训练中。已有完整组不重训。"
+      "status": "1/3/5/7/15及可变长度截止组已验收；5期best1000、IoU0.3055，7期best1000、IoU0.3348。已有完整组不重训。"
      },
      {
       "order": "2",
       "model": "SegFormer B0｜截至参考日1/3/5/7期｜同一汇聚",
-      "status": "计划4次×2000步；2007/669为已有资格审计数，须生成派生清单、事件计数和逐帧方案再预检。15期DEV合格数0，NOT_ELIGIBLE"
+      "status": "已完成并验收：1/3/5/7期=0.2933/0.3061/0.3432/0.3277（best 700/600/400/400步），非单调、5期最高；逐样本帧计划不含参考日期之后的观测；四组权重/配置/成员哈希核验通过。"
      },
      {
       "order": "3",
       "model": "SegFormer B0｜固定3期｜180天与365天历史窗口",
-      "status": "计划2次×2000步；窗口/共同成员预检待实现，若任一验证事件无合格成员则NOT_ELIGIBLE；不得看结果再改窗口"
+      "status": "已完成并验收：180天窗口0.3026、365天窗口0.2962（best均在300步），同为3帧时短窗口高0.0064；共同子集TRAIN2108/DEV669，两组仅改窗口天数，单seed尚不能判断稳定性。"
      },
      {
       "order": "4",
       "model": "SegFormer B0｜5灾后、3灾后、2灾前+3灾后｜同一汇聚",
-      "status": "计划3次×2000步；日期计划已有，训练入口/派生配置未实现；TRAIN只剩6事件，单列子集结果。截止参考日版本DEV=0，NOT_ELIGIBLE"
+      "status": "已完成并验收：5灾后0.2699（500步）、3灾后0.2789（500步）、2灾前＋3灾后0.2826（800步）；同5帧总数时混合组比5灾后高0.0127，同3张灾后帧时加2张灾前帧仅高0.0037；微小对象1–3/77。子集只有6个训练事件，单列结果。截止参考日版本DEV=0，NOT_ELIGIBLE。"
      },
      {
       "order": "5",
       "model": "U-TAE｜15期同输入｜均值、内容注意力、内容与日期",
-      "status": "计划新增2次×30轮；有日期组复用同日程前30轮及17轮best，缺30轮权重则只补同配置截断重现。开关、初始化/置换/梯度验收未实现。不是复用旧错误NoPE"
+      "status": "已完成并验收（30轮窗口）：均值0.3101（@21）、内容注意力无日期0.3860（@20）、日期组0.3706（@17，75轮）。无日期组比日期组高0.0154、AP高0.068，均值组最低；即注意力有用、而固定日期编码在本设置下反而略降。三组权重/成员/轮数核验通过。"
      },
      {
       "order": "6",
       "model": "U-TAE｜1/3/5/15期｜固定日期编码",
-      "status": "后续条件批次，不作为已完成；3/5期尚未实施，1/15的75轮结果保留。新短预算1期若无合法≤30轮权重需新训，不能拿46轮best冒充"
+      "status": "已完成并验收：1/3/5期=0.3154（best@27）/0.2754（@16）/0.2783（@29），15期参照0.3706（best@17，75轮）；30轮窗口内不是单调，3/5期都低于1期，5期的广岛IoU降到0.1954。三组均通过权重/成员/轮数核验。"
      },
      {
       "order": "7",
       "model": "SegFormer B0｜单期指数与波长条件｜容量对照",
-      "status": "T核心完成后实施；S1新增通道TRAIN统计/首层同初始化待验收，至少2个新处理/容量控制。S2条件映射及控制2组待实现；旧静态偏置仅历史控制"
+      "status": "已完成 S2 与 S1 补全（两支均纳入统一 execution_audit 的 COMPLETED_VALID_FOR_AUDITED_SCOPE）：S2 波长条件映射0.3030（AP0.4352、广岛0.3113、特里苏尔0.2948）vs 同参数量自由混合0.3026（AP0.4086、0.2810/0.3242），两支各110参数、同初始化、同2000步，IoU差0.0004在噪声内。S1 新增 NDVI/NDMI/NBR/REND 四个通道改用559块TRAIN核心统计独立标准化（manifests/v4r1/stats_s1_indices4.json，预检强制登记与哈希）；首层审计显示处理组/对照组218个张量逐值相同，相对十波段基线仅首层卷积不同（预训练三列相同、新增四列零初始化）。2000步 S1 指数0.2917 vs 等通道对照0.2911（差+0.0006、AP+0.0081、1–4像素7/77对8/77）；历史未归一化的−0.0113差未复现，但两组都低于十波段参照。S3/S4 见步骤8。"
      },
      {
       "order": "8",
       "model": "SegFormer B0｜单期十波段token｜动态关系与单尺度融合",
-      "status": "按S3五组与S4五种必要条件逐组登记，可严格复用相同配置已完成组；每个新组2000步。真特征输出、容量控制、gate分布日志未实现；四指数旁路不能代替此阶段"
+      "status": "已完成并验收：S3 五组与 S4 四种新融合（S4-INPUTRES 复用 S3-D）均 2000 步、同 2223/669 成员、同统计与初始化、同 DEV 选模。S3-A 线性混合0.3042；S3-B 自由ID注意力0.2916；S3-C 波长注意力0.2913；S3-D 局部偏置0.2855；S3-E 全局偏置0.2848。S4-ADD 0.3085、FIXEDGATE 0.3095、LEARNGATE 0.3081、CAPCTRL 0.3101；入口前残差 S3-D 0.2855。学习门在 best(500步) gate均值0.047、目标0.015/背景0.048/FP 0.006，训练末段完全关闭（gate=0、修正=0），未学到空间选择性；ADD/FIXED 修正幅度0.059/0.027，也只回到十波段参照水平。CAPCTRL 存储参数与 LEARN 相同、有效参数少132，其 gate 几乎全关（均值0.0006）。未验证：单seed、门控饱和/关闭的优化原因、S3 线性混合与注意力未严格同容量。"
      },
      {
       "order": "9",
       "model": "SegFormer B0｜单期+地形｜完整评分迁移与实际贡献",
-      "status": "评分3000步与成对迁移已通过，分割仍在旧队列；先做不重训干预。现修复同时改变valid目标与迁移，不能单因素归因；必要时新增修正目标+旧分离迁移控制2000步。独立标签未取得，D2受阻"
+      "status": "已完成并验收：地形v2分割best 0.3072（500步，参照0.3081）；同权重非重训干预显示学到的α=0.0554，关闭分支−0.0009 IoU/−0.0022 AP，打乱或取批均值约−0.0013/−0.003，即该权重上的贡献很小，尚未估计跨seed波动。修复同时改变valid目标与迁移，仍不能单因素归因；独立标签未取得，D2受阻"
      },
      {
       "order": "10",
       "model": "统一验收与候选判断",
-      "status": "每一阶段回写固定文档/台账，不能只看程序退出；官方划分仍等待候选冻结"
+      "status": "每一阶段回写固定文档/台账，不能只看程序退出；已新增 U-TAE 时间对照验收脚本（口径校准到已验收的 15期日期组 0.3706，缺权重哈希/成员/轮数任一项不标正式结果），SegFormer 批次仍用 execution_audit；官方划分仍等待候选冻结"
      }
     ],
     "cost": "新SegFormer2000步相对3600减少44.4%更新；按旧15期约63分钟/组、3期约19分钟/组线性估算，实际以日志为准，评测另计。U-TAE15期30轮相对75轮减少60%轮数，约45分钟/组仅线性估算；不等于同信息/算力。核心新时间配对约4+2+3+2=11次，后续S分级执行，不一次启动全矩阵。",
@@ -803,7 +836,7 @@
     "T2": "3/5期已训练并验收；5期best1000，重评IoU0.305538，微小对象7/77；7期旧队列训练中。截止参考日期固定数量及跨度实验未实施。",
     "T3": "组成共同合格集已审计：回顾性1141 TRAIN+669 DEV；截止参考日期仅3 TRAIN+0 DEV，后者NOT_ELIGIBLE，不能进行有效评价。前者尚未训练，不与原2223块全体混排。",
     "T4": "SegFormer均值/内容/日期已完成；U-TAE同架构PE控制未完成",
-    "S": "来源证据已补齐：下载prefix为data_harmonized/s2、28卷SHA256及分卷当前成员抽样字节匹配、全缓存各波段1–10000。官方说明支持DN/10000；不等于独立BOA定标，上游helper的B8A与跨日期处理有限制。显式四指数旁路仅工程验收，无正式光谱新结果；S2真条件嵌入与十波段注意力特征融合仍未完成。",
+    "S": "来源证据已补齐：下载prefix为data_harmonized/s2、28卷SHA256及分卷当前成员抽样字节匹配、全缓存各波段1–10000。官方说明支持DN/10000；不等于独立BOA定标，上游helper的B8A与跨日期处理有限制。S2真条件嵌入、S1四指数通道统计、S3五组十波段关系与S4独立F_spec融合均已实现并完成2000步训练与统一验收；S1首层处理/对照218张量一致、新增四列零初始化；S4学习门best时均值0.047、末段完全关闭，CAPCTRL有效参数少132。学习门饱和/关闭的优化原因未隔离。",
     "D": "valid评分v2已3000步579.5秒；669块评分AP0.1529，成对迁移逐张量通过；分割训练排队，独立标签不可得",
     "E": "固定文档增量回写；无新日期报告、无Git提交；队列后须复核而不能仅凭进程退出标完成",
     "plan_review": "14个完成SegFormer运行全程最佳均≤2000；U-TAE15期最佳2363次、单期6394次，不统一套用。新短预算/动态checkpoint验收待实现；光谱严格容量控制及S4真关系旁路缺失。",
@@ -823,10 +856,10 @@
     },
     {
      "name": "固定观测数量的回顾性时间比较",
-     "comparison": "相同2223/669成员、统计与空间初始化；同接口单期恒等，对照3/5/15期内容与日期加权；相同期数组采用固定选帧规则",
-     "evaluation_context": "广岛448＋特里苏尔221，seed1234，3600更新，8×8；表中为重评best，7期未完成",
-     "observation": "1/3/5/15期事件平均IoU为0.288279/0.292553/0.305538/0.324479；微小对象9/77、6/77、7/77、3/77。5期广岛0.313691、特里苏尔0.297384，末态IoU0.247369。",
-     "possible_answer": "5期平均提高0.01726，但特里苏尔比单期下降约0.0130，微小对象少2个，不升级候选；7期未完成，不推断期数单调收益。",
+     "comparison": "相同2223/669成员、统计与空间初始化；同接口单期恒等，对照3/5/7/15期内容与日期加权；相同期数组采用固定选帧规则",
+     "evaluation_context": "广岛448＋特里苏尔221，seed1234，3600更新，8×8；表中为重评best",
+     "observation": "1/3/5/7/15期事件平均IoU为0.288279/0.292553/0.305538/0.334755/0.324479；微小对象9/77、6/77、7/77、6/77、3/77。7期best在1000步，广岛0.3141、特里苏尔0.3554、AP0.4972，末态0.2812；5期广岛0.3137、特里苏尔0.2974，末态0.2474。",
+     "possible_answer": "1–7期在本设置内随期数上升（0.2883→0.3348），但15期回落到0.3245，且15期帧选择与跨度不同，不能当作期数单调规律；7期仍含参考日期之后的观测，微小对象反而少于单期，不能替换单期交付。",
      "evidence": [
       "outputs/segformer/v4r1_temporal_frame_count/summary_frame_count.json",
       "docs/assets/research/execution_audit.json"
@@ -842,6 +875,464 @@
       "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-History-Date/1234/eval/eval_best.json",
       "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Date15/1234/eval/eval_best.json",
       "outputs/segformer/v4r1_temporal_control/summary_temporal_control.json"
+     ]
+    },
+    {
+     "name": "截止参考日期固定数量1/3/5/7期（同成员、2000步预算）",
+     "comparison": "派生共同子集TRAIN2007/DEV669；同一SegFormer、内容与日期汇聚、同统计与初始化、同2000步且沿用旧3600步日程前缀；四组只改参考日期当日及以前取的帧数",
+     "evaluation_context": "广岛448＋特里苏尔221，事件等权IoU；均为best，单seed1234，2000次更新",
+     "observation": "1/3/5/7期事件平均IoU=0.2933（700步）/0.3061（600步）/0.3432（400步）/0.3277（400步），不是单调；5期广岛0.3413、特里苏尔0.3452、AP0.4996、1–4像素8/77；7期0.3115/0.3439、AP0.4944、11/77。末态IoU0.2431/0.2609/0.2778/0.2645，都远低于各自best。",
+     "possible_answer": "去掉参考日期之后的观测后，本子集上5期最高、7期回落，说明这批数据里“更多历史帧”不是稳定收益；最佳点都在400–700步，2000步上限够用，但训到2000步会明显退化。派生共同子集不能与原2223块全体混排，单seed不能宣称显著性。",
+     "evidence": [
+      "outputs/segformer/v4r2_temporal_cutoff/summary_temporal_cutoff.json",
+      "manifests/v4r2/subset_protocol_cutoff7.json",
+      "docs/assets/research/execution_audit.json"
+     ]
+    },
+    {
+     "name": "固定3期：180天与365天历史窗口（同成员、2000步预算）",
+     "comparison": "同一派生共同子集TRAIN2108/DEV669（参考日期前180天内至少3帧）；同一SegFormer、内容与日期汇聚、同2000步且沿用旧日程前缀；只改窗口天数",
+     "evaluation_context": "广岛448＋特里苏尔221，事件等权IoU；均为best，单seed1234，2000次更新",
+     "observation": "180天窗口0.3026（300步，广岛0.2951、特里苏尔0.3102、AP0.4229、1–4像素10/77）；365天窗口0.2962（300步，0.2870/0.3054、AP0.4151、13/77）。180天平均高0.0064、AP高0.0078，微小对象少3个。",
+     "possible_answer": "同为3帧时缩短跨度略好，方向与“更近的观测更有用”一致，但差值远小于单seed可分辨范围；两组都明显低于各自候选门槛，不能据此改窗口，也不能把窗口与期数效应混为一谈。",
+     "evidence": [
+      "outputs/segformer/v4r2_temporal_window/summary_temporal_window.json",
+      "manifests/v4r2/subset_protocol_window180.json",
+      "docs/assets/research/execution_audit.json"
+     ]
+    },
+    {
+     "name": "灾前灾后组成（同成员、2000步预算）",
+     "comparison": "派生共同合格集TRAIN1141/DEV669（6个训练事件）；同一SegFormer、内容与日期汇聚、同统计与初始化、同2000步与旧日程前缀；5张灾后 vs 3张灾后 vs 2张灾前＋同3张灾后",
+     "evaluation_context": "广岛448＋特里苏尔221，事件等权IoU；均为best，单seed1234，2000次更新",
+     "observation": "5灾后0.2699（500步）、3灾后0.2789（500步）、2灾前＋3灾后0.2826（800步）；AP 0.4118/0.3979/0.4122；1–4像素对象召回1/77、3/77、3/77；末态0.2412/0.2582/0.2610。",
+     "possible_answer": "同3张灾后帧时加2张灾前帧只高0.0037（AP+0.0143），同5帧总数时混合组比5灾后高0.0127（AP几乎相同）；灾前信息在本子集有一点补充价值，但差值小、单seed、微小对象只有1–3/77，且只有6个训练事件，不能升级候选或外推。",
+     "evidence": [
+      "outputs/segformer/v4r3_composition/summary_composition.json",
+      "manifests/v4r3/subset_protocol_composition.json",
+      "docs/assets/research/execution_audit.json"
+     ]
+    },
+    {
+     "name": "地形分支的无重训干预",
+     "comparison": "同一地形评分迁移分割权重（best 0.3072）；只改融合方式：关闭分支、固定α=0.01、打乱地形对应、地形取批均值；正常条件与模型forward逐元素一致后才计入",
+     "evaluation_context": "广岛448＋特里苏尔221共669块DEV，单seed1234，best权重，阈值0.5",
+     "observation": "正常0.3072/AP0.4415；关闭分支0.3064/0.4393（−0.0009/−0.0022）；固定α=0.01 0.3065/0.4397；打乱地形0.3060/0.4386；批均值0.3060/0.4383；微小对象9–10/77基本不变。学到的α=0.0554。",
+     "possible_answer": "地形分支在这批DEV上只有约千分之一IoU的贡献，破坏对应关系比关闭略差，说明信号真实但极弱；与分割0.3072略低于无地形参照0.3081一致。这只是该权重与这批数据上的贡献检查，不能否定地形在其他损失或初始化下的作用。",
+     "evidence": [
+      "outputs/research_completion/terrain_interventions.json",
+      "docs/assets/research/terrain_interventions.png",
+      "docs/assets/research/execution_audit.json"
+     ]
+    },
+    {
+     "name": "U-TAE 固定期数1/3/5与15期（30轮窗口）",
+     "comparison": "同一官方U-TAE、同一真实日期编码、同成员/统计/初始化；multi模式等秩取样，参考帧必保留；1/3/5期各30轮，15期为已有75轮组",
+     "evaluation_context": "广岛448＋特里苏尔221共669块DEV，单seed1234；非等轮数（15期为75轮，best@17）",
+     "observation": "1/3/5期事件平均IoU=0.3154（@27）/0.2754（@16）/0.2783（@29），15期0.3706（@17）；5期广岛0.1954、特里苏尔0.3613、AP0.2953。三组权重/成员/轮数核验通过。",
+     "possible_answer": "U-TAE 在30轮窗口内不是期数越多越好：3/5期都低于1期，5期广岛明显退化；15期最高但它有75轮且best@17。不能把增加观测当成稳定收益，也不能把这批波动单独归因于某一机制。",
+     "evidence": [
+      "outputs/research_completion/utae_time_summary.json",
+      "docs/assets/research/utae_frame_count_queue.json",
+      "outputs/utae_v4r1_frame_count/frames5/v4r1/multi/1234/eval_dev_summary.json"
+     ]
+    },
+    {
+     "name": "U-TAE 时间开关：均值 vs 无日期内容注意力 vs 日期编码（30轮窗口）",
+     "comparison": "同一官方U-TAE、同成员/统计/初始化、同15期输入；只改L-TAE：均值替代注意力（移除注意力头，少16512参数）、移除固定位置编码（0可训练参数）、保留日期编码",
+     "evaluation_context": "广岛448＋特里苏尔221共669块DEV，单seed1234；均值/无日期各30轮，日期组为75轮且best@17（落在30轮窗口内）",
+     "observation": "均值0.3101（@21，广岛0.2934、特里苏尔0.3268、AP0.4454）；无日期0.3860（@20，0.4235/0.3486、AP0.6009）；日期0.3706（@17，0.3670/0.3741、AP0.5332）。",
+     "possible_answer": "注意力本身带来明显收益（无日期0.3860 远高于均值0.3101）；固定日期编码在本设置下反而让事件平均IoU降0.0154、AP降0.068，收益集中在广岛。单seed、轮数不完全相同，不能宣称日期编码普遍有害，但至少这批数据不支持“启用日期编码更好”。",
+     "evidence": [
+      "outputs/research_completion/utae_time_summary.json",
+      "docs/assets/research/utae_controls_queue.json",
+      "outputs/utae_v4r1_controls/content/v4r1/multi/1234/eval_dev_summary.json"
+     ]
+    },
+    {
+     "name": "S2 波长条件映射 vs 同参数量自由通道混合（2000步）",
+     "comparison": "同一SegFormer B0＋原网格细节、同成员/统计/初始化、同2000步与旧3600步日程前缀；入口10×10混合＋偏置，两支各110个可训练参数、全零初始化恒等起步，唯一差别是矩阵是否由各波段中心波长生成",
+     "evaluation_context": "广岛448＋特里苏尔221共669块DEV，单seed1234，best权重，阈值0.5",
+     "observation": "波长条件映射0.3030（AP0.4352、广岛0.3113、特里苏尔0.2948、末态0.2585、1000步0.2904）；自由混合0.3026（AP0.4086、0.2810/0.3242）。IoU差+0.0004，AP差+0.0266，两事件方向相反。",
+     "possible_answer": "在本设置里把混合矩阵绑定到波长没有带来可测的IoU收益，AP略高但事件方向相反、单seed，不能宣称波长归纳偏置有效或无效；它至少排除了“明显更好/更差”两种强结论。",
+     "evidence": [
+      "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2WavelengthMap/1234/eval/eval_best_val.json",
+      "outputs/segformer/s2_10band_v4r2_spectral_mapping/SegFormer-B0-LateDetail-OODv4-S2FreeMap/1234/eval/eval_best_val.json",
+      "docs/assets/research/spectral_mapping_queue.json"
+     ]
+    },
+    {
+     "name": "S1 新增指数通道统计与首层同初始化（2000步）",
+     "comparison": "同一2223/669成员、同direct10首层拷贝与新增四列零初始化；处理组追加NDVI/NDMI/NBR/REND并用559块TRAIN统计独立标准化，对照组追加四个原始波段（dataset z-score）；只改新增通道内容，其余结构、初始化与预算相同",
+     "evaluation_context": "广岛448＋特里苏尔221共669块DEV，事件等权IoU，单seed1234，2000步（日程3600前缀），best权重，阈值0.5",
+     "observation": "指数0.2917（AP0.4287、广岛0.2978、特里苏尔0.2856、1–4像素7/77）对原始通道0.2911（AP0.4207、0.2986/0.2837、8/77）；差+0.0006、AP+0.0080，两事件方向相反。首层审计：处理/对照218个张量逐值相同；相对十波段基线仅首层卷积不同，预训练三列相同、新增四列零初始化。两组都低于十波段参照0.3081约0.016。",
+     "possible_answer": "新增通道独立标准化后，历史“指数比原始通道差0.0113”的差没有复现，差异缩到单seed噪声内；说明历史下降主要与新增通道尺度/训练设置有关，不能归因于指数缺乏信息。两组都低于十波段参照，说明本预算下扩到14通道本身有代价；仍不能据此说指数普遍无用。",
+     "evidence": [
+      "outputs/segformer/v4r2_spectral/summary_spectral.json",
+      "outputs/segformer/v4r2_spectral/s1_init_audit.json",
+      "manifests/v4r1/stats_s1_indices4.json",
+      "docs/assets/research/v4r2_spectral_queue.json"
+     ]
+    },
+    {
+     "name": "S3 十波段关系五组（2000步）",
+     "comparison": "同2223/669成员、同入口位置（十波段进入MiT之前的残差修正）、同2000步/3600日程/初始化；S3-A为逐像元满秩10×10线性混合；S3-B/C/D/E共用同一4×4块十波段token注意力（2层4头），只改band身份与关系偏置",
+     "evaluation_context": "广岛448＋特里苏尔221共669块DEV，事件等权IoU，单seed1234，2000步，best权重，阈值0.5",
+     "observation": "线性混合0.3042；自由ID注意力0.2916；波长注意力0.2913；局部偏置0.2855；全局偏置0.2848。注意力四组比线性混合低0.013–0.019；波长对自由ID为−0.0003（AP+0.0065，广岛+0.0118/特里苏尔−0.0124）；局部对全局+0.0007（AP+0.0087、微小对象9/77对6/77）。S3-A两事件更不均衡（0.2829/0.3256）。注意力组关系读出权重确实离开零（abs sum 9–12）。",
+     "possible_answer": "本预算下真正的十波段token注意力没有超过普通线性混合；波长身份、局部/全局物理关系偏置都没有可测的独立收益。读出权重离开零说明支路在训练，但线性混合与注意力未严格同容量、单seed，不能据此否定注意力在其他预算或容量下的作用。",
+     "evidence": [
+      "outputs/segformer/v4r2_spectral/summary_spectral.json",
+      "outputs/segformer/v4r2_spectral/SegFormer-B0-S3D-LocalBias/1234/eval/eval_best_val.json",
+      "docs/assets/research/v4r2_spectral_queue.json",
+      "docs/assets/research/execution_audit.json"
+     ]
+    },
+    {
+     "name": "S4 独立关系特征的四种融合（2000步）",
+     "comparison": "同一十波段关系编码器输出真正的F_spec，在官方解码器融合特征处单尺度注入；ADD、固定门0.5、学习门共用同一F_spec与投影；CAPCTRL为自由band ID、无关系偏置、存储参数相同的非物理分支；入口前残差为S3-D参照",
+     "evaluation_context": "广岛448＋特里苏尔221共669块DEV，事件等权IoU，单seed1234，2000步，best权重，阈值0.5",
+     "observation": "ADD 0.3085（AP0.4427、广岛0.3136、特里苏尔0.3034、微小9/77）、FIXEDGATE 0.3095（0.4424、0.3120/0.3069、11/77）、LEARNGATE 0.3081（0.4446、0.3137/0.3025、11/77）、CAPCTRL 0.3101（0.4465、0.3147/0.3055、10/77）；入口前残差S3-D 0.2855。学习门best(500步) gate均值0.047、目标0.015/背景0.048/FP0.006、修正幅度0.002；900步gate0.589，1300步后完全关闭（gate=0、修正=0）。ADD/FIXED修正幅度0.059/0.027；CAPCTRL gate均值0.0006、几乎全关。",
+     "possible_answer": "同一关系编码器放在解码特征处（0.3081–0.3101）明显高于放在入口前残差（0.2855），融合位置比关系类型更重要；但四种特征融合与十波段参照0.3081的差都在+0.001以内，学习门最终关闭支路，CAPCTRL（无物理身份/关系偏置）还略高，因此没有证据表明物理关系表示带来净收益。学习门的空间选择性没有成立：best权重上目标处反而更低，末段完全关闭；其饱和/关闭更可能来自门控优化，而不是“关系无用”的干净证据，需归一化门控或独立学习率复核（未验证）。",
+     "evidence": [
+      "outputs/segformer/v4r2_spectral/summary_spectral.json",
+      "outputs/segformer/v4r2_spectral/gate_diagnostics.json",
+      "docs/assets/research/v4r2_spectral.png",
+      "docs/assets/research/v4r2_spectral_queue.json"
+     ]
+    }
+   ],
+   "systematic_improvement": {
+    "purpose": "在继续完成原任务书的同时，优先定位数据、训练和模型的可改善瓶颈；不把继续增加模块当作系统方案。",
+    "evidence": [
+     "outputs/segformer/v4r2_temporal_cutoff/summary_temporal_cutoff.json",
+     "outputs/segformer/v4r3_composition/summary_composition.json",
+     "outputs/segformer/v4r1_temporal_control/SegFormer-B0-Temporal-Single-BN64/1234/train_summary.json",
+     "docs/assets/research/external_landslide_audit.json",
+     "docs/assets/research/object_data_review/summary.json",
+     "docs/assets/research/object_data_review/pipeline.json",
+     "docs/assets/research/object_data_review/fixed_cases.json",
+     "outputs/data_review/per_object.csv"
+    ],
+    "diagnosis": "原TRAIN2223/DEV669数据链路及成熟单期best@500逐对象审查完成。全部2892份缓存的10波段、标签、valid与原文件清单指定索引逐值一致，增强保留监督；best时所有训练图块曝光14–15次。小目标确实漏检，但同时存在对象重叠未匹配、大对象内部及边界漏分、事件不均衡。1–9像素可评价对象全部来自广岛，不能外推为两事件共同结论。日期与标注一致性不在范围。",
+    "priority_plan": [
+     {
+      "order": 1,
+      "task": "尺寸分布与尺寸相关漏检审计，先于归一化或换模型",
+      "design": "沿用原标签、原协议与metric_v2；六档尺寸统计及原始数组/缓存/增强/损失全链路核验。固定案例只按GT对象ID哈希选取：每事件每尺寸最多4个，空档如实保留，再从其余对象补足每事件24个。概率分类用目标内最大概率<0.1、0.1至<0.5、有重叠未匹配、匹配成功；合并、碎片、2像素邻域另作可重叠标记，不冒称原因。",
+      "gate": "日期标注一致性不在范围。图块内连通对象不冒称完整滑坡；边缘/无效区邻接对象单列。评价阈值、原标签及尺寸定义保持不变，不能删小对象抬分。",
+      "new_training": 0,
+      "status": "已完成：2892源文件与缓存数组核对、16组合增强、best/last曝光、实际损失梯度、669块CPU概率重算、逐对象分类、每事件24个固定案例；历史四项混淆计数完全复现。全景对象身份与独立人工标注正确性仍不能由本审查证明。"
+     },
+     {
+      "order": 2,
+      "task": "先稳定训练参照",
+      "design": "单期相同输入/初始化、microbatch8×累积8，2000成功更新/3600调度/180预热。三条件：当前BN、仅用固定TRAIN校准并冻结BN运行统计（仿射参数可训练）、仅解码器BN改GroupNorm。主干、细节、损失不变。",
+      "gate": "先完成尺寸数据审查；训练设置仅在数据检查未解释问题后做单因素控制。前向/梯度/实际归一化路径验收；GN是新配置而不是与旧checkpoint逐值等价。记录前2000步、最差事件与best/last；BN64已有结果只作关联线索。",
+      "new_training": "最多3组；若现有参照满足同配置/预算窗口则复用，不伪造等价"
+     },
+     {
+      "order": 3,
+      "task": "独立检验数据曝光和小目标监督",
+      "design": "依据尺寸审计，先对同一冻结参照分别检验含小对象样本的分层采样（记录事件/尺寸重复曝光，保持总预算）与对象/区域平衡辅助监督；不能只围绕1–4像素优化，20–49像素对象和≥50像素的轮廓完整性都要纳入。具体权重先登记，不网格搜索。",
+      "gate": "采样逐事件曝光/重复率可追溯；对象标签不含无效像素，不把未标注背景当可靠难负例。每个实验都与同一参照比较，尚不叠加两个改动。 已排除图块零曝光与增强删除小目标；后续关注1–49像素对象监督份额、≥50像素内部/轮廓及FP，不以删除边缘对象、更改匹配阈值或单纯降预测阈值作改进。",
+      "new_training": "2组×2000；预期改善未验证",
+      "implementation_status": "待实现：当前updates训练入口只接受natural；旧balanced按图块总前景像素分档，并非对象尺寸分层。不能只改sampling.mode宣称完成事件/对象采样；新增对象辅助监督也尚未接入。先实现实际采样序列和各尺寸梯度贡献验收，再预检正式运行。"
+     },
+     {
+      "order": 4,
+      "task": "根据错误类型决定模型改动",
+      "design": "先用已有单期/多期权重比较同位置漏检、参考帧细节分支修正量、归一化与多期权重/质量关系。仅在可见小滑坡确实被多期融合压低且确认分支参与后，新增保持参考影像空间路径的有界时间残差门控；如果只是阈值变化，则先诊断PR曲线而非改结构。",
+      "gate": "不凭微小对象下降就断言融合抹除细节；控制相同帧和空间初始化，对照原时间汇聚与零贡献路径，gate分布/FP/FN可定位。",
+      "new_training": "条件性成对实验，配置未实现；不先做大骨干、多尺度和时间光谱地形叠加"
+     },
+     {
+      "order": 5,
+      "task": "数据扩充和稳定性验证",
+      "design": "若错误集中在训练未覆盖的地貌/季节/可见性，优先补有可靠标注的新TRAIN事件，不优先堆同事件图块；新版本独立登记，原验证与统计规则保留。冻结的最有希望改进与参照再用预定相同seed集合1234/2345/3456配对，已合法1234复用。",
+      "gate": "逐seed和逐事件报告均值、范围及代价；两个事件不能估计全球泛化。平均IoU约+0.02只作投入参考，AP/边界/微小对象和最差事件不明显退化；新seed扩展是条件计划，当前未启动。",
+      "new_training": "仅冻结候选/参照各补2seed；先完成单seed机制筛选"
+     }
+    ],
+    "external_reference": "用户新增9通道样本仅作可能参考、不纳入主线；364配对、16孤立mask，存在非有限值及地理重叠；波段不对应S2且无日期，不用于训练、选模或当前模型正式测试。",
+    "relationship_to_original_plan": "不删除原T/S/D必要对照及真实状态；既有队列不重复、不擅自停止。新增大规模训练前先执行诊断门禁；光谱与地形只有通过实际贡献/容量控制才考虑组合。",
+    "status": "DATA_AUDIT_COMPLETED_NO_NEW_TRAINING",
+    "excluded_questions": [
+     "按用户明确要求，不审查、不归因日期与标注一致性，也不将其作为实验前置。正常观测合法性约束保留。"
+    ],
+    "size_audit": {
+     "evidence": "docs/assets/research/size_diagnosis.json",
+     "figure": "docs/assets/research/size_diagnosis.png",
+     "scope": "原TRAIN2223/DEV669、成熟单期参照best、metric_v2；无新训练",
+     "findings": [
+      "1–4像素可评价对象8/77，像素Recall17.5%；1–19像素占前景2.64%、占FN3.75%。",
+      "20–49像素对象375/754，像素Recall40.5%；其FN占18.16%。",
+      "≥50像素贡献78.09%FN；对象召回64–67%而像素Recall约50%，大对象检出不等于分割完整。",
+      "仅将1–4、1–19、1–49像素目标中的FN全部改TP且其他像素不变，事件均值IoU分别0.30923、0.31890、0.37204；是算术诊断，不是模型可实现保证。"
+     ]
+    },
+    "object_data_audit": {
+     "evidence": [
+      "docs/assets/research/object_data_review/summary.json",
+      "docs/assets/research/object_data_review/pipeline.json",
+      "docs/assets/research/object_data_review/fixed_cases.json",
+      "outputs/data_review/per_object.csv"
+     ],
+     "figures": [
+      "docs/assets/research/object_data_review/diagnosis.png",
+      "docs/assets/research/object_data_review/data_path.png"
+     ],
+     "scope": "event_ood_v4r1；TRAIN2223/DEV669；成熟SegFormer B0十波段＋原始网格细节分支best@500；stats_core25；seed1234；CPU4线程复算；不新训",
+     "findings": [
+      "2892份源文件指定索引的十波段、mask及重算valid与缓存逐值一致；无标签未知值，16种翻转旋转组合全部同步；1像素目标在实际损失有非零纠正梯度。这不能证明人工标注语义正确或模型学会目标。",
+      "best@500所有2223张训练图块曝光14–15次，共32000；末态3600步103–104次，共230400。九事件图块44–642，前景像素贡献不均；没有零曝光小目标图块。",
+      "1–4像素77个可评价对象中：33最大概率<0.1，20最大概率0.1至<0.5，16有重叠但未匹配，8匹配；1–9像素可评价对象都来自广岛。",
+      "50–199和≥200像素对象的有效内部像素分别漏35.5%和39.4%，一像素边界分别漏60.4%和65.2%；不能把大对象错误只解释为边界问题。",
+      "阈值0.5改0.25：TP+14660，FP+58086；事件均值IoU0.30814→0.31041，但合并像素IoU0.30950→0.30058，Precision0.4680→0.3989。只作阈值诊断，不改正式阈值。",
+      "实际截断排除含距图块边缘一像素，旧注释只写触边不完整；保留历史评价计算。旧balanced是总前景面积分档且updates入口拒绝，未实现对象尺寸采样。"
+     ],
+     "limits": "48个固定开发解释对象不是独立盲测；未查日期标注一致性，外部9通道不纳入；不从当前128图块恢复全景滑坡身份；未训练验证采样或对象监督能否改善。"
+    }
+   }
+  },
+  {
+   "id": "universal-spectral-encoder",
+   "name": "USE通用光谱输入与外部预训练",
+   "previous": "temporal-mechanism",
+   "data_split_display": "我们的数据划分（留事件验证）",
+   "goal": "同权重接收可变波段，区分注意力、物理描述、混合训练及外部预训练的作用。",
+   "delta": "已接通独立观测、共享逐波段空间编码、2×2波段关系、查询汇聚、32→10内部桥接及原网格细节分支；十维内部接口不限制输入波段数。",
+   "result": "9/10组2000更新监督实验完成，独立评价669块；本轮直入参照IoU=0.2985。USE共享编码＋均值汇聚=0.1519; USE波段自注意力＋均值汇聚=0.1609; USE自注意力＋查询汇聚=0.1631; USE注意力＋物理描述=0.1955; USE注意力＋固定随机描述=0.1987; USE扩宽无注意力编码=0.1580; 无注意力USE＋混合波段训练=0.1758; 物理USE＋混合波段训练=0.1895。外部已接受S2 4518、Landsat 32位置；下载状态running。单seed，不宣称显著性或跨传感器分割有效。",
+   "status": "九组监督已验收；外部扩量和预训练尚未完成",
+   "next": "沿completion_status.json继续完整数据验收→10000更新预训练→第10组100步smoke与重新初始化2000步正式微调→固定五组合评价；不重复前九组。",
+   "evidence": [
+    "src/landslide_seg/data/optical_observation.py",
+    "tests/test_optical_observation.py",
+    "outputs/use/engineering_acceptance.json",
+    "outputs/use/quality/index.json",
+    "outputs/use/queue_status.json",
+    "outputs/use/s2_10band_v4r1_p20/use_baseline/1234/train_summary.json",
+    "outputs/use/supervised_acceptance.json",
+    "outputs/use/supervised_evaluations.json",
+    "outputs/use/initialization_audit.json",
+    "outputs/use/costs.json",
+    "outputs/use/external/pilot_acceptance.json",
+    "outputs/use/external/acquisition_status.json",
+    "outputs/use/segmentation_interface_acceptance.json",
+    "outputs/use/pretraining_engineering_acceptance.json"
+   ],
+   "execution_contract": {
+    "protocol": "event_ood_v4r1",
+    "train": 2223,
+    "dev": 669,
+    "seed": 1234,
+    "stats": "manifests/v4r1/stats_core25.json",
+    "microbatch": 8,
+    "gradient_accumulation": 1,
+    "freeze_bn_running_stats": true,
+    "stop_updates": 2000,
+    "schedule_updates": 3600,
+    "report_steps": [
+     500,
+     1000,
+     1500,
+     2000
+    ],
+    "selection": "dev_event_mean_iou",
+    "supervised_runs": 10,
+    "external_max_locations": 10000,
+    "pretraining_updates": 10000,
+    "external_sensors": [
+     "S2 L2A",
+     "Landsat 8/9 C2 L2"
+    ],
+    "external_exclusion_buffer_km": 10,
+    "external_years": [
+     2020,
+     2024
+    ],
+    "unseen_bands": [
+     "B02",
+     "B03",
+     "B04",
+     "B8A",
+     "B11"
+    ],
+    "implementation_status": "模型/工厂/训练/独立评价已接入；9份监督配置及冒烟队列已建立；外部数据与预训练脚本待完整验收，未启动预训练。"
+   },
+   "handoff": {
+    "authorization": "用户明确授权移交模型、更新训练器和预检范围，继续完整首轮；第一阶段完成后交接。",
+    "queue": "scripts/run_use.py",
+    "queue_state": "outputs/use/queue_status.json",
+    "external": "scripts/prepare_use_external.py --per-sensor 5000",
+    "external_state": "outputs/use/external/acquisition_status.json",
+    "pretraining": "scripts/pretrain_use.py",
+    "pending": [
+     "外部10000位置及完整验收",
+     "10000更新重建预训练",
+     "第10组微调与独立评价",
+     "最终报告审查与交接"
+    ],
+    "continuation": "scripts/run_use.py --finish-stage",
+    "continuation_state": "outputs/use/completion_status.json"
+   },
+   "execution_plan": {
+    "basis": "用户已授权完整USE首轮及三处范围移交，监督队列和外部小批试取正在实际执行；不将计划记为结果。",
+    "contract": "event_ood_v4r1，九TRAIN事件2223块，DEV广岛448＋特里苏尔221；seed1234；原559块核心统计不重算；DEV两事件等权IoU选模。",
+    "inputs": "单期十波段源影像；输入质量由源SCL、有限值和非NoData独立生成，不包含标签已知性。USE输出32维，经32→10桥接供MiT与原网格细节共同读取。混合训练：十波段1/2，RGB、RGB＋B08、RGB＋B08/B11/B12各1/6；未见五波段B02/B03/B04/B8A/B11只评价。",
+    "budget": "物理batch8，无梯度累积；冻结BN运行统计、仿射参数训练；每组2000更新、3600更新poly日程、180步预热；每100步验证，保存500/1000/1500/2000及best/last。MiT LR6e-5，其他LR6e-4，AdamW权重衰减0.01。",
+    "initialization": "官方MiT与原解码器预训练，各组细节按同seed初始化；USE与桥接从随机初始化开始，第10组只加载合法外部预训练USE。首轮无蒸馏、无额外对齐。",
+    "steps": [
+     {
+      "order": "1",
+      "model": "SegFormer B0｜十波段直入＋原网格细节",
+      "change": "统一批量与BN设置",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.2985@1600；独立669块评价已完成。"
+     },
+     {
+      "order": "2",
+      "model": "SegFormer B0｜USE共享编码＋均值汇聚",
+      "change": "可变集合编码",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1519@1600；独立669块评价已完成。"
+     },
+     {
+      "order": "3",
+      "model": "SegFormer B0｜USE自注意力＋均值汇聚",
+      "change": "波段自注意力",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1609@1000；独立669块评价已完成。"
+     },
+     {
+      "order": "4",
+      "model": "SegFormer B0｜USE自注意力＋查询汇聚",
+      "change": "固定查询汇聚",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1631@1000；独立669块评价已完成。"
+     },
+     {
+      "order": "5",
+      "model": "SegFormer B0｜USE注意力＋物理描述",
+      "change": "真实可得波段身份",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1955@1400；独立669块评价已完成。"
+     },
+     {
+      "order": "6",
+      "model": "SegFormer B0｜USE注意力＋固定随机描述",
+      "change": "身份容量对照",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1987@1500；独立669块评价已完成。"
+     },
+     {
+      "order": "7",
+      "model": "SegFormer B0｜USE扩宽无注意力编码",
+      "change": "有效参数容量对照",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1580@1600；独立669块评价已完成。"
+     },
+     {
+      "order": "8",
+      "model": "SegFormer B0｜无注意力USE混合波段训练",
+      "change": "普通缺波段训练对照",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1758@1600；独立669块评价已完成。"
+     },
+     {
+      "order": "9",
+      "model": "SegFormer B0｜物理USE混合波段训练",
+      "change": "联合学习不同输入集合",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "2000更新完成；best事件平均IoU=0.1895@1200；独立669块评价已完成。"
+     },
+     {
+      "order": "10",
+      "model": "SegFormer B0｜物理USE外部预训练后微调",
+      "change": "外部混合传感器预训练",
+      "question": "在相同数据、损失和监督预算下比较该因素；单seed不宣称显著性",
+      "status": "待实施或训练；以queue_status实际命令与产物为准"
+     }
+    ],
+    "acceptance": [
+     "CPU接口/模型/预算/回归测试、GPU置换和补齐误差通过；实际模型梯度、BN冻结、数据流恢复和checkpoint重载已验收。",
+     "监督每组先100步smoke，再全新初始化2000步正式训练。输入源数组与缓存哈希/数值已逐块核对。",
+     "每组同一最佳十波段权重评价完整DEV与3/4/5/6/10波段，报告逐事件IoU/AP、边界及1–4/5–25/26+像素对象数和匹配召回。",
+     "外部先S2/Landsat各32样本，真实尺度/偏移与源质量验证后最多10000独立位置；排除全部项目事件范围及10公里缓冲；按共同地理组留出5%，不拟合验证统计。"
+    ],
+    "decisions": [
+     "任一数值、数据身份、泄漏或恢复测试失败即停受影响任务；不改变原标签、损失、解码器或预算来补救性能。",
+     "完整十波段IoU下降>0.01或最小对象召回下降>0.02登记退化警报并保留负结果；分布诊断不证明因果。",
+     "监督独立评价验收后，再用外部S2/Landsat等权曝光预训练10000更新、batch8、LR6e-4、预热500后线性衰减；每500步按两传感器等权重建误差选模，然后同第9组配置微调。",
+     "外部数据脚本、预训练头已有实现与单测，但完整样本链路和预训练尚未验收；不能据S2子集实验或重建误差宣称跨传感器滑坡泛化。"
+    ],
+    "handoff": "先读outputs/use/queue_status.json与external/acquisition_status.json，核实本任务进程后续接，不重复启动；configs/segformer/use为实际配置，scripts/run_use.py训练，scripts/audit_use.py --evaluate-queue独立评价。",
+    "deliverables": "固定台账与模型/数据正文维护计划、结果和限制；产物留outputs/use，保存配置、命令、源与数据哈希、输入质量、逐样本波段视图、曲线、best/last、成本及负结果。完成后再交接。"
+   },
+   "comparisons": [
+    {
+     "name": "集合编码的代价",
+     "comparison": "USE共享编码＋均值汇聚 与 十波段直入＋原网格细节",
+     "evaluation_context": "同一669块开发验证，seed1234，各2000更新；按完整十波段选best",
+     "observation": "事件平均IoU：0.1519 与 0.2985。",
+     "possible_answer": "共享编码可运行可变集合，但首轮分割结果下降，工程等价不代表保留十波段能力。",
+     "evidence": [
+      "outputs/use/s2_10band_v4r1_p20/use_mean/1234/eval/eval_dev_full.json",
+      "outputs/use/s2_10band_v4r1_p20/use_baseline/1234/eval/eval_dev_full.json"
+     ]
+    },
+    {
+     "name": "波段注意力",
+     "comparison": "USE波段自注意力＋均值汇聚 与 USE共享编码＋均值汇聚",
+     "evaluation_context": "同一669块开发验证，seed1234，各2000更新；按完整十波段选best",
+     "observation": "事件平均IoU：0.1609 与 0.1519。",
+     "possible_answer": "注意力组略高于均值组，仍远低于直入参照；单seed不能证明稳定收益。",
+     "evidence": [
+      "outputs/use/s2_10band_v4r1_p20/use_self_mean/1234/eval/eval_dev_full.json",
+      "outputs/use/s2_10band_v4r1_p20/use_mean/1234/eval/eval_dev_full.json"
+     ]
+    },
+    {
+     "name": "查询汇聚",
+     "comparison": "USE自注意力＋查询汇聚 与 USE波段自注意力＋均值汇聚",
+     "evaluation_context": "同一669块开发验证，seed1234，各2000更新；按完整十波段选best",
+     "observation": "事件平均IoU：0.1631 与 0.1609。",
+     "possible_answer": "查询相对均值的差异较小，不能当作确定改进。",
+     "evidence": [
+      "outputs/use/s2_10band_v4r1_p20/use_self_query/1234/eval/eval_dev_full.json",
+      "outputs/use/s2_10band_v4r1_p20/use_self_mean/1234/eval/eval_dev_full.json"
+     ]
+    },
+    {
+     "name": "物理描述与身份容量",
+     "comparison": "USE注意力＋物理描述 与 USE注意力＋固定随机描述",
+     "evaluation_context": "同一669块开发验证，seed1234，各2000更新；按完整十波段选best",
+     "observation": "事件平均IoU：0.1955 与 0.1987。",
+     "possible_answer": "物理描述未超过同结构随机身份描述；不支持本轮物理信息带来收益的结论。",
+     "evidence": [
+      "outputs/use/s2_10band_v4r1_p20/use_physical/1234/eval/eval_dev_full.json",
+      "outputs/use/s2_10band_v4r1_p20/use_random/1234/eval/eval_dev_full.json"
+     ]
+    },
+    {
+     "name": "参数容量控制",
+     "comparison": "USE扩宽无注意力编码 与 USE注意力＋物理描述",
+     "evaluation_context": "同一669块开发验证，seed1234，各2000更新；按完整十波段选best",
+     "observation": "事件平均IoU：0.1580 与 0.1955。",
+     "possible_answer": "扩宽无注意力编码控制USE参数量，差2个参数；结果不能排除不同优化难度。",
+     "evidence": [
+      "outputs/use/s2_10band_v4r1_p20/use_capacity/1234/eval/eval_dev_full.json",
+      "outputs/use/s2_10band_v4r1_p20/use_physical/1234/eval/eval_dev_full.json"
+     ]
+    },
+    {
+     "name": "混合波段训练",
+     "comparison": "物理USE＋混合波段训练 与 USE注意力＋物理描述",
+     "evaluation_context": "同一669块开发验证，seed1234，各2000更新；按完整十波段选best",
+     "observation": "事件平均IoU：0.1895 与 0.1955。",
+     "possible_answer": "完整十波段IoU下降；还须结合固定同一权重的分组合曲线，不能按组合重新选模。",
+     "evidence": [
+      "outputs/use/s2_10band_v4r1_p20/use_physical_mixed/1234/eval/eval_dev_full.json",
+      "outputs/use/s2_10band_v4r1_p20/use_physical/1234/eval/eval_dev_full.json"
      ]
     }
    ]

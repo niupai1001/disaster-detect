@@ -1,0 +1,33 @@
+{
+  "batch": "v4r2_temporal_window",
+  "purpose": "固定 3 期历史窗口：同一共同成员上只改参考日期前的跨度（180 天 vs 365 天）",
+  "protocol": "event_ood_v4r1",
+  "data_split_display": "我们的数据划分（留事件验证）",
+  "subset": {
+    "manifest": "manifests/v4r2/pool_window180.jsonl",
+    "protocol": "manifests/v4r2/subset_protocol_window180.json",
+    "rule": "TRAIN 只保留参考日期前 180 天内至少有 3 个真实观测的样本；DEV 原样全保留；365 天组沿用同一成员",
+    "counts": {"train": 2108, "dev": 669},
+    "min_frames_at_or_before_reference": 3,
+    "window_days": 180
+  },
+  "budget": {
+    "stop_updates": 2000,
+    "schedule_updates": 3600,
+    "warmup_updates": 180,
+    "eval_every_updates": 100,
+    "report_steps": [1000, 1500, 2000],
+    "batch_size": 64,
+    "microbatch": 8,
+    "accumulation": 8
+  },
+  "device": "cuda:0",
+  "started": "2026-10-23T09:03:53-04:00",
+  "finished": "2026-10-23T09:41:40-04:00",
+  "log": "outputs/segformer/v4r2_temporal_window/queue.log",
+  "runs": [
+    {"experiment": "SegFormer-B0-Temporal-Window180", "config": "configs/segformer/v4r2_temporal_window/window180.yaml", "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE", "best_step": 300, "best_event_mean_iou": 0.3026},
+    {"experiment": "SegFormer-B0-Temporal-Window365", "config": "configs/segformer/v4r2_temporal_window/window365.yaml", "status": "COMPLETED_VALID_FOR_AUDITED_SCOPE", "best_step": 300, "best_event_mean_iou": 0.2962}
+  ],
+  "note": "本文件只记执行状态；训练完成不等于通过验收。两组的成员完全相同，唯一变化是窗口天数；不得看结果再改窗口。"
+}

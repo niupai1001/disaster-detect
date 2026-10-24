@@ -1,0 +1,68 @@
+# 截止参考日期的时间数量组：同一派生共同子集，只改"参考日期当日及以前"的帧数。
+# 协议：event_ood_v4r1 原固定事件留出；清单为派生共同子集 TRAIN 2007 / DEV 669
+# （只保留可用≥7帧的 TRAIN 样本，DEV 原样），登记见 manifests/v4r2/subset_protocol_cutoff7.json。
+# 十波段统计、融合方式（内容与日期加权）与已完成的 15 期组一致；不使用参考日期之后的观测。
+# 预算：停止 2000 次成功更新，但学习率日程仍写 3600（预热 180），因此是旧日程的前 2000 步。
+segformer:
+  experiment: SegFormer-B0-Temporal-Cutoff-PLACEHOLDER
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/segformer
+  data:
+    version: v4r2_temporal_cutoff
+    manifest: manifests/v4r2/pool_cutoff7.jsonl
+    subset_protocol: manifests/v4r2/subset_protocol_cutoff7.json
+    stats: manifests/v4r1/stats_core25.json
+    protocol: manifests/v4r1/protocol.json
+    temporal_root: data/s2_temporal_v4r1
+    quality: data/s2_temporal_v4r1_none
+    pool_fraction: 100
+    image_size: 128
+    preload: false
+  model:
+    type: temporal_spectral
+    backbone: b0
+    spectral: false
+    in_chans: 10
+    pretrained_dir: weights/segformer/segformer-b0-finetuned-ade-512-512
+    pretrained_source: nvidia/segformer-b0-finetuned-ade-512-512
+  temporal:
+    mode: history
+    aggregation: date
+    n_frames: 7
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+  optim:
+    encoder_lr: 6.0e-05
+    head_lr: 0.0006
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: poly
+    poly_power: 1.0
+  train:
+    epochs: 150
+    batch_size: 64
+    microbatch: 8
+    accumulation: 8
+    max_steps: 2000
+    stop_updates: 2000
+    schedule_updates: 3600
+    eval_every_updates: 100
+    report_steps:
+    - 1000
+    - 1500
+    - 2000
+    budget_mode: updates
+  eval:
+    threshold: 0.5
+    batch_size: 8
+    selection_metric: dev_event_mean_iou
+    scale_thresholds_ha:
+    - 0.5
+    - 2.0
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1
+    latency_frames: 7

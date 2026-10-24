@@ -57,6 +57,14 @@ def naming(config):
     typ = m.get('type', 'segformer')
     backbone = str(m.get('backbone', 'b0')).upper()
     probe = m.get('probe') or {}
+    if typ == 'use':
+        u=m.get('use',{})
+        attention=u.get('attention',True);queries=u.get('queries',4);metadata=u.get('metadata',True)
+        identity=u.get('identity','physical');hidden=u.get('hidden',32)
+        structure=('波段自注意力' if attention else ('扩宽共享逐波段编码' if hidden!=32 else '共享逐波段编码'))
+        structure+='＋固定查询汇聚' if queries else '＋带掩膜均值汇聚'
+        if metadata:structure+='＋'+('物理描述' if identity=='physical' else '固定随机身份描述')
+        return f'segformer-b0-use-{attention}-{queries}-{metadata}-{identity}-{hidden}', f'SegFormer B0｜光学波段集合经USE统一入口｜{structure}＋桥接＋原网格细节'
     if typ == 'probe':
         enc = str(probe.get('encoder', 'unknown'))
         label = {'segformer_b0': 'SegFormer B0 RGB', 'segformer_b2': 'SegFormer B2 RGB',
@@ -118,7 +126,7 @@ def naming(config):
 
 def metric_rows(run):
     rows = []
-    for p in sorted((run / 'eval').glob('eval_best*.json')):
+    for p in sorted(set((run / 'eval').glob('eval_best*.json')) | set((run / 'eval').glob('eval_dev_*.json'))):
         d = read(p)
         parts = {key: d[key] for key in ('val', 'test') if isinstance(d.get(key), dict)}
         if not parts:
@@ -127,7 +135,7 @@ def metric_rows(run):
             overall = part.get('overall', {})
             pix = overall.get('pixel', {})
             rows.append({'source': relative(p), 'split': split,
-                         'n_samples': part.get('n_samples'), 'pixel': pix,
+                         'n_samples': part.get('n_samples'), 'pixel': pix, 'band_subset': d.get('band_subset'),
                          'event_mean_iou': part.get('event_mean_iou', d.get(split + '_event_mean_iou')),
                          'objects': {k: v for k, v in overall.get('objects', {}).items() if k in ('n_gt_evaluable', 'n_matched_evaluable', 'object_recall_evaluable')},
                          'boundary_f1': overall.get('boundary', {}).get('f1'),
@@ -139,7 +147,9 @@ def metric_rows(run):
 
 def inventory():
     records, excluded = [], []
-    for p in sorted((ROOT / 'outputs/segformer').rglob('resolved_config.json')):
+    paths=list((ROOT / 'outputs/segformer').rglob('resolved_config.json'))
+    paths+=list((ROOT / 'outputs/use/s2_10band_v4r1_p20').rglob('resolved_config.json'))
+    for p in sorted(paths):
         run = p.parent
         path = relative(run)
         if any(token in path.lower() for token in ('smoke', 'validation_', '/toy/', '_test_temp', '_regression_tmp', '_probe_test_tmp', '_pilot')):
@@ -156,6 +166,11 @@ def inventory():
             continue
         arch_id, name = naming(cfg)
         tags = []
+        if cfg.get('model',{}).get('type')=='use':
+            tags.append('3/4/6/10波段混合训练' if cfg.get('data',{}).get('mixed_bands') else '完整十波段训练')
+            tags.append('USE外部遮挡波段重建初始化' if cfg['model'].get('use_pretrained') else 'USE随机初始化')
+        if cfg.get('train',{}).get('freeze_bn_running_stats'):
+            tags.append('BN运行统计冻结，仿射参数训练')
         loss = cfg.get('loss', {})
         labels = {'coarse_weight': '基础输出辅助监督权重', 'boundary_weight': '边界加权', 'pos_weight': 'BCE正类权重'}
         for k in labels:
@@ -194,6 +209,7 @@ def inventory():
         temporal = model_cfg.get('type') == 'temporal_spectral'
         effective_stem = temporal or bool(model_cfg.get('stem')) or model_cfg.get('type') == 'single'
         effective_input = 'RGB' if model_cfg.get('type') == 'probe' and model_cfg.get('probe', {}).get('encoder') != 'dofa_10' else 'S2十波段及配置声明的额外通道'
+        if model_cfg.get('type')=='use':effective_input='可变光学波段集合；实际训练组合及评价子集见配置与评价文件'
         treatment = '；'.join(tags) or '原训练处理，详见配置'
         data_context = str(cfg.get('data', {}).get('version', '未声明数据版本'))
         manifest = str(cfg.get('data', {}).get('manifest', '')).replace('\\', '/')
