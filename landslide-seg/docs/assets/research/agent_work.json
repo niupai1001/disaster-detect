@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T08:00:50.563776+00:00",
+  "updated_at": "2026-10-25T08:19:20.573809+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -1189,6 +1189,22 @@
         "outputs/use_independent_frozen/final_acceptance.json"
       ],
       "note": "已纠正CUDA中断20个文件属于本轮50个子集的计数；原冻结清单52个旧轮权重与本轮50个共102个独立checkpoint哈希通过；用户接受限制结束本轮，无新增训练。"
+    },
+    {
+      "id": "use-feature-view",
+      "title": "USE原图与32维特征可视化",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "outputs/use_feature_view",
+        "scripts/visualize_use_features.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T08:18:20.468163+00:00",
+      "updated_at": "2026-10-25T08:19:20.573809+00:00",
+      "evidence": [
+        "outputs/use_feature_view/provenance.json"
+      ],
+      "note": "CPU只读推理两份固定排序S2重建验证观测；原RGB、共享PCA特征、范数、有效区与32通道图完成；冻结哈希不变，不训练。"
     }
   ],
   "transfers": [
