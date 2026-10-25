@@ -12,14 +12,28 @@ OUT=ROOT/'outputs/use'
 NAMES=('baseline','mean','self_mean','self_query','physical','random','capacity','mean_mixed','physical_mixed')
 
 
+def read_status(path):
+    """Network drives can expose a brief incomplete snapshot during replacement."""
+    for attempt in range(10):
+        try:return json.loads(path.read_text(encoding='utf-8'))
+        except (json.JSONDecodeError,OSError):
+            if attempt==9:raise
+            time.sleep(.5)
+
+
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--only',choices=(*NAMES,'pretrained_mixed'))
     parser.add_argument('--finish-stage',action='store_true',help='Wait for external acquisition, audit, pretrain and fine-tune the tenth group')
     parser.add_argument('--resume-completion',action='store_true',help='Resume a failed completion queue only after inspecting the error')
+    parser.add_argument('--current-data',action='store_true',help='Use frozen accepted samples; never restart downloads')
+    parser.add_argument('--local-unlabeled',action='store_true',help='Include original unannotated TRAIN-region S2')
     parser.add_argument('--device',default='cuda:1',choices=['cuda:0','cuda:1']);args=parser.parse_args()
     if args.finish_stage:
         if args.only:parser.error('--finish-stage cannot be combined with --only')
-        return finish_stage(resume=args.resume_completion)
+        if args.local_unlabeled and not args.current_data:parser.error('--local-unlabeled requires --current-data')
+        return finish_stage(resume=args.resume_completion,current=args.current_data,local=args.local_unlabeled)
+    if args.local_unlabeled:parser.error('--local-unlabeled requires --finish-stage')
+    if args.current_data:parser.error('--current-data requires --finish-stage')
     if args.resume_completion:parser.error('--resume-completion requires --finish-stage')
     status_path=OUT/('queue_status_'+args.only+'.json' if args.only else 'queue_status.json')
     if not (OUT/'engineering_acceptance.json').is_file():
@@ -72,12 +86,13 @@ def main():
     finally:save()
 
 
-def finish_stage(resume=False):
+def finish_stage(resume=False,current=False,local=False):
     """Continue the approved pipeline, stopping on every failed data/training gate."""
     import hashlib
     status=OUT/'completion_status.json'
     state=json.loads(status.read_text()) if resume else dict(status='waiting_external',jobs=[])
-    if resume and state['status']!='failed':raise ValueError('Only a failed completion queue can be explicitly resumed')
+    if resume and state['status']!='failed' and not (current and state['status']=='paused_for_dataset_change'):
+        raise ValueError('Only a failed or explicitly paused completion queue can be resumed')
     state.update(status='waiting_external');state.pop('error',None)
     def save():
         temporary=status.with_suffix('.tmp');temporary.write_text(json.dumps(state,indent=1),encoding='utf-8');temporary.replace(status)
@@ -91,18 +106,23 @@ def finish_stage(resume=False):
     try:
         if status.exists() and not resume:raise FileExistsError('Completion queue already registered; inspect its process and evidence')
         save()
-        while True:
-            external=json.loads((OUT/'external/acquisition_status.json').read_text())
-            if external['status']=='complete':break
-            if external['status']!='running':raise RuntimeError('External acquisition stopped: '+external['status'])
-            time.sleep(30)
-        run(['scripts/prepare_use_external.py','--audit-full'],'external_full_audit')
+        if not current:
+            while True:
+                external=read_status(OUT/'external/acquisition_status.json')
+                if external['status']=='complete':break
+                if external['status']!='running':raise RuntimeError('External acquisition stopped: '+external['status'])
+                time.sleep(30)
+        state['dataset_mode']='frozen_current' if current else 'full_expansion'
+        run(['scripts/prepare_use_external.py','--audit-current' if current else '--audit-full'],
+            'external_current_audit' if current else 'external_full_audit')
+        if local:run(['scripts/prepare_use_local.py'],'local_unlabeled_audit')
         interface=json.loads((OUT/'segmentation_interface_acceptance.json').read_text())
         if interface.get('ok') is not True:raise RuntimeError('Complete segmentation interface acceptance required before pretraining')
         output=OUT/'pretraining'
         if not (output/'summary.json').exists():
             if output.exists() and any(output.iterdir()):raise RuntimeError('Inspect incomplete pretraining before explicit resume')
-            run(['scripts/pretrain_use.py'],'external_pretraining')
+            run(['scripts/pretrain_use.py',*(['--current-data'] if current else []),
+                *(['--local-unlabeled'] if local else [])],'external_pretraining')
         summary=json.loads((output/'summary.json').read_text())
         if summary.get('complete') is not True or summary['updates']!=10000:raise ValueError('Incomplete external pretraining')
         best=output/'best.pt';sha=hashlib.sha256(best.read_bytes()).hexdigest()

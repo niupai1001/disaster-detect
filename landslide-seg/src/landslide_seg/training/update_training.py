@@ -179,12 +179,22 @@ def run_updates(cfg, model, optimizer, scheduler, train_ds, val_ds, train_recs, 
     metrics_path = run_dir / "metrics.jsonl"
     metrics_path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in history), encoding="utf-8")
     started = time.time()
+    update_trace=run_dir/'per_update.jsonl'
+    record_updates=s['model'].get('type')=='use'
+    if record_updates:
+        previous=update_trace.read_text().splitlines() if resume and update_trace.exists() else []
+        update_trace.write_text(''.join(line+'\n' for line in previous if json.loads(line)['global_step']<=step),encoding='utf-8')
     log(f"[updates] {s['experiment']} device={device} start={step} target={target} train={len(train_recs)} dev={len(val_recs)} interval={interval}")
     while step < target:
         stop = min(target, ((step // interval) + 1) * interval)
         total_loss, total_count, total_coarse, stalled = 0.0, 0, 0.0, 0
         while step < stop:
-            loss, skipped, n, coarse = _train_epoch(model, itertools.islice(stream, stop - step), optimizer, scheduler, cfg, device)
+            def trace_update(offset,value,count):
+                with update_trace.open('a',encoding='utf-8') as handle:
+                    handle.write(json.dumps(dict(global_step=step+offset,epoch=stream.epoch,train_loss=value,
+                        batch_size=count,learning_rates=[g['lr'] for g in optimizer.param_groups],seconds=time.time()-started))+'\n')
+            kwargs={'on_update':trace_update} if record_updates else {}
+            loss, skipped, n, coarse = _train_epoch(model, itertools.islice(stream, stop - step), optimizer, scheduler, cfg, device,**kwargs)
             skipped_total += skipped
             step += n
             total_loss += loss * n

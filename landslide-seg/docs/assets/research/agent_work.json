@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T07:09:51.352535+00:00",
+  "updated_at": "2026-10-25T08:00:50.563776+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -300,15 +300,14 @@
         "tests/test_optical_observation.py",
         "tests/test_universal_spectral_encoder.py"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T18:48:29.100591+00:00",
-      "updated_at": "2026-10-24T07:09:51.352535+00:00",
+      "updated_at": "2026-10-24T12:22:21.836225+00:00",
       "evidence": [
-        "outputs/use/segmentation_interface_acceptance.json",
-        "outputs/use/pretraining_engineering_acceptance.json",
-        "outputs/use/completion_status.json"
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
       ],
-      "note": "继续完整首轮：九组监督与669块独立五组合评价完成；严格FP32全分割模型奇数尺寸C=3/4/6/10/13置换/补齐通过。真实S2+Landsat批量8重建与恢复下一采样/遮挡/损失一致，后续参数误差在FP32容差内。外部扩量仍运行，completion队列在等待数据，预训练与第10组尚未开始，不可标阶段完成。"
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
     },
     {
       "id": "use-doc-sync",
@@ -337,9 +336,14 @@
         "src/landslide_seg/training/segformer_trainer.py",
         "tests/test_agent_work.py"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T18:50:19.489136+00:00",
-      "updated_at": "2026-10-23T18:50:19.489136+00:00"
+      "updated_at": "2026-10-24T12:22:21.940596+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
     },
     {
       "id": "use-external",
@@ -351,9 +355,14 @@
         "scripts/pretrain_use.py",
         "scripts/run_use.py"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T18:55:54.435694+00:00",
-      "updated_at": "2026-10-23T18:55:54.435694+00:00"
+      "updated_at": "2026-10-24T12:22:22.045881+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
     },
     {
       "id": "use-extra-tests",
@@ -362,9 +371,14 @@
       "scopes": [
         "tests/test_use_pretraining.py"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T19:09:28.058748+00:00",
-      "updated_at": "2026-10-23T19:09:28.058748+00:00"
+      "updated_at": "2026-10-24T12:22:22.146541+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
     },
     {
       "id": "use-scale-metrics",
@@ -374,9 +388,14 @@
         "src/landslide_seg/training/segformer_metrics.py",
         "tests/test_use_scale_metrics.py"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T19:13:11.935159+00:00",
-      "updated_at": "2026-10-23T19:13:11.935159+00:00"
+      "updated_at": "2026-10-24T12:22:22.252594+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
     },
     {
       "id": "use-doc-progress",
@@ -386,9 +405,14 @@
         "docs/data_event_protocol.md",
         "docs/research_index.md"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T19:21:35.210144+00:00",
-      "updated_at": "2026-10-23T19:21:35.210144+00:00"
+      "updated_at": "2026-10-24T12:22:22.363750+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
     },
     {
       "id": "use-report",
@@ -398,9 +422,14 @@
         "docs/assets/research/use",
         "scripts/summarize_use.py"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T19:32:02.799233+00:00",
-      "updated_at": "2026-10-23T19:32:02.799233+00:00"
+      "updated_at": "2026-10-24T12:22:22.465007+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
     },
     {
       "id": "use-index",
@@ -411,9 +440,755 @@
         "docs/assets/research/experiment_registry.json",
         "scripts/build_research_inventory.py"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-23T19:53:47.608599+00:00",
-      "updated_at": "2026-10-23T19:53:47.608599+00:00"
+      "updated_at": "2026-10-24T12:22:22.568260+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
+    },
+    {
+      "id": "use-interface-diagnostics",
+      "title": "USE接口首批诊断与300步拟合探针",
+      "owner": "dsh-agent-2026-10-24-use-diag",
+      "scopes": [
+        "docs/assets/research/use_interface_diagnostics",
+        "outputs/use_interface_diagnostics",
+        "scripts/diagnose_use_interface.py",
+        "tests/test_use_interface_diagnostics.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T07:55:05.410436+00:00",
+      "updated_at": "2026-10-24T08:15:34.236545+00:00",
+      "evidence": [
+        "outputs/use_interface_diagnostics",
+        "outputs/use_interface_diagnostics/selection/diagnostic_tiles.json",
+        "outputs/use_interface_diagnostics/summary.json",
+        "outputs/use_interface_diagnostics/queue_check.json",
+        "docs/assets/research/use_interface_diagnostics/REPORT.md",
+        "docs/assets/research/use_interface_diagnostics/PLAN.md",
+        "scripts/diagnose_use_interface.py",
+        "tests/test_use_interface_diagnostics.py"
+      ],
+      "note": "完成固定128块TRAIN清单（96拟合/32检查；清单SHA256 c4749296…，内容SHA256 7aea825c…）；只读核验USE外部扩量running（S2 10950/Landsat 281，errors 183）与completion waiting_external，实测prepare_use_external/run_use共4个存活进程，未重启、未改配置或权重；完成直入/USE输入、桥接、MiT前两级、细节分支的激活/梯度/空间诊断，联合置换、缺波段、有效区检查；两组300步拟合探针直入0.3858/0.2345、USE 0.2019/0.0460（固定TRAIN子集，非泛化）。全量pytest通过。未完成/未验证：未启动2000步正式训练；桥接标定与细节辅助监督仅为方案（PLAN.md），未实现未训练；未做多种子/学习率/初始化/架构消融；单seed与300步短预算不能做显著性/因果结论；共享台账与固定文档仍由use-input-contract占用，待回写清单见PLAN.md第7节。"
+    },
+    {
+      "id": "use-next-task-review",
+      "title": "USE诊断后任务范围与实验设计复核",
+      "owner": "01a16805-4eb7-7ff3-b88e-6ef43f16b663",
+      "scopes": [
+        "docs/assets/research/use_interface_diagnostics/plan.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T08:18:11.228793+00:00",
+      "updated_at": "2026-10-24T08:18:12.501243+00:00",
+      "evidence": [
+        "docs/assets/research/use_interface_diagnostics/PLAN.md"
+      ],
+      "note": "已复核完成诊断并修订原实施说明：纠正隐特征按波段屏蔽、低秩因果与教师泄漏表述，取消累加超参扫描；明确混合参照补查、两组隔离实现及正式门槛。未改活动模型/固定文档或启动训练。"
+    },
+    {
+      "id": "use-diagnostic-review",
+      "title": "USE诊断证据复核与physical_mixed参照补查",
+      "owner": "dsh-agent-2026-10-24-use-followup",
+      "scopes": [
+        "docs/assets/research/use_diagnostic_review",
+        "outputs/use_diagnostic_review",
+        "scripts/review_use_diagnostics.py",
+        "tests/test_use_diagnostic_review.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T08:22:13.908260+00:00",
+      "updated_at": "2026-10-24T08:28:19.105901+00:00",
+      "evidence": [
+        "outputs/use_diagnostic_review",
+        "outputs/use_diagnostic_review/audit.json",
+        "outputs/use_diagnostic_review/comparison.json",
+        "docs/assets/research/use_diagnostic_review/REVIEW.md",
+        "scripts/review_use_diagnostics.py",
+        "tests/test_use_diagnostic_review.py"
+      ],
+      "note": "只读复核128块清单/旧日志/初始化/300步探针：清单SHA256 c474…、内容7aea…，96/32，direct/use init哈希与记录一致，未重跑探针；补查physical_mixed best.pt（2000步完成，best@1200 DEV 0.1895，权重SHA256 1e30fb04…）的激活/梯度/ERF/联合置换/缺波段/有效区及与physical的CKA。mixed不是physical的小扰动：CKA stage1 0.64、stage2 0.66、detail.stem 0.51、bridge 0.82；mixed有效秩更高、十波段梯度更均匀、缺波段IoU一致度更高（rgb 0.389 vs 0.085），但既有DEV 0.1895略低于physical 0.1955。未训练、未重跑300步探针、未改正式配置/权重；审计问题无。未完成：第二项两组恢复实验实现与短程验收尚未开始（另认领）；固定文档未回写。"
+    },
+    {
+      "id": "use-recovery-probe",
+      "title": "USE两组恢复实验的隔离实现与短程验收",
+      "owner": "dsh-agent-2026-10-24-use-followup",
+      "scopes": [
+        "configs/segformer/use_recovery",
+        "outputs/use_recovery_probe",
+        "scripts/run_use_recovery_probe.py",
+        "tests/test_use_recovery_probe.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T08:28:22.813236+00:00",
+      "updated_at": "2026-10-24T08:42:38.216309+00:00",
+      "evidence": [
+        "configs/segformer/use_recovery",
+        "scripts/run_use_recovery_probe.py",
+        "tests/test_use_recovery_probe.py",
+        "outputs/use_recovery_probe",
+        "outputs/use_recovery_probe/README.md",
+        "outputs/use_recovery_probe/calibration/calibration.pt",
+        "outputs/use_recovery_probe/selfcheck.json",
+        "outputs/use_recovery_probe/interface_checks.json"
+      ],
+      "note": "实现并短程验收桥接标定与同标定状态的两组恢复：calibration 200步/512 TRAIN成员/full10，冻结USE与visual、仅bridge可训练，教师直入best冻结零梯度，学生与教师输入逐元素最大差0；g1/g2起始状态哈希相同，300步TRAIN 96/32工程探针g1拟合0.1758/检查0.0262、g2拟合0.2351/检查0.0251（g2仅加stage1+2特征项0.05；非正式成绩）。接口：联合置换3.2e-6、masked/absent 3.1e-6、无效区NaN远处0、input_valid一致；校准checkpoint恢复bridge最大差1.45e-7、stream与optimizer step一致。formal 2000步仅dry-run未执行，全量pytest通过。未完成/未验证：两组2000步正式训练与DEV结果未产生；单seed、300步、无系数扫描/多seed/结构消融；g2拟合升但TRAIN内检查未升，不能判断特征辅助有效；教师继承既有DEV选模历史；未修改生产模型/训练入口/既有USE配置/固定文档。"
+    },
+    {
+      "id": "use-local-unlabeled",
+      "title": "原有无标注S2与已下载S2/Landsat联合预训练",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "scripts/prepare_use_local.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T10:23:02.260929+00:00",
+      "updated_at": "2026-10-24T12:22:22.669654+00:00",
+      "evidence": [
+        "outputs/use/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "USE完整首轮完成并交接：10组各2000更新、联合预训练10000更新、曝光和五组合评价/严格重载/初始化迁移/SHA核查完成；固定文档与图已回写并视觉核验，344本地链接及生成幂等通过。下载保持暂停，退化警报与单seed/逐次损失及初始化事前哈希等记录限制保留；未启动新实验。"
+    },
+    {
+      "id": "use-recovery-acceptance",
+      "title": "恢复实验数据序列与监督checkpoint补充验收",
+      "owner": "dsh-agent-2026-10-24-use-followup",
+      "scopes": [
+        "outputs/use_recovery_probe",
+        "scripts/run_use_recovery_probe.py",
+        "tests/test_use_recovery_probe.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T11:07:11.697297+00:00",
+      "updated_at": "2026-10-24T11:07:50.578316+00:00",
+      "evidence": [
+        "outputs/use_recovery_probe/short_sequence_check.json",
+        "outputs/use_recovery_probe/selfcheck.json",
+        "outputs/use_recovery_probe/selfcheck_supervised.json",
+        "outputs/use_recovery_probe/README.md",
+        "scripts/run_use_recovery_probe.py",
+        "tests/test_use_recovery_probe.py"
+      ],
+      "note": "补齐恢复验收：g1/g2起始状态哈希相同8e17b5ac…，数据/波段stream完全一致（SHA256 394210220d79…，各2400次曝光）；300步TRAIN 96/32短程g1拟合0.2166/检查0.0438、g2拟合0.2280/检查0.0315（g2仅加stage1+2特征项0.05，非正式）。监督checkpoint恢复：模型最大差5.14e-6（<1e-4）、loss差0、stream与optimizer step一致；校准checkpoint恢复bridge最大差1.45e-7。接口联合置换3.24e-6、masked/absent 3.13e-6、无效区NaN远处0、input_valid一致。全量pytest通过。未启动两组2000步正式训练，formal仅dry-run；无DEV结果；单seed/300步/无系数扫描，g2拟合升但TRAIN内检查未升，不能判断特征辅助有效。"
+    },
+    {
+      "id": "use-final-packaging",
+      "title": "USE最终交接状态与哈希封装",
+      "owner": "01a16a02-fcb7-7960-95a6-2e28e4ab9741",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use/artifacts.sha256",
+        "outputs/use/final_document_validation.json"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T12:23:58.222890+00:00",
+      "updated_at": "2026-10-24T12:24:36.317069+00:00",
+      "evidence": [
+        "outputs/use/artifacts.sha256",
+        "outputs/use/final_acceptance.json"
+      ],
+      "note": "最终文档/权重/配置/清单与源码SHA重新封装并逐项验证；344本地链接通过，自动接续use已删除，完整首轮交接结束，下载保持暂停。"
+    },
+    {
+      "id": "use-local-inventory",
+      "title": "本机USE数据可用量与S2空间尺寸核查",
+      "owner": "01a16870-3035-76e0-a0be-30dff718ffc0",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "outputs/use/local_inventory.json"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T13:12:53.798842+00:00",
+      "updated_at": "2026-10-24T13:19:43.104771+00:00",
+      "evidence": [
+        "outputs/use/local_inventory.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "已核验9762个既有预训练缓存SHA/尺寸/有效值与80%共同有效，冻结分配9279训练483留出；监督2223/669仅核对存在与质量索引。抽查S2原始15×128×128与F盘原生分辨率；发现F盘4期12波段+SCL及G盘771目录候选，未作新增窗口准入；本机目录搜索非全盘穷尽。不训练不下载。"
+    },
+    {
+      "id": "use-fg-eligibility",
+      "title": "F/G本地S2与Landsat窗口准入审查",
+      "owner": "01a16870-3035-76e0-a0be-30dff718ffc0",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "outputs/use/fg_audit",
+        "scripts/audit_use_fg.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T13:25:38.324698+00:00",
+      "updated_at": "2026-10-24T13:40:44.711159+00:00",
+      "evidence": [
+        "outputs/use/fg_audit/summary.json",
+        "outputs/use/fg_audit/f_strict_qualified_locations.jsonl",
+        "scripts/audit_use_fg.py",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "F盘四期8856窗口逐像元审查：6519通过观测，位置去重2210；再沿用旧外部整景云<20%时为2208位置，已生成独立严格清单。排除4个与已有样本重叠的位置。44源文件SHA通过。G盘4108完整十波段观测全部蓝波段头已查，4193额外合并TIF全为三通道uint8；缺SCL/QA及逐产品物理来源，当前0组准入。图/清单/哈希/边界已回写。不训练不下载，不变更冻结成员；未导出新npz。"
+    },
+    {
+      "id": "use-f-local-integration",
+      "title": "F盘2208位置制备与USE预训练入口接入",
+      "owner": "01a16870-3035-76e0-a0be-30dff718ffc0",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/research_index.md",
+        "outputs/use/external/f_local_acceptance.json",
+        "outputs/use/external/f_local_manifest.json",
+        "outputs/use/external/f_local_v1",
+        "outputs/use/pretraining_f_v1",
+        "scripts/prepare_use_f_local.py",
+        "scripts/pretrain_use.py",
+        "tests/test_use_f_local.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T13:44:18.924776+00:00",
+      "updated_at": "2026-10-24T13:50:56.229077+00:00",
+      "evidence": [
+        "outputs/use/external/f_local_manifest.json",
+        "outputs/use/external/f_local_acceptance.json",
+        "outputs/use/external/f_local_v1/verification.json",
+        "scripts/prepare_use_f_local.py",
+        "scripts/pretrain_use.py"
+      ],
+      "note": "已生成2208份F盘严格准入缓存：1853预训练、116重建验证、239验证区1280m隔离缓冲；联合数据11132训练599验证。--f-local实际入口检查通过，CPU真实make_batch通过，2208缓存哈希/形状/有效值通过；15项针对测试通过。数据与台账已回写。原成员/原checkpoint保留；未启动训练、未下载、不提供新增滑坡标签。"
+    },
+    {
+      "id": "use-independent-frozen",
+      "title": "USE独立预训练与冻结下游执行",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_independent_frozen",
+        "src/landslide_seg/models/factory.py",
+        "src/landslide_seg/models/frozen_use.py",
+        "src/landslide_seg/models/segformer_use.py",
+        "tests/test_frozen_use.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T07:54:31.676429+00:00",
+      "updated_at": "2026-10-25T07:54:31.766616+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/user_closeout_decision.json"
+      ],
+      "note": "用户明确接受随机身份混杂等限制并结束本轮；98000正式更新与所有验收、图表、索引完成，不追加14000更新，不恢复下载或旧队列。"
+    },
+    {
+      "id": "use-independent-data-audit",
+      "title": "USE独立阶段全缓存审计实现",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/audit_use_independent_data.py",
+        "tests/test_use_independent_data.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T15:30:24.045680+00:00",
+      "updated_at": "2026-10-24T15:33:25.422189+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/cache_audit_v1/acceptance.json",
+        "scripts/audit_use_independent_data.py"
+      ],
+      "note": "新增独立无标签缓存审计与单测；11970缓存全量核查通过、角色未变；物理源产品与地理隔离复用既有审计；训练门禁仍失败，不代表正式训练完成。"
+    },
+    {
+      "id": "use-independent-runtime",
+      "title": "USE隔离运行环境修复验收",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        ".cache/use-independent-runtime",
+        ".venv-use-independent"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T15:35:46.150998+00:00",
+      "updated_at": "2026-10-24T16:07:23.224718+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/repaired_runtime_check.log",
+        "outputs/use_independent_frozen/runtime_requirements.txt"
+      ],
+      "note": "项目隔离CPython3.12.14/torch2.11.0+cu128通过反向与CUDA以及73项工程测试；旧环境保留；原生崩溃根因未确认。"
+    },
+    {
+      "id": "use-runtime-ignore",
+      "title": "隔离软件运行目录忽略规则",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        ".gitignore"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T15:37:05.272353+00:00",
+      "updated_at": "2026-10-24T15:37:05.393899+00:00",
+      "evidence": [
+        ".gitignore"
+      ],
+      "note": "只忽略本轮隔离软件环境与软件包缓存，避免将依赖纳入版本库。"
+    },
+    {
+      "id": "use-independent-pretrainer",
+      "title": "USE独立无标签预训练执行链",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/pretrain_use_independent.py",
+        "tests/test_use_independent_pretrainer.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T15:38:43.558133+00:00",
+      "updated_at": "2026-10-24T16:07:23.567929+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/frozen_contracts_acceptance.json",
+        "outputs/use_independent_frozen/engineering_acceptance.json",
+        "scripts/pretrain_use_independent.py"
+      ],
+      "note": "独立MBM与用户明确确认U5空间重建执行链完成工程验收；6组smoke及冻结配置通过，首批四组已正式训练。代码任务交付，研究结果与统一探针/下游验收仍由主任务推进。"
+    },
+    {
+      "id": "use-independent-downstream",
+      "title": "USE冻结下游与统一探针接口",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "src/landslide_seg/models/use_downstream.py",
+        "tests/test_use_downstream.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T15:43:16.781236+00:00",
+      "updated_at": "2026-10-24T16:07:23.450539+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/downstream_smoke.json",
+        "outputs/use_independent_frozen/repaired_runtime_tests.xml"
+      ],
+      "note": "实现六种冻结USE消费入口；CPU梯度测试与同USE随机权重GPU batch8单批更新通过，USE哈希不变。正式固定预训练权重的下游训练未执行。"
+    },
+    {
+      "id": "use-independent-preflight",
+      "title": "USE独立预训练权重来源预检",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/check_research_protocol.py",
+        "tests/test_use_independent_preflight.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T15:45:20.914444+00:00",
+      "updated_at": "2026-10-24T16:07:23.334391+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/repaired_runtime_tests.xml",
+        "scripts/check_research_protocol.py"
+      ],
+      "note": "独立SSL权重完成预算/配置/成员/冻结/数据源哈希预检实现，相关与既有协议测试通过。实际新预训练权重尚未完成，未冒充正式评价验收。"
+    },
+    {
+      "id": "use-independent-probes",
+      "title": "统一冻结探针正式配置与初始化验收",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "configs/segformer/use_independent",
+        "scripts/check_research_protocol.py",
+        "scripts/freeze_use_probes.py",
+        "src/landslide_seg/training/segformer_trainer.py",
+        "tests/test_use_probe_protocol.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T16:09:00.277492+00:00",
+      "updated_at": "2026-10-25T07:51:48.367190+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\probe_progress.json"
+      ],
+      "note": "14项冻结探针配置与正式验收完成；新增U-Net预检入口在原链结束后扩展并通过真实工程与正式验收。"
+    },
+    {
+      "id": "use-independent-run-acceptance",
+      "title": "USE独立预训练正式产物验收",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/audit_use_independent_run.py",
+        "tests/test_use_independent_run.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T16:18:35.590439+00:00",
+      "updated_at": "2026-10-25T02:54:07.071664+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/convergence_review.json"
+      ],
+      "note": "六组10000更新正式产物、预算、曝光、最佳/末态及无标签选模验收完成；所有组接口/诊断/效率证据已保存。不宣称充分收敛或迁移成功。"
+    },
+    {
+      "id": "use-independent-convergence-review",
+      "title": "USE首批10000步收敛证据核对",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/use_independent/convergence.png"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:25:31.774849+00:00",
+      "updated_at": "2026-10-24T17:26:06.587901+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/convergence_review.json",
+        "docs/assets/research/use_independent/convergence.png"
+      ],
+      "note": "核对四组20个无标签验证点及训练末态；末段仍改善，未宣称充分收敛。已配图并写回阶段台账和固定数据文档；不扩大预算。"
+    },
+    {
+      "id": "use-independent-interface-acceptance",
+      "title": "独立预训练正式权重变波段接口验收",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/audit_use_frozen_interface.py",
+        "tests/test_use_frozen_interface.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:32:58.854804+00:00",
+      "updated_at": "2026-10-24T17:40:35.442139+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/pretraining/physical/interface_acceptance.json",
+        "outputs/use_independent_frozen/acceptance_auditors_tests.xml"
+      ],
+      "note": "首批四组正式最佳USE通过真实S2三/四/五/六/十波段与Landsat六波段的顺序/补齐/无效像元/未知元数据/奇数网格及混批验收，哈希不变；只证明工程接口，不证明跨传感器迁移。"
+    },
+    {
+      "id": "use-independent-probe-acceptance",
+      "title": "统一冻结探针正式产物与公平性验收",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/audit_use_independent_probe.py",
+        "tests/test_use_independent_probe.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:34:54.473300+00:00",
+      "updated_at": "2026-10-25T02:54:07.178309+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/probe_progress.json"
+      ],
+      "note": "14项统一探针各2000更新全部正式验收，真实成员/初始化/优化器排除/逐次USE参数与buffer哈希/严格重载和独立最佳末态评价通过；低成绩照实保留。"
+    },
+    {
+      "id": "use-independent-reference-acceptance",
+      "title": "复用原十波段参照的配置与独立重推理验收",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "outputs/use/s2_10band_v4r1_p20/use_baseline/1234/eval/eval_independent_recheck_best_val.json",
+        "outputs/use/s2_10band_v4r1_p20/use_baseline/1234/eval/objects_independent_recheck_best_val.json",
+        "outputs/use/s2_10band_v4r1_p20/use_baseline/1234/eval/per_tile_independent_recheck_best_val.csv",
+        "outputs/use/s2_10band_v4r1_p20/use_baseline/1234/eval/predictions_independent_recheck_best_val.npz"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:36:26.234847+00:00",
+      "updated_at": "2026-10-24T17:40:35.565737+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/reference_acceptance.json"
+      ],
+      "note": "复用原2000更新训练，原best/last严格重载、实际预训练BN初值比较与669块独立重推理通过；未新增训练或覆盖权重，输入质量处理差异作为比较边界保留。"
+    },
+    {
+      "id": "use-independent-adapter-contracts",
+      "title": "固定同一USE的四种下游正式契约生成与门禁",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/freeze_use_adapters.py",
+        "tests/test_use_adapter_contracts.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:42:40.565962+00:00",
+      "updated_at": "2026-10-24T17:48:21.977968+00:00",
+      "evidence": [
+        "scripts/freeze_use_adapters.py",
+        "outputs/use_independent_frozen/adapter_contract_tests_workspace_temp.xml"
+      ],
+      "note": "四种适配契约生成与前置验收门禁实现，3测试通过；默认pytest系统临时目录无写权限的失败XML保留，改用新工作区临时目录后通过。正式配置尚未生成，须等全部前置结果验收；本项是工具交付，不是下游训练完成。"
+    },
+    {
+      "id": "use-independent-probe-queue-repair",
+      "title": "探针队列状态文件拒绝访问的安全接续修复",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "tests/test_use_probe_queue.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:45:17.457079+00:00",
+      "updated_at": "2026-10-24T17:48:21.863734+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/probe_queue_recovery_acceptance.json",
+        "outputs/use_independent_frozen/probe_queue_repair_full_tests.xml"
+      ],
+      "note": "保存终态故障与旧脚本；有界重试/精确命令匹配/已完成权重验收后接续通过3测试；均值线性实际日志已更新，未重训随机两组。Windows共享/权限错误根因未确认。"
+    },
+    {
+      "id": "use-independent-ssl-diagnostics",
+      "title": "独立USE无标签误差、跨波段正负视图与效率诊断",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/evaluate_use_independent_ssl.py",
+        "tests/test_use_independent_ssl_diagnostics.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:49:35.944485+00:00",
+      "updated_at": "2026-10-24T17:56:43.926892+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/ssl_diagnostic_summary.json",
+        "outputs/use_independent_frozen/ssl_diagnostic_tests.xml"
+      ],
+      "note": "四组已完成521份S2全重建验证成员的同地点正例/非配对负例诊断与逐波段标准化/物理域MAE/RMSE，哈希不变且无训练更新。发现随机身份字面别名混杂，已询问新增纠正预算；不冒充真实跨传感器检索或迁移成功。"
+    },
+    {
+      "id": "use-independent-efficiency",
+      "title": "正式USE变波段吞吐显存与注意力规模核验",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/benchmark_use_independent.py",
+        "tests/test_use_independent_efficiency.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:54:01.364709+00:00",
+      "updated_at": "2026-10-24T17:56:44.051072+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/pretraining/physical/efficiency.json",
+        "outputs/use_independent_frozen/efficiency_test.xml"
+      ],
+      "note": "四组正式最佳权重完成S2三/四/六/十及Landsat六波段真实输入batch1吞吐/显存/Token与QK-AV乘加量测量；5预热20计时，含生产哈希/Python开销，不称全模型FLOPs；单次会话描述。"
+    },
+    {
+      "id": "use-independent-ssl-figure",
+      "title": "无标签跨波段正负视图诊断图",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/use_independent/ssl_diagnostics.png"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:54:47.254897+00:00",
+      "updated_at": "2026-10-24T17:56:44.169207+00:00",
+      "evidence": [
+        "docs/assets/research/use_independent/ssl_diagnostics.png",
+        "outputs/use_independent_frozen/ssl_diagnostic_summary.json"
+      ],
+      "note": "四组正负视图与Recall诊断图已生成并目视核对，图注区分各组最佳权重、非配对负例与真实跨传感器检索；随机身份命名混杂显式保留。"
+    },
+    {
+      "id": "use-independent-probe-subsets",
+      "title": "固定同一最佳权重的多波段冻结探针评价",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/evaluate_use_probe_subsets.py",
+        "tests/test_use_probe_subsets.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T17:58:34.423949+00:00",
+      "updated_at": "2026-10-25T02:54:07.287978+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/probe_subset_figure_provenance.json"
+      ],
+      "note": "14项均完成同一最佳任务权重的五种S2波段评价，未重新训练或选模；S2子集不称真实RGB任务或预训练未见组合。"
+    },
+    {
+      "id": "use-independent-next-stage-queue",
+      "title": "首批探针验收后接续已授权多传感器与空间预训练",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "tests/test_use_next_stage_queue.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T18:01:31.155722+00:00",
+      "updated_at": "2026-10-25T07:51:48.458557+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\multisensor_pretraining_status.json"
+      ],
+      "note": "六组10000更新均完成；接续队列已终止，不重复启动，不恢复下载。"
+    },
+    {
+      "id": "use-independent-probe-subsets-figure",
+      "title": "固定任务权重多波段阶段合并图",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/use_independent/probe_subsets.png"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T18:04:41.324353+00:00",
+      "updated_at": "2026-10-24T18:08:59.233545+00:00",
+      "evidence": [
+        "docs/assets/research/use_independent/probe_subsets.png",
+        "outputs/use_independent_frozen/probe_subset_figure_provenance.json"
+      ],
+      "note": "已完成的4项五组合评价与原十波段参照合并成单表单图并目视核对，结构与初始化分列，区分最佳/末态；未完成候选不作排名，五波段不称预训练未见。"
+    },
+    {
+      "id": "use-independent-probe-cases",
+      "title": "复用真值固定案例检查冻结探针空间预测",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/use_independent/probe_cases.png"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T18:07:38.858115+00:00",
+      "updated_at": "2026-10-24T18:08:59.341465+00:00",
+      "evidence": [
+        "docs/assets/research/use_independent/probe_cases.png",
+        "outputs/use_independent_frozen/probe_case_provenance.json"
+      ],
+      "note": "复用6个旧真值/seed固定案例，读取参照与随机/均值浅层头已存概率，逐例核对源GT/valid；已目视核对并回写。无新推理/训练，保留误检漏检，不代替669块量化。"
+    },
+    {
+      "id": "use-independent-run-index",
+      "title": "将独立USE实际运行纳入原索引并校正消费者名称",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/experiment_aliases.csv",
+        "docs/assets/research/experiment_registry.json",
+        "docs/assets/research/verification.json",
+        "scripts/build_research_inventory.py",
+        "tests/test_use_independent_inventory.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T18:12:08.162124+00:00",
+      "updated_at": "2026-10-24T18:15:03.291121+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/inventory_repair_acceptance.json",
+        "outputs/use_independent_frozen/inventory_final_tests.xml"
+      ],
+      "note": "原扫描漏掉独立输出，已纳入SSL及冻结消费者；核对时12条新记录可查询，2测试通过。校正真实结构、随机USE初始化与无BN标签，保留SSL与监督指标区分；未训练、推理或重哈希大型权重。"
+    },
+    {
+      "id": "use-independent-spatial-evaluation",
+      "title": "空间重建隐藏像元与局部差分的只读评价",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/evaluate_use_spatial_reconstruction.py",
+        "tests/test_use_spatial_evaluation.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T18:17:56.319955+00:00",
+      "updated_at": "2026-10-24T18:35:03.120826+00:00",
+      "evidence": [
+        "scripts/evaluate_use_spatial_reconstruction.py",
+        "outputs/use_independent_frozen/spatial_evaluation_tests.xml"
+      ],
+      "note": "隐藏像元MAE/RMSE与有效隐藏邻居差分评价工具、2项误差定义测试通过；正式空间权重尚未产出，未执行正式评价。此工具交付不等于空间预训练或迁移验收。"
+    },
+    {
+      "id": "use-independent-inference-recovery",
+      "title": "原生评价子进程异常的只读核验与安全接续",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "tests/test_use_inference_recovery.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T18:21:26.349838+00:00",
+      "updated_at": "2026-10-25T07:51:48.553731+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\runtime_recovery\\acceptance.json"
+      ],
+      "note": "旧推理失败与CPU复评证据保留，CUDA真实门禁通过，后续训练全部完成；驱动重启未完成，恢复原因未确认。"
+    },
+    {
+      "id": "use-independent-publication",
+      "title": "独立阶段持续图表与运行索引回写",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/experiment_aliases.csv",
+        "docs/assets/research/experiment_registry.json",
+        "docs/assets/research/use_independent",
+        "docs/assets/research/verification.json"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-24T18:35:03.019707+00:00",
+      "updated_at": "2026-10-25T07:51:48.642335+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\common_use_adapter_publication.json"
+      ],
+      "note": "当前授权运行统一表、曲线、固定案例、预算与194项原索引已回写；研究缺口保留，不冒充通用迁移。"
+    },
+    {
+      "id": "use-independent-adapter-acceptance",
+      "title": "固定同一USE下游适配的工程与正式验收",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/audit_use_independent_adapter.py",
+        "scripts/evaluate_use_adapter_subsets.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T01:12:15.331595+00:00",
+      "updated_at": "2026-10-25T07:51:48.736271+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\final_acceptance.json"
+      ],
+      "note": "原四适配与新增U-Net的真实工程、重新初始化正式2000更新、严格重载、冻结哈希及五组合均验收。"
+    },
+    {
+      "id": "use-independent-unet",
+      "title": "新增冻结最佳USE搭配可训练U-Net对照",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "src/landslide_seg/models/use_unet.py",
+        "tests/test_use_unet.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T01:34:42.401531+00:00",
+      "updated_at": "2026-10-25T07:51:48.829455+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\unet_control\\s2_10band_v4r1_p20\\use_independent_unet\\1234\\acceptance.json"
+      ],
+      "note": "可训练完整U-Net已完成2000更新和独立评价，USE全状态冻结；结果与微小对象失败照实保存。"
+    },
+    {
+      "id": "use-independent-unet-contracts",
+      "title": "新增U-Net对照的版本隔离与正式配置冻结",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/freeze_use_unet.py",
+        "src/landslide_seg/models/use_downstream.py",
+        "tests/test_use_unet_contract.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T01:41:17.245347+00:00",
+      "updated_at": "2026-10-25T07:51:48.917113+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\unet_source_extension\\acceptance.json"
+      ],
+      "note": "原四组结束后追加U-Net入口，旧初始化兼容通过；导入失败零更新修复留证，独立配置和真实工程/正式验收完成。"
+    },
+    {
+      "id": "use-independent-unet-index",
+      "title": "新增U-Net实际运行纳入原研究索引",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "scripts/build_research_inventory.py",
+        "tests/test_use_independent_inventory.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T02:32:00.343378+00:00",
+      "updated_at": "2026-10-25T07:51:49.005312+00:00",
+      "evidence": [
+        "outputs\\use_independent_frozen\\unet_inventory_fixed_tests.xml"
+      ],
+      "note": "3项索引测试通过，实际U-Net已进入原索引，未误标MiT或BN；最终链接检查通过。"
+    },
+    {
+      "id": "use-independent-closeout-integrity",
+      "title": "修正关闭验收checkpoint集合计数并独立核查旧轮权重",
+      "owner": "01a16e77-c1d4-7e23-ba80-1ae695ba5b9a",
+      "scopes": [
+        "docs/assets/research/experiment_aliases.csv",
+        "docs/assets/research/experiment_registry.json",
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/verification.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_independent_frozen"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T07:58:36.970639+00:00",
+      "updated_at": "2026-10-25T08:00:50.563776+00:00",
+      "evidence": [
+        "outputs/use_independent_frozen/completed_budget_acceptance.json",
+        "outputs/use_independent_frozen/final_acceptance.json"
+      ],
+      "note": "已纠正CUDA中断20个文件属于本轮50个子集的计数；原冻结清单52个旧轮权重与本轮50个共102个独立checkpoint哈希通过；用户接受限制结束本轮，无新增训练。"
     }
   ],
   "transfers": [

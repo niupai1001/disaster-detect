@@ -6,11 +6,11 @@ import sys
 import time
 import threading
 import re
-from functools import lru_cache
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse,parse_qs
 import numpy as np
 import requests
 import rasterio
@@ -32,11 +32,16 @@ CROP_OFFSETS=sorted([(x*16000,y*16000) for x in range(-2,3) for y in range(-2,3)
 SESSION=requests.Session()
 TOKEN_LOCK=threading.Lock()
 TOKEN_COOLDOWN=0
+TOKEN_CACHE={}
 
 
 class RemoteThrottled(RuntimeError):
     def __init__(self,message,retry_after=600):
         super().__init__(message);self.retry_after=retry_after
+
+
+def safe_error(exc):
+    return re.sub(r'(https://[^\s\x27\x22?]+)\?[^\s\x27\x22]+',r'\1?[redacted]',str(exc))
 
 
 def get(url,**kwargs):
@@ -49,9 +54,18 @@ def get(url,**kwargs):
     r.raise_for_status();return r.json()
 
 
-@lru_cache(maxsize=32)
-def azure_token(account,container,epoch):
-    return get(f'https://planetarycomputer.microsoft.com/api/sas/v1/token/{account}/{container}')['token']
+def azure_token(account,container,epoch=None):
+    key=(account,container);now=time.time();cached=TOKEN_CACHE.get(key)
+    if cached and cached[1]>now+120:return cached[0]
+    url=f'https://planetarycomputer.microsoft.com/api/sas/v1/token/{account}/{container}'
+    for attempt in range(2):
+        response=get(url,headers={'Cache-Control':'no-cache'},**({'params':{'_ts':int(now)}} if attempt else {}))
+        token=response['token'];expiry=response.get('msft:expiry') or parse_qs(token).get('se',[None])[0]
+        if not expiry:raise ValueError('Token response has no verifiable expiry')
+        expires=datetime.fromisoformat(expiry.replace('Z','+00:00')).timestamp()
+        if expires>time.time()+120:
+            TOKEN_CACHE[key]=(token,expires);return token
+    raise ValueError('Token provider returned expired or imminently expiring access')
 
 
 def signed(url):
@@ -69,7 +83,7 @@ def signed(url):
     return url+'?'+token
 
 
-def exclusion():
+def exclusion(events=None):
     # All local event footprints, including withheld members; no labels are read.
     result=[]
     paths=[ROOT/'manifests/v4r1/pool_100.jsonl']
@@ -97,6 +111,7 @@ def exclusion():
         geo=transform(Transformer.from_crs(crs,4326,always_xy=True).transform,box(*bounds))
         by_event.setdefault(event,[]).append(geo)
     for event,parts in by_event.items():
+        if events is not None and event not in events:continue
         # Conservative event envelopes exclude gaps between local project tiles too.
         geo=unary_union(parts).envelope
         if geo.bounds[2]-geo.bounds[0]>180:raise ValueError('Ambiguous date-line event extent')
@@ -152,6 +167,11 @@ def read_window(item,sensor,forbidden,seen,cell=None,slot=0):
                 qa=vrt.read(1)
         quality=np.isin(qa,[4,5,6,7]) if sensor=='s2' else (qa & 0b111111)==0
         if quality.mean()<.8:return None
+        if sensor=='landsat':
+            with rasterio.open(signed(assets['qa_radsat']['href'])) as src:
+                with WarpedVRT(src,crs=reference.crs,transform=affine,width=128,height=128,resampling=Resampling.nearest) as vrt:
+                    quality &= vrt.read(1)==0
+            if quality.mean()<.8:return None
         target_crs=reference.crs
         def read_band(key):
             asset=assets[key];bands=asset.get('raster:bands',[])
@@ -169,10 +189,6 @@ def read_window(item,sensor,forbidden,seen,cell=None,slot=0):
                     [True,'full_width_half_max' in eo,True],dict(scale=props['scale'],offset=props['offset'],href=asset['href']))
         with ThreadPoolExecutor(max_workers=4) as executor:
             data,valid,metadata,known,transforms=map(list,zip(*executor.map(read_band,keys)))
-        if sensor!='s2':
-            with rasterio.open(signed(assets['qa_radsat']['href'])) as src:
-                with WarpedVRT(src,crs=reference.crs,transform=affine,width=128,height=128,resampling=Resampling.nearest) as vrt:
-                    quality &= vrt.read(1)==0
         valid=np.asarray(valid)&quality[None]
         if valid.all(0).mean()<.8:return None
         provenance=dict(item_id=item['id'],sensor=sensor,datetime=item['properties']['datetime'],
@@ -202,12 +218,35 @@ def scan_cell(sensor,collection,cell,forbidden,seen,slot=0):
     return None
 
 
-def audit_pilot(full=False):
-    pilot=OUT/('manifest.json' if full else 'pilot_manifest.json')
+def prefetched_groups(workers,sensor,collection,cells,start,stop,forbidden,seen):
+    """Overlap remote IO for two groups, preserving the four-cursor commit order."""
+    pending={}
+    def submit(begin):
+        snapshot=STRtree(seen) if seen else None
+        for cursor in range(begin,min(begin+4,stop)):
+            pending[cursor]=workers.submit(scan_cell,sensor,collection,cells[cursor%len(cells)],
+                forbidden,snapshot,cursor//len(cells))
+    submit(start);submit(start+4)
+    for begin in range(start,stop,4):
+        cursors=list(range(begin,min(begin+4,stop)))
+        snapshot=STRtree(seen) if seen else None
+        yield cursors,[pending.pop(c) for c in cursors],snapshot
+        submit(begin+8)
+
+
+def audit_pilot(full=False,current=False):
+    pilot=OUT/('current_manifest.json' if current else 'manifest.json' if full else 'pilot_manifest.json')
     if not pilot.exists() and not full:pilot.write_bytes((OUT/'manifest.json').read_bytes())
     rows=json.loads(pilot.read_text())
+    counts={s:sum(r['sensor']==s for r in rows) for s in ('s2','landsat')}
     expected=5000 if full else 32
-    if any(sum(r['sensor']==s for r in rows)!=expected for s in ('s2','landsat')):
+    if current:
+        frozen=json.loads((OUT/'acquisition_paused.json').read_text())
+        if counts!=frozen['sensors'] or hashlib.sha256(pilot.read_bytes()).hexdigest()!=frozen['manifest_sha256']:
+            raise ValueError('Frozen current dataset changed')
+        if any(not 32<=n<=5000 for n in counts.values()) or sum(counts.values())>10000:
+            raise ValueError('Current dataset outside accepted bounds')
+    elif any(n!=expected for n in counts.values()):
         raise ValueError('External sample count does not match the declared stage')
     geos=[box(*r['bbox']) for r in rows];tree=STRtree(geos)
     forbidden=exclusion();seen=[];ranges={}
@@ -229,7 +268,7 @@ def audit_pilot(full=False):
             if (m[~k]!=0).any() or (m[k]<=0).any() or ((m[:,0]<.1)|(m[:,0]>3)).any():raise ValueError('External metadata units or known mask mismatch')
             if abs(row['transform'][0])!=(10 if row['sensor']=='s2' else 30):raise ValueError('Unexpected output GSD')
         ranges[row['file']]=[float(x[valid].min()),float(x[valid].max())]
-    contract=dict(ok=True,locations=len(rows),sensors={'s2':expected,'landsat':expected},
+    contract=dict(ok=True,locations=len(rows),sensors=counts,
         exclusion='All project event envelopes plus 10km, checked independent of observation date',
         source_manifest_sha256=hashlib.sha256((ROOT/'manifests/s2_10band_v4_p20.jsonl').read_bytes()).hexdigest(),
         manifest=str(pilot),manifest_sha256=hashlib.sha256(pilot.read_bytes()).hexdigest(),reflectance_ranges=ranges)
@@ -237,14 +276,17 @@ def audit_pilot(full=False):
     recipe=json.loads((OUT/'acquisition_contract.json').read_text()) if (OUT/'acquisition_contract.json').exists() else {}
     contract['pilot_grid_latitude_edges']=previous.get('pilot_grid_latitude_edges',recipe.get('latitude_edges',[-55,75]))
     contract['sampling_note']='Accepted pilot windows are retained; the expansion uses the full global 5-degree grid.'
-    if not full:
+    if not full and not current:
         contract['pilot_manifest']='outputs/use/external/pilot_manifest.json'
         contract['pilot_manifest_sha256']=contract['manifest_sha256']
-    (OUT/('full_acceptance.json' if full else 'pilot_acceptance.json')).write_text(json.dumps(contract,indent=1),encoding='utf-8')
+    (OUT/('current_acceptance.json' if current else 'full_acceptance.json' if full else 'pilot_acceptance.json')).write_text(json.dumps(contract,indent=1),encoding='utf-8')
 
 
 def main():
+    if (OUT/'acquisition_paused.json').exists():
+        raise RuntimeError('Downloads paused by user; explicit authorization required before removing pause marker')
     parser=argparse.ArgumentParser();parser.add_argument('--per-sensor',type=int,default=32)
+    parser.add_argument('--cell-workers',type=int,choices=(4,8),default=8)
     args=parser.parse_args()
     if not 1<=args.per_sensor<=5000:raise ValueError('Bounded to 5000 per sensor')
     OUT.mkdir(parents=True,exist_ok=True)
@@ -261,6 +303,7 @@ def main():
         resume_after=previous.get('resume_after_epoch',0)
         if resume_after>time.time():raise RemoteThrottled('Recorded provider cooldown still active',resume_after-time.time())
         rows=previous['samples'];errors=previous.get('errors',[]);progress=previous.get('progress',{})
+        for error in errors:error['error']=safe_error(error['error'])
         if previous.get('grid')!='global5deg_full_v2':progress={'s2':0,'landsat':0}
         for row in rows:
             target=OUT/row['file'];geo=box(*row['bbox'])
@@ -275,7 +318,7 @@ def main():
     recipe=dict(seed=1234,years=[2020,2024],grid_degrees=5,latitude_edges=[-90,90],
         per_sensor_cap=args.per_sensor,scene_cloud_percent_lt=20,pixel_valid_ratio_min=.8,
         crop_offsets_metres=CROP_OFFSETS,window_shape=[128,128],candidate_limit=100,candidates_per_slot=8,
-        cell_workers=4,band_workers=4,pilot_policy='Retain the accepted 32+32 pilot windows in the expansion',
+        cell_workers=args.cell_workers,commit_batch_size=4,band_workers=4,pilot_policy='Retain the accepted 32+32 pilot windows in the expansion',
         position_definition='Non-overlapping georeferenced windows; multiple windows may share a source scene',
         geographic_exclusion='Frozen source-manifest event envelopes plus 10km',
         code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -284,10 +327,16 @@ def main():
     if not recipe_path.exists():recipe_path.write_text(json.dumps(recipe,indent=1),encoding='utf-8')
     else:
         previous_recipe=json.loads(recipe_path.read_text())
-        # Source code changes are preserved; membership/physics changes require an explicit new dataset.
+        previous_recipe.setdefault('commit_batch_size',4)
+        # Concurrency is execution tuning; membership, ordering and physics stay frozen.
         for key,value in recipe.items():
-            if key not in ('code_sha256','per_sensor_cap','pilot_manifest_sha256') and previous_recipe.get(key)!=json.loads(json.dumps(value)):
+            if key not in ('code_sha256','per_sensor_cap','pilot_manifest_sha256','cell_workers') and previous_recipe.get(key)!=json.loads(json.dumps(value)):
                 raise ValueError('Acquisition recipe changed: '+key)
+        if previous_recipe.get('cell_workers')!=args.cell_workers:
+            previous_recipe.setdefault('execution_tuning',[]).append(dict(at=time.time(),
+                previous_cell_workers=previous_recipe.get('cell_workers'),cell_workers=args.cell_workers,
+                commit_batch_size=4,lookahead_groups=2,reason='User requested Landsat download acceleration'))
+        previous_recipe['cell_workers']=args.cell_workers
         if previous_recipe['per_sensor_cap']>args.per_sensor:raise ValueError('Do not reduce a started acquisition cap')
         previous_recipe['per_sensor_cap']=args.per_sensor
         old_pilot=previous_recipe.get('pilot_manifest_sha256')
@@ -311,18 +360,20 @@ def main():
     with rasterio.Env(GDAL_HTTP_TIMEOUT='20',GDAL_HTTP_CONNECTTIMEOUT='10',GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR'):
         for sensor,collection in [('s2','sentinel-2-l2a'),('landsat','landsat-c2-l2')]:
             count=sum(r['sensor']==sensor for r in rows);failures=0
-            with ThreadPoolExecutor(max_workers=4) as workers:
-              for start in range(progress.get(sensor,0),len(cells)*len(CROP_OFFSETS),4):
+            if count>=args.per_sensor:continue
+            with ThreadPoolExecutor(max_workers=args.cell_workers) as workers:
+              for cursors,futures,snapshot in prefetched_groups(workers,sensor,collection,cells,
+                      progress.get(sensor,0),len(cells)*len(CROP_OFFSETS),forbidden,seen):
                 if count>=args.per_sensor:break
-                cursors=list(range(start,min(start+4,len(cells)*len(CROP_OFFSETS))))
-                snapshot=STRtree(seen) if seen else None
                 batch_seen=[]
-                futures=[workers.submit(scan_cell,sensor,collection,cells[c%len(cells)],forbidden,snapshot,c//len(cells)) for c in cursors]
                 for cursor,future in zip(cursors,futures):
                   if count>=args.per_sensor:break
                   lon,lat=cells[cursor%len(cells)]
                   try:
                     outcome=future.result()
+                    # Earlier commits may invalidate a prefetched candidate; rescan in the same hash order.
+                    if outcome is not None and overlaps(outcome[1][-1],snapshot):
+                        outcome=scan_cell(sensor,collection,cells[cursor%len(cells)],forbidden,snapshot,cursor//len(cells))
                     if outcome is not None:
                         item,result=outcome
                         x,valid,metadata,known,prov,footprint=result
@@ -344,14 +395,14 @@ def main():
                         print(sensor,count,flush=True)
                     failures=0
                   except RemoteThrottled as exc:
-                    errors.append(dict(sensor=sensor,cell=[lon,lat],error=str(exc)))
+                    errors.append(dict(sensor=sensor,cell=[lon,lat],error=safe_error(exc),error_type=type(exc).__name__))
                     resume_after=time.time()+exc.retry_after
                     progress[sensor]=cursor;save('rate_limited');raise
                   except Exception as exc:
-                    errors.append(dict(sensor=sensor,cell=[lon,lat],error=str(exc)))
+                    errors.append(dict(sensor=sensor,cell=[lon,lat],error=safe_error(exc),error_type=type(exc).__name__))
                     failures+=1
                     if failures>=3:
-                        progress[sensor]=cursor;save('failed');raise RuntimeError('Three consecutive acquisition errors; inspect evidence before retry') from exc
+                        progress[sensor]=cursor;save('failed');raise RuntimeError('Three consecutive acquisition errors; inspect sanitized evidence before retry') from None
                   progress[sensor]=cursor+1;save()
     manifest_tmp=OUT/'manifest.tmp'
     manifest_tmp.write_text(json.dumps(rows,indent=1),encoding='utf-8');manifest_tmp.replace(OUT/'manifest.json')
@@ -362,5 +413,6 @@ def main():
 
 if __name__=='__main__':
     if '--audit-pilot' in sys.argv:audit_pilot()
+    elif '--audit-current' in sys.argv:audit_pilot(current=True)
     elif '--audit-full' in sys.argv:audit_pilot(full=True)
     else:main()

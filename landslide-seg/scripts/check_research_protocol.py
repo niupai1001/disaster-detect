@@ -36,9 +36,92 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def pretraining_sources(root: Path, summary: dict) -> dict:
+    config_path=root/'outputs/use/pretraining/resolved_config.json'
+    config=read_json(config_path)
+    folder=root/'outputs/use/external'
+    current=config.get('dataset_mode')=='frozen_current'
+    manifest=folder/('current_manifest.json' if current else 'manifest.json')
+    require(sha(manifest)==summary.get('manifest_sha256')==config.get('manifest_sha256'),
+            '预训练成员清单发生改变')
+    files=[config_path,manifest]
+    if current:
+        pause=folder/'acquisition_paused.json';audit=folder/'current_acceptance.json'
+        require(read_json(pause)['manifest_sha256']==sha(manifest), '冻结预训练清单与用户暂停记录不符')
+        checked=read_json(audit)
+        require(checked.get('ok') is True and checked.get('manifest_sha256')==sha(manifest), '冻结预训练数据验收不符')
+        files.extend([pause,audit])
+    if config.get('local_manifest_sha256'):
+        local=folder/'local_unlabeled_manifest.json';audit=folder/'local_acceptance.json'
+        checked=read_json(audit)
+        require(sha(local)==config['local_manifest_sha256']==checked.get('manifest_sha256') and checked.get('ok') is True,
+                '原有无标注预训练清单或验收发生改变')
+        require(checked.get('protocol_sha256')==sha(root/'manifests/v4r1/protocol.json'), '无标注数据事件协议发生改变')
+        for key in ('train_ids','validation_ids'):
+            require(set(config[key]['local_s2'])==set(checked[key]), '无标注预训练实际成员与验收不符')
+        require(not set(checked['train_ids'])&set(checked['validation_ids']), '无标注重建训练与留出成员重叠')
+        files.extend([local,audit])
+    return {str(p):sha(p) for p in files}
+
+
 def resolve(value: str, root: Path) -> Path:
     path = Path(value)
     return (path if path.is_absolute() else root / path).resolve()
+
+
+def independent_pretraining_sources(root: Path, model: dict) -> dict:
+    require(model.get('freeze_use') is True, '独立USE下游必须冻结全部USE参数与buffer')
+    weights = resolve(model['use_pretrained'], root)
+    folder = root/'outputs/use_independent_frozen'
+    require(weights.is_relative_to(folder/'pretraining'), '独立USE权重必须来自独立阶段')
+    summary_path = weights.parent/'summary.json'
+    config_path = weights.parent/'resolved_config.json'
+    summary, config = read_json(summary_path), read_json(config_path)
+    require(summary.get('complete') is True and summary.get('updates') == config.get('updates') == 10000,
+            '独立USE预训练预算尚未完成')
+    require(summary.get('config_sha256') == sha(config_path), '独立USE冻结配置哈希不符')
+    require(sha(weights) == model.get('use_pretrained_sha256') == summary.get('best_sha256'), '独立USE选模权重哈希不符')
+    require(config.get('task_labels') is False and config.get('supervision') in ('masked_band_reconstruction_only','masked_band_and_spatial_reconstruction'),
+            '独立USE不能由下游任务标签更新')
+    require(config.get('use_config') == model.get('use', {}), '独立USE实际结构配置不符')
+    audit_path = folder/'cache_audit_v1/acceptance.json'
+    members_path = folder/'cache_audit_v1/members.jsonl'
+    audit = read_json(audit_path)
+    require(audit.get('ok') is True and sha(audit_path) == config.get('cache_acceptance_sha256'), '独立USE缓存验收发生改变')
+    require(sha(members_path) == audit.get('members_sha256') == config.get('members_sha256') == summary.get('members_sha256'),
+            '独立USE成员清单发生改变')
+    members = [json.loads(line) for line in members_path.read_text(encoding='utf8').splitlines()]
+    sensors = set(config['train_ids'])
+    require(sensors in ({'s2'}, {'s2','landsat'}) and sensors == set(config['validation_ids']), '独立USE传感器成员声明不符')
+    for key, role in [('train_ids','TRAIN'),('validation_ids','PRETRAIN_VAL')]:
+        for sensor in sensors:
+            actual = config[key][sensor]
+            expected = {row['file'] for row in members if row['role'] == role and row['sensor'] == sensor}
+            require(len(actual) == len(set(actual)) and set(actual) == expected, '独立USE实际训练/重建验证成员不符')
+    files = [summary_path, config_path, audit_path, members_path]
+    for name, expected in audit['source_sha256'].items():
+        path = resolve(name, root)
+        require(sha(path) == expected, '独立USE数据来源发生改变')
+        files.append(path)
+    return {str(path):sha(path) for path in files}
+
+
+def independent_random_sources(root: Path, model: dict) -> dict:
+    require(model.get('freeze_use') is True, '随机USE探针必须冻结USE')
+    require(model.get('use_downstream') in ('linear','shallow'), '随机USE参照仅用于统一探针')
+    folder=root/'outputs/use_independent_frozen'
+    weights=resolve(model['use_pretrained'],root)
+    require(weights==folder/'pretraining/physical/initialization.pt', '随机USE必须来自未训练的统一初始化')
+    acceptance_path=folder/'frozen_contracts_acceptance.json'
+    config_path=weights.parent/'resolved_config.json'
+    acceptance=read_json(acceptance_path);config=read_json(config_path)
+    require(acceptance.get('passed') is True and acceptance.get('common_initialization_verified') is True,
+            '随机USE初始化共同性验收未通过')
+    record=acceptance['records']['physical']
+    require(sha(weights)==record['initialization_file_sha256']==model.get('use_pretrained_sha256'), '随机USE初始化哈希不符')
+    require(sha(config_path)==record['config_sha256'] and model.get('use',{})==config['use_config'], '随机USE配置不符')
+    require(config.get('task_labels') is False, '随机USE不能来自下游标签训练')
+    return {str(path):sha(path) for path in [weights,acceptance_path,config_path]}
 
 
 def merge(base: dict, update: dict) -> dict:
@@ -340,10 +423,14 @@ def audit_baseline(path: Path, cfg: dict, policy: dict, root: Path, policy_path:
     spectral = None
     extra_files = {}
     if model_type == 'use':
+        downstream = model_cfg.get('use_downstream', 'bridge10')
+        require(downstream in ('bridge10','rgb3','patch32','fpn','linear','shallow','unet'), '未知USE下游入口')
+        if downstream != 'bridge10':
+            require(model_cfg.get('freeze_use') is True, '新USE下游入口必须冻结USE')
         tc = s['train']
         require(tc.get('batch_size') == 8 and tc.get('freeze_bn_running_stats') is True,
                 'USE首轮要求物理batch8并冻结BN运行统计')
-        require(s['model'].get('backbone') == 'b0' and s['model'].get('stem') is True,
+        require(downstream in ('fpn','linear','shallow','unet') or s['model'].get('backbone') == 'b0' and s['model'].get('stem') is True,
                 'USE首轮固定B0与原网格细节')
         require(model_cfg.get('adapter','direct10')=='direct10' and model_cfg.get('extra_channel','none')=='none'
                 and model_cfg.get('refine','none')=='none' and model_cfg.get('exchange','none')=='none',
@@ -359,12 +446,17 @@ def audit_baseline(path: Path, cfg: dict, policy: dict, root: Path, policy_path:
                 and use.get('relation_grid', 2) == 2, 'USE首轮结构维度不符')
         require(use.get('identity', 'physical') in ('physical', 'random'), '非法元数据身份')
         if model_cfg.get('use_pretrained'):
-            pretraining=root/'outputs/use/pretraining/summary.json'
-            require(pretraining.is_file(), 'USE预训练尚未完成验收')
-            summary=read_json(pretraining);weights=resolve(model_cfg['use_pretrained'],root)
-            require(summary.get('complete') is True and summary.get('updates')==10000, 'USE预训练预算未完成')
-            require(sha(weights)==model_cfg.get('use_pretrained_sha256')==summary.get('best_sha256'), 'USE预训练权重来源或哈希不符')
-            require(sha(root/'outputs/use/external/manifest.json')==summary.get('manifest_sha256'), '预训练成员清单发生改变')
+            if model_cfg.get('use_stage') == 'independent_random':
+                extra_files.update(independent_random_sources(root,model_cfg))
+            elif model_cfg.get('use_stage') == 'independent_ssl':
+                extra_files.update(independent_pretraining_sources(root,model_cfg))
+            else:
+                pretraining=root/'outputs/use/pretraining/summary.json'
+                require(pretraining.is_file(), 'USE预训练尚未完成验收')
+                summary=read_json(pretraining);weights=resolve(model_cfg['use_pretrained'],root)
+                require(summary.get('complete') is True and summary.get('updates')==10000, 'USE预训练预算未完成')
+                require(sha(weights)==model_cfg.get('use_pretrained_sha256')==summary.get('best_sha256'), 'USE预训练权重来源或哈希不符')
+                extra_files.update(pretraining_sources(root,summary))
         quality_path = root/'outputs/use/quality/index.json'
         require(quality_path.is_file(), '先生成独立输入质量侧表')
         quality = read_json(quality_path)

@@ -3,6 +3,7 @@ import hashlib
 import argparse
 import json
 import random
+import math
 import sys
 import time
 from pathlib import Path
@@ -60,19 +61,36 @@ def make_batch(selected,mask_rng,stats,root,device):
     return collate_optical(observations).to(device),pad(targets),pad(valids),pad(metadata),pad(known)
 
 
+def sample_training(train,rng):
+    buckets=(('s2',2),('local_s2',2),('landsat',4)) if 'local_s2' in train else (('s2',4),('landsat',4))
+    return [train[key][i] for key,n in buckets for i in rng.integers(len(train[key]),size=n)]
+
+
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--resume',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--resume',action='store_true')
+    parser.add_argument('--current-data',action='store_true',help='Use user-authorized frozen samples instead of waiting for expansion')
+    parser.add_argument('--local-unlabeled',action='store_true',help='Include original unannotated TRAIN-region S2')
+    parser.add_argument('--f-local',action='store_true',help='Include accepted F-drive S2 in the local S2 bucket; separate output version')
+    parser.add_argument('--data-check-only',action='store_true',help='Validate the selected data and split without building or training a model')
+    args=parser.parse_args()
+    if args.f_local and not (args.current_data and args.local_unlabeled):
+        parser.error('--f-local requires --current-data --local-unlabeled')
     torch.set_num_threads(4);torch.manual_seed(1234);np.random.seed(1234);random.seed(1234)
     precision_settings=set_seed(1234,True)
-    root=ROOT/'outputs/use/external';manifest=root/'manifest.json'
+    root=ROOT/'outputs/use/external';manifest=root/('current_manifest.json' if args.current_data else 'manifest.json')
     for acceptance_name in ('segmentation_interface_acceptance','pretraining_engineering_acceptance'):
         if json.loads((ROOT/f'outputs/use/{acceptance_name}.json').read_text()).get('ok') is not True:
             raise ValueError('Required engineering acceptance failed: '+acceptance_name)
     rows=json.loads(manifest.read_text())
-    acceptance=json.loads((root/'full_acceptance.json').read_text())
+    acceptance=json.loads((root/('current_acceptance.json' if args.current_data else 'full_acceptance.json')).read_text())
     if acceptance.get('ok') is not True or acceptance.get('manifest_sha256')!=digest_bytes(manifest):
         raise ValueError('Full external data/physics/geographic audit is required')
-    if any(sum(r['sensor']==s for r in rows)!=5000 for s in ('s2','landsat')):
+    sensor_counts={s:sum(r['sensor']==s for r in rows) for s in ('s2','landsat')}
+    if args.current_data:
+        frozen=json.loads((root/'acquisition_paused.json').read_text())
+        if frozen['manifest_sha256']!=digest_bytes(manifest) or frozen['sensors']!=sensor_counts:
+            raise ValueError('Frozen data differs from user-authorized snapshot')
+    elif any(n!=5000 for n in sensor_counts.values()):
         raise ValueError('Formal pretraining requires the accepted 10000-location expansion')
     queue=json.loads((ROOT/'outputs/use/queue_status.json').read_text())
     if queue['status']!='supervised_training_finished_requires_evaluation':
@@ -88,6 +106,31 @@ def main():
         train[sensor]=[r for r in group if tuple(r['cell']) not in held]
         validation[sensor]=[r for r in group if tuple(r['cell']) in held]
         if not train[sensor] or not validation[sensor]:raise ValueError('Empty geographic split for sensor')
+    local_manifest=None
+    if args.local_unlabeled:
+        if not args.current_data:raise ValueError('Local union requires the user-authorized current dataset')
+        local_manifest=root/'local_unlabeled_manifest.json'
+        local_rows=json.loads(local_manifest.read_text())
+        local_audit=json.loads((root/'local_acceptance.json').read_text())
+        if local_audit.get('ok') is not True or local_audit['manifest_sha256']!=digest_bytes(local_manifest):
+            raise ValueError('Local unlabeled source/quality/holdout audit required')
+        if local_audit['protocol_sha256']!=digest_bytes(ROOT/'manifests/v4r1/protocol.json'):
+            raise ValueError('Local TRAIN event protocol changed')
+        for split,ids in ((train,local_audit['train_ids']),(validation,local_audit['validation_ids'])):
+            members=set(ids);split['local_s2']=[r for r in local_rows if r['file'] in members]
+            if len(split['local_s2'])!=len(members) or not members:raise ValueError('Invalid local geographic members')
+        if set(local_audit['train_ids'])&set(local_audit['validation_ids']):raise ValueError('Overlapping local reconstruction split')
+    f_contract=None
+    if args.f_local:
+        from prepare_use_f_local import load_f_members
+        f_train,f_validation,f_contract=load_f_members(root)
+        train['local_s2'].extend(f_train);validation['local_s2'].extend(f_validation)
+    if args.data_check_only:
+        print(json.dumps(dict(data_check_only=True,f_local=bool(f_contract),
+            train={k:len(v) for k,v in train.items()},validation={k:len(v) for k,v in validation.items()},
+            f_manifest_sha256=f_contract['manifest_sha256'] if f_contract else None,
+            f_guard=len(f_contract['guard_ids']) if f_contract else 0),indent=2))
+        return
     core=json.loads((ROOT/'manifests/v4r1/stats_core25.json').read_text())
     stats={'s2':(np.asarray(core['mean'])/10000,np.asarray(core['std'])/10000)}
     sums=np.zeros(6);squares=np.zeros(6);counts=np.zeros(6)
@@ -103,12 +146,15 @@ def main():
     def loss_for(selected,gen):
         inp,y,valid,m,k=make_batch(selected,gen,stats,root,'cuda:1');pred=model(inp,m,k)
         return masked_l1(pred,y,valid)
-    output=ROOT/'outputs/use/pretraining';output.mkdir(exist_ok=True)
+    output=ROOT/('outputs/use/pretraining_f_v1' if args.f_local else 'outputs/use/pretraining');output.mkdir(exist_ok=True)
     if any(output.iterdir()) and not args.resume:raise FileExistsError('Existing pretraining output; inspect before resume')
     fresh=build_model(load_segformer_config(ROOT/'configs/segformer/use/physical_mixed.yaml')['segformer'])
     initialization=fresh.use.state_dict();initial_hash=hashlib.sha256()
     for name,value in sorted(initialization.items()):initial_hash.update(name.encode()+value.cpu().contiguous().numpy().tobytes())
     contract=dict(manifest_sha256=digest_bytes(manifest),seed=1234,updates=10000,batch=8,lr=.0006,warmup=500,
+        dataset_mode='frozen_current' if args.current_data else 'full_expansion',sensor_locations=sensor_counts,
+        local_manifest_sha256=digest_bytes(local_manifest) if local_manifest else None,
+        batch_sources={'external_s2':2,'local_unannotated_s2':2,'landsat':4} if local_manifest else {'external_s2':4,'landsat':4},
         precision_settings=precision_settings,
         source_sha256={str(p.relative_to(ROOT)):digest_bytes(p) for p in [Path(__file__),
             ROOT/'src/landslide_seg/models/universal_spectral_encoder.py',ROOT/'src/landslide_seg/data/optical_observation.py']},
@@ -116,6 +162,12 @@ def main():
         stats={s:dict(mean=m.tolist(),std=d.tolist()) for s,(m,d) in stats.items()},
         train_ids={s:[r['file'] for r in train[s]] for s in train},
         validation_ids={s:[r['file'] for r in validation[s]] for s in validation})
+    if f_contract:
+        contract.update(f_local_manifest_sha256=f_contract['manifest_sha256'],
+            f_local_acceptance_sha256=digest_bytes(root/'f_local_acceptance.json'),
+            f_guard_ids=f_contract['guard_ids'],
+            local_s2_sampling='uniform across original unannotated TRAIN S2 and accepted F TRAIN rows; two samples per batch total',
+            data_version='f_local_v1')
     model=Reconstruction().to('cuda:1');opt=torch.optim.AdamW(model.parameters(),lr=6e-4,weight_decay=.01)
     model.use.load_state_dict(initialization,strict=True);del fresh,initialization
     best=float('inf');history=[];start_step=0;previous_seconds=0
@@ -133,25 +185,27 @@ def main():
         (output/'resolved_config.json').write_text(json.dumps(contract,indent=1))
     start=time.time()
     for step in range(start_step+1,10001):
-        model.train();selected=[]
-        for sensor in ('s2','landsat'):
-            selected.extend(train[sensor][i] for i in rng.integers(len(train[sensor]),size=4))
+        model.train();selected=sample_training(train,rng)
         sampling=dict(step=step,sample_files=[r['file'] for r in selected],mask_rng=rng.bit_generator.state)
         scale=step/500 if step<=500 else (10000-step)/9500
         for group in opt.param_groups:group['lr']=6e-4*scale
         opt.zero_grad(set_to_none=True);loss=loss_for(selected,rng)
         if not torch.isfinite(loss):raise FloatingPointError('Nonfinite reconstruction loss')
         loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1,error_if_nonfinite=True);opt.step()
+        sampling.update(loss=float(loss.detach()),learning_rate=opt.param_groups[0]['lr'],
+            seconds=previous_seconds+time.time()-start)
         with trace.open('a',encoding='utf-8') as handle:handle.write(json.dumps(sampling)+'\n')
         if step%500==0:
             model.eval();scores={}
             with torch.no_grad():
-                for sensor in ('s2','landsat'):
+                for sensor in validation:
                     values=[];gen=np.random.default_rng(1234)
                     for i in range(0,len(validation[sensor]),8):
                         chunk=validation[sensor][i:i+8];values.append((float(loss_for(chunk,gen)),len(chunk)))
                     scores[sensor]=sum(v*n for v,n in values)/sum(n for _,n in values)
-            score=sum(scores.values())/2
+            s2_score=(scores['s2']+scores['local_s2'])/2 if 'local_s2' in scores else scores['s2']
+            score=(s2_score+scores['landsat'])/2
+            if not math.isfinite(score):raise FloatingPointError('Nonfinite geographic validation reconstruction loss')
             elapsed=previous_seconds+time.time()-start
             history.append(dict(step=step,loss=float(loss.detach()),validation=scores,score=score,seconds=elapsed))
             state=dict(use=model.use.state_dict(),model=model.state_dict(),optimizer=opt.state_dict(),step=step,

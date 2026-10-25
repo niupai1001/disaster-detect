@@ -39,9 +39,18 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
 
     if typ == 'use':
         from .segformer_use import SegFormerUSE
-        visual = SegFormerSeg(adapter='direct10', backbone='b0', stem=True,
-                              pretrained_dir=str(resolve_path(pretrained_dir or m['pretrained_dir'])))
+        from .use_downstream import build_visual
+        mode = m.get('use_downstream', 'bridge10')
+        if mode != 'bridge10' and not m.get('freeze_use', False):
+            raise ValueError('Independent USE downstream adapters require frozen USE')
+        visual, channels = build_visual(mode, str(resolve_path(pretrained_dir or m.get('pretrained_dir', 'weights/segformer/segformer-b0-finetuned-ade-512-512'))))
         model = SegFormerUSE(visual, m.get('use'))
+        if channels == 32:
+            model.bridge = nn.Identity()
+        elif channels != 10:
+            model.bridge = nn.Conv2d(model.use.width, channels, 1)
+        if mode != 'bridge10':
+            model.adapter_report = {'interface': f'USE32 to {mode}', 'visual': visual.adapter_report}
         if m.get('use_pretrained'):
             import torch
             from ..config import file_sha256
@@ -51,6 +60,8 @@ def build_model(cfg_segformer: dict, pretrained_dir: str | Path | None = None) -
             state = torch.load(path, map_location='cpu', weights_only=False)
             model.use.load_state_dict(state['use'], strict=True)
             model.load_info = {'visual': visual.load_info, 'use_pretrained_sha256': file_sha256(path)}
+        if m.get('freeze_use', False):
+            model.freeze_use()
         return model
 
     if typ == "probe":

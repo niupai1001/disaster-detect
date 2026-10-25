@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'docs/assets/research'
-DATE = '2026-10-23'
+DATE = '2026-10-24'
 
 
 def read(path):
@@ -64,6 +64,14 @@ def naming(config):
         structure=('波段自注意力' if attention else ('扩宽共享逐波段编码' if hidden!=32 else '共享逐波段编码'))
         structure+='＋固定查询汇聚' if queries else '＋带掩膜均值汇聚'
         if metadata:structure+='＋'+('物理描述' if identity=='physical' else '固定随机身份描述')
+        mode=m.get('use_downstream','bridge10')
+        if mode in ('linear','shallow','fpn','unet'):
+            consumer={'linear':'线性1×1卷积头','shallow':'浅层3×3卷积读取头','fpn':'下游多尺度适配＋全新FPN解码器',
+                      'unet':'32维直接输入＋全新可训练U-Net（GroupNorm）'}[mode]
+            return f'use-{mode}-{attention}-{queries}-{metadata}-{identity}-{hidden}', f'USE｜可变光学波段集合｜{structure}＋{consumer}'
+        if mode in ('rgb3','patch32'):
+            consumer={'rgb3':'32→3兼容适配器＋原RGB预训练MiT首层','patch32':'全新32输入MiT首层＋后续预训练MiT'}[mode]
+            return f'segformer-b0-use-{mode}-{attention}-{queries}-{metadata}-{identity}-{hidden}', f'SegFormer B0｜USE32空间特征｜{structure}＋{consumer}＋原网格细节'
         return f'segformer-b0-use-{attention}-{queries}-{metadata}-{identity}-{hidden}', f'SegFormer B0｜光学波段集合经USE统一入口｜{structure}＋桥接＋原网格细节'
     if typ == 'probe':
         enc = str(probe.get('encoder', 'unknown'))
@@ -126,7 +134,8 @@ def naming(config):
 
 def metric_rows(run):
     rows = []
-    for p in sorted(set((run / 'eval').glob('eval_best*.json')) | set((run / 'eval').glob('eval_dev_*.json'))):
+    for p in sorted(set((run / 'eval').glob('eval_best*.json')) | set((run / 'eval').glob('eval_dev_*.json'))
+                    | set((run / 'eval').glob('eval_last*.json')) | set((run / 'eval').glob('eval_independent_recheck*.json'))):
         d = read(p)
         parts = {key: d[key] for key in ('val', 'test') if isinstance(d.get(key), dict)}
         if not parts:
@@ -149,6 +158,8 @@ def inventory():
     records, excluded = [], []
     paths=list((ROOT / 'outputs/segformer').rglob('resolved_config.json'))
     paths+=list((ROOT / 'outputs/use/s2_10band_v4r1_p20').rglob('resolved_config.json'))
+    for directory in ('probes','adapters','unet_control'):
+        paths+=list((ROOT / 'outputs/use_independent_frozen'/directory).rglob('resolved_config.json'))
     for p in sorted(paths):
         run = p.parent
         path = relative(run)
@@ -168,8 +179,14 @@ def inventory():
         tags = []
         if cfg.get('model',{}).get('type')=='use':
             tags.append('3/4/6/10波段混合训练' if cfg.get('data',{}).get('mixed_bands') else '完整十波段训练')
-            tags.append('USE外部遮挡波段重建初始化' if cfg['model'].get('use_pretrained') else 'USE随机初始化')
-        if cfg.get('train',{}).get('freeze_bn_running_stats'):
+            stage=cfg['model'].get('use_stage')
+            tags.append('USE随机初始化' if stage=='independent_random' else
+                        'USE独立无标签预训练初始化' if stage=='independent_ssl' else
+                        'USE外部遮挡波段重建初始化' if cfg['model'].get('use_pretrained') else 'USE随机初始化')
+            if cfg['model'].get('freeze_use'):tags.append('USE全部参数与buffer冻结')
+        no_bn_consumer=(cfg.get('model',{}).get('type')=='use'
+                        and cfg['model'].get('use_downstream') in ('linear','shallow','fpn','unet'))
+        if cfg.get('train',{}).get('freeze_bn_running_stats') and not no_bn_consumer:
             tags.append('BN运行统计冻结，仿射参数训练')
         loss = cfg.get('loss', {})
         labels = {'coarse_weight': '基础输出辅助监督权重', 'boundary_weight': '边界加权', 'pos_weight': 'BCE正类权重'}
@@ -208,6 +225,8 @@ def inventory():
         model_cfg = cfg.get('model', {})
         temporal = model_cfg.get('type') == 'temporal_spectral'
         effective_stem = temporal or bool(model_cfg.get('stem')) or model_cfg.get('type') == 'single'
+        if model_cfg.get('type')=='use':
+            effective_stem=model_cfg.get('use_downstream','bridge10') in ('bridge10','rgb3','patch32')
         effective_input = 'RGB' if model_cfg.get('type') == 'probe' and model_cfg.get('probe', {}).get('encoder') != 'dofa_10' else 'S2十波段及配置声明的额外通道'
         if model_cfg.get('type')=='use':effective_input='可变光学波段集合；实际训练组合及评价子集见配置与评价文件'
         treatment = '；'.join(tags) or '原训练处理，详见配置'
@@ -246,7 +265,40 @@ def inventory():
              'metrics_jsonl': relative(run / 'metrics.jsonl') if (run / 'metrics.jsonl').exists() else None,
              'evaluations': metric_rows(run)}
         records.append(r)
+    records.extend(independent_pretraining_inventory())
     return records, excluded
+
+
+def independent_pretraining_inventory():
+    """Independent SSL has no task labels or SegFormer; keep its metric family explicit."""
+    records=[]
+    for p in sorted((ROOT/'outputs/use_independent_frozen/pretraining').glob('*/resolved_config.json')):
+        cfg=read(p);run=p.parent;path=relative(run)
+        summary_path=run/'summary.json';summary=read(summary_path) if summary_path.exists() else {}
+        acceptance_path=run/'acceptance.json';accepted=read(acceptance_path).get('passed') is True if acceptance_path.exists() else False
+        u=cfg['use_config'];attention=u.get('attention',True);queries=u.get('queries',4);metadata=u.get('metadata',True)
+        identity=u.get('identity','physical')
+        structure=('波段注意力' if attention else '共享逐波段卷积')+('＋查询汇聚' if queries else '＋掩膜均值汇聚')
+        if metadata:structure+='＋'+('物理描述' if identity=='physical' else '固定随机身份')
+        name='USE｜可变光学波段集合｜'+structure+'；临时重建读出'
+        sensors='+'.join(cfg['train_ids'])
+        treatment='独立无标签遮挡波段重建'+('＋空间遮挡重建' if cfg.get('spatial_objective') else '')
+        n_train=sum(len(ids) for ids in cfg['train_ids'].values());n_val=sum(len(ids) for ids in cfg['validation_ids'].values())
+        status='完成训练并通过正式产物验收' if accepted else '完成训练；正式产物验收待核对' if summary.get('complete') else '未完成／进程与冻结配置状态待核对'
+        records.append(dict(run_id=hashlib.sha256(path.encode()).hexdigest()[:16],
+            architecture_id=f'use-ssl-{attention}-{queries}-{metadata}-{identity}',display_name=name,
+            run_display_name=f'{name}｜无标签冻结地理成员｜{sensors}｜seed={cfg["seed"]}｜{treatment}',
+            treatment=treatment,protocol='USE_INDEPENDENT_SSL',data_context='无标签预训练地理成员；不是滑坡DEV',
+            seed=cfg['seed'],status=status,run_dir=path,legacy_experiment='use_independent_pretraining_'+cfg['variant'],
+            config_path=relative(p),config_sha256=sha(p),model_config=dict(type='use_ssl',use=u),
+            effective_structure=dict(stem=False,input_seen_by_encoder='真实无标签光学波段集合',source='独立预训练实际配置'),
+            summary_source=relative(summary_path) if summary_path.exists() else None,
+            global_step=summary.get('updates'),best_selection_value=summary.get('best_score'),
+            selection_metric='equal_sensor_unlabeled_standardized_mbm_mae',n_train=n_train,n_val=n_val,
+            best_exists=(run/'best.pt').exists(),last_exists=(run/'last.pt').exists(),evaluations=[],
+            initialization_sha256=cfg.get('initialization_sha256'),members_sha256=cfg['members_sha256'],
+            acceptance_source=relative(acceptance_path) if acceptance_path.exists() else None))
+    return records
 
 
 def figures():
@@ -431,7 +483,7 @@ def main():
     policy=read(OUT/'research_policy.json')
     result={'as_of':DATE,'policy':'原固定事件留出基线默认开发；不默认四折，明显进步后才新增官方比较',
             'default_protocol':policy['default_protocol'],
-            'scope':'磁盘现有SegFormer工程resolved_config；U-TAE由对应协议文档及阶段证据另列',
+            'scope':'磁盘现有SegFormer、独立USE预训练及冻结消费者resolved_config；U-TAE由对应协议文档及阶段证据另列',
             'evidence':'CPU读取配置/摘要/已有eval；不重新推理，不重哈希大型checkpoint',
             'runs':runs,'excluded_engineering_runs':excluded}
     (OUT/'experiment_registry.json').write_text(json.dumps(clean(result),ensure_ascii=False,indent=2,allow_nan=False)+'\n',encoding='utf-8')

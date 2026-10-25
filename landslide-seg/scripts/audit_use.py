@@ -154,12 +154,120 @@ def artifacts():
     for name in ('baseline','mean','self_mean','self_query','physical','random','capacity','mean_mixed','physical_mixed','pretrained_mixed'):
         root=ROOT/f'outputs/use/s2_10band_v4r1_p20/use_{name}/1234'
         for pattern in ('*.pt','*.json','*.jsonl','eval/*.json','eval/*.csv'):paths.update(root.glob(pattern))
+        meta=root/'run_meta.json'
+        if meta.exists():
+            for name in json.loads(meta.read_text()).get('source_sha256',{}):
+                path=(ROOT/name).resolve()
+                if not path.is_relative_to(ROOT.resolve()):raise ValueError('Unexpected source path outside workspace')
+                paths.add(path)
     for root,patterns in ((ROOT/'configs/segformer/use',('*.yaml',)),(ROOT/'outputs/use/pretraining',('*.pt','*.json','*.jsonl')),
         (ROOT/'outputs/use/external',('*manifest.json','*acceptance.json','*contract.json'))):
         for pattern in patterns:paths.update(root.glob(pattern))
     paths.update((ROOT/'outputs/use').glob('*acceptance.json'))
+    paths.update((ROOT/'outputs/use').glob('queue_status*.json'))
+    for name in ('completion_status.json','supervised_evaluations.json','costs.json','initialization_audit.json','joint_learning_validation.json'):
+        paths.add(ROOT/'outputs/use'/name)
+    paths.add(ROOT/'outputs/use/external/acquisition_paused.json')
+    for name in ('RESEARCH_INDEX.md','DATA_EVENT_PROTOCOL.md','MODEL_EVOLUTION.md','DATA_OFFICIAL.md'):
+        paths.add(ROOT/'docs'/name)
+    paths.add(ROOT/'docs/assets/research/stage_ledger.json')
+    paths.update((ROOT/'docs/assets/research/use').glob('*'))
+    for name in ('audit_use.py','check_research_protocol.py','prepare_use_external.py','prepare_use_local.py','pretrain_use.py','run_use.py','summarize_use.py'):
+        paths.add(ROOT/'scripts'/name)
     lines=[hashlib.sha256(path.read_bytes()).hexdigest()+'  '+str(path.relative_to(ROOT)).replace('\\','/') for path in sorted(paths) if path.is_file()]
     (ROOT/'outputs/use/artifacts.sha256').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+
+
+def final_acceptance():
+    """Read-only final checks; no training, data acquisition or re-evaluation."""
+    import hashlib
+    import math
+    from collections import Counter
+    from run_use import NAMES
+    from check_research_protocol import audit_config
+    from landslide_seg.data.optical_observation import training_subset
+    torch.set_num_threads(4)
+    root=ROOT/'outputs/use';records={}
+    def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+    hashes=(root/'artifacts.sha256').read_text().splitlines()
+    for line in hashes:
+        expected,path=line.split('  ',1)
+        assert sha(ROOT/path)==expected, 'Artifact changed: '+path
+    for name in (*NAMES,'pretrained_mixed'):
+        folder=root/f's2_10band_v4r1_p20/use_{name}/1234'
+        summary=json.loads((folder/'train_summary.json').read_text())
+        cfg=json.loads((folder/'resolved_config.json').read_text())
+        s=cfg['segformer'];meta=json.loads((folder/'run_meta.json').read_text())
+        assert summary['complete'] and summary['global_step']==2000
+        assert summary['n_train']==2223 and summary['n_val']==669
+        assert s['seed']==1234 and s['train']['batch_size']==8
+        assert s['train']['freeze_bn_running_stats'] and not s['train']['amp']
+        assert s['train']['stop_updates']==2000 and s['train']['schedule_updates']==3600
+        assert s['loss']['bce_weight']==.5 and s['loss']['dice_weight']==.5
+        assert s['loss'].get('coarse_weight',0)==0 and s['loss'].get('boundary_weight',0)==0
+        audit_config(str(ROOT/f'configs/segformer/use/{name}.yaml'))
+        exposures=json.loads((folder/'sample_exposures.json').read_text())
+        assert len(exposures)==2223 and sum(exposures.values())==16000
+        views=[json.loads(line) for line in (folder/'band_views.jsonl').read_text().splitlines()] if (folder/'band_views.jsonl').exists() else []
+        if s['data'].get('mixed_bands'):
+            assert len(views)==16000
+            actual=Counter()
+            for view in views:
+                sid=view['sample_id'];assert view['exposure']==actual[sid];actual[sid]+=1
+                expected=training_subset(1234,sid,view['exposure']) if s['data'].get('mixed_bands') else 'full'
+                assert view['subset']==expected
+            assert dict(actual)==exposures
+        for step,file in [(500,'step500.pt'),(1000,'step1000.pt'),(1500,'step1500.pt'),(2000,'last.pt'),(summary['best_step'],'best.pt')]:
+            ck=torch.load(folder/file,map_location='cpu',weights_only=False)
+            assert ck['global_step']==step and ck['config']==cfg
+            assert sum(ck['stream_state']['exposures'])==step*8
+            assert ck['skipped_total']==0
+            assert all(torch.isfinite(v).all() for v in ck['model'].values())
+            if file=='last.pt':assert ck['stream_state']['exposures']==[exposures[sid] for sid in meta['train_samples']]
+            del ck
+        model,_=load_checkpoint(folder/'best.pt',device='cpu');del model
+        smoke=root/f's2_10band_v4r1_p20/smoke_{name}/1234/train_summary.json'
+        sm=json.loads(smoke.read_text());assert sm['complete'] and sm['global_step']==100
+        best_sha=sha(folder/'best.pt');evaluations={}
+        for subset in (('full',) if name=='baseline' else ('full','rgb','rgb_nir','six','unseen5')):
+            report=json.loads((folder/f'eval/eval_dev_{subset}.json').read_text())
+            assert report['n_samples']==669 and report['checkpoint_sha256']==best_sha
+            assert report['manifest_sha256']==sha(ROOT/s['data']['manifest'])
+            assert report['stats_sha256']==sha(ROOT/s['data']['stats'])
+            assert {k:v['n_tiles'] for k,v in report['by_event'].items()}=={'hiroshima':448,'thrissur':221}
+            assert [report['overall']['objects']['use_bins'][k]['n_objects_evaluable'] for k in ('1_4','5_25','26_plus')]==[77,418,1184]
+            assert abs(report['event_mean_iou']-sum(v['pixel']['iou'] for v in report['by_event'].values())/2)<1e-12
+            for v in (report['overall'],*report['by_event'].values()):
+                assert all(math.isfinite(v['pixel'][k]) for k in ('iou','dice','precision','recall','average_precision'))
+                assert math.isfinite(v['boundary']['f1'])
+            evaluations[subset]=report['event_mean_iou']
+        assert abs(evaluations['full']-summary['best_val_iou'])<1e-4
+        records[name]=dict(updates=2000,exposures=16000,best_step=summary['best_step'],best_sha256=best_sha,
+            subset_iou=evaluations,band_views_reconstructed_from_identity_and_exposure=dict(Counter(v['subset'] for v in views)))
+    pre=json.loads((root/'pretraining/summary.json').read_text())
+    assert pre['complete'] and pre['updates']==10000 and pre['samples_exposed']==80000
+    pcfg=json.loads((root/'pretraining/resolved_config.json').read_text())
+    trace=[json.loads(line) for line in (root/'pretraining/sampling.jsonl').read_text().splitlines()]
+    assert len(trace)==10000
+    train_sets={key:set(ids) for key,ids in pcfg['train_ids'].items()}
+    for step,row in enumerate(trace,1):
+        assert row['step']==step and math.isfinite(row['loss'])
+        files=row['sample_files'];assert len(files)==8
+        assert sum(f.startswith('local_unlabeled/') for f in files)==2
+        assert sum(f.startswith('s2_') for f in files)==2 and sum(f.startswith('landsat_') for f in files)==4
+        assert all(f in train_sets[k] for f,k in zip(files,('s2','s2','local_s2','local_s2','landsat','landsat','landsat','landsat')))
+    for key in pcfg['train_ids']:assert not set(pcfg['train_ids'][key])&set(pcfg['validation_ids'][key])
+    assert sha(root/'pretraining/best.pt')==pre['best_sha256']
+    transfer=json.loads((root/'transfer_acceptance.json').read_text())
+    assert transfer['ok'] and transfer['source_sha256']==pre['best_sha256']
+    result=dict(ok=True,supervised_updates=20000,supervised_exposures=160000,pretraining_updates=10000,
+        pretraining_exposures=80000,smoke_updates=1000,models=records,verified_existing_artifact_hashes=len(hashes),
+        zero_skipped_updates=True,strict_best_reload=True,step2000_storage='last.pt',
+        command='python -X utf8 scripts/audit_use.py --final-acceptance',
+        limits=['Single seed; no statistical significance','First nine runs lack per-update losses and complete before-run official-weight hashes; retrospective audit retained',
+                'Real Landsat reconstruction is not cross-sensor landslide segmentation evidence'])
+    (root/'final_acceptance.json').write_text(json.dumps(result,indent=1),encoding='utf-8')
+    print('Final acceptance passed: 10 models, 20000 supervised updates, 10000 pretraining updates',flush=True)
 
 
 def pretraining_acceptance():
@@ -289,12 +397,13 @@ def costs():
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();group=parser.add_mutually_exclusive_group()
-    for option in ('diagnose','mechanism','interfaces','artifacts','pretraining-acceptance','evaluate-queue','evaluate-pretrained','transfer','cost'):group.add_argument('--'+option,action='store_true')
+    for option in ('diagnose','mechanism','interfaces','artifacts','final-acceptance','pretraining-acceptance','evaluate-queue','evaluate-pretrained','transfer','cost'):group.add_argument('--'+option,action='store_true')
     args=parser.parse_args()
     if args.diagnose:diagnose()
     elif args.mechanism:mechanism()
     elif args.interfaces:interfaces()
     elif args.artifacts:artifacts()
+    elif args.final_acceptance:final_acceptance()
     elif args.pretraining_acceptance:pretraining_acceptance()
     elif args.evaluate_queue:evaluate_queue()
     elif args.evaluate_pretrained:evaluate_queue(include_pretrained=True)

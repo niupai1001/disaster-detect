@@ -312,6 +312,7 @@ def _train_epoch(
     scheduler,
     cfg: dict,
     device: torch.device,
+    on_update=None,
 ) -> tuple[float, int, int]:
     model.train()
     if cfg['segformer']['train'].get('freeze_bn_running_stats', False):
@@ -344,6 +345,7 @@ def _train_epoch(
         total += float(loss.detach()) * image.size(0)
         seen += image.size(0)
         steps += 1
+        if on_update is not None:on_update(steps,float(loss.detach()),image.size(0))
     return total / max(seen, 1), skipped, steps, coarse_total / max(seen, 1)
 
 
@@ -385,6 +387,17 @@ def _rng_state() -> dict:
         "cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
     }
     return state
+
+
+def initialization_identity(model, optimizer, expected):
+    from ..models.frozen_use import FrozenUSE, state_sha256
+    digest=state_sha256(model)
+    if not expected or digest!=expected:
+        raise ValueError('Formal initialization differs from the frozen configuration')
+    use=getattr(model,'use',None)
+    use_digest=use.verify(optimizer) if isinstance(use,FrozenUSE) else None
+    return dict(state_sha256=digest,use_sha256=use_digest,
+                trainable_names=[name for name,p in model.named_parameters() if p.requires_grad])
 
 
 def _save_checkpoint(
@@ -457,12 +470,13 @@ def train_one(
     manifest = resolve_path(d["manifest"])
     stats_path = resolve_path(d["stats"])
     pretrained = resolve_path(s["model"].get("pretrained_dir", DEFAULT_PRETRAINED))
+    needs_visual_weights = model_type(s) in ('segformer','single') or (model_type(s)=='use' and s['model'].get('use_downstream','bridge10') in ('bridge10','rgb3','patch32'))
 
     if not manifest.is_file():
         raise FileNotFoundError(f"清单不存在: {manifest}（先跑 scripts/prepare_segformer_data.py）")
     if not stats_path.is_file():
         raise FileNotFoundError(f"统计文件不存在: {stats_path}")
-    if model_type(s) in ("segformer", "single", "use") and not pretrained.is_dir():
+    if needs_visual_weights and not pretrained.is_dir():
         raise FileNotFoundError(f"预训练权重目录不存在: {pretrained}")
     if model_type(s) == "single" and float(s["loss"].get("coarse_weight", 0.0) or 0.0) > 0:
         raise ValueError("单头模型（type=single）没有粗输出，不能启用 loss.coarse_weight")
@@ -499,6 +513,12 @@ def train_one(
 
     optimizer = _make_optimizer(model, cfg)
     scheduler = _make_scheduler(optimizer, cfg, total_steps)
+    initialization=None
+    if s.get('research_stage')=='use_independent':
+        initialization=initialization_identity(model,optimizer,train_cfg.get('initialization_sha256'))
+        if not resume:
+            with (run_dir/'initialization.pt').open('xb') as handle:
+                torch.save(dict(model=model.state_dict(),identity=initialization,rng=_rng_state()),handle)
 
     extra = str(s["model"].get("extra_channel", "none"))
     sidecar = d.get("extra_sidecar")
@@ -528,7 +548,8 @@ def train_one(
         "dependencies": {name: importlib.metadata.version(name) for name in ("torch", "transformers", "numpy", "scipy", "PyYAML")},
         "use_quality_sha256": file_sha256(train_ds.quality_root / 'index.json') if hasattr(train_ds, 'quality_root') else None,
         "model_identity": model_identity(s, model),
-        "weight": weight_identity(pretrained) if (model_type(s) in ("segformer", "single", "use") and pretrained.is_dir()) else None,
+        "weight": weight_identity(pretrained) if needs_visual_weights else None,
+        "initialization": initialization,
         "params": model.count_params(),
         "adapter_report": model.adapter_report,
         "load_info": model.load_info,
