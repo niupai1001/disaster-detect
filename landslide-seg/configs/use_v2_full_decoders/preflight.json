@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "config": "N:\\Users\\yzh\\Disater\\landslide-seg\\configs\\use_v2_full_decoders\\execution.yaml",
+  "config_sha256": "02148cadd03ec478e6e7bcf9841299d7e36cc82845aad36cdf6be7d88fb43012",
+  "effective_config_sha256": "0ccfda29a310733908978c7918e21199f2a75d46fe5ab949f10fad19f2e06efa",
+  "policy_sha256": "6819e05a507e1e5c0626119fe8c36de2ec28616a4625863cf07d729236c95515",
+  "protocol": "event_ood_v4r1",
+  "fold": null,
+  "seed": 1234,
+  "selection": "dev_event_mean_iou",
+  "counts": {
+    "train": 2223,
+    "dev": 669
+  },
+  "events": {
+    "train": [
+      "chimanimani",
+      "china",
+      "dominicamaria",
+      "hokkaido",
+      "indonesia",
+      "itogon",
+      "kyrgyzstan1",
+      "kyrgyzstan2",
+      "usa_puertorico"
+    ],
+    "dev": [
+      "hiroshima",
+      "thrissur"
+    ]
+  },
+  "normalization_fit_n": 559,
+  "files": {
+    "manifests\\v4r1\\protocol.json": "4640e3c5e92cd07fe4ee186e4d4658595bf6368a7a595fd93d5a28c94b24aa63",
+    "manifests\\v4r1\\pool_100.jsonl": "b51422e2e8a2cd496447149713f50fdca83a36b6ed10efb941e0015cc2da9b53",
+    "manifests\\v4r1\\stats_core25.json": "4cab777bc75ac3cf56f20d87e6392d3e31f5fa0d75ed7580fb2096b9ee7f3dfc"
+  },
+  "spectral": null,
+  "subset": null,
+  "budget": {
+    "stop_updates": 5000,
+    "schedule_updates": 5000,
+    "eval_every_updates": 100,
+    "report_steps": [
+      1000,
+      2000,
+      3000,
+      4000,
+      5000
+    ],
+    "warmup_updates": 250,
+    "encoder_lr": 0.0006,
+    "head_lr": 0.0006
+  },
+  "temporal": null,
+  "warnings": [
+    "DEV is a development set, not blind TEST; FINAL/Italy diagnostic evaluation is not performed by this checker"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T09:02:36.260656+00:00",
+  "updated_at": "2026-10-26T10:33:28.388118+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -1417,6 +1417,94 @@
         "docs/DATA_EVENT_PROTOCOL.md"
       ],
       "note": "独立读取42项summary/曲线，146000更新一致，268个checkpoint重算哈希通过；修正4257/5313头参数口径与未经验证归因，清理过期状态，台账回写并刷新幂等通过。未重训或全量重推理；旧空范围active登记需原负责人关闭。"
+    },
+    {
+      "id": "use-v2-case-view",
+      "title": "USE v2固定验证案例与真实分割头展示",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "outputs/use_v2/case_view",
+        "scripts/visualize_use_v2_cases.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T09:14:00.413146+00:00",
+      "updated_at": "2026-10-26T09:15:34.801288+00:00",
+      "evidence": [
+        "outputs/use_v2/case_view/provenance.json"
+      ],
+      "note": "CPU重推理既有六个固定验证案例，attention续尾+Fine最佳checkpoint哈希核对通过，严格加载，冻结哈希不变；图示RGB真值概率与0.5掩膜。无新增训练。"
+    },
+    {
+      "id": "use-v2-full-decoders",
+      "title": "冻结当前USE v2接完整U-Net和SegFormer补充实验",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "configs/use_v2_full_decoders",
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v2_full_decoders",
+        "scripts/run_use_v2_full_decoders.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T09:18:23.246818+00:00",
+      "updated_at": "2026-10-26T09:21:31.736510+00:00",
+      "evidence": [
+        "scripts/run_use_v2_full_decoders.py",
+        "configs/use_v2_full_decoders/execution.yaml",
+        "outputs/use_v2_full_decoders/engineering/unet/summary.json",
+        "outputs/use_v2_full_decoders/engineering/segformer/summary.json"
+      ],
+      "note": "用户要求转交下游Agent：完成初版入口与配置，两组各2步CPU真实数据检查；未启动正式训练。GPU查询即使提升执行仍返回权限不足，未绕过门禁。代码尚需独立审查、GPU工程验收、来源依赖冻结及重载验收；本任务仅结束准备与交接，非正式实验完成。"
+    },
+    {
+      "id": "use-v2-full-decoders-exec",
+      "title": "冻结USE v2接U-Net与SegFormer B0的两组正式训练与验收",
+      "owner": "session-20ec9558-5e84-42de-9818-a59bd5a751d2",
+      "scopes": [
+        "configs/use_v2_full_decoders",
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v2_full_decoders",
+        "scripts/run_use_v2_full_decoders.py",
+        "scripts/summarize_use_v2_full_decoders.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T09:41:12.918153+00:00",
+      "updated_at": "2026-10-26T10:27:44.335063+00:00",
+      "evidence": [
+        "outputs/use_v2_full_decoders/comparison.json",
+        "outputs/use_v2_full_decoders/audit_v1.json",
+        "outputs/use_v2_full_decoders/figures/training_curves.png",
+        "outputs/use_v2_full_decoders/engineering/acceptance_cuda.json"
+      ],
+      "note": "两组各5000次正式更新完成并验收（合计10000，无中止、无异常）：同一USE e3af4763…在全部更新内不变且两组相同；U-Net(cuda:1)最佳事件等权IoU 0.1344@2500、末态0.1275，SegFormer B0(cuda:0)最佳0.1250@3000、末态0.1227，逐事件广岛0.1014/0.0915、特里苏尔0.1674/0.1586，小对象召回0.137/0.100。同一USE的5313参数轻量头参照0.0049→提高约26–27倍（头容量是重要限制之一），仍低于十波段端到端0.2985约0.164–0.174。两组差0.0094、损失曲线几乎重合；结构+参数量+初始化来源同时不同，不归因架构。进行中曾因两块5090代码43/nvlddmkm未启动阻塞，用户重启设备后GPU验收(acceptance_cuda.json)通过再启动正式训练；未改训练定义、未继承2步工程权重、未解冻USE、未追加预算或种子。独立复核audit_v1.json通过：checkpoint哈希、5000步曲线与单冻结哈希、warmup+cosine日程、best别名=选中权重、IoU与自身混淆计数一致、事件等权=两事件均值、669块全集、六固定案例未重挑、两卡独立。单seed与两事件研发验证的限制保留。"
+    },
+    {
+      "id": "use-v2-full-decoders-use-cases",
+      "title": "固定案例图增加USE编码列",
+      "owner": "session-20ec9558-5e84-42de-9818-a59bd5a751d2",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v2_full_decoders",
+        "scripts/render_use_cases.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T10:31:43.435168+00:00",
+      "updated_at": "2026-10-26T10:33:28.388118+00:00",
+      "evidence": [
+        "outputs/use_v2_full_decoders/runs/unet/cases/segmentation_cases_use.png",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/segmentation_cases_use.png",
+        "scripts/render_use_cases.py",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/provenance_use.json"
+      ],
+      "note": "为两组六个固定案例图增加第2列「USE编码」：融合32通道输入的三个主成分（六案例统一PCA基、2–98百分位拉伸、仅用于可视化），五列依次为RGB、USE编码、真值、概率、0.5掩膜。两组的该列逐像素数组相等，作为「同一冻结USE＋同一无参融合」的直接证据；未按预测效果重挑案例。新增只读脚本 scripts/render_use_cases.py（复用冻结入口的 build/fused 与固定案例清单，不改冻结源码、不重训），每案例另存 encoding 与 encoding_rgb 的npz与provenance_use.json；原四列图保留。模型文档/数据文档/研究入口/台账已回写并刷新生成区（幂等），冻结release仍verify通过。"
     }
   ],
   "transfers": [

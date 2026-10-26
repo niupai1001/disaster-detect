@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-24",
+  "as_of": "2026-10-26",
   "current_stage": "use-v2",
   "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
   "stages": [
@@ -3771,6 +3771,33 @@
         "artifact_checks_passed": true,
         "scope": "产物与记录独立核对，未重新全量推理或训练；研究完整成功未证明"
       }
+    },
+    {
+      "id": "use-v2-full-decoders",
+      "name": "冻结USE v2接完整U-Net与SegFormer B0",
+      "previous": "use-v2",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "上一阶段12个冻结下游结果全在0.0000–0.0049，主因未定。本轮固定同一USE v2权重，把任务头换成可训练的完整网络，检验“轻量头容量（4257／5313参数）”是否为主要限制之一，并给出两组完整系统的逐事件指标。",
+      "delta": "两组读同一份冻结USE v2输出：四层Context各按既有canonical32规则压到32通道、上采样回原图尺寸、四层平均，再与原网格Fine特征相加，该加和无可训练参数、不使用未经USE的原始影像旁路。下游分别为完整四级U-Net（全部随机初始化、GroupNorm）与SegFormer B0（32通道新首层随机、MiT与解码器沿用本地通用预训练、保留原网格细节分支）。统一条件：seed1234、单期十波段、stats_core25、既有质量掩膜、每组5000更新（合计10000）、FP32、有效batch8（微批量2×累积4）、AdamW 6e-4／wd 0.01／裁剪1.0、前250步预热后余弦、每500步按两事件等权IoU选模、USE全程eval且不在优化器内。",
+      "result": "两组各5000次正式更新完成（合计10000，无中止、无异常），同一USE在全部更新内哈希不变且两组相同（e3af4763…）；DEV 669块、阈值0.5：U-Net最佳事件等权IoU 0.1344（第2500步；像素IoU 0.1190、Dice 0.2127、P 0.1807、R 0.2585、AP 0.1360、边界F1 0.2036、小/中/大对象召回0.137/0.353/0.404），末态0.1275；SegFormer B0最佳0.1250（第3000步；像素IoU 0.1087、Dice 0.1960、P 0.1771、R 0.2196、AP 0.1202、边界F1 0.1745、对象召回0.100/0.278/0.343），末态0.1227。逐事件best：U-Net 广岛0.1014/特里苏尔0.1674，SegFormer 0.0915/0.1586。同一USE的既有5313参数轻量头参照0.0049，本轮提高约26–27倍，说明任务头容量是先前近零结果的重要限制之一；但仍低于历史十波段端到端SegFormer B0的0.2985约0.164–0.174。两组损失曲线几乎重合、彼此IoU差0.0094（best）/0.0048（last），U-Net在小对象召回、AP与边界F1上略高，SegFormer显存更低但每步慢46%。成本：U-Net 1797秒/765 MiB（cuda:1），SegFormer 2629秒/417 MiB（cuda:0）。六个固定案例图另加一列USE编码（两组共用融合32通道的前三个主成分，六案例统一PCA基；两组的该列逐像素相同，已用数组相等核验）。",
+      "status": "两组正式训练、best/last评价与六固定案例已完成并验收；单seed、完整系统比较，未解冻USE",
+      "next": "本轮结束，不追加种子、预算、解冻USE或其它模型。若继续，只能另立授权：同初始化只换架构、冻结特征vs端到端消融、尺寸分层或后处理对照，三项都不能由本轮结果直接推出。",
+      "evidence": [
+        "outputs/use_v2_full_decoders/comparison.json",
+        "outputs/use_v2_full_decoders/figures/training_curves.png",
+        "outputs/use_v2_full_decoders/runs/unet/summary.json",
+        "outputs/use_v2_full_decoders/runs/segformer/summary.json",
+        "outputs/use_v2_full_decoders/runs/unet/cases/segmentation_cases.png",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/segmentation_cases.png",
+        "outputs/use_v2_full_decoders/engineering/acceptance_cuda.json",
+        "outputs/use_v2_full_decoders/releases/engineering_v1/manifest.json",
+        "scripts/run_use_v2_full_decoders.py",
+        "scripts/summarize_use_v2_full_decoders.py",
+        "configs/use_v2_full_decoders/execution.yaml",
+        "outputs/use_v2_full_decoders/runs/unet/cases/segmentation_cases_use.png",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/segmentation_cases_use.png",
+        "scripts/render_use_cases.py"
+      ]
     }
   ],
   "evidence_review_note": "每个comparison显式列评价集合、比较对象、观察、可能含义和证据；归档报告不等于本次重新训练或逐run复算。"
