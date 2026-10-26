@@ -1,0 +1,19 @@
+{
+  "status": "ENGINEERING_RELEASE_CONTRACT",
+  "selected_configuration": "configs/use_v2/execution.yaml",
+  "overrides": [],
+  "precedence": "use_v2.jobs[job_id] supplies actual update budget, warmup, validation interval, source and objective; segformer section supplies only downstream members, normalization and BCE/Dice definition",
+  "preflight_boundary": "check_research_protocol checks the downstream 2223/669 pool, TRAIN-only core25 statistics and locked event members. The independent cache acceptance plus full v2 cache audit checks 11132/599/239 optical roles; neither substitutes for the other.",
+  "ssl_selection": "Known available metadata, fixed 599 observations and fixed seed views. Standardized sample/band-balanced spectral, Fine and Context MAE divided by TRAIN-only frozen baseline coefficients. Equal task means, then equal sensor means. Metadata-unknown spectral targets omitted only from separate robustness diagnostics.",
+  "training_loss": "Same normalized MAE; sample exposure 6 S2 + 2 Landsat, three equally weighted task views. A view with no identifiable spectral target contributes no spectral loss. Spatial views remain available. No task labels enter optical pretraining or USE checkpoint selection.",
+  "mask_streams": "sample/update, augmentation, target hiding and metadata missingness are stateless and independent of model shape; spatial masks identical across metadata diagnostic modes",
+  "context_readout": "Deterministic channel grouping average to32 before learned32-to32 projections. Four scales fused at quarter resolution for segmentation. This makes all old/v2 task-head capacities and initial shared tensors identical.",
+  "recovery_probe": "Only Fine features or only the mean of upsampled four canonical Context scales. Both use identical learned32 projection, Conv64-32-32 decoder (other half zero) and Linear8-32-33 target-conditioned readout. Encoder remains eval/no_grad with full parameter/buffer hashes.",
+  "target_identity": "Optional physical3 + known3 + visible-only per-band standardized mean/std2. Summary never reads hidden values. All-zero unknown physical input has exactly zero encoder metadata contribution.",
+  "segmentation_loss": "0.5 valid-aware BCE + 0.5 valid-aware Dice, original project functions, threshold0.5. Frozen encoder receives image-derived observation quality; label validity remains solely in the loss/evaluator.",
+  "old_reference": "outputs/use_independent_frozen/pretraining/multisensor/best.pt; four context scales are deterministic valid-count-normalized pooling, not independent spatial pretraining",
+  "units": "Adapters reuse calibrated physical reflectance and fixed per-sensor TRAIN-derived standardization. Simulated missing metadata does not imply arbitrary unknown DN calibration.",
+  "area30": "Area average in local UTM; 64-segment densified source footprint intersects each 30m target cell to measure coverage; valid observation area >=0.8. Preserve source envelope and native-band physical metadata. Geographic-pair cross-sensor alignment is not claimed.",
+  "cost_scope": "Forward MAC explicitly counts Linear/Conv/MHA products. Training profiler counts supported forward/backward matrix products; fused or non-matrix operations can be omitted. These are declared counting scopes, not an exhaustive hardware instruction total.",
+  "handoff": "READY_FOR_AUDIT only. Independent C must bind READY_FOR_TRAINING to the final manifest SHA256 before B can start any of the 30 formal jobs. Formal total 92000 updates; no extra seed, second labeled task, download or longer budget."
+}

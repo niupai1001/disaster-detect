@@ -1,0 +1,49 @@
+{
+  "seed": 1234,
+  "models": [
+    "mean",
+    "attention"
+  ],
+  "input": "single-date calibrated optical reflectance; 1..16 bands",
+  "patch": 2,
+  "width": 32,
+  "window": 4,
+  "context_channels": [
+    32,
+    64,
+    128,
+    256
+  ],
+  "context_depth": [
+    1,
+    1,
+    2,
+    1
+  ],
+  "sensor_batch": {
+    "s2": 6,
+    "landsat": 2
+  },
+  "microbatch": 2,
+  "accumulation": 4,
+  "precision": "float32",
+  "optimizer": "AdamW",
+  "lr": 0.0006,
+  "weight_decay": 0.01,
+  "clip": 1.0,
+  "pretrain_updates_each": 20000,
+  "pretrain_warmup": 1000,
+  "schedule": "linear warmup then cosine to zero",
+  "validation_interval": 1000,
+  "milestones": [
+    5000,
+    10000,
+    15000,
+    20000
+  ],
+  "probe_updates_each": 1000,
+  "downstream_updates_each": 5000,
+  "formal_total_updates": 92000,
+  "selection": "sensor-equal task-equal baseline-normalized unlabeled errors",
+  "status": "READY_FOR_AUDIT_PENDING_INDEPENDENT_C"
+}

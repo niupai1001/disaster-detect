@@ -1,0 +1,218 @@
+{
+  "figure": "docs/assets/research/use_v2/acceptance_calibration.png",
+  "figure_sha256": "1a2f981219f89dd5ddc3018c5f81588eb99e65a38ea1df2111c72c060d3243fb",
+  "numbers": {
+    "parameters_mean": 1054649,
+    "parameters_attention": 1058873,
+    "parameter_difference": 4224,
+    "fine_hidden_fraction_s2": 0.2498751087114215,
+    "fine_hidden_fraction_landsat": 0.24990463256835938,
+    "context_block_pixels": 1024,
+    "context_block_fraction_of_128x128": 0.0625,
+    "metadata_known_fraction_s2": [
+      1.0,
+      0.4833333194255829,
+      0.0
+    ],
+    "metadata_known_fraction_landsat": [
+      1.0,
+      0.4444444477558136,
+      0.0
+    ],
+    "budget_breakdown": {
+      "pretrain": 40000,
+      "probe": 22000,
+      "downstream": 30000
+    },
+    "formal_updates_executed": 0
+  },
+  "sources": {
+    "outputs/use_v2/audit/release_audit_v1.json": "d3c40a88d864aadfbf59f353695b3a76b9abada2bed1b80185a9e24e4507a9ae",
+    "outputs/use_v2/engineering/acceptance_v2.json": "315a291103e42536b35d782a7334d992849cb809509b2baf9882fe293675a49d"
+  },
+  "note": "Only design-vs-observed calibration of the controlled comparison; no performance claim.",
+  "attachments": {
+    "two_card_plan": {
+      "figure": "docs/assets/research/use_v2/two_card_plan.png",
+      "figure_sha256": "3c589b342d98d9c01ac8c6fd0f648ecaeb97d560bf2db29b8e9643cd9bdf1808",
+      "numbers": {
+        "allocation": {
+          "pretrain_mean": "cuda:0",
+          "pretrain_attention": "cuda:1",
+          "probe_mean_u5000_fine": "cuda:0",
+          "probe_mean_u5000_context": "cuda:0",
+          "probe_mean_u10000_fine": "cuda:0",
+          "probe_mean_u10000_context": "cuda:0",
+          "probe_mean_u15000_fine": "cuda:0",
+          "probe_mean_u15000_context": "cuda:0",
+          "probe_mean_u20000_fine": "cuda:0",
+          "probe_mean_u20000_context": "cuda:0",
+          "probe_attention_u5000_fine": "cuda:1",
+          "probe_attention_u5000_context": "cuda:1",
+          "probe_attention_u10000_fine": "cuda:1",
+          "probe_attention_u10000_context": "cuda:1",
+          "probe_attention_u15000_fine": "cuda:1",
+          "probe_attention_u15000_context": "cuda:1",
+          "probe_attention_u20000_fine": "cuda:1",
+          "probe_attention_u20000_context": "cuda:1",
+          "probe_old_reference_fine": "cuda:0",
+          "probe_old_reference_context": "cuda:1",
+          "probe_mean_reference_fine": "cuda:0",
+          "probe_mean_reference_context": "cuda:0",
+          "probe_attention_reference_fine": "cuda:1",
+          "probe_attention_reference_context": "cuda:1",
+          "downstream_old_context": "cuda:0",
+          "downstream_old_context_fine": "cuda:1",
+          "downstream_mean_context": "cuda:0",
+          "downstream_mean_context_fine": "cuda:0",
+          "downstream_attention_context": "cuda:1",
+          "downstream_attention_context_fine": "cuda:1"
+        },
+        "per_card": 46000,
+        "waves": [
+          "pretrain",
+          "probe",
+          "downstream"
+        ],
+        "gate_cuda0": "ACCEPTED display Enabled free 30858 MiB real backward",
+        "gate_cuda1": "REFUSED running pretrain_mean on card 1"
+      },
+      "sources": {
+        "outputs/use_v2/releases/engineering_v2/manifest.json": "c2073d651cdbae71ba7baef27aba89659615bd6765f91c7722ec360da68974ea",
+        "outputs/use_v2/audit/release_audit_v2.json": "5dab09b67252d43265ce2ef294f0d01108833363a77639f4abbe1d2f05fb7edb"
+      },
+      "note": "Plan and gate behaviour only; no training result."
+    },
+    "interim_unlabeled": {
+      "figure": "docs/assets/research/use_v2/interim_unlabeled.png",
+      "figure_sha256": "f61ebdbfa310fa282368baaad05b6c6f737388b9c2578be697e38d3bbf5934e4",
+      "numbers": {
+        "milestones": [
+          5000,
+          10000,
+          15000,
+          20000
+        ],
+        "fine": {
+          "V2-N": [
+            2.307,
+            2.3242,
+            2.2973,
+            2.2813
+          ],
+          "V2-A": [
+            2.3303,
+            2.3198,
+            2.2779,
+            2.2964
+          ]
+        },
+        "context": {
+          "V2-N": [
+            0.2785,
+            0.2637,
+            0.2502,
+            0.2524
+          ],
+          "V2-A": [
+            0.2775,
+            0.2681,
+            0.2511,
+            null
+          ]
+        },
+        "pretrain_best": {
+          "pretrain_mean": 0.6218,
+          "pretrain_attention": 0.6209
+        }
+      },
+      "sources": {
+        "outputs/use_v2/runs/pretrain_mean/summary.json": "a95b064f32c1e01a9f55ffdea0a650d81dd14fce101496ad1244b745fc933da5",
+        "outputs/use_v2/runs/pretrain_attention/summary.json": "596aeca2e595b1e8b222b2eaf1f8f4f573f954e105a853919b81fc2990ad3864"
+      },
+      "note": "Interim unlabeled scores only; each probe has a single step-1000 validation. No segmentation result exists yet."
+    },
+    "twenty_vs_thirty_k": {
+      "figure": "docs/assets/research/use_v2/twenty_vs_thirty_k.png",
+      "figure_sha256": "b19a47a9ed58a5f016d1b620d208a7c57f09c7121b0a4eb935548dab6d9f18b7",
+      "numbers": {
+        "pretrain": {
+          "V2-N": {
+            "20k": 0.6218,
+            "30k": 0.6208
+          },
+          "V2-A": {
+            "20k": 0.6209,
+            "30k": 0.6141
+          }
+        },
+        "fine": {
+          "V2-N": [
+            2.2813,
+            2.232
+          ],
+          "V2-A": [
+            2.2964,
+            2.2932
+          ]
+        },
+        "context": {
+          "V2-N": [
+            0.2524,
+            0.2462
+          ],
+          "V2-A": [
+            0.2524,
+            0.2538
+          ]
+        }
+      },
+      "sources": {
+        "outputs/use_v2/runs/pretrain_mean_tail/summary.json": "ec6835974f97781801cc588fec1b2e0456c5eac49c61cbeaaab63af6788f882c",
+        "outputs/use_v2/runs/pretrain_attention_tail/summary.json": "3cfa778a3d1ea3d76ba8f9ce5e12929daffe8e8be0f194dbff412211b8bc0fbf"
+      },
+      "note": "Two-stage schedule: 20k cosine then a new 10k cosine with restarted AdamW. Not a single 30k budget."
+    },
+    "head_floor_diagnostic": {
+      "figure": "docs/assets/research/use_v2/head_floor_diagnostic.png",
+      "figure_sha256": "5782229e815070b35b911db78f3e0ef0b51d86e7a1a739398c50d04b9baac91e",
+      "numbers": {
+        "gt_rate": {
+          "V2-N + Context+Fine (20k)": 0.00808,
+          "V2-N + Context+Fine (30k)": 0.00808,
+          "V2-A + Context+Fine (30k)": 0.00808,
+          "old USE + Context (20k)": 0.00808
+        },
+        "above_threshold": {
+          "V2-N + Context+Fine (20k)": 149,
+          "V2-N + Context+Fine (30k)": 69,
+          "V2-A + Context+Fine (30k)": 316,
+          "old USE + Context (20k)": 0
+        },
+        "pixels": {
+          "V2-N + Context+Fine (20k)": 91049,
+          "V2-N + Context+Fine (30k)": 91049,
+          "V2-A + Context+Fine (30k)": 91049,
+          "old USE + Context (20k)": 91049
+        },
+        "downstream_iou_20k": {
+          "downstream_old_context": 5.1554159627541025e-05,
+          "downstream_old_context_fine": 1.6686388388610226e-05,
+          "downstream_mean_context": 0.0016732503162963392,
+          "downstream_mean_context_fine": 0.003827168232253507,
+          "downstream_attention_context": 0.001750697762476832,
+          "downstream_attention_context_fine": 0.002223589374683801
+        },
+        "downstream_iou_30k": {
+          "downstream_old_context": 5.1554159627541025e-05,
+          "downstream_old_context_fine": 1.6686388388610226e-05,
+          "downstream_mean_context": 0.0015972348207137306,
+          "downstream_mean_context_fine": 0.0029381624352511375,
+          "downstream_attention_context": 0.0035417965667283564,
+          "downstream_attention_context_fine": 0.004912779027771011
+        }
+      },
+      "note": "Six development-validation tiles from the best checkpoint of each condition; illustrative diagnostic, not a metric."
+    }
+  }
+}

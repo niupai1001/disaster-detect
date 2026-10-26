@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T08:19:20.573809+00:00",
+  "updated_at": "2026-10-26T09:02:36.260656+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -1205,6 +1205,218 @@
         "outputs/use_feature_view/provenance.json"
       ],
       "note": "CPU只读推理两份固定排序S2重建验证观测；原RGB、共享PCA特征、范数、有效区与32通道图完成；冻结哈希不变，不训练。"
+    },
+    {
+      "id": "use-v2-handoff-document",
+      "title": "按用户要求生成USE v2可分发执行交接文件",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/use_v2_execution_handoff.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T10:55:32.064247+00:00",
+      "updated_at": "2026-10-25T10:55:56.054237+00:00",
+      "evidence": [
+        "docs/USE_V2_EXECUTION_HANDOFF.md"
+      ],
+      "note": "按用户明确要求写入单文件分发快照，含技术方案、92000更新预算、三角色认领命令及提示词；核查文件和代码围栏。未实现v2或启动训练，未替其他Agent认领。"
+    },
+    {
+      "id": "use-v2-engineering",
+      "title": "USE v2工程与最小测试",
+      "owner": "01a172b5-006c-7ae0-8036-f96df2a01f82",
+      "scopes": [
+        "configs/use_v2",
+        "outputs/use_v2/engineering",
+        "outputs/use_v2/releases",
+        "scripts/evaluate_use_v2.py",
+        "scripts/pretrain_use_v2.py",
+        "scripts/run_use_v2.py",
+        "src/landslide_seg/models/use_v2.py",
+        "tests/test_use_v2.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T10:59:28.717301+00:00",
+      "updated_at": "2026-10-25T11:40:17.440631+00:00",
+      "evidence": [
+        "outputs/use_v2/releases/engineering_v1/manifest.json",
+        "outputs/use_v2/engineering/acceptance_v2.json"
+      ],
+      "note": "Agent A工程职责完成：两组模型、校准、无标签任务、冻结恢复探针、六组下游、评价和30m派生入口已实现；21项测试通过，最终套件含两组各100更新、六探针/六下游短程及三类真实恢复模型/优化器/RNG逐项一致。release哈希7ae7c59d3d9fa08f5df1d0e4be9d0f8a131a9f23ebf5503a2a04261a3bf0ada3，READY_FOR_AUDIT。工程与调试真实数据共1013更新单列；正式0更新。C独立验收、正式92000更新、完整数据评价及研究结论尚待对应角色执行。未恢复下载或旧队列，未改共享台账/固定正文。"
+    },
+    {
+      "id": "use-v2-training",
+      "title": "USE v2正式训练与恢复",
+      "owner": "session-7b859691-bdb0-40fc-a595-7f80297b072c",
+      "scopes": [],
+      "status": "active",
+      "started_at": "2026-10-25T12:02:24.626839+00:00",
+      "updated_at": "2026-10-25T12:52:13.069931+00:00",
+      "evidence": [
+        "outputs/use_v2/runtime/preflight_v1.json"
+      ],
+      "note": "门禁未通过：engineering_v1 仅 READY_FOR_AUDIT，C 独立验收未执行，outputs/use_v2/audit/READY_FOR_TRAINING.json 不存在。B 侧预检已通过（manifest seal 7ae7c59d...、工作区哈希与快照一致、TRAIN 11132/VAL 599/GUARD 239、cuda:1 空闲），正式更新 0。恢复条件：C 发布 release_sha256=7ae7c59d3d9fa08f5df1d0e4be9d0f8a131a9f23ebf5503a2a04261a3bf0ada3 的 READY_FOR_TRAINING 标记后重跑 verify 与预检。"
+    },
+    {
+      "id": "use-v2-audit-docs",
+      "title": "USE v2独立验收与固定文档",
+      "owner": "dsh-agent-2026-10-25-use-v2-c",
+      "scopes": [
+        "docs/assets/research/experiment_aliases.csv",
+        "docs/assets/research/experiment_registry.json",
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_v2",
+        "docs/assets/research/verification.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v2/audit"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T11:45:26.621844+00:00",
+      "updated_at": "2026-10-25T11:59:06.494599+00:00",
+      "evidence": [
+        "outputs/use_v2/audit/READY_FOR_TRAINING.json"
+      ],
+      "note": "Agent C验收与回写完成：独立复跑21项测试（tests_audit_v1.xml）与15类检查全部通过，发布绑定release manifest SHA256 7ae7c59d…的READY_FOR_TRAINING；全量重读11970份缓存0失败，校准从TRAIN重算到同一SHA256，真实两更新分段恢复与整段逐位一致，冻结USE哈希不变。阶段台账新增use-v2并设为当前阶段（正式更新0、未写已完成）；回写DATA_EVENT_PROTOCOL数据角色/校准/30m、MODEL_EVOLUTION结构/监督/冻结与恢复、RESEARCH_INDEX最小接力，修正过期‘正在正式训练’表述；498个本地链接、锚点、生成幂等与陈旧状态检查通过，新增两张图及来源哈希。未新增run、未改注册索引/别名/verification（本轮无新run）；未训练、未改源码/配置/权重。未验证：正式92000更新的收敛与迁移、跨传感器配对、第二有标签任务。"
+    },
+    {
+      "id": "use-v2-audit-tools",
+      "title": "USE v2独立验收工具",
+      "owner": "dsh-agent-2026-10-25-use-v2-c",
+      "scopes": [
+        "scripts/audit_use_v2_release.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T11:46:40.762106+00:00",
+      "updated_at": "2026-10-25T11:59:02.823466+00:00",
+      "evidence": [
+        "outputs/use_v2/audit/release_audit_v1.json"
+      ],
+      "note": "独立验收工具交付：scripts/audit_use_v2_release.py一次重算15类检查（release完整性、正式门禁、两组结构、Fine位置局部性、空间/质量掩膜、未知元数据零贡献、遮挡与目标身份、抽样流、校准锁、数据角色全量11970份、预算与日程、工程后重新初始化、冻结与真实恢复、预检与30m派生、重建目标定义），并只在全部通过时发布标记。未修改生产实现、配置或权重。"
+    },
+    {
+      "id": "use-v2-dual-gpu-policy",
+      "title": "按用户要求取消USE v2单卡串行限制",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/use_v2_execution_handoff.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T12:17:51.531659+00:00",
+      "updated_at": "2026-10-25T12:18:54.894114+00:00",
+      "evidence": [
+        "docs/USE_V2_EXECUTION_HANDOFF.md"
+      ],
+      "note": "用户取消单卡串行限制；文档允许双卡各跑独立实验，显示卡可用，预算batch不变。核查发现已有release代码仍拒绝显示GPU，已写明A修复和C重验后B启用；未改冻结源码或中断B任务。"
+    },
+    {
+      "id": "use-v2-engineering-gpu",
+      "title": "USE v2双卡设备门禁修复与新release",
+      "owner": "dsh-agent-2026-10-25-use-v2-c",
+      "scopes": [
+        "outputs/use_v2/engineering/acceptance_gpu_v1.json",
+        "outputs/use_v2/engineering/gpu_suite_v1",
+        "outputs/use_v2/engineering/tests_gpu_v1.xml",
+        "outputs/use_v2/releases/engineering_v2",
+        "scripts/run_use_v2.py",
+        "tests/test_use_device_gate.py",
+        "tests/test_use_v2.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T12:21:18.016160+00:00",
+      "updated_at": "2026-10-25T12:43:18.067940+00:00",
+      "evidence": [
+        "outputs/use_v2/engineering/acceptance_gpu_v1.json"
+      ],
+      "note": "按新双卡规则用ponytail修复设备门禁并产出engineering_v2（c2073d65…，177个绑定文件，READY_FOR_AUDIT）：显示占用不再拒绝；新增4096MiB显存下限、真实1024x1024前向+反向探针、CUDA_VISIBLE_DEVICES到物理索引映射、每卡单进程锁（死进程锁自动清理）、按process.json识别在跑任务拒绝同卡重复启动；新增两张卡各46000更新的allocation与三波waves（V2-N在cuda:1、V2-A在cuda:0，不跨卡DDP、不改batch），命令按job带设备与新标记路径。测试28项（新增tests/test_use_device_gate.py，7项），工程套件在cuda:0重跑14个run+3组恢复一致+真实接口，与v1相比仅scripts/run_use_v2.py变化、其余176个绑定文件同哈希，初始化/冻结/恢复哈希与v1逐项相同。未重启或干扰cuda:1上由v1启动的pretrain_mean，未改旧快照与旧标记。"
+    },
+    {
+      "id": "use-v2-audit-gpu",
+      "title": "USE v2双卡release独立验收",
+      "owner": "subagent-c-use-v2-gpu",
+      "scopes": [
+        "outputs/use_v2/audit"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T12:37:13.474909+00:00",
+      "updated_at": "2026-10-25T12:43:31.411706+00:00",
+      "evidence": [
+        "outputs/use_v2/audit/release_audit_v2.json"
+      ],
+      "note": "独立复跑 engineering_v2 (manifest sha256 c2073d651cdbae71ba7baef27aba89659615bd6765f91c7722ec360da68974ea)：177 绑定文件工作区/快照双向哈希一致、environment 一致、status READY_FOR_AUDIT、formal_updates=0；30 条命令 --audit-marker/--device 与 allocation 逐项一致，两卡各 46000，三波恰好覆盖 30 job，V2-N(cuda:0)/V2-A(cuda:1) 分卡；v1 的 173 个快照哈希与 READY_FOR_TRAINING.json(387d4621…) 字节未变，与 v1 同名的 90 个文件仅 run_use_v2.py 变化，补丁只含设备门禁/记录字段/CLI/snapshot 元数据；14 个 fresh_initialization_hashes 与 v1 逐项相同，3 组整段vs1步+恢复的 model/optimizer/RNG 逐项一致，receipt source_sha256 等于当前 7 个源码文件哈希；真实 cuda:0 门禁通过(display Enabled, 1024x1024 前向+反向, physical 0)，cuda:1 因 pretrain_mean 运行被拒，gpu0.lock 已释放，单测覆盖重复启动拒绝；pytest 28/28 通过写 outputs/use_v2/audit/tests_audit_v2.xml；audit 工具 15/15 PASS 并发布 READY_FOR_TRAINING_v2.json(0815340d…)。未验证：未启动/恢复任何训练、未验证 B 的 v1 pretrain_mean 中断后的 CLI 续训路径（v1 verify 因工作区源码已变而失败，v2 identity.release 与 v1 不同）、单 seed、工程验收不等于研究结论。"
+    },
+    {
+      "id": "use-v2-docs-gpu",
+      "title": "USE v2双卡事实回写与固定文档",
+      "owner": "dsh-agent-2026-10-25-use-v2-c",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T12:42:36.374191+00:00",
+      "updated_at": "2026-10-25T12:43:18.653486+00:00",
+      "evidence": [
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "回写双卡事实：台账use-v2补充engineering_v2（c2073d65…）验收、allocation 46000+46000、三波waves、跨release依赖（pretrain_mean由v1启动不重启）、两次被拒绝的套件尝试与单卡数值不变的证据；MODEL_EVOLUTION新增两卡启动规则与混合release说明；RESEARCH_INDEX最小接力改为‘已开始正式训练、双卡放行’；刷新生成区两次幂等，501个本地链接0失效。"
+    },
+    {
+      "id": "use-v2-training-gpu",
+      "title": "USE v2双卡正式训练执行",
+      "owner": "dsh-agent-2026-10-25-use-v2-c",
+      "scopes": [
+        "outputs/use_v2/dual_run",
+        "outputs/use_v2/runs",
+        "outputs/use_v2/runtime"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-25T12:52:12.990515+00:00",
+      "updated_at": "2026-10-26T08:10:17.100752+00:00",
+      "evidence": [
+        "outputs/use_v2/audit/final_acceptance_v1.json"
+      ],
+      "note": "42项正式运行全部完成、无失败：20k条件30项＋续尾12项；预算146000全部执行，6985与83次中止单列，累计消耗153068。无标签：选模20k→30k 0.6218→0.6208（V2-N）/0.6209→0.6141（V2-A）；探针20k→30k V2-N Fine 2.2813→2.2320、Context 0.2524→0.2462，V2-A Fine 2.2964→2.2932、Context 0.2524→0.2538。下游12项事件平均IoU全部0.0000–0.0049，复核确认5313参数轻量头只有约0.07%像素超阈值，零结果主要反映头容量/优化（未验证）。每项device_gate记录实际卡，冻结哈希在downstream曲线中恒定且与源一致。未验证：单seed、两段日程不等于30k预算、下游组间不可区分、第二任务未完成。"
+    },
+    {
+      "id": "use-v2-audit-tail",
+      "title": "USE v2续尾release独立验收",
+      "owner": "subagent-c-use-v2-tail",
+      "scopes": [
+        "outputs/use_v2/audit"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T03:00:49.589469+00:00",
+      "updated_at": "2026-10-26T03:07:42.891637+00:00",
+      "evidence": [
+        "outputs/use_v2/audit/READY_FOR_TRAINING_v3.json",
+        "outputs/use_v2/audit/release_audit_v3.json"
+      ],
+      "note": "engineering_v3（manifest 61921a3a…）独立验收通过并发布 READY_FOR_TRAINING_v3（marker SHA256 306c528d…，audit d156818e…）：88绑定文件工作区=快照=manifest、env一致；v2 177文件同哈希且verify+marker通过；v1 173快照与标记387d4621…未变；v3新增仅7文件（新脚本/两契约/tail验收/tail_suite/两u20000）；u20000 use哈希加载一致；新AdamW零动量+100预热余弦10k（峰值6e-4末值0）；全局步20001–30000；4探针u30000/6下游best_unlabeled，allocation 17000/17000；30k源门禁严格且20k路径未放宽；CPU作业不占卡；32测试0失败写tests_audit_v3.xml；CPU smoke 20步start_state=6eb41c…、offset20000、u20010/u20020模型哈希与A套件逐位一致。未训练、未动GPU作业、未改源码/配置/权重/文档。风险：新tail测试与32测试XML不在88绑定内（C独立复跑并记哈希）；两段日程不等于单次30k预算；第二任务未完成；cuda0仍有v2 downstream_old_context运行，tail注意力族需等待；u25000/u30000命名与updates=30000由桩化逻辑运行验证，未跑真实10k。"
+    },
+    {
+      "id": "use-v2-closeout-review",
+      "title": "USE v2产物独立核验与结论修正",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v2/closeout_review",
+        "scripts/review_use_v2_closeout.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T09:00:32.007622+00:00",
+      "updated_at": "2026-10-26T09:02:36.260656+00:00",
+      "evidence": [
+        "outputs/use_v2/closeout_review/acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "独立读取42项summary/曲线，146000更新一致，268个checkpoint重算哈希通过；修正4257/5313头参数口径与未经验证归因，清理过期状态，台账回写并刷新幂等通过。未重训或全量重推理；旧空范围active登记需原负责人关闭。"
     }
   ],
   "transfers": [
@@ -1218,6 +1430,16 @@
         "src/landslide_seg/training/update_training.py"
       ],
       "authorization": "用户本轮明确授权：授权移交这三处，继续完整首轮。仅移交登记范围，不改变旧运行和其他认领。"
+    },
+    {
+      "at": "2026-10-25T12:52:13.069931+00:00",
+      "source": "use-v2-training",
+      "target": "use-v2-training-gpu",
+      "scopes": [
+        "outputs/use_v2/runs",
+        "outputs/use_v2/runtime"
+      ],
+      "authorization": "用户2026-10-25明确授权：由本会话接管B的正式队列，停止串行派发但保留正在运行的pretrain_mean，改用engineering_v2按两卡waves执行"
     }
   ]
 }

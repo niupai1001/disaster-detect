@@ -1,6 +1,6 @@
 {
   "as_of": "2026-10-24",
-  "current_stage": "use_independent",
+  "current_stage": "use-v2",
   "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
   "stages": [
     {
@@ -3509,6 +3509,267 @@
         "answer": "保留限制，结束本轮（推荐）",
         "additional_budget_authorized": false,
         "evidence": "outputs/use_independent_frozen/user_closeout_decision.json"
+      }
+    },
+    {
+      "id": "use-v2",
+      "name": "USE v2：局部波段自注意力与冻结恢复探针",
+      "previous": "use_independent",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "回答局部波段自注意力相对均值汇聚是否有额外价值、Fine是否保留原网格位置差异、Context是否提供多尺度空间信息、物理描述缺失时怎样退化，并比较性能与成本；不以超过历史滑坡IoU作为唯一成功定义。",
+      "delta": "按2×2 Patch把4个有序值与4个有效标记拼为8维→Linear(8→32)＋LayerNorm得到波段Token；两组分别为跳过（V2-N）与加入（V2-A）一层4头局部波段MHSA，其余逐Token FFN、Fine/Context Query、空间主干与任务目标完全相同。Fine由4个位置Query加逐位置有效观测残差；Context用1个Query汇聚后学习型合并到1/4尺度，窗口4、通道32/64/128/256、深度1/1/2/1，第三尺度第二个模块用移位窗口。无标签任务改为光谱隐藏约50%波长已知的波段、Fine各波段同步隐藏25%位置、Context隐藏一块32×32；元数据视图为保留50%／删一半／全未知。冻结恢复探针与六组冻结滑坡头沿用统一容量与同一初始化规则。",
+      "result": "42个正式运行全部完成、无失败：20k条件30项（两组各20000预训练、22探针、6下游）＋续尾条件12项（两组各10000续尾、4探针、6下游），预算146000更新全部执行，另有6985与83次中止单列，累计消耗153068。无标签指标：预训练选模分数20k→30k，无局部波段自注意力0.6218→0.6208，一层4头局部波段自注意力0.6209→0.6141；探针20k→30k，前者Fine 2.2813→2.2320、Context 0.2524→0.2462（两项都改善），后者Fine 2.2964→2.2932、Context 0.2524→0.2538（Context略差）；随机初始化参照Fine 2.3481/2.3361、Context 0.2966，说明预训练确实降低了恢复误差。下游12项事件平均IoU全部落在0.0000–0.0049（最好为续尾注意力组＋Fine 0.0049），与上一阶段百万级桥接解码器的0.1407、直入参照0.2985差两个数量级；复核显示抽样图块正类像素0.4%–0.8%，四组最佳权重在6块共91049个有效像素中超过0.5阈值的只有149/69/316/0个，Context头4257参数、加入Fine后5313参数；当前系统迁移效果很差，容量、特征、损失与优化的贡献未验证，不能据此作稳健架构排名。波段自注意力仍无确定证据：选模分数V2-A略低，但30k探针两项都是V2-N更低，方向矛盾且单seed。",
+      "status": "本轮执行完成：42项正式运行、预算146000已执行；下游受轻量头限制，研究结论以无标签指标为主",
+      "next": "待用户决定是否加头容量对照（同冻结权重、更大头，6组×5000＝30000更新＋新release）以区分“头的上限”与“编码器的上限”；在此之前不追加种子、预算或旧Band ID修正。单seed、两验证事件、两段日程不等于单次30k预算的限制保留。",
+      "evidence": [
+        "outputs/use_v2/audit/release_audit_v2.json",
+        "outputs/use_v2/audit/READY_FOR_TRAINING_v2.json",
+        "outputs/use_v2/audit/tests_audit_v2.xml",
+        "outputs/use_v2/releases/engineering_v2/manifest.json",
+        "outputs/use_v2/engineering/acceptance_gpu_v1.json",
+        "outputs/use_v2/engineering/gpu_suite_v1",
+        "outputs/use_v2/audit/release_audit_v1.json",
+        "outputs/use_v2/releases/engineering_v1/manifest.json",
+        "outputs/use_v2/runtime/dual_driver_status.json",
+        "outputs/use_v2/runtime/dual_launch_v2.json",
+        "outputs/use_v2/runtime/serial_driver_stopped_v2.json",
+        "outputs/use_v2/runtime/failure_pretrain_mean_v1_u6985.json",
+        "outputs/use_v2/runtime/budget_ledger_v2.json",
+        "outputs/use_v2/runtime/dual_driver_status_cuda1.json"
+      ],
+      "evidence_level": "现存工程产物＋本次独立复跑核对（不是训练成绩）",
+      "reader_status": "最新试验：待训练",
+      "execution_plan": {
+        "basis": "依据用户随附的USE v2交接文件第2、5节执行；A交付READY_FOR_AUDIT，C独立验收后发布READY_FOR_TRAINING，正式92000更新由B执行。旧USE首轮与独立阶段结果只作历史证据，不重复旧队列。",
+        "contract": "我们的数据划分（留事件验证）：下游九事件2223块训练、广岛448＋特里苏尔221块开发验证、二事件等权IoU选模、seed1234、stats_core25；无标签预训练用11132训练／599重建验证／239隔离位置，每批6份S2＋2份Landsat。USE只接受无标签目标，下游IoU不得反过来改变USE选模。",
+        "inputs": "输入为单期定标反射率及其显式质量掩膜（x、pixel_valid、band_valid、中心波长/带宽/原生GSD三字段＋known_mask）；band_ids只作读取索引，不进入可学习身份查表。十波段沿用559块训练核心拟合统计，Landsat统计只用合法训练部分拟合。",
+        "budget": "正式40000（两组各20000）＋冻结探针22000（22项各1000）＋下游30000（六组各5000）＝92000更新；两张物理卡各一进程并行（V2-N在cuda:1、V2-A在cuda:0），每卡串行、不跨卡DDP；FP32、每实验有效batch8（微批2×累积4，两组相同）、AdamW LR6e-4、weight_decay0.01、clip1.0；预训练前1000步线性预热后余弦，探针预热50步、下游250步；预训练每1000步验证、下游每500步验证，保存初始化、5k/10k/15k/20k、best、last与完整恢复状态。",
+        "initialization": "两组USE都由seed1234全新初始化，公共模块张量逐位相同，差异仅一层4头局部波段MHSA；探针与下游头用seed1235统一初始化，探针Fine/Context容量相同。工程权重不进入正式训练，正式run保存初始化哈希并在结束时校验重建一致。",
+        "steps": [
+          {
+            "order": "1",
+            "model": "工程实现与独立验收",
+            "change": "实现两组编码器、三种无标签任务、校准、冻结探针、六组下游与评价入口，交付不可变release",
+            "question": "实现是否与设计一致、是否存在遮挡泄漏或冻结缺口",
+            "status": "完成：engineering_v1已验收；双卡修复后engineering_v2（c2073d65…）由C独立复跑通过"
+          },
+          {
+            "order": "2",
+            "model": "无局部波段自注意力的输入编码（V2-N）",
+            "change": "跳过波段MHSA，其余与V2-A逐位相同，20000次无标签更新",
+            "question": "去掉局部波段自注意力后无标签重建与探针是否变差",
+            "status": "进行中：pretrain_mean由engineering_v1在cuda:1启动，未重启"
+          },
+          {
+            "order": "3",
+            "model": "有局部波段自注意力的输入编码（V2-A）",
+            "change": "加入一层4头局部波段MHSA，成本增加4224参数",
+            "question": "波段间自注意力是否提供额外价值、是否值得成本",
+            "status": "待启动：v2已验收，可在cuda:0与V2-N并行"
+          },
+          {
+            "order": "4",
+            "model": "冻结恢复探针（22项×1000更新）",
+            "change": "四里程碑×Fine/Context、旧USE与两组随机v2，同容量头、同目标条件",
+            "question": "各里程碑的Fine与Context恢复能力如何变化",
+            "status": "未开始"
+          },
+          {
+            "order": "5",
+            "model": "5k/10k/15k/20k完整表示评价",
+            "change": "光谱MAE/RMSE、隐藏像元与相邻差分、16/32/64块恢复、同地点跨波段Recall@1/5、方差与有效秩、元数据完整/部分/全未知曲线",
+            "question": "表征在哪些方面改善、在哪些方面没有",
+            "status": "未开始"
+          },
+          {
+            "order": "6",
+            "model": "六组冻结滑坡头（每组5000更新）",
+            "change": "旧USE、V2-N、V2-A分别做Context与Context＋Fine，编码器全冻结",
+            "question": "下游分割是否从新编码器或Fine分支获益",
+            "status": "未开始"
+          },
+          {
+            "order": "7",
+            "model": "成本与30m派生评价",
+            "change": "实测参数量、MAC计量范围、延时、显存与训练速度；S2按真实地理变换重采样到30m并记录有效面积",
+            "question": "性能提升是否值得成本、派生评价是否合格",
+            "status": "未开始"
+          },
+          {
+            "order": "8",
+            "model": "结论与边界",
+            "change": "按工程、无标签表征、传感器迁移、下游应用分别给出通过/失败或未证实",
+            "question": "本轮假设哪些成立、哪些没有证据",
+            "status": "未开始"
+          }
+        ],
+        "acceptance": [
+          "C验收证据为outputs/use_v2/audit/release_audit_v1.json（15项检查）与outputs/use_v2/audit/tests_audit_v1.xml（21项测试），标记绑定release manifest SHA256 7ae7c59d…。",
+          "B启动前须用verify_release重读标记与release；源码、配置、数据或环境任一变化都使该批准失效。",
+          "正式运行保存逐步曲线、曝光、预算、best/last与恢复状态；工程与调试更新单列为1013，不计入92000。",
+          "双卡启动前须让旧串行驱动停止派发新任务（不终止pretrain_mean），新驱动按v2的waves每卡一个进程；同卡重复启动会被门禁拒绝。"
+        ],
+        "decisions": [
+          "两组共用空间主干，本对照不能单独证明空间Transformer本身的因果贡献；20k不等于充分收敛，不自动追加种子或预算。",
+          "冻结探针只对四里程碑、两组随机v2与旧USE训练，不对非里程碑最佳权重追加；下游IoU不得改变USE选择。",
+          "30m只做派生评价，缺少合格同地点配对时不得声称真实跨传感器检索；第二任务完成之前不得宣称跨任务通用。"
+        ],
+        "handoff": "A交付outputs/use_v2/releases/engineering_v1（已验收）；B按manifest的30条命令在cuda:1串行执行；C在正式期间只核查已完成产物、维护本台账与固定文档。",
+        "deliverables": "阶段事实只维护本台账；数据角色与指标解释写DATA_EVENT_PROTOCOL，结构、监督与实际加载写MODEL_EVOLUTION；正式结果产生后再刷新入口、图与运行索引，不新建日期报告。"
+      },
+      "dual_card_upgrade": {
+        "policy": "用户于2026-10-25取消单卡限制：两张卡可同时各跑一个正式进程；显示占用与他人的计算进程不拒绝、不终止；启动前检查显存并做真实分配/反向；每卡单进程锁；两卡各一进程并行，不做DDP、不改batch与预算。",
+        "release": "outputs/use_v2/releases/engineering_v2",
+        "release_sha256": "c2073d651cdbae71ba7baef27aba89659615bd6765f91c7722ec360da68974ea",
+        "accepted_by": "独立C复跑：15类检查、28项测试全过，见outputs/use_v2/audit/release_audit_v2.json",
+        "source_change": [
+          "scripts/run_use_v2.py"
+        ],
+        "added_tests": [
+          "tests/test_use_device_gate.py"
+        ],
+        "numeric_change": "无：新套件初始化/冻结/恢复哈希与v1逐项相同；v1快照173个文件与旧标记字节未变",
+        "allocation": {
+          "cuda:0": 46000,
+          "cuda:1": 46000
+        },
+        "waves": [
+          "pretrain",
+          "probe",
+          "downstream"
+        ],
+        "mixed_release": "pretrain_mean由engineering_v1启动并在运行，不重启；v2探针通过记录的source_checkpoint_sha256消费其checkpoint。跨release依赖已在标记中登记，v1快照与标记不改。",
+        "rejected_attempts": [
+          "outputs/use_v2/engineering/gpu_suite_v1_aborted_source_edit（源码被中途改动，套件按设计拒绝）",
+          "outputs/use_v2/engineering/gpu_suite_v1_stale_cli（通过但源码随后新增--marker参数，哈希过期）"
+        ],
+        "actual_card_plan": "计划把V2-N放cuda:0、V2-A放cuda:1，但pretrain_mean已在cuda:1运行：第一个并行步应把V2-A放到cuda:0（与计划互换），每次run在resolved_config/process.json的device_gate里记录实际GPU UUID与物理索引；这是设备指派互换，不是预算、配置或数值变更。",
+        "resume_limitation": "未验证且有风险：v1-release已不能从当前工作区复验（run_use_v2.py被新版本替换），且identity含源码哈希，所以由v1启动的pretrain_mean若中途失败，v1与v2两条--resume都会因身份不一致被拒。当前只能重初始化并在台账单列中止消耗，需另行确认预算。"
+      },
+      "execution_state": {
+        "driver": "outputs/use_v2/runtime/dual_driver_v2.py",
+        "driver_pid": 51608,
+        "launch_record": "outputs/use_v2/runtime/dual_launch_v2.json",
+        "status_file": "outputs/use_v2/runtime/dual_driver_status.json",
+        "ledger_file": "outputs/use_v2/runtime/dual_ledger_v2.jsonl",
+        "stopped_serial_driver": {
+          "pids": [
+            73780,
+            91252
+          ],
+          "record": "outputs/use_v2/runtime/serial_driver_stopped_v2.json",
+          "surviving": "pretrain_mean pid 34196 (v1, untouched)"
+        },
+        "cards": {
+          "cuda:0": "pretrain_attention 运行中",
+          "cuda:1": "pretrain_mean 运行中，队列等待"
+        },
+        "eta_note": "按实测约0.6秒/更新粗估：均值约11:40完成，注意力族约15:00前后全部完成；驱动跨会话独立运行，不依赖本会话存活。"
+      },
+      "experiment_amendment": {
+        "aborted": {
+          "job": "pretrain_mean",
+          "release": "engineering_v1",
+          "updates": 6985,
+          "cause": "Windows console close event -> Intel Fortran runtime abort (forrtl error 200)",
+          "evidence": "outputs/use_v2/runtime/failure_pretrain_mean_v1_u6985.json",
+          "archive": "outputs/use_v2/runs/aborted/pretrain_mean_v1_u6985"
+        },
+        "restart": {
+          "release": "engineering_v2",
+          "device": "cuda:1",
+          "launch": "outputs/use_v2/runtime/dual_launch_cuda1_v2.json",
+          "hardening": "child processes launched with CREATE_NO_WINDOW so no visible console can kill them"
+        },
+        "budget": {
+          "planned": 92000,
+          "amendment": 54000,
+          "amended": 146000,
+          "aborted": 7068,
+          "total_consumed": 153068,
+          "rule": "中止消耗单列；重启的均值组替换已预算的20000，不重复计入；两段日程不等于单次30k预算"
+        },
+        "extension": {
+          "at": "2026-10-25T23:01:20-0400",
+          "question": "20000步是否因日程归零而过早停止；延长能否带来可分辨的改善",
+          "method": "B：两段日程。从u20000继续10000步，新AdamW与100步预热后余弦到0；全局步号20001起，采样与遮挡流不回放",
+          "not_equal_to": "单次30000步余弦（学习率轨迹不同），因此不能表述为30k预算的直接证据",
+          "budget": {
+            "pretrain": 20000,
+            "evaluation": 34000,
+            "added": 54000,
+            "amended_plan": 146000,
+            "evaluation_set": "4个探针＋6组下游"
+          },
+          "release": "outputs/use_v2/releases/engineering_v3",
+          "release_sha256": "61921a3a9621aabc4198d5e7d75b15b6e8597966b7606399a0c017da1efdeb58",
+          "gate_fix": "active_jobs 只统计cuda设备；CPU工程作业不再占用显卡",
+          "artifacts": {
+            "tail_entry": "scripts/run_use_v2_tail.py",
+            "contract": "configs/use_v2_tail",
+            "tests": "tests/test_use_v2_tail.py",
+            "smoke": "outputs/use_v2/engineering/tail_suite_v1",
+            "acceptance": "outputs/use_v2/engineering/acceptance_tail_v1.json"
+          },
+          "acceptance": {
+            "auditor": "subagent-c-use-v2-tail",
+            "checks": "14/14",
+            "tests": 32,
+            "marker": "outputs/use_v2/audit/READY_FOR_TRAINING_v3.json",
+            "marker_sha256": "306c528d0c404a2e4cbf74ad7f0773190907714de178e22b8b4a1327ca608f21",
+            "audit": "outputs/use_v2/audit/release_audit_v3.json",
+            "audit_sha256": "d156818e8be51390dd59fd59e684b0904cf0e1ee45b4f712e230a2f7a4e1266c",
+            "verified_start_state": {
+              "mean": "6eb41c19…",
+              "attention": "8420a60a…"
+            },
+            "limitation": "tests/test_use_v2_tail.py 未被v3绑定；两段日程不等于单次30k预算"
+          }
+        }
+      },
+      "runtime_incidents": [
+        {
+          "at": "2026-10-25T14:05:39-04:00",
+          "job": "probe_attention_u20000_fine",
+          "lane": "cuda:0",
+          "updates": 83,
+          "error": "RuntimeError('Frozen USE parameter/buffer SHA256 changed')",
+          "evidence": "outputs/use_v2/runs/aborted/probe_attention_u20000_fine_attempt1",
+          "reproduction": "not reproduced: 120 updates in a fresh process and the successful 1000-update retry were clean; no GPU/driver event logged",
+          "status": "retried and completed",
+          "interpretation": "unresolved; the frozen guard aborted correctly and no checkpoint was written"
+        },
+        {
+          "at": "2026-10-25T14:05:xx-04:00",
+          "job": "probe_mean_reference_fine",
+          "lane": "cuda:1",
+          "updates": 0,
+          "error": "launch gate refused: GPU 1 already hosts a running USE v2 job: outputs/use_v2/runs/aborted/pretrain_mean_v1_u6985",
+          "cause": "archived aborted run kept status RUNNING; its PID had been reused by another process",
+          "fix": "archived process.json status corrected to ABORTED (original value preserved); underlying PID-reuse fragility of the gate remains",
+          "status": "retried and completed"
+        }
+      ],
+      "final_acceptance": {
+        "evidence": "outputs/use_v2/audit/final_acceptance_v1.json",
+        "complete_runs": 42,
+        "budget": {
+          "planned": 146000,
+          "executed": 146000,
+          "aborted": 7068,
+          "total_consumed": 153068
+        },
+        "downstream": "all 12 event-mean IoU 0.0000-0.0049; light head does not fire",
+        "best_run": "downstream_tail_attention_context_fine 0.0049",
+        "failure": []
+      },
+      "closeout_review": {
+        "evidence": "outputs/use_v2/closeout_review/acceptance.json",
+        "runs": 42,
+        "checkpoint_hashes_recomputed": 268,
+        "formal_updates": 146000,
+        "artifact_checks_passed": true,
+        "scope": "产物与记录独立核对，未重新全量推理或训练；研究完整成功未证明"
       }
     }
   ],
