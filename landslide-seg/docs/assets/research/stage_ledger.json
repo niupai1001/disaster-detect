@@ -1,6 +1,6 @@
 {
   "as_of": "2026-10-26",
-  "current_stage": "use-v2",
+  "current_stage": "use-v3",
   "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
   "stages": [
     {
@@ -3779,7 +3779,7 @@
       "data_split_display": "我们的数据划分（留事件验证）",
       "goal": "上一阶段12个冻结下游结果全在0.0000–0.0049，主因未定。本轮固定同一USE v2权重，把任务头换成可训练的完整网络，检验“轻量头容量（4257／5313参数）”是否为主要限制之一，并给出两组完整系统的逐事件指标。",
       "delta": "两组读同一份冻结USE v2输出：四层Context各按既有canonical32规则压到32通道、上采样回原图尺寸、四层平均，再与原网格Fine特征相加，该加和无可训练参数、不使用未经USE的原始影像旁路。下游分别为完整四级U-Net（全部随机初始化、GroupNorm）与SegFormer B0（32通道新首层随机、MiT与解码器沿用本地通用预训练、保留原网格细节分支）。统一条件：seed1234、单期十波段、stats_core25、既有质量掩膜、每组5000更新（合计10000）、FP32、有效batch8（微批量2×累积4）、AdamW 6e-4／wd 0.01／裁剪1.0、前250步预热后余弦、每500步按两事件等权IoU选模、USE全程eval且不在优化器内。",
-      "result": "两组各5000次正式更新完成（合计10000，无中止、无异常），同一USE在全部更新内哈希不变且两组相同（e3af4763…）；DEV 669块、阈值0.5：U-Net最佳事件等权IoU 0.1344（第2500步；像素IoU 0.1190、Dice 0.2127、P 0.1807、R 0.2585、AP 0.1360、边界F1 0.2036、小/中/大对象召回0.137/0.353/0.404），末态0.1275；SegFormer B0最佳0.1250（第3000步；像素IoU 0.1087、Dice 0.1960、P 0.1771、R 0.2196、AP 0.1202、边界F1 0.1745、对象召回0.100/0.278/0.343），末态0.1227。逐事件best：U-Net 广岛0.1014/特里苏尔0.1674，SegFormer 0.0915/0.1586。同一USE的既有5313参数轻量头参照0.0049，本轮提高约26–27倍，说明任务头容量是先前近零结果的重要限制之一；但仍低于历史十波段端到端SegFormer B0的0.2985约0.164–0.174。两组损失曲线几乎重合、彼此IoU差0.0094（best）/0.0048（last），U-Net在小对象召回、AP与边界F1上略高，SegFormer显存更低但每步慢46%。成本：U-Net 1797秒/765 MiB（cuda:1），SegFormer 2629秒/417 MiB（cuda:0）。六个固定案例图另加一列USE编码（两组共用融合32通道的前三个主成分，六案例统一PCA基；两组的该列逐像素相同，已用数组相等核验）。",
+      "result": "两组各5000次正式更新完成（合计10000，无中止、无异常），同一USE在全部更新内哈希不变且两组相同（e3af4763…）；DEV 669块、阈值0.5：U-Net最佳事件等权IoU 0.1344（第2500步；像素IoU 0.1190、Dice 0.2127、P 0.1807、R 0.2585、AP 0.1360、边界F1 0.2036、小/中/大对象召回0.137/0.353/0.404），末态0.1275；SegFormer B0最佳0.1250（第3000步；像素IoU 0.1087、Dice 0.1960、P 0.1771、R 0.2196、AP 0.1202、边界F1 0.1745、对象召回0.100/0.278/0.343），末态0.1227。逐事件best：U-Net 广岛0.1014/特里苏尔0.1674，SegFormer 0.0915/0.1586。同一USE的既有5313参数轻量头参照0.0049，本轮提高约26–27倍，说明任务头容量是先前近零结果的重要限制之一；但仍低于历史十波段端到端SegFormer B0的0.2985约0.164–0.174。两组损失曲线几乎重合、彼此IoU差0.0094（best）/0.0048（last），U-Net在小对象召回、AP与边界F1上略高，SegFormer显存更低但每步慢46%。成本：U-Net 1797秒/765 MiB（cuda:1），SegFormer 2629秒/417 MiB（cuda:0）。六个固定案例图另加一列USE编码（两组共用融合32通道的前三个主成分，六案例统一PCA基；两组的该列逐像素相同，已用数组相等核验）。另出Fine/Context面板图：Fine保持32×128×128原网格分辨，Context四层为32×32/16×16/8×8/4×4（输入的1/4–1/32）压32后上采样平均，两者PCA面板逐像素跨组相同。",
       "status": "两组正式训练、best/last评价与六固定案例已完成并验收；单seed、完整系统比较，未解冻USE",
       "next": "本轮结束，不追加种子、预算、解冻USE或其它模型。若继续，只能另立授权：同初始化只换架构、冻结特征vs端到端消融、尺寸分层或后处理对照，三项都不能由本轮结果直接推出。",
       "evidence": [
@@ -3796,7 +3796,156 @@
         "configs/use_v2_full_decoders/execution.yaml",
         "outputs/use_v2_full_decoders/runs/unet/cases/segmentation_cases_use.png",
         "outputs/use_v2_full_decoders/runs/segformer/cases/segmentation_cases_use.png",
-        "scripts/render_use_cases.py"
+        "scripts/render_use_cases.py",
+        "outputs/use_v2_full_decoders/runs/unet/cases/segmentation_cases_fine.png",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/segmentation_cases_fine.png",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/provenance_fine.json"
+      ]
+    },
+    {
+      "id": "use-v3",
+      "name": "USE v3：空间交互、无标签恢复与成本验证",
+      "previous": "use-v2-full-decoders",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "在现有冻结v2参照下验证完整v3表示、迁移和成本；只训练v3编码器。",
+      "delta": "原生通道学习投影、移位/全局空间传播、Fine与Context双向交互和五项无标签目标；统一原生特征探针和现有完整分割消费者。",
+      "result": "17项62000成功更新完成，训练中无中止或恢复；另2次CLI启动失败均0更新。统一无标签探针选中20k（总分0.9210，10k0.9236/30k0.9223；既有v2为1.0484），Fine像素恢复改善而Context光谱恢复变差。分割best/last：原生金字塔＋U-Net0.1263/0.1263，原生金字塔＋SegFormer0.1285/0.1125；双向空间交互＋U-Net0.1305/0.1305，双向空间交互＋SegFormer0.1258/0.1238。两USE的参数和buffer冻结、同类初始化及预算选模核对通过；没有一致的分割迁移改善，当前十波段端到端参照0.3081不变。",
+      "status": "17项正式训练与结果核对完成；完整成本门禁按用户要求跳过",
+      "next": "本轮已结束，不追加预算、种子、消融、官方划分或下载。保留重建与滑坡迁移不一致的问题作为后续研究线索；新实验须另行授权。",
+      "reader_status": "已完成：62000正式更新及结果报告；无明确分割迁移收益",
+      "evidence_level": "严格重载与哈希、逐更新曲线、同一669块开发验证、固定案例和联合表征诊断；单seed，成本门禁用户跳过",
+      "evidence": [
+        "docs/USE_V3_EXECUTION_HANDOFF.md",
+        "outputs/use_v3/engineering/READY_FOR_AUDIT.json",
+        "outputs/use_v3/audit/independent_audit_v2.json",
+        "outputs/use_v3/audit/recovery_repro/evidence.json",
+        "outputs/use_v3/audit/independent_audit_v3.json",
+        "outputs/use_v3/audit/cost_gate_failure_v3.json",
+        "docs/assets/research/use_v3/frozen_cost_gate.png",
+        "outputs/use_v3/audit/independent_audit_v4.json",
+        "outputs/use_v3/audit/user_training_override.json",
+        "outputs/use_v3/audit/training_artifact_audit_v4.json",
+        "outputs/use_v3/audit/comparison.json",
+        "outputs/use_v3/audit/result_metrics_and_cases.json",
+        "outputs/use_v3/audit/representation_diagnostics_v4.json",
+        "outputs/use_v3/audit/cost_ledger.json",
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/use_v3/audit/final_acceptance.json"
+      ],
+      "execution_plan": {
+        "basis": "用户原授权为独立验收、62000正式成功更新及报告；后续明确要求“开始后台训练 不做测试了”。v5仅修正CLI路径，B停止剩余测试/成本并直接启动双卡后台；未完成成本不记通过。",
+        "contract": "无标签TRAIN11132、PRETRAIN_VAL599、隔离239；每次更新6份S2＋2份Landsat；下游TRAIN2223、广岛448＋特里苏尔221开发验证，seed1234，stats_core25。无官方/四折或保留集评价。",
+        "inputs": "现有单期反射率、质量掩膜、已知/未知物理元数据；不换日期、不增地形、不增去云数据。v2固定pretrain_attention_tail/best_unlabeled.pt并核验SHA256。v3输出main、fine、可选原生pyramid及支持/尺度元数据。",
+        "budget": "正式62000＝v3预训练30000＋12项冻结探针×1000＋4项分割×5000；工程仅v3试训500步单列。FP32，微批2×累积4，AdamW LR6e-4/WD0.01/clip1；预热分别1500/50/250步后余弦。无v2预训练，无5k探针；历史两段v2与连续v3不是同日程对照。",
+        "initialization": "v3全新seed1234；试训不续入正式。随机USE参照只初始化并冻结。探针/同类消费者seed1235且张量一致；U-Net随机，SegFormer沿用既有本地通用预训练规则。标签不更新USE。",
+        "steps": [
+          {
+            "order": "1",
+            "model": "A：工程实现和最小测试",
+            "change": "实现完整v3、统一探针、现有分割网络接入、成本入口；v3试训500步并冻结release",
+            "question": "实现、掩膜、恢复、冻结是否正确",
+            "status": "已完成engineering_v5：沿用500步工程记录，恢复/哈希打包/CLI路径问题修复；v5按用户要求未追加测试"
+          },
+          {
+            "order": "2",
+            "model": "B：独立验收与同卡成本",
+            "change": "核验A交付及资源门禁；绑定release哈希放行",
+            "question": "相同条件下v3延迟是否不超过v2两倍、训练显存是否可容纳",
+            "status": "v4独立24测试已通过；剩余完整成本与测试按用户要求跳过，不记通过"
+          },
+          {
+            "order": "3",
+            "model": "B：双卡正式队列",
+            "change": "GPU0先v2探针和分割，GPU1训练v3；随后分摊v3探针并各跑一个v3分割网络",
+            "question": "统一探针、空间恢复及分割迁移是否改善，成本多少",
+            "status": "已完成17项62000成功更新；12探针/4分割/v3预训练；无v2编码器预训练、无5k探针、无DDP"
+          },
+          {
+            "order": "4",
+            "model": "B：结果验收与固定文档",
+            "change": "核对预算、选模、哈希、曲线及三张合并表，更新台账生成区和固定正文",
+            "question": "证据能支持什么、失败和限制是什么",
+            "status": "已完成权重、预算、选模、三表、训练曲线、固定案例、联合诊断与固定文档；链接/索引/配置哈希核对通过"
+          }
+        ],
+        "acceptance": [
+          "关键掩膜/置换/奇数尺寸/跨窗口及双向路径测试通过，微批和恢复等价，冻结参数与buffer哈希一致。",
+          "预检实际配置和全部覆盖；独立验收与release哈希一致。",
+          "同卡测速30次预热、100次重复、3轮；可比条件延迟超过2倍或显存失败先等价优化，不自行改架构或预算。"
+        ],
+        "decisions": [
+          "v2权重事先固定；v3仅10k/20k/30k按统一无标签探针分数选模；初始化诊断、5k只存档。",
+          "分割只用两事件等权IoU选择消费者，不反选USE。",
+          "未通过门禁不训练；无收益完整报告，不自动追加实验。",
+          "用户后续要求停止剩余测试/测速并直接后台训练；按明确覆盖执行，未测成本不记通过，也不据部分结果宣称完整资源门禁通过。"
+        ],
+        "handoff": "A已交付engineering_v5；B负责正在运行的双卡队列、最终权重/选模/预算/成本核对及固定报告。代码问题仍交A，不恢复已停止的测试/测速。",
+        "deliverables": "三张合并表、架构图、曲线、固定案例、配置/命令/哈希/逐步日志/恢复记录及GPU成本账本；固定台账、MODEL_EVOLUTION和RESEARCH_INDEX同步，单seed和日程差异明确。",
+        "handoff_sections": [
+          {
+            "title": "范围与预算",
+            "body": "本文件是用户要求的可分发快照，计划唯一来源为[阶段台账](assets/research/stage_ledger.json)中use-v3条目；修改先更新台账，再同步本快照。当前仅完成计划归档，v3配置、实现及训练命令均待A交付，不拿旧配置替代。历史附件中的“重训v2”和5k探针安排已被用户后续要求取消。\n\n只分两个Agent：A负责代码与最小测试，B负责独立验收、双卡训练、分析和固定文档回写。所有代码工作使用[ponytail skill](C:/Users/yzh/.codex/skills/ponytail/SKILL.md)。\n\n| 项目 | 内容 | 成功更新数 |\n|---|---|---:|\n| 工程试训 | 仅v3训练500步，正式重新初始化 | 500，单列工程消耗 |\n| 编码器预训练 | 仅v3连续训练30000步 | 30000 |\n| v2冻结探针 | 随机初始化、现有冻结权重，各做Fine与Context，每项1000步 | 4000 |\n| v3冻结探针 | 初始化、10k、20k、30k，各做Fine与Context，每项1000步 | 8000 |\n| 完整分割网络 | v2、v3分别接U-Net、SegFormer，各5000步 | 20000 |\n| **正式预算** | **1个编码器训练、12个探针、4个分割训练** | **62000** |\n\nv2编码器不再训练。随机初始化参照只生成并冻结USE，训练的是探针。5k检查点可保留追溯，但不做探针、不参与选模。工程、校准、测试、失败和中止消耗单列，不从账本删除。既有v2分割结果使用旧均值压缩入口，不能替代本轮新适配器条件下的两项分割训练。\n\nv2固定来源：[现有无标签选模权重](../outputs/use_v2/runs/pretrain_attention_tail/best_unlabeled.pt)。执行前核验来源、完整性和SHA256，不根据本轮成绩更换。v2是历史20k＋10k两段训练，v3是连续30k，因此不能宣称严格同日程对照、相同计算量或将收益全部归因于架构。"
+          },
+          {
+            "title": "数据与工程技术契约",
+            "body": "无标签数据沿用11132个TRAIN训练样本、599个PRETRAIN_VAL无标签验证样本、239个隔离位置；每次更新6份S2＋2份Landsat。核验成员、地理隔离、质量掩膜和统计来源。分割沿用“我们的数据划分（留事件验证）”：九事件2223块训练，广岛448＋特里苏尔221块开发验证，十波段使用559块训练核心拟合的stats_core25。观测为现有单期反射率和质量掩膜，不增加地形、不更换日期、不追加去云数据；不做四折、官方划分、意大利或新西兰评价。下载保持暂停。\n\n模型：\n- 保留光谱前端、物理元数据及质量掩膜，支持1—16波段，不增加可学习波段身份查表。\n- 空间宽度[32,64,128,256]、深度[2,2,4,2]；窗口4、移位2、相对位置偏置；1/16阶段最后一层用全局注意力，其余交替普通和移位窗口。\n- Fine经有效像元加权2倍下采样、1×1学习投影及门控残差注入初始Context；原生四尺度学习投影并自顶向下融合生成1/4尺度main；main上采样反馈Fine，再做深度可分离3×3局部残差更新。门控初值0.01。\n- 输出main、fine及对应valid、stride、可用空间元数据；return_pyramid=True返回原生四尺度。处理奇数尺寸和有效补边。\n- v3及统一探针禁止旧canonical_context固定通道均值压缩。学习投影仍是降维，不称无损。\n- 保留旧v2代码、权重加载语义和历史产物，新增入口，不改旧release绑定的代码。\n\n无标签目标：\n- 每批三个视图：光谱遮挡、25%像素遮挡、16→32→64空间块循环，不额外增加三组视图。光谱目标仅使用可识别波段，summary只读取可见值。\n- 空间恢复为原尺度及2倍、4倍有效掩膜池化误差，各尺度等权。梯度项仅使用两端原始有效、至少一端被人工遮挡的水平/垂直邻接对。\n- 一致性复用光谱与像素视图，在共同有效Context位置计算通道归一化后的对称距离；不约束Fine，不引入EMA、JEPA或教师。\n- 归一化后光谱、像素、空间、梯度、一致性权重为1:1:1:0.1:0.1，总和归一化。每传感器固定32个TRAIN样本、seed1234校准；恢复/梯度项使用简单恢复基线误差，一致性用初始模型距离均值归一化。分母退化报错。记录原始、归一化、加权值、有效目标数及梯度贡献，500步验证稳定性，不根据分割DEV调整。\n\n训练：\n- FP32、有效batch8＝微批2×累积4、seed1234；AdamW、峰值LR6e-4、weight decay0.01、梯度裁剪1.0。v3预热1500步后余弦至30000步，保存初始化、5k/10k/20k/30k及last，统一评价后发布best_unlabeled。\n- 探针1000步、预热50；分割5000步、预热250，沿用相同优化器参数和余弦日程。头初始化seed1235；同类头在v2/v3间初始张量一致，公共模块按对应张量核对，不只比较seed。\n- 工程试训不续入正式训练，断点恢复须恢复优化器、步数和随机状态；固定配置身份不匹配则拒绝恢复。"
+          },
+          {
+            "title": "冻结探针、选模与分割",
+            "body": "Fine探针只读32通道Fine训练像素恢复。Context探针读取原生四尺度，经相同32/64/128/256→32可训练投影和恢复头，训练光谱及轮换空间块恢复。同类探针在v2/v3间容量、初始化、数据和目标一致；不要求Fine与Context两种探针容量相同。只用无标签TRAIN训练1000步，评价末态，不按验证分数提前停止。\n\nv2来源事先固定，探针不重新选择v2。v3仅在10k、20k、30k中选择；初始化只作诊断。主评分采用固定PRETRAIN_VAL、相同遮挡、元数据已知条件：归一化光谱恢复、像素恢复、空间恢复三类等权，空间16/32/64等权，两传感器等权；最低分入选，同分取较早检查点。缺失元数据分层诊断，可识别比例与未测原因单列。原训练头损失单独报告，不与统一探针分数混排。\n\n两个编码器使用同一下游适配器：原生四尺度分别学习投影到32通道，上采样平均后与Fine相加，输入现有U-Net或SegFormer。适配器属于下游可训练部分，参数量单列；USE的全部参数和buffer冻结，训练模式下仍eval，优化器不得包含USE参数。\n\nU-Net全随机；SegFormer沿用现有32通道新首层和本地通用预训练加载规则，同一网络在两种USE条件下初始化一致。沿用现有增强、0.5 BCE＋0.5 Dice、0.5预测阈值。每500步按两个开发验证事件等权IoU选分割网络；报告best和last。不得用分割成绩选择USE、结构或损失。"
+          },
+          {
+            "title": "两Agent认领与交接",
+            "body": "项目根目录：N:/Users/yzh/Disater/landslide-seg。开工先读RESEARCH_INDEX最小接力、AGENTS.md和research_policy.json，运行认领查询。以下是登记器要求的项目相对路径；使用真实聊天ID。\n\nA任务ID：use-v3-engineering。逐个登记新增文件：\n- src/landslide_seg/models/use_v3.py；必要时另认领src/landslide_seg/models/use_v3_reconstruction.py。\n- scripts/pretrain_use_v3.py、scripts/run_use_v3.py、scripts/evaluate_use_v3.py、scripts/benchmark_use_encoder.py。\n- tests/test_use_v3.py、tests/test_use_v3_masks.py、tests/test_use_v3_benchmark.py。\n- configs/use_v3、outputs/use_v3/engineering、outputs/use_v3/releases。\n\nB任务ID：use-v3-training。认领：\n- outputs/use_v3/runs、outputs/use_v3/runtime、outputs/use_v3/audit、outputs/use_v3/benchmarks。\n- docs/assets/research/stage_ledger.json、docs/assets/research/use_v3、docs/MODEL_EVOLUTION.md、docs/RESEARCH_INDEX.md、docs/USE_V3_EXECUTION_HANDOFF.md（只在计划确需同步时更新快照）。\n\n登记模板（多个范围重复--scope；尖括号须替换，不能直接执行）：\n```text\npython -X utf8 scripts/manage_agent_work.py list\npython -X utf8 scripts/manage_agent_work.py claim <任务ID> --owner <真实聊天ID> --title <职责> --scope <精确路径>\n```\n\nA只改代码、配置和工程产物；B只运行、核验和回写。B发现实现问题交回A，不自行修改训练代码。一个文件只有一个活动写入者，不认领整个src/scripts/tests或outputs/use_v3，不接管、关闭旧v2登记。若任务已完成，不重复claim，修复使用新任务ID。先保存证据，再finish；受阻block并说明恢复条件。\n\nA交付READY_FOR_AUDIT：真实运行命令、全部覆盖、来源/成员/统计/观测/初始化/预算/选模说明、500步试训证据及不可变release。release绑定实际源码（含未提交内容）、环境、配置、数据、初始化和v2来源哈希。不能只以Git HEAD表示发布身份。\n\nB独立复核关键测试和同卡成本，发布与release哈希绑定的READY_FOR_TRAINING后执行正式队列。受保护文件改变则旧门禁失效，重新核验。不要依据标记文件名或A的口头声明直接放行。"
+          },
+          {
+            "title": "双卡执行与资源门禁",
+            "body": "| 阶段 | 物理GPU 0 | 物理GPU 1 |\n|---|---|---|\n| 工程 | v2只读与必要接口测试 | v3的500步试训 |\n| 独立成本验收 | 暂停本轮计算 | v2/v3同卡串行测速 |\n| 正式第一阶段 | v2四个探针，然后v2＋U-Net、v2＋SegFormer | v3预训练30000步 |\n| 正式第二阶段 | v3初始化、10k的四个探针 | v3的20k、30k四个探针 |\n| 选定v3之后 | v3＋U-Net | v3＋SegFormer |\n\n两卡由B统一管理。每卡一个计算进程，无DDP，不翻倍batch。提前获得的v2分割结果不得改变v3配置。设备故障迁移须登记UUID变化并复核恢复状态，不增加实验。\n\n启动前核查GPU UUID、CUDA_VISIBLE_DEVICES映射、实际计算进程、显存和真实前后向，使用现有每卡锁；显示占用不作为拒绝理由，不终止他人进程。4096MiB旧门槛只作基础检查，还须满足本任务实测峰值和余量。\n\n测速：C=3/6/10/16、尺寸128/256、batch1/8、FP32及支持的BF16；同卡同输入同精度，30次预热、100次测量、3轮独立运行。报告中位数、p90、吞吐、峰值显存、参数、输出字节及算子Top10。分别记录纯编码器、冻结哈希校验封装、真实消费者、IO，以及前向、反向、优化器、完整三视图训练步。理论MAC/FLOPs注明覆盖（含注意力）和排除项，不把单次前向当完整更新。直接十波段SegFormer只在十波段条件比较。训练成本测试使用可丢弃副本，正式权重不更新。\n\nv3在可比较条件下延迟超过v2两倍、出现v2没有的OOM，或既定训练微批放不下，阻断正式训练，交回A做数学等价优化并复测。仍不满足则报告资源风险，不自行缩模型、换训练精度或扩大预算。双双OOM的条件记未获得结果，不伪造通过。历史跨GPU耗时不作速度倍数结论。"
+          },
+          {
+            "title": "验收与固定文档回写",
+            "body": "必要验收：C=1/3/6/10/16；波段与元数据/掩膜联合置换等价、删除与掩膜去除等价；元数据已知/部分/全未知；无效NaN替换不污染有效输出，全无效样本拒绝；奇数尺寸和移位补边；脉冲/梯度验证跨窗口传播及Fine→Context→Fine；原生投影保留旧均值抵消方向的可学习响应；质量/人工遮挡/输出支持分离；summary不泄漏；微批梯度一致；同seed初始化、保存恢复和连续训练等价；冻结USE参数与buffer哈希不变、优化器排除USE。实际配置及每个覆盖均通过check_research_protocol预检，但预检不代替运行验收。\n\nB交付三张合并表：无标签与探针、四项分割best/last、成本。指标包括事件等权IoU、像素IoU、Dice、AP、Precision/Recall及边界和对象尺度指标。附架构图、训练曲线和沿用现有样本ID的固定案例：原图、USE特征、真值、概率、二值预测。独立PCA颜色不作跨模型语义比较。\n\n表征方差、有效秩、空间相关和子集检索共同诊断退化，单一统计不决定质量；单seed不宣称显著性，无标签验证和分割开发验证不是盲测。无收益也完整交付，不自动追加消融、种子或预算。\n\n阶段事实和计划先回写stage_ledger，再刷新生成区：\n```text\npython -X utf8 scripts/query_research.py --refresh-stages\n```\n模型解释和结果链接放MODEL_EVOLUTION，短接力放RESEARCH_INDEX，图放docs/assets/research/use_v3。新增run索引时才刷新inventory。核验四份固定文档的本地链接和生成幂等性，不另建日期报告。"
+          },
+          {
+            "title": "可直接分发的提示词",
+            "body": "### 给A：工程Agent\n\n请读取附件USE_V3_EXECUTION_HANDOFF.md，以其中“V2不再训练、取消5k探针、两个Agent、正式62000步”为当前契约。所有代码工作使用ponytail skill。先查认领，再以真实聊天ID认领use-v3-engineering的精确范围。实现v3、统一探针、现有U-Net/SegFormer接入和成本测速，完成必要测试及v3的500步工程试训，冻结实际源码、配置、环境、数据和初始化，交付完整命令、证据与READY_FOR_AUDIT。不要启动正式实验，不修改历史v2产物。B反馈的代码问题由你修复，修复后重发release并要求重新核验。\n\n### 给B：训练Agent\n\n请读取附件USE_V3_EXECUTION_HANDOFF.md，先查认领，再以真实聊天ID认领use-v3-training的运行和文档范围。你负责独立验收、双卡队列和结果回写。先核验A的release、关键测试和同卡成本门禁；缺交付则记录受阻，不自行补写模型。通过后执行62000次正式成功更新：v3预训练30000、12项冻结探针各1000、4项分割各5000。禁止训练v2编码器或运行5k检查点探针。两卡一卡一进程、不用DDP；不改代码、超参、数据及选模规则，故障交回A。最终核验冻结哈希、选模、恢复和预算，报告成功/中止/失败成本，更新唯一阶段台账、固定模型文档与入口；单seed与v2/v3训练日程差异须明确说明。"
+          }
+        ]
+      },
+      "comparisons": [
+        {
+          "name": "空间交互预训练是否改善统一恢复探针",
+          "comparison": "既有冻结原生金字塔编码器与双向空间交互编码器；同类Fine/Context头容量、初始化、成员及目标相同，编码器历史目标和训练日程不同。",
+          "evaluation_context": "固定无标签验证599份；两传感器、三类恢复等权；v3仅10k/20k/30k选模，初始化诊断。",
+          "observation": "v2总分1.0484；v3选中20k总分0.9210。Fine2.1166→1.7117，Context光谱0.7163→0.7593，空间0.3123→0.2921。",
+          "possible_answer": "像素恢复优势没有覆盖全部目标；不能把降低的总分直接解释成滑坡分割语义改善，单seed、预训练目标与日程差异限制归因。",
+          "evidence": [
+            "outputs/use_v3/audit/comparison.json",
+            "outputs/use_v3/audit/selection_v3.json"
+          ]
+        },
+        {
+          "name": "恢复优势是否转成完整网络的滑坡迁移收益",
+          "comparison": "同一下游学习适配器分别接U-Net和SegFormer B0；冻结原生金字塔或双向空间交互编码器，同类消费者初始张量一致。当前十波段端到端SegFormer B0＋细节参照仍为0.3081。",
+          "evaluation_context": "我们的数据划分（留事件验证）：同一广岛448＋特里苏尔221开发验证，阈值0.5；每500步事件等权IoU选best，同时报告5000末态。",
+          "observation": "v2→v3：U-Net best0.1263→0.1305，SegFormer best0.1285→0.1258；末态依次0.1263/0.1305与0.1125/0.1238。小于50像素对象召回仅约0.088–0.134。",
+          "possible_answer": "两种消费者方向不一致，未形成明确迁移改善，不替换当前参照；原生投影与旧均值压缩、初始化和日程不同，不能混成单因素结论。",
+          "evidence": [
+            "outputs/use_v3/audit/result_metrics_and_cases.json",
+            "outputs/use_v3/audit/training_artifact_audit_v4.json"
+          ]
+        },
+        {
+          "name": "表征统计能否单独证明质量提升",
+          "comparison": "两种编码器的初始化和选定权重；固定每传感器32份无标签验证样本的Fine和原生Context统计、前缀波段子集检索。",
+          "evaluation_context": "无标签PRETRAIN_VAL小子集；方差、奇异值熵有效秩、相邻相关、32候选检索共同诊断，不用于选模。",
+          "observation": "选中v3的Fine方差较大、3波段检索较高；S2有效秩5.85低于v2的7.63，相邻相关约0.9995。",
+          "possible_answer": "统计给出不同侧面，不足以用单一指标宣称退化解除或迁移改善；图像相似性、光谱均值及特征尺度均会影响结果。",
+          "evidence": [
+            "outputs/use_v3/audit/representation_diagnostics_v4.json",
+            "docs/assets/research/use_v3/representation_diagnostics.png"
+          ]
+        }
       ]
     }
   ],

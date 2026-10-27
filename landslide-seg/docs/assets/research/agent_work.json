@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T10:33:28.388118+00:00",
+  "updated_at": "2026-10-27T03:03:49.184577+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -1505,6 +1505,210 @@
         "outputs/use_v2_full_decoders/runs/segformer/cases/provenance_use.json"
       ],
       "note": "为两组六个固定案例图增加第2列「USE编码」：融合32通道输入的三个主成分（六案例统一PCA基、2–98百分位拉伸、仅用于可视化），五列依次为RGB、USE编码、真值、概率、0.5掩膜。两组的该列逐像素数组相等，作为「同一冻结USE＋同一无参融合」的直接证据；未按预测效果重挑案例。新增只读脚本 scripts/render_use_cases.py（复用冻结入口的 build/fused 与固定案例清单，不改冻结源码、不重训），每案例另存 encoding 与 encoding_rgb 的npz与provenance_use.json；原四列图保留。模型文档/数据文档/研究入口/台账已回写并刷新生成区（幂等），冻结release仍verify通过。"
+    },
+    {
+      "id": "use-v2-full-decoders-fine-cases",
+      "title": "固定案例图增加USE的Fine与Context编码面板",
+      "owner": "session-20ec9558-5e84-42de-9818-a59bd5a751d2",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v2_full_decoders",
+        "scripts/render_use_cases.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T12:15:08.903493+00:00",
+      "updated_at": "2026-10-26T12:16:52.804637+00:00",
+      "evidence": [
+        "outputs/use_v2_full_decoders/runs/unet/cases/segmentation_cases_fine.png",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/segmentation_cases_fine.png",
+        "outputs/use_v2_full_decoders/runs/segformer/cases/provenance_fine.json",
+        "scripts/render_use_cases.py"
+      ],
+      "note": "为六个固定案例增加「USE细节头Fine」与「USE上下文Context」面板图（segmentation_cases_fine.png，六列：RGB/Fine/Context/真值/概率/0.5掩膜），并保留原五列融合编码图。实测形状：Fine 32×128×128（原网格），Context四层32×32/16×16/8×8/4×4＝输入的1/4–1/32，压32通道后上采样平均。两列各自独立PCA基（六案例统一、2–98百分位），列内可比列间不可比。两组的Fine与Context数组逐像素相同（已核验），预测差异只能来自任务网络。每案例另存 xx_encodings.npz(fine/context/fused)与provenance_fine.json；脚本仍为只读、复用冻结入口的build/use，未改冻结源码、未重训，release仍verify通过。模型文档/数据文档/入口/台账已回写并刷新（幂等）。"
+    },
+    {
+      "id": "use-v2-cloud-headroom",
+      "title": "现有数据的去云余量只读诊断",
+      "owner": "session-20ec9558-5e84-42de-9818-a59bd5a751d2",
+      "scopes": [
+        "outputs/use_v2_full_decoders"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T12:54:07.463126+00:00",
+      "updated_at": "2026-10-26T12:54:07.551262+00:00",
+      "evidence": [
+        "outputs/use_v2_full_decoders/cloud_headroom_v1.json"
+      ],
+      "note": "只读诊断（300块，seed1234）：现用日期云量均值5.95%、p90 21.6%，而同一15期堆栈内灾后全晴日期云量均值仅0.30%；95.3%的块至少有一个≤1%云量的灾后日期，74.3%有≥3个；改取最早晴空日期对62.6%的块不改变日期，17.8%的块推迟>30天（p90 72天）。4.7%的块灾后无全晴日期，最好云量0.02–0.17。未改数据、未训练、未下载。"
+    },
+    {
+      "id": "use-v3-plan-handoff",
+      "title": "USE v3两Agent双卡计划文件与提示词",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "docs/use_v3_execution_handoff.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T14:30:21.603878+00:00",
+      "updated_at": "2026-10-26T14:34:20.760874+00:00",
+      "evidence": [
+        "docs/USE_V3_EXECUTION_HANDOFF.md",
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "完成两Agent双卡分发快照与提示词；台账作为唯一计划源，v2不训练、取消5k探针，预算62000；已核对快照与源内容一致及预算。未实现模型、未启动训练。"
+    },
+    {
+      "id": "use-v3-engineering",
+      "title": "USE v3工程实现与500步验证",
+      "owner": "01a178a3-1637-7dc2-b9ed-de7c5e61ee72",
+      "scopes": [
+        "configs/use_v3",
+        "outputs/use_v3/engineering",
+        "outputs/use_v3/releases",
+        "scripts/benchmark_use_encoder.py",
+        "scripts/evaluate_use_v3.py",
+        "scripts/pretrain_use_v3.py",
+        "scripts/run_use_v3.py",
+        "src/landslide_seg/models/use_v3.py",
+        "src/landslide_seg/models/use_v3_reconstruction.py",
+        "tests/test_use_v3.py",
+        "tests/test_use_v3_benchmark.py",
+        "tests/test_use_v3_masks.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T14:38:02.842881+00:00",
+      "updated_at": "2026-10-26T15:02:51.807721+00:00",
+      "evidence": [
+        "outputs/use_v3/engineering/READY_FOR_AUDIT.json",
+        "outputs/use_v3/engineering/HANDOFF.md",
+        "outputs/use_v3/releases/engineering_v2/manifest.json"
+      ],
+      "note": "USE v3与统一探针、原生投影分割消费者、评价选模及成本入口已交付；20测试、全缓存审计、500步真实工程更新通过，另2次可丢弃测速更新单列，正式0。release工程v2 manifest 990aeee20c88ca5cf94c79021c914f386f198f8661518f05c6423b3a706b1937，verify通过。未执行完整B成本矩阵或正式队列。梯度贡献为初始/500末态重放诊断，非每步分解；试训配置继承model.type旧元数据已原样保留，正式配置仅纠正该字段，实际试训模型为USEv3且模型/目标源码哈希匹配。v2源代码和选中权重摘要与初始快照同哈希；B发现问题由A另认领修复重发release。"
+    },
+    {
+      "id": "use-v3-training",
+      "title": "USE v3独立验收双卡训练与固定文档回写",
+      "owner": "01a178d4-2172-7aa3-affb-c490f4b987db",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_v3",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "docs/use_v3_execution_handoff.md",
+        "outputs/use_v3/audit",
+        "outputs/use_v3/benchmarks",
+        "outputs/use_v3/runs",
+        "outputs/use_v3/runtime"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T16:17:18.926243+00:00",
+      "updated_at": "2026-10-27T03:03:49.184577+00:00",
+      "evidence": [
+        "outputs/use_v3/audit/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/use_v3/audit/training_artifact_audit_v4.json"
+      ],
+      "note": "已完成正式双卡队列、权重/初始化/预算/选模核对、固定案例/曲线/联合诊断和固定文档回写。剩余完整成本按用户明确要求跳过，不记通过；启动失败及工程消耗单列。未追加训练预算、种子或官方实验，当前参照不变。"
+    },
+    {
+      "id": "use-v3-recovery-fix",
+      "title": "修复USE v3里程碑断点恢复并重发release",
+      "owner": "01a178a3-1637-7dc2-b9ed-de7c5e61ee72",
+      "scopes": [
+        "outputs/use_v3/engineering",
+        "outputs/use_v3/releases",
+        "scripts/run_use_v3.py",
+        "tests/test_use_v3.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T15:37:02.187661+00:00",
+      "updated_at": "2026-10-26T15:41:09.487839+00:00",
+      "evidence": [
+        "outputs/use_v3/engineering/READY_FOR_AUDIT_v3.json",
+        "outputs/use_v3/engineering/recovery_fix_acceptance.json",
+        "outputs/use_v3/releases/engineering_v3/manifest.json"
+      ],
+      "note": "修复B反馈的last先于里程碑保存故障：先提交里程碑，恢复精确同步数缺失文件而不重做更新，更早缺失/身份步数异常拒绝恢复，完成前核验initial/last/全部已到达里程碑并记录SHA。新增3项桩化故障回归，全套23测试通过；没有新增真实训练或正式更新，复用500步模型目标源码同哈希工程证据。重发engineering_v3，manifest 19094e2c4ddfcf0c628993bc107404c0deb6b112d30fe7b1cd989f0f71f69f88，更新外置Ready后再次verify通过。旧release门禁失效，B须重新独立核验；未写B范围或历史v2产物。"
+    },
+    {
+      "id": "use-v3-frozen-cost-fix",
+      "title": "冻结校验同步等价优化与资源复测",
+      "owner": "01a178a3-1637-7dc2-b9ed-de7c5e61ee72",
+      "scopes": [
+        "outputs/use_v3/engineering",
+        "outputs/use_v3/releases",
+        "scripts/benchmark_use_encoder.py",
+        "src/landslide_seg/models/use_v3_reconstruction.py",
+        "tests/test_use_v3.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T15:44:24.731192+00:00",
+      "updated_at": "2026-10-26T15:49:49.904365+00:00",
+      "evidence": [
+        "outputs/use_v3/engineering/READY_FOR_AUDIT_v4.json",
+        "outputs/use_v3/engineering/packed_hash_acceptance.json",
+        "outputs/use_v3/releases/engineering_v4/manifest.json"
+      ],
+      "note": "保持每次冻结前向前后完整SHA256、名称/dtype/shape/全部参数与持久/非持久buffer、eval/梯度/优化器边界不变；新增兼容FrozenUSE子类，将逐张量传输改为每设备一次打包传输。历史frozen_use.py/use_v2.py/权重未改。新旧GPU哈希和输出逐位一致，混合设备/非连续/空/BF16标量buffer及变更拒绝通过；全套24测试通过。触发条件C3/128/batch1/FP32同卡30/100/3汇总延迟比1.47464；不代表完整成本门禁，需B重测全部矩阵。未增加真实优化更新或正式训练；原500步证据保留，未冻结重建数学输出/梯度与v3快照逐位一致。重发engineering_v4 manifest 6d50c39f1ca1d54bc7b3c9d44a100fcbf51e29d38cc88cf892fb369c275eb8df，更新Ready后verify通过。"
+    },
+    {
+      "id": "use-v3-cli-path-fix",
+      "title": "修复正式CLI路径边界并立即重发release",
+      "owner": "01a178a3-1637-7dc2-b9ed-de7c5e61ee72",
+      "scopes": [
+        "outputs/use_v3/engineering",
+        "outputs/use_v3/releases",
+        "scripts/evaluate_use_v3.py",
+        "scripts/run_use_v3.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-26T16:37:51.776095+00:00",
+      "updated_at": "2026-10-26T16:38:50.980888+00:00",
+      "evidence": [
+        "outputs/use_v3/engineering/READY_FOR_AUDIT_v5.json",
+        "outputs/use_v3/engineering/cli_path_fix_v5.json"
+      ],
+      "note": "仅修复run/evaluate CLI字符串路径边界：release/marker/source/probe/out归一化为Path，解决rt.read(marker)和sha(probe)的同类错误。重发engineering_v5不可变release和Ready，发布哈希核验通过。未跑pytest、成本、工程或正式训练；24测试仅上一版历史证据，当前修复未重测。未改模型/超参/数据/预算/历史v2或B运行与文档范围，B据新release重新绑定执行标记。"
+    },
+    {
+      "id": "use-v3-results-data",
+      "title": "USE v3既有正式结果回写固定数据文档（归属use-v3-training，不启动实验）",
+      "owner": "01a178d4-2172-7aa3-affb-c490f4b987db",
+      "scopes": [
+        "docs/data_event_protocol.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T02:37:06.597982+00:00",
+      "updated_at": "2026-10-27T03:03:49.008878+00:00",
+      "evidence": [
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/use_v3/audit/report_qa.json"
+      ],
+      "note": "已将既有正式结果的三张合并表、曲线、固定案例、联合诊断、成本和解释边界写入固定数据专题；未新建日期报告或追加实验。"
+    },
+    {
+      "id": "use-v3-run-index",
+      "title": "USE v3既有17项正式运行补录固定索引与别名，不启动实验",
+      "owner": "01a178d4-2172-7aa3-affb-c490f4b987db",
+      "scopes": [
+        "docs/assets/research/experiment_aliases.csv",
+        "docs/assets/research/experiment_registry.json",
+        "docs/assets/research/verification.json"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T02:48:14.888629+00:00",
+      "updated_at": "2026-10-27T03:03:49.093881+00:00",
+      "evidence": [
+        "docs/assets/research/experiment_registry.json",
+        "outputs/use_v3/runtime/update_run_index.py"
+      ],
+      "note": "已补录17项既有正式运行与别名并核对身份/配置哈希；通用扫描器尚未覆盖v3，已明确记录先通用刷新再补录的可复现命令。未修改受保护训练代码。"
     }
   ],
   "transfers": [
