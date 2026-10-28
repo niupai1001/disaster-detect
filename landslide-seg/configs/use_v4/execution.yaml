@@ -1,0 +1,162 @@
+segformer:
+  experiment: use_v2_frozen
+  seed: 1234
+  deterministic: true
+  output_dir: outputs/use_v4/runs
+  data:
+    version: s2_10band_v4r1_p20
+    source_root: data/sen12
+    cache_dir: data/s2_10band_v4_p20
+    manifest: manifests/v4r1/pool_100.jsonl
+    quarantine: manifests/s2_10band_v4_p20_quarantine.jsonl
+    stats: manifests/v4r1/stats_core25.json
+    test_event: italy
+    val_event: hiroshima
+    max_cloud: 0.5
+    min_valid_ratio: 0.5
+    max_label_invalid_ratio: 0.6
+    warn_days_after_event: 365
+    post_event_window_days: 120
+    image_size: 128
+    num_workers: 0
+    preload: true
+    pool_fraction: 100
+    protocol: manifests/v4r1/protocol.json
+    mixed_bands: false
+  model:
+    type: use_v4_mit
+    in_chans: 10
+    freeze_use: true
+  loss:
+    bce_weight: 0.5
+    dice_weight: 0.5
+  optim:
+    encoder_lr: 0.0006
+    head_lr: 0.0006
+    weight_decay: 0.01
+    grad_clip: 1.0
+    warmup_frac: 0.05
+    schedule: cosine
+    poly_power: 1.0
+  train:
+    epochs: 5000
+    batch_size: 8
+    amp: false
+    amp_dtype: bf16
+    log_every: 20
+    max_steps: 5000
+    budget_mode: updates
+    eval_every_updates: 500
+    stop_updates: 5000
+    schedule_updates: 5000
+    report_steps:
+    - 1000
+    - 2000
+    - 3000
+    - 4000
+    - 5000
+    freeze_bn_running_stats: true
+  eval:
+    threshold: 0.5
+    scale_thresholds_ha:
+    - 0.5
+    - 2.0
+    object_iou_threshold: 0.25
+    object_iou_strict: 0.5
+    boundary_tol_px: 1
+    selection_metric: dev_event_mean_iou
+use_v4:
+  seed: 1234
+  head_seed: 1235
+  precision: FP32
+  tf32: false
+  metadata_mode: known
+  source_v3: outputs/use_v3/runs/pretrain/best_unlabeled.pt
+  source_mit: weights/segformer/segformer-b0-finetuned-ade-512-512
+  source_sha256:
+    outputs/use_v3/runs/pretrain/best_unlabeled.pt: e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886
+    weights/segformer/segformer-b0-finetuned-ade-512-512/config.json: 209caa9091e4632f7c8883c11170cd08ad29af68b23c09590aa4a5befb1a2a7f
+    weights/segformer/segformer-b0-finetuned-ade-512-512/model.safetensors: 6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9
+  train_observations: 11132
+  validation_observations: 599
+  guard_locations: 239
+  sensor_batch:
+    s2: 6
+    landsat: 2
+  microbatch: 2
+  accumulation: 4
+  engineering_steps: 200
+  engineering_eval_every: 50
+  steps: 20000
+  warmup: 1000
+  frontend_peak_lr: 0.0001
+  new_peak_lr: 0.0006
+  weight_decay: 0.01
+  clip: 1.0
+  weights:
+    spectral: 1
+    fine: 1
+    context: 1
+    gradient: 0.1
+    consistency: 0.1
+  loss_weight_sum: 3.2
+  masks:
+    fine_fraction: 0.25
+    context_blocks:
+    - 16
+    - 32
+    - 64
+    spectral: known wavelength, half bands
+  calibration:
+    role: TRAIN
+    per_sensor: 32
+    seed: 1234
+  public_evaluation_calibration: outputs/use_v3/engineering/calibration.json
+  milestones:
+  - 5000
+  - 10000
+  - 20000
+  formal_budget: 29000
+  jobs:
+    pretrain:
+      mode: pretrain
+      steps: 20000
+      warmup: 1000
+    probe_10000_fine:
+      mode: probe
+      point: 10000
+      task: fine
+      steps: 1000
+      warmup: 50
+    probe_10000_context:
+      mode: probe
+      point: 10000
+      task: context
+      steps: 1000
+      warmup: 50
+    probe_20000_fine:
+      mode: probe
+      point: 20000
+      task: fine
+      steps: 1000
+      warmup: 50
+    probe_20000_context:
+      mode: probe
+      point: 20000
+      task: context
+      steps: 1000
+      warmup: 50
+    segment:
+      mode: segmentation
+      steps: 5000
+      warmup: 250
+  selection: known PRETRAIN_VAL; Fine pixel/Context spectral/Context spatial equal,
+    sensors equal; earlier tie
+  gpu_rule: one physical-card lock per process; B verifies measured peak plus margin
+    before formal start
+  comparisons:
+  - Fine is early, without v3 Context feedback
+  - Context consistency uses reconstruction fusion
+  - external ImageNet/ADE20K MiT supervision
+  - Context probe has 1024 more weights than v3
+  - coarse spatial error retains visible pixels in pooled cells

@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-10-26",
-  "current_stage": "use-v3",
+  "as_of": "2026-10-27",
+  "current_stage": "use-v4-mit",
   "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
   "stages": [
     {
@@ -3944,6 +3944,568 @@
           "evidence": [
             "outputs/use_v3/audit/representation_diagnostics_v4.json",
             "docs/assets/research/use_v3/representation_diagnostics.png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-v3-diagnostics",
+      "name": "USE v3：冻结表征与高分辨率成本诊断",
+      "previous": "use-v3",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "区分误报口径、表征/投影/融合现象与高分辨率计算成本。",
+      "delta": "已有选定权重只读诊断；全DEV配对复算、固定ROI和像素几何、逐损失反向、同卡FP32与切片估算。",
+      "result": "669块四模型计数精确复现；66语义ROI均uncertain。U-Net AP0.1224→0.1231，SegFormer AP0.1361→0.1215，没有一致改善。注入/反馈残差比中位0.240/1.120，不支持连接几乎未使用；固定DEV像素Fine秩10.65→15.10。完成有界成本矩阵与三视图前后向成本，2048仅静态4GiB单份全局bias。",
+      "status": "诊断完成；语义类别未确认；无新增训练或优化器更新",
+      "next": "近期保留十波段直入参照。下一轮建议固定已有双向编码器，仅比较完整SegFormer读取Fine与当前Fine加Context投影平均；先由A核对可复用初始权重、数据顺序及日程。可精确复用既有参照时，建议新增5000次消费者更新；无法复用则两组10000次须另行确认。该建议未授权执行，人工语义ROI不是前置，不自动追加编码器训练。",
+      "reader_status": "已完成只读诊断，类别因果假设仍未验证",
+      "evidence_level": "配对全DEV、固定31块几何、4份无标签TRAIN梯度/4份无标签验证恢复、同卡3轮计时；单seed和有界样本限制",
+      "evidence": [
+        "outputs/use_v3_diagnostics/final_acceptance.json",
+        "outputs/use_v3_diagnostics/manifest.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "comparisons": [
+        {
+          "name": "恢复变好为何没有一致分割改善",
+          "comparison": "既有冻结原生金字塔与双向空间交互，经同类学习投影接U-Net或SegFormer；不训练新模型。",
+          "evaluation_context": "同669块研发开发验证；固定22块DEV与9块TRAIN、同点几何；类别ROI全部uncertain。",
+          "observation": "U-Net AP0.1224→0.1231，SegFormer0.1361→0.1215；约0.4召回FPR6.69%→6.54%及5.24%→6.90%。双向路径幅度明显，像素Fine有效秩更高。",
+          "possible_answer": "支持目标恢复与迁移收益不一致；不支持统一改善、弱连接或类别误报因果结论；梯度/推理干预/秩均为诊断。",
+          "evidence": [
+            "outputs/use_v3_diagnostics/pr_curves.json",
+            "outputs/use_v3_diagnostics/fusion_audit.json",
+            "outputs/use_v3_diagnostics/geometry.json"
+          ]
+        },
+        {
+          "name": "高分辨率成本来自哪些执行环节",
+          "comparison": "同GPU1 FP32：原生/双向裸编码器、冻结包装、两类完整消费者与直入SegFormer；额外波段与batch8。",
+          "evaluation_context": "合成容量128/256/512，每条件10预热+30同步测量×3轮；1024限量，2048仅静态；真实128样本单独测IO。",
+          "observation": "完整矩阵、逐轮时延/峰值/算子Top10已存；FullDecoder含两次verify；2048单份全局bias4GiB，另有token及临时副本。",
+          "possible_answer": "必须分开裸注意力、消费者和校验同步；切片成本只是窗口外推，不能当真实整图吞吐或事前旧门禁通过。",
+          "evidence": [
+            "outputs/use_v3_diagnostics/scaling_results.json",
+            "outputs/use_v3_diagnostics/three_view_backward_cost.json",
+            "outputs/use_v3_diagnostics/tiling_estimates.json"
+          ]
+        }
+      ],
+      "execution_plan": {
+        "basis": "用户授权完成表征与高分辨率成本诊断，并明确未确认语义ROI标uncertain；本阶段已完成，不启动新训练。",
+        "contract": "同一event_ood_v4r1；TRAIN2223，DEV广岛448＋特里苏尔221，seed1234；无标签TRAIN11132/PRETRAIN_VAL599；统计与成员不变。",
+        "inputs": "已有选定v2/v3及四个最佳完整消费者；原始缓存和源数组；无新地形、时相或类别伪标签。",
+        "budget": "本阶段训练与优化器更新0；57个标准只读计时条件、2个限量1024条件；2048仅静态，另有9次完整网络MAC计数前向。",
+        "initialization": "严格加载既有checkpoint；仅成本直接十波段参照使用既有通用初始化实现，不产生精度比较。",
+        "steps": [
+          {
+            "order": "1",
+            "model": "配对空间误差与ROI",
+            "change": "全669块复算，固定22块/66ROI",
+            "question": "同有效像素下误报和AP是否一致改善",
+            "status": "已完成；全部语义身份uncertain"
+          },
+          {
+            "order": "2",
+            "model": "路径、梯度与同点几何",
+            "change": "九TRAIN＋22DEV；四份无标签TRAIN逐损失反向",
+            "question": "门控幅度、梯度与投影融合是否支持具体机制",
+            "status": "已完成；只读梯度与推理敏感度不作因果消融"
+          },
+          {
+            "order": "3",
+            "model": "同卡成本与切片",
+            "change": "主矩阵、波段和batch8扩展、1024限量、三视图前后向",
+            "question": "哪些计算与校验环节限制规模",
+            "status": "已完成；2048/真实高分辨率整图/完整优化器步未测"
+          },
+          {
+            "order": "4",
+            "model": "固定报告与来源核对",
+            "change": "合并三表、图、原始CSV/JSON、哈希与固定文档",
+            "question": "事实、支持结论、未验证假设是否分开",
+            "status": "已完成；不自动追加预算"
+          }
+        ],
+        "acceptance": [
+          "四个完整消费者混淆计数与旧结果完全一致，前后参数与buffer哈希一致。",
+          "预声明只读矩阵57条件完成，另1024两条件限量；各条件原始三轮测量和内存、算子记录保存。",
+          "所有既有源文件/权重保持哈希一致，优化器创建及更新均0。"
+        ],
+        "decisions": [
+          "云/云影/建筑等无人工确认样本，类别FPR未测，不解释为0。",
+          "不修改既有62000步、权重选模或旧事前成本门禁跳过记录。",
+          "困难负样本确认、监督目标、投影融合及全局bias优化仅列候选，实施和训练须另行授权。",
+          "报告补充单因素消费者对照建议：优先复用现有参照；新增5000步或无法复用时两组10000步均仅建议，未经新授权不执行。"
+        ],
+        "handoff": "诊断与解释报告已完成。用户下一步与A的可审阅交付要求见固定数据文档；候选消费者对照未启动，不重训编码器、不补5k探针，不恢复下载。",
+        "deliverables": "三张结果合并表、用户行动建议表、五张汇总图与固定案例、CSV/JSON和原验收；已补机制证据边界、建议对照与预算复用条件。"
+      },
+      "reader_revision": {
+        "request": "用户要求诊断报告及本人下一步行动",
+        "status": "报告解释与行动建议已补充；非新实验授权",
+        "report": "docs/DATA_EVENT_PROTOCOL.md#你接下来要做什么",
+        "original_generator_snapshot": "outputs/use_v3_diagnostics/report_original_snapshot.py",
+        "source_note": "旧生成器完整快照保留；report.py只重建图表，检测到本修订后保留正式文档与台账。"
+      },
+      "next_research_proposal": {
+        "status": "proposed_not_authorized",
+        "question": "固定选定编码器后，消费者额外使用Context投影与加和是否帮助滑坡分割",
+        "encoder": "v3既有20k无标签选模权重，全参数与buffer冻结",
+        "conditions": [
+          "既有完整SegFormer：Fine加四尺度学习投影平均",
+          "候选完整SegFormer：仅Fine，仍保留编码器内部Context反馈"
+        ],
+        "reuse": "A先核对已有initial checkpoint、逐更新图像与增强顺序、优化器设置和LR日程；能精确复用则不重跑参照",
+        "proposed_new_updates_if_reference_reusable": 5000,
+        "proposed_updates_if_reference_not_reusable": 10000,
+        "budget_fallback": "不能复用时先报告原因和两组预算，待另行授权，不静默补跑",
+        "protocol": "event_ood_v4r1; TRAIN2223; DEV Hiroshima448+Thrissur221; seed1234; head seed1235; stats_core25",
+        "selection": "保持既有每500步按两事件等权IoU选消费者，另报末态、AP、逐事件与对象/边界指标；不反选USE",
+        "interpretation_limit": "有效参与优化的参数数目须单列；只检验消费者额外Context路径，不是删除编码器内Context，也不直接证明预训练目标原因",
+        "user_actions": [
+          "保留当前直入参照与USE研究分支",
+          "A先提交以上对照的配置与预算，而非直接长训练",
+          "有业务需求时定义真实图幅、时限与显存，先规划512窗口64重叠的真实图端到端核验",
+          "只有需要类别解释时再补人工身份，未知继续uncertain"
+        ]
+      },
+      "next_data_proposal": {
+        "status": "proposal_only_not_authorized_for_download_or_training",
+        "request": "用户要求在本项目内下载CAS与各种卫星影像以补充USE训练数据，并先给方案。",
+        "goal": "增加合法地域与真实光学传感器覆盖，并独立检验CAS RGB和雷达适配；不宣称扩量必然改善迁移。",
+        "delta": "现有11132训练/599重建验证/239隔离冻结不改；新增外部光学位置，CAS另建RGB与监督路径，S1独立后续。",
+        "result": "已核实CAS正式发布9.2GB及README非商业许可、论文20865与README22049数量差异；仅方案，无下载训练。",
+        "next": "先实施独立版本目录、来源清单与试取验收，再决定扩量；不恢复旧下载或训练队列。",
+        "pilot": {
+          "s2_positions": 200,
+          "landsat_positions": 100,
+          "cas": "README、范围及一个小分包"
+        },
+        "proposed_expansion": {
+          "s2_new_positions": 10000,
+          "landsat_new_positions": 5000,
+          "observations_per_position": 1,
+          "s1_paired_candidates_later": 500
+        },
+        "contract": "event_ood_v4r1; supervised TRAIN2223; DEV Hiroshima448+Thrissur221; seed1234; stats_core25; no DEV/DIAG/FINAL learning",
+        "isolation": "外部先沿用所有既有事件包络外扩10公里；同地多期/跨传感器/重叠场景同组；5.12km组、至少1.28km缓冲；CAS整地区分组，未知位置隔离。",
+        "observations": "S2十波段L2A、Landsat六光学波段；CAS RGB不假定反射率；S1 VV/VH独立物理域；地形不作光学波段。",
+        "initialization": "未来对照同架构同初始化来源；CAS/S1入口待适配，未生成配置。",
+        "proposed_budget": {
+          "pretraining_conditions": 2,
+          "updates_each": 10000,
+          "downstream_conditions": 2,
+          "downstream_updates_each": 5000,
+          "total": 30000,
+          "authorized_updates": 0
+        },
+        "selection": "编码器预声明无标签选模，固定599重建评价；下游同669块两事件等权IoU选模；新增验证单列，不用分割反选编码器。",
+        "storage": "建议预留100GB，先测小包真实解压/网络字节；非实测承诺",
+        "evidence": [
+          "docs/DATA_EVENT_PROTOCOL.md#cas与多源卫星影像补充use数据方案",
+          "https://zenodo.org/records/10294997",
+          "https://zenodo.org/records/10294997/files/CAS%20Landslide%20Dataset%20README.html?download=1"
+        ],
+        "paired_view_refinement": {
+          "status": "feasibility_and_metadata_audit_only_no_acquisition",
+          "request": "用户询问同区域Landsat、RGB、S1/S2多分辨率数据是否存在，以及现有数据能否扩充。",
+          "decision": "优先原TRAIN锚点补S1、Landsat与可用独立RGB；另建NAIP覆盖区通用四视图池；保留缺模态。",
+          "local_metadata_summary": {
+            "train": {
+              "rows": 2223,
+              "s2_id_and_center_match": 1886,
+              "s1asc_id_and_center_match": 1870,
+              "s1dsc_id_and_center_match": 1546,
+              "both_s1_match": 1534,
+              "any_s1_match": 1882
+            },
+            "val": {
+              "rows": 669,
+              "s2_id_and_center_match": 504,
+              "s1asc_id_and_center_match": 318,
+              "s1dsc_id_and_center_match": 501,
+              "both_s1_match": 318,
+              "any_s1_match": 501
+            }
+          },
+          "limitations": "匹配是vendor索引ID与中心坐标核对，不是影像/时间/完整覆盖验收；不照搬上游split。",
+          "next": "先200个合法TRAIN锚点只读目录覆盖与日期审计，再小批影像配准验收；没有下载或训练授权。",
+          "evidence": [
+            "docs/DATA_EVENT_PROTOCOL.md#同一区域多传感器多分辨率配对的可行性",
+            "outputs/use_data_pairing_plan/metadata_coverage.json"
+          ]
+        },
+        "scope_clarification": {
+          "user_requirement": "通用星基遥感USE无标签预训练，不要求滑坡、不要求覆盖现有滑坡地区；同区配对是训练关系条件，不是灾害语义条件。",
+          "priority": "global_general_satellite_pretraining",
+          "supersedes": "原滑坡TRAIN位置锚点仅可选专项，不是通用语料扩量前置；NAIP非星基，CAS非规模主来源。",
+          "local": {
+            "training_observations": 11132,
+            "s2_training_observations": 9510,
+            "landsat_training_observations": 1622,
+            "reconstruction_validation": 599,
+            "guard": 239,
+            "external_s2": 5000,
+            "external_landsat": 1700,
+            "external_landsat_windows_intersecting_s2_bbox": 0,
+            "accepted_complete_s1_s2_landsat_independent_rgb_groups": 0
+          },
+          "published_sources": [
+            {
+              "name": "SSL4EO-S12 v1.1",
+              "count": 246144,
+              "unit": "locations",
+              "timestamps_per_location": 4,
+              "derived_location_time_groups": 984576,
+              "views": [
+                "S1GRD",
+                "S2L1C",
+                "S2L2A",
+                "S2RGB"
+              ],
+              "limit": "S2RGB为S2派生；不提供独立高分辨率RGB或Landsat；未本地验收",
+              "url": "https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1"
+            },
+            {
+              "name": "SSL4EO S12 Landsat Multi Product",
+              "count": 66800,
+              "unit": "candidate_locations",
+              "limit": "发布者声明至少五种视图/产品，不等于五颗独立传感器；S1/S2有0至255缩放，跨日期跨年份；精确三/四视图合格数待逐成员审计；与SSL4EO不能直接相加",
+              "url": "https://github.com/sunny1401/ssl4eo_multi_satellite_products"
+            },
+            {
+              "name": "SEN2VENUS v2",
+              "count": 132955,
+              "unit": "paired_patches",
+              "sites": 29,
+              "views": [
+                "S2 10/20m",
+                "VENUS 5m"
+              ],
+              "limit": "同日真实卫星配对；132955图块不是132955独立地区；不含S1/Landsat",
+              "url": "https://zenodo.org/records/14603764"
+            },
+            {
+              "name": "WorldStrat",
+              "count": 3449,
+              "unit": "AOIs_in_paper_datasheet",
+              "views": [
+                "SPOT6/7 RGBNIR native6m",
+                "SPOT PAN native1.5m",
+                "S2 time_series"
+              ],
+              "limit": "RGB不能描述成原生1.5m；1.5m彩色可能为全色融合产品；不含现成S1/Landsat；发行文件实际条目待验",
+              "url": "https://arxiv.org/html/2207.06418v2"
+            },
+            {
+              "name": "SEN2NAIPv2-crosssensor",
+              "count": 8000,
+              "unit": "published_samples",
+              "limit": "NAIP为航空影像，独立列为可选，非纯星基主池；不混入6万级synthetic数据计作真实卫星配对",
+              "url": "https://huggingface.co/datasets/tacofoundation/SEN2NAIPv2"
+            }
+          ],
+          "selection": "不要求滑坡语义或现有滑坡区覆盖；保持既有评价事件隔离、按地理组划分、无标签选模，不以滑坡结果筛下载位置。",
+          "next": "以S12 v1.1为主规模来源，先元数据/小分片物理量审计，再决定Landsat及跨分辨率补齐。",
+          "evidence": [
+            "docs/DATA_EVENT_PROTOCOL.md#通用星基use预训练的数据规模与范围修订",
+            "outputs\\use_data_pairing_plan\\general_corpus_inventory.json"
+          ],
+          "status": "clarification_and_inventory_only_no_download_no_training"
+        }
+      }
+    },
+    {
+      "id": "use-v4-mit",
+      "name": "USE v4：光谱Token注入预训练MiT-B0",
+      "previous": "use-v3-diagnostics",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "验证继承v3光谱前端后直接注入预训练MiT-B0，能否形成更有用的冻结光谱—空间表示并减少重复空间编码成本。",
+      "delta": "保留Patch2和五Query的早期Fine，Q5经新stride2适配器接冻结MiT Stage1–4；跳过RGB首卷积，舍弃v3空间主干与反馈；下游只训练既有All-MLP和Fine残差头。",
+      "result": "正式29000更新完成：公共探针入选20k，总分1.1491（10k为1.1585，历史USE v3入选20k为0.9210）；轻量头best/last事件等权IoU 0.0600/0.0597，历史USE＋完整SegFormer0.1258、当前直入参照0.3081。release/继承/冻结/初始化/选模/曝光/预算与图表核验通过；共享成本与未测项单列，当前参照不变。",
+      "status": "执行与产物验收完成；迁移结果未改善",
+      "next": "保持十波段直入参照。本轮系统迁移价值未证实，不自动续训或增加LoRA/新架构；若继续，先依据既有概率、分布与路径证据提出单因素诊断及明确新授权预算。",
+      "reader_status": "最新完成试验：冻结MiT＋轻量头，结果未改善",
+      "evidence_level": "完整正式训练、同669开发验证和固定599公共探针、真实冻结/初始化/曝光核验；单seed、系统差异与共享服务器成本限制保留",
+      "evidence": [
+        "docs/USE_V4_MIT_EXECUTION_HANDOFF.md",
+        "outputs/use_v4/releases/engineering_v2/READY_FOR_AUDIT.json",
+        "outputs/use_v4/audit/tests.xml",
+        "outputs/use_v4/audit/independent_backward.json",
+        "outputs/use_v4/benchmarks/matrix.json",
+        "outputs/use_v4/audit/READY_FOR_TRAINING.json",
+        "outputs/use_v4/audit/real_update_release3.json",
+        "outputs/use_v4/runtime/status.json",
+        "outputs/use_v4/audit/storage_block_10000.json",
+        "outputs/use_v4/audit/runs_c_migration.json",
+        "outputs/use_v4/audit/milestone_10000_reconciled.json",
+        "outputs/use_v4/audit/outputs_run2_checkpoint_cleanup.json",
+        "outputs/use_v4/runs/probe_10000_fine/evaluation.json",
+        "outputs/use_v4/runs/probe_10000_context/evaluation.json",
+        "outputs/use_v4/audit/final_acceptance.json",
+        "outputs/use_v4/runs/selection.json",
+        "outputs/use_v4/benchmarks/final_weights_cost.json",
+        "outputs/use_v4/audit/exposure_and_wall_cost.json",
+        "outputs/use_v4/benchmarks/final_large_capacity.json",
+        "outputs/use_v4/benchmarks/final_training_components.json",
+        "outputs/use_v4/benchmarks/final_io_hash_components.json"
+      ],
+      "source_document": {
+        "path": "N:/Users/yzh/Data/USE_v4_MiTB3E5A5_8BE78BA2E8ADBBE48E86E793AFE4B7_89E88C96E688.md",
+        "sha256": "c4ad716fbcc593fd54f0aeecddab6ca6755b8f53633055a56e98c69f3f07433f"
+      },
+      "user_decisions": [
+        {
+          "date": "2026-10-27",
+          "decision": "继续取消5k检查点探针，仅10k/20k；正式预算29000，取代附件六探针/31000。",
+          "source": "当前会话用户对预算问题的明确回复"
+        },
+        {
+          "date": "2026-10-27",
+          "decision": "制定执行计划、写文件并给提示词；未要求本会话实施或启动训练。",
+          "source": "当前用户请求"
+        },
+        {
+          "date": "2026-10-27",
+          "decision": "用户授权B独立验收、双卡训练与结果回写；门禁后执行29000。代码问题交A；取消5k探针，不重训旧编码器，不增U-Net、第二MiT或LoRA。",
+          "source": "B当前用户请求；聊天01a17db0-9dff-7fd0-b14a-a9033092fef9"
+        },
+        {
+          "date": "2026-10-27",
+          "decision": "允许与其他服务器任务共享GPU，不再以一卡一个进程阻断本轮训练；不停止其他进程，保留容量门禁与共享负载成本限制。",
+          "source": "用户原话：跟他一起训练，不考虑一卡一个进程，这是服务器"
+        },
+        {
+          "date": "2026-10-27",
+          "decision": "用户明确指定删除outputs_run2旧检查点（唯一31.4MiB已删除、日志保留）；空间仍不足后，用户明确授权本轮runs迁C，逐文件SHA验证并以目录联接保留原N路径后继续。",
+          "source": "用户明确目录纠正及迁移选项回复"
+        }
+      ],
+      "source_verification": {
+        "git_head": "93aa16c8c9f8e0979d4bf582db28cff4e7db0944",
+        "worktree": "已有未提交文档与诊断产物，保留；实际训练须重封源码清单",
+        "v3_checkpoint": "outputs/use_v3/runs/pretrain/best_unlabeled.pt",
+        "v3_step": 20000,
+        "v3_checkpoint_sha256": "e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886",
+        "mit_directory": "weights/segformer/segformer-b0-finetuned-ade-512-512",
+        "mit_config_sha256": "209caa9091e4632f7c8883c11170cd08ad29af68b23c09590aa4a5befb1a2a7f",
+        "mit_safetensors_sha256": "6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9",
+        "torch": "2.11.0+cu128",
+        "transformers": "4.57.6",
+        "mit_hidden_sizes": [
+          32,
+          64,
+          160,
+          256
+        ],
+        "mit_sr_ratios": [
+          8,
+          4,
+          2,
+          1
+        ]
+      },
+      "execution_plan": {
+        "basis": "用户授权后已执行完成。原handoff_sections与分发附件是运行前冻结契约快照，因绑定release保留原字节；当前执行状态/结果/用户覆盖在本条及固定报告。",
+        "contract": "固定无标签TRAIN11132、PRETRAIN_VAL599、隔离239；每更新6 S2＋2 Landsat。监督TRAIN2223、广岛448＋特里苏尔221开发验证；event_ood_v4r1、seed1234、stats_core25。无数据扩量/下载/换日期/地形/官方或四折/保留集评价。",
+        "inputs": "现有单期反射率、质量/波段掩膜、已知/未知物理及空间来源；正式metadata_mode=known保持实际v3，partial/unknown仅诊断。固定v3 20k权重与本地ADE20K MiT-B0，不使用滑坡选择USE。",
+        "budget": "正式29000＝一个v4预训练20000＋10k/20k各Fine/Context四探针×1000＋唯一分割头5000；工程200另列。FP32/TF32关闭、有效batch8=micro2×accum4；AdamW WD0.01/clip1，光谱LR1e-4、新适配/重建LR6e-4，MiT不进优化器；预热1000后余弦。探针/分割LR6e-4，预热50/250后余弦；无5k探针、无旧编码器重训、无DDP。",
+        "initialization": "从固定v3拷贝光谱模块，从固定本地MiT继承除RGB首卷积外的Stage1–4，原MiT冻结eval但保留对输入的梯度。新适配器/MAE头随机，seed1234/head_seed1235；工程后重置。下游复用ADE解码头、新单通道classifier和零末层Fine残差，完整USE冻结。",
+        "steps": [
+          {
+            "order": "1",
+            "model": "A：光谱Token注入MiT-B0工程",
+            "change": "新增v4最小实现/配置/测试、200步工程及冻结release；无LoRA、无前置消融",
+            "question": "预训练加载、单次Stage1 Norm、掩膜和上游梯度是否正确",
+            "status": "已完成；证据见最终验收"
+          },
+          {
+            "order": "2",
+            "model": "B：独立验收与512成本门禁",
+            "change": "核验release、真实前后向与同卡成本；中位延迟或峰值显存超v3对应路径20%先阻断诊断",
+            "question": "是否避免重复空间编码且满足容量与资源警戒",
+            "status": "已完成；证据见最终验收"
+          },
+          {
+            "order": "3",
+            "model": "B：v4无标签20000步＋四探针",
+            "change": "GPU1预训练，GPU0收到10k原子权重后做两探针；20k两探针分卡",
+            "question": "固定公共评分下10k/20k哪个入选，表征稳定性与恢复如何",
+            "status": "已完成；证据见最终验收"
+          },
+          {
+            "order": "4",
+            "model": "B：冻结USE＋All-MLP与Fine残差",
+            "change": "入选后仅一个任务头5000步，不再跑第二套MiT或U-Net",
+            "question": "冻结空间特征能否被轻量任务头读取，精度与成本如何权衡",
+            "status": "已完成；证据见最终验收"
+          },
+          {
+            "order": "5",
+            "model": "B：核对与固定文档",
+            "change": "保存命令/哈希/曲线/曝光/恢复/成本，三张合并表和固定图，写回唯一台账及固定正文",
+            "question": "证据、失败及系统比较边界是否完整",
+            "status": "已完成；证据见最终验收"
+          }
+        ],
+        "acceptance": [
+          "v3/MiT逐张量复用、RGB原生与staged各阶段assert_close、Stage1 Norm仅一次、旧空间主干/第二MiT不运行。",
+          "掩膜/NaN/元数据/奇数尺寸、五Query与Fine_early来源、梯度穿过冻结MiT、冻结字节和恢复/微批等价通过。",
+          "200步工程、实际配置及覆盖预检、128训练micro2和512 B1 C10裸编码器/消费者冷热点通过；同卡成本与哈希/IO分时。B门禁绑定release。",
+          "512资源20%警戒属于预登记工程默认值，不是显著性；超限先A等价优化与B复核，失败不扩大预算。"
+        ],
+        "decisions": [
+          "5k只存档；USE仅10k/20k按四探针、固定v3公共分母、两传感器及三恢复任务等权选最小分，同分取早；partial/unknown不选模。",
+          "非有限/常量/冻结失败阻断分割；恢复差但工程有效如实报告，1000步不宣称充分收敛，不自动加步。",
+          "任务头仅5000，每500用二事件等权IoU选best，末态另报；标签不更新USE，不反向选择编码器。",
+          "MiT具ImageNet/ADE20K外部监督，Stage3投影容量和下游自由度不同；只作系统方案比较，单seed不显著。"
+        ],
+        "handoff": "B已完成独立验收、共享服务器两卡队列与最终报告，原29000预算结束；当前无待续训练，不自动增加实验。",
+        "deliverables": "加载/冻结清单、完整release身份、200步工程、20000预训练与四探针/唯一分割结果、128/256/512分项成本和1024静态/至多一次前向、512瓦片64重叠大图估算；三表＋架构/曲线/固定六例，stage_ledger与固定模型/数据/入口回写。",
+        "handoff_sections": [
+          {
+            "title": "本轮决定、预算与范围",
+            "body": "本文件按用户要求提供给下游Agent执行。它是[阶段台账](assets/research/stage_ledger.json)中 `use-v4-mit` 的分发快照；阶段目标、预算、状态、结果和下一步只以台账为准，修改先写台账再同步快照。当前只完成计划归档，工程实现、运行配置和正式命令均待A交付，不把计划当成已经实现或训练。\n\n**用户2026-10-27确认：继续取消5k检查点探针，只评价10k、20k。** 此决定替代附件中的“六项探针、正式31000步”。5k权重保留追溯，不做探针、不参与编码器选模。只分两个Agent：A工程，B独立验收、双卡训练和报告。\n\n| 项目 | 作业与停止预算 | 成功更新数 |\n|---|---|---:|\n| 工程试训 | 一个v4候选，200步；每50步无标签验证，正式重新初始化 | 200，单列 |\n| 无标签预训练 | 一个v4候选，连续20000步 | 20000 |\n| 冻结恢复探针 | 10k、20k各Fine和Context两项，每项1000步 | 4000 |\n| 冻结USE＋轻量任务头 | 一个分割消费者，5000步 | 5000 |\n| **正式研究预算上限** | **6个正式作业：1预训练＋4探针＋1分割** | **29000** |\n\n仅验证“继承v3光谱前端→空间适配器→冻结预训练MiT-B0”的一个完整候选。v2/v3编码器不重训；不新增U-Net或第二套MiT，不做前置消融、Query压缩、Patch尺寸修改、LoRA、JEPA、教师预测。LoRA只列后续候选，不写空接口和预留代码。\n\n20000步是首轮停止预算，不宣称充分收敛，不自动续至30k。失败、中止、校准、可丢弃测试更新及工程200步分别登记；门禁失败允许少执行，不为凑预算继续。当前请求只制定和写入计划，不启动训练或替A/B认领。"
+          },
+          {
+            "title": "已经核实的来源与比较边界",
+            "body": "当前仓库HEAD与附件一致：`93aa16c8c9f8e0979d4bf582db28cff4e7db0944`；工作树已有他人未提交文档，不覆盖、不回退。执行前重新记录分支、HEAD、工作树和实际源码哈希；不切换到默认main，不把单个Git提交当作全部运行身份。\n\n| 来源 | 已核实事实 | 运行要求 |\n|---|---|---|\n| v3入选权重 | `outputs/use_v3/runs/pretrain/best_unlabeled.pt`，对应20k | 固定读取，不按滑坡成绩换权重 |\n| 本地MiT-B0 | `weights/segformer/segformer-b0-finetuned-ade-512-512`，config与safetensors均存在 | 本地加载，禁止暗中联网或换规格 |\n| 运行库 | 当前环境torch 2.11.0+cu128，transformers 4.57.6 | A锁定实际环境；变化须重验 |\n| 原生MiT阶段 | 宽度32/64/160/256、深度2/2/2/2、sr_ratio 8/4/2/1 | Stage3是160，不是旧v3的128 |\n\n已核实SHA256：\n- v3 checkpoint：`e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886`。\n- MiT config.json：`209caa9091e4632f7c8883c11170cd08ad29af68b23c09590aa4a5befb1a2a7f`。\n- MiT model.safetensors：`6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9`。\n- 原附件：`c4ad716fbcc593fd54f0aeecddab6ca6755b8f53633055a56e98c69f3f07433f`。\n\n工程需重验上述哈希，并把加载所需配置、权重、源码和环境全部封入release。使用safetensors这一固定权重源；不要随加载器优先级静默切换bin文件。\n\nv3正式62000更新已经完成：统一探针入选20k，总分0.9210166；冻结v3＋完整SegFormer最佳事件等权IoU约0.1258，U-Net约0.1305；直接十波段SegFormer细节参照约0.3081。来源为既有v3审计和固定文档，历史run不改写。\n\nv4采用外部ImageNet/ADE20K预训练MiT，并只训练轻量下游头；历史v3包含完整下游空间编码器且训练自由度不同。因此本轮是系统方案比较，不是严格单因素或纯从零自监督比较。无标签分数、分割质量、计算成本分别判断；单seed不宣称显著性。此前v3成本门禁被用户跳过不表示v4自动豁免。"
+          },
+          {
+            "title": "数据、监督与配置锁定",
+            "body": "无标签：沿用11132个TRAIN观测、599个PRETRAIN_VAL验证观测和239个隔离位置；每次更新6份S2＋2份Landsat。核对成员、地理去重/隔离、文件哈希、传感器统计及质量掩膜。此阶段不接入正在讨论的通用数据扩量，不恢复下载，不更换日期、GSD或来源。\n\n滑坡迁移采用“我们的数据划分（留事件验证）”：九事件2223块训练，广岛448＋特里苏尔221块开发验证；十波段沿用559块TRAIN核心拟合的stats_core25。Italy和NewZealand不用于本轮研发/选模，不做四折或官方划分，不添加地形。只用现有单期反射率、质量/波段掩膜、可选物理元数据及空间来源。\n\n现有v3源码实际对三种无标签视图使用metadata_mode='known'。本轮正式训练继续known，以免同时改变训练分布；partial/unknown用于200步工程稳定性检查和固定评价分层。不能宣称缺失元数据能力已被专门训练。若未来改混合训练，须另修订配置和比较解释。\n\nA生成新的 `configs/use_v4/execution.yaml`、工程配置和校准文件，显式写出：来源、参数组、掩码、五项权重、成员/统计、预算、日程、选模、任务矩阵、设备规则和输出。正式实现配置之前均标“待实现”，不拿v3旧配置冒充适配。\n\n实际配置及所有命令行覆盖必须经过 `scripts/check_research_protocol.py`；同时核查真实数据和前后向。成员统计、无标签校准和监督十波段stats是不同来源，不能互相替代。滑坡标签和事件ID不得进入USE接口。"
+          },
+          {
+            "title": "唯一候选的编码器与权重边界",
+            "body": "```text\n输入影像＋质量/波段掩膜＋可选物理元数据\n  → 继承v3光谱前端：Patch2、逐波段32维、波段注意力、FFN、五Query读出\n      ├─ Q1–Q4＋原像元残差 → Fine_early，32通道、原分辨率\n      └─ Q5，32通道、1/2网格\n           → 新Conv3×3 stride2 padding1\n           → 原MiT Stage1 Patch LayerNorm（只执行一次）\n           → Stage1 Blocks与末端Norm → Stage2 → Stage3 → Stage4\n           → 32/64/160/256通道，1/4、1/8、1/16、1/32网格\n输出：Fine_early＋四尺度Context＋valid/stride/spatial_metadata\n```\n\n继承v3的tokenizer、physical、spectral_norm、spectral、ffn、queries、readout、residual、residual_out，逐张量torch.equal和哈希核对。旧inject、merges、stages、projections、feedback_gate、local不进入v4执行；旧v3最终Fine含Context反馈，不能拿它当Fine_early。\n\nMiT跳过第一层RGB的7×7、stride4卷积；适配器直接给Stage1的32通道1/4网格。按锁定版真实的encoder.patch_embeddings / block / layer_norm分阶段调用。Stage1 Patch Norm只执行一次；Stage2–4保留原Patch Embedding/Blocks/Norm。不调用整模型pixel_values入口，不重复降采样或运行第二套空间主干。原RGB卷积在复用清单标为主动跳过，不将未加载键一概忽略。\n\n128输入参考输出为Fine[B,32,128,128]，四尺度[B,32,32,32]、[B,64,16,16]、[B,160,8,8]、[B,256,4,4]；127/129等奇数尺寸按真实ceil/padding和最终裁剪处理。输出固定为fine、context、valid、stride、spatial_metadata及metadata_used；诊断中间Token按需返回。\n\nMiT所有原始参数requires_grad=False并固定eval，优化器排除；**不能用no_grad包住无标签训练中的MiT forward**，梯度必须穿过它回到光谱前端和适配器。光谱前端允许更新，适配器和重建头随机初始化。ADE20K的150类classifier不属于编码器。\n\n质量隔离：无效原始数值先归零；适配和各阶段传播空间支持掩膜，不使用标签valid。原生MiT Attention无任意空间key mask接口，必须做最小显式适配：按实际Patch卷积和sr卷积传播有效支持，屏蔽完全无支持的K/V位置；无效Query/阶段输出置零，全无效K/V行用安全占位并清零输出，样本整体全无效则拒绝。保留原预训练Q/K/V、SR、Norm和FFN权重，不重新初始化它们；混合感受野的零填补语义如实记录。\n\n验收包含两条路径：独立RGB原生forward与原生staged forward各阶段assert_close（全有效）；v4注入路径的掩膜、数值和梯度测试。建议FP32、TF32关闭，rtol1e-5、atol1e-6；失败先定位，不放宽容差掩盖实现差异。"
+          },
+          {
+            "title": "无标签目标与200步工程门槛",
+            "body": "复用v3三视图：spectral隐藏可识别波段，fine同步25%像素隐藏，context按16/32/64循环空间块。保留五项目标与原有效像元筛选，权重spectral/fine/context/gradient/consistency为1/1/1/0.1/0.1，按3.2归一化。\n\n重建器是任务模块：四尺度分别通过32/64/160/256→32学习投影、自顶向下融合形成32通道融合特征，再与Fine_early进入既有形式的输出波段条件恢复头。它不属于最终USE编码器。旧main引用在新入口明确映射为重建器的融合特征，用于原32通道归一化Context一致性；这改变了该项作用位置，须写入比较限制，不暗称完全同结构。\n\nsummary只来自可见像元。梯度误差仅计算两端原始有效且至少一端被遮挡的邻接对。保留v3空间池化口径：含隐藏像元的粗格计算原始全有效区域池化误差；单独打印可见/隐藏贡献，本轮不静默修正已知口径。光谱不可识别目标跳过并统计原因，不伪造零误差。\n\n新网络用固定TRAIN每传感器32份、seed1234重新校准内部五项损失分母。恢复/梯度取简单基线，一致性取初始网络；分母非有限或≤1e-8报错。原始误差、归一化项、加权项、有效目标数和各路径梯度分别保存；比较不使用两版各自内部归一化训练loss。\n\n工程试训200个成功更新，每50步无标签验证；partial/unknown在固定工程样本诊断，不改变正式known配置。校准、恢复检查及测试的可丢弃更新另外登记。正式开始从锁定v3来源＋锁定MiT＋同seed新适配器/头重新初始化，不能续用工程200步状态。\n\nA必须证明：\n- C=1/3/6/10/16；H/W=127/128/129/256；联合波段置换、pad/删除等价、未知元数据稳定、全无效拒绝。\n- 预训练复用逐张量一致，Stage1注入点和单次Norm正确；hook证明没有旧v3空间主干或第二套MiT。\n- 各合法目标反向可达光谱前端、适配器和MiT输入；MiT无参数梯度、字节哈希不变。不能要求初始零残差头所有层第一步都有梯度。\n- 无效NaN/任意值替换不影响合法输出；质量掩膜、人工遮挡、输出支持分开；无summary泄漏。\n- 同seed、保存/恢复优化器及RNG、微批累积等价通过。\n- 固定TRAIN批次只读屏蔽/替换Context观察恢复变化，记录Fine捷径诊断；不当成新增训练消融或效果因果结论。\n\nA交付READY_FOR_AUDIT；B独立复核关键工程证据、实际前后向和成本，再发布绑定release哈希的READY_FOR_TRAINING。此轮计划不实施代码或运行上述训练。"
+          },
+          {
+            "title": "20000步预训练、四探针选模和唯一分割消费者",
+            "body": "预训练固定：FP32、TF32关闭、有效batch8（micro2×accum4）、seed1234、head_seed1235；AdamW weight_decay0.01、clip1.0。光谱复用参数组峰值LR1e-4，空间适配器/MAE头峰值LR6e-4，MiT不进优化器；前1000步线性预热，随后余弦下降至20000步。按成功更新停止，不运行中手调。\n\n保存initial、u5000、u10000、u20000、last，包含完整优化器、RNG、数据/配置身份；每步原始/归一化损失、传感器成员、有效目标、路径梯度与成本。原重建头每1000步验证仅作曲线，不决定USE入选。\n\n只做四个冻结探针：probe_10000_fine、probe_10000_context、probe_20000_fine、probe_20000_context。冻结完整USE（光谱、适配器、MiT），每项1000步，AdamW LR6e-4、WD0.01、clip1、预热50步后余弦、相同batch和seed1235，末态评价，不按探针验证提前停。\n\nFine探针读取32通道Fine_early；Context探针读取原生32/64/160/256四尺度，用每尺度Conv1×1到32、上采样平均，再接与既有v3同宽度的恢复头。不同候选的初始探针张量一致；v3/v4的Stage3维度差使该投影多1024权重（实现时核对），明确容量局限，不增“参数匹配”实验。\n\n在固定599个PRETRAIN_VAL、相同mask种子和known元数据下，使用**既有v3公共评价分母和原始误差定义**：每传感器分别取Fine像素、Context光谱、Context空间三类等权，空间16/32/64等权，然后S2/Landsat等权。只在10k/20k间选分数最低者，同分选较早，发布best_unlabeled及SHA256。v4内部训练分母不替代公共评分分母；附未归一化/物理单位误差。partial/unknown分层只诊断，光谱无可识别目标写未测原因。\n\n记录Fine/各Context方差、有效秩、空间相关、跨波段子集检索，Q1–Q5两两RMS/余弦和注入分布。非有限、全常量、冻结被破坏、探针参数没有实际更新等工程失败阻断新的分割训练；1000步是否充分收敛如实报告，不自动加步，不要求必须超过v3才报告结果。\n\n入选后仅训练一个消费者：固定ADE20K初始化的SegFormer All-MLP Decode Head（四尺度输入）＋新单通道滑坡classifier＋既有ResidualFusionHead。Fine_early直接作为32通道细节输入，不跑SpectralStem或第二套encoder。复用256通道decoder特征，原分辨率logits＝上采样base logits＋ResidualFusionHead残差，残差末层零初始化；不复用150类输出。\n\n分割5000步，batch8/micro2×accum4、AdamW LR6e-4/WD0.01/clip1、前250步预热后余弦，沿用原增强和0.5 BCE＋0.5 Dice。头中的BatchNorm运行统计沿用现有freeze_bn规则（eval，仿射参数可训练）。阈值0.5，每500步按广岛/特里苏尔等权IoU选任务头best，另外报告last。USE全程eval且参数/buffer冻结，优化器仅含任务头；作业首尾与每次检查点前后完整SHA256，逐步检查模式和优化器边界，不每次forward拷贝全权重。LoRA不存在。\n\n分割入选只影响任务头，不反向更换USE。报告逐事件/事件等权与像素IoU、Dice、AP、Precision/Recall、边界F1、对象尺度召回；固定Recall取0.5和0.8；按有效像素概率排序，在Recall达到目标的阈值中取最小FPR，同时报告实际Recall和阈值；不可达记未测，不插值或据此调部署阈值。"
+          },
+          {
+            "title": "两个Agent认领与交接",
+            "body": "工作目录：`N:/Users/yzh/Disater/landslide-seg`。先读RESEARCH_INDEX最小接力、项目AGENTS和research_policy，再查manage_agent_work；任务名不同不代表可以重复旧成果。全部代码编写/审查使用[ponytail skill](C:/Users/yzh/.codex/skills/ponytail/SKILL.md)，优先复用组件，不改旧release绑定代码。\n\n**A／use-v4-mit-engineering**：代码、配置、测试、200步试训和不可变release。精确认领：\n- src/landslide_seg/models/use_v4_mit.py、src/landslide_seg/models/use_v4_reconstruction.py。\n- scripts/verify_use_v4_mit.py、scripts/pretrain_use_v4.py、scripts/evaluate_use_v4.py、scripts/benchmark_use_v4.py、scripts/run_use_v4.py。\n- tests/test_use_v4_mit.py、tests/test_use_v4_masks.py、tests/test_use_v4_loading.py。\n- configs/use_v4、outputs/use_v4/engineering、outputs/use_v4/releases。\n\n可把小型辅助逻辑留在上述已有新文件；确需其他文件先补精确认领，不占整个src/scripts/tests。A不认领正式runs或共享研究文档，不启动正式实验。\n\n**B／use-v4-mit-training**：独立验收、双卡队列、结果与固定文档。精确认领：\n- outputs/use_v4/runs、outputs/use_v4/runtime、outputs/use_v4/audit、outputs/use_v4/benchmarks。\n- docs/assets/research/stage_ledger.json、docs/assets/research/use_v4、docs/MODEL_EVOLUTION.md、docs/DATA_EVENT_PROTOCOL.md、docs/RESEARCH_INDEX.md。\n- docs/USE_V4_MIT_EXECUTION_HANDOFF.md仅用于必要的同源快照同步。\n\n```text\npython -X utf8 scripts/manage_agent_work.py list\npython -X utf8 scripts/manage_agent_work.py claim <任务ID> --owner <真实聊天ID> --title <职责> --scope <精确相对路径>\n```\n\n模板必须替换占位符，多个范围重复--scope。不替其他Agent认领，不使用别人的owner，不关旧v2登记。已完成ID不可重复claim，修复用新ID；block写清原因/恢复证据。一个文件只有一个活动写入者，严守共享锁。\n\n交接：A交付源码/依赖/配置/全部覆盖/成员/统计/初始化/预算/选模/真实命令与哈希，封装READY_FOR_AUDIT。B独立核查并生成绑定同一release_sha的READY_FOR_TRAINING，才开始正式队列。B遇代码问题交回A，不自行改训练代码；受保护文件改变使原门禁失效。因修复失败导致的额外更新单列，不擅自重跑已完成同配置任务。"
+          },
+          {
+            "title": "双卡队列、成本和大图门禁",
+            "body": "B统一管理两个物理GPU UUID，一卡一个计算进程，不使用DDP，不翻倍单实验batch。运行前核验可见设备映射、真实进程、显存和前后向，使用现有每卡锁；显示占用不拒绝，不终止别人的进程。仅空闲4096MiB旧阈值不够，必须覆盖实测峰值及余量。\n\n| 顺序 | GPU 0 | GPU 1 |\n|---|---|---|\n| 工程 | 原生/staged参考和必要接口测试 | v4工程200步 |\n| 成本验收 | 本轮计算暂停 | v3/v4/直入同卡串行测速 |\n| 正式开始 | 等待10k权重；可做CPU日志核对 | v4预训练20000步 |\n| 10k已完整保存 | 10k Fine探针→10k Context探针，各1000 | 继续v4预训练 |\n| 20k预训练结束 | 20k Fine探针1000 | 20k Context探针1000 |\n| 无标签选模通过 | 空闲 | 唯一分割头5000 |\n| 最终成本复核 | 本轮计算暂停 | 同卡串行复核最终权重成本 |\n\n只有原子保存完成且哈希核对的检查点可被探针读取。预训练期间不运行滑坡分割。依赖决定了部分时间空闲，不为了占满两卡增加实验或DDP。\n\n成本矩阵：C=3/6/10/16、128/256/512，基础batch1 FP32、TF32关闭；batch8先静态预检。每项30次预热、100次同步测量、3轮独立重复，报告中位/p90、图像每秒、峰值allocated/reserved、参数量/激活和输出字节、Top10及MAC/FLOPs覆盖。裸编码器、冻结封装、完整消费者、IO、权重哈希/CPU拷贝分开；三视图训练步拆为前向、反向、优化器。测训练成本用可丢弃副本，不改正式权重。\n\n对照分两类：v4裸编码器对v3裸编码器；v4＋轻量头对历史v3＋完整SegFormer及直接十波段SegFormer。真实十波段消费者只测C10，其他波段只做编码器，不伪造可用接口。历史权重固定，统一同卡重测所需成本，不重训旧模型。128正式micro2训练必须放得下；512 B1 C10纯编码器和完整消费者冷/热前向必须成功。256/512训练成本先静态预检，不安全则记未测/容量不足，不强迫分配。\n\n将附件“显著更贵”具体化为工程警戒：同条件512、B1、C10，若裸编码器或完整消费者的中位耗时/峰值allocated比对应v3路径高20%以上，先阻断正式放行、检查重复编码/网格/哈希/转置，A仅做数学等价优化，B复测。20%是资源警戒值，不是统计显著性。三轮耗时明显不稳定则记不可信并查负载，不能挑最快一轮。仍不满足则提交原因和未执行预算，不悄悄换模型或扩大预算。\n\n512通过后，1024先静态预算，安全时最多一次前向；2048/4096/10000只做静态及切片估算。切片为512、重叠64、步长448，维度L窗口数为ceil(max(L-512,0)/448)+1：4096为9×9＝81窗，10000为23×23＝529窗。报告padding和重叠计算放大、边缘有效上下文及拼接/IO开销；切片不能恢复跨窗注意力。MiT序列缩减注意力仍非严格线性，不宣称无限分辨率。"
+          },
+          {
+            "title": "报告、回写和最小复现交付",
+            "body": "B一次给出最多三张合并表：无标签/探针及分布诊断、冻结分割best/last与逐事件、分辨率成本。模型行名用“SegFormer B0｜光谱Token注入冻结MiT｜All-MLP＋Fine残差”等架构说明，代号只作追溯。每个主要结论配架构、曲线、固定案例或诊断图，解释机制/证据/边界，推测写未验证。\n\n固定六例沿用现有案例ID和坐标，所有模型使用相同输入/有效掩膜；再按预登记规则列高误报案例，不能凭视觉挑好图。图展示原图、Fine/Context表征、真值、概率、0.5预测；各模型独立PCA颜色不作跨模型语义等价。报告外部监督来源、单seed、20k是否收敛、探针参数差异、Fine_early与旧Fine不同、冻结范围和消费者训练自由度。\n\n产物含：加载复用/跳过/随机/冻结清单；源码/配置/覆盖/环境/成员/统计/预训练/检查点SHA256；测试与恢复记录；逐步损失和梯度、曝光账本；四探针评价、USE选模、任务头best/last；成本原始CSV/JSON、实际GPU小时及成功/中止/失败更新。\n\n阶段目标、计划、观察、结果和下一步只更新stage_ledger的use-v4-mit；模型连接/真实加载到MODEL_EVOLUTION，指标和案例到DATA_EVENT_PROTOCOL，入口仅短接力。图在docs/assets/research/use_v4，运行在outputs/use_v4。不追加日期报告，不回写旧run，不手改生成区。\n```text\npython -X utf8 scripts/query_research.py --refresh-stages\n```\n新增run索引时才刷新inventory；核验固定四份文档链接、计划快照与台账一致及生成幂等。最后finish附真实证据，未通过记block/失败/未测，不能以进程退出代表验收完成。\n\nA必须交付能直接运行的最小复现命令，覆盖prepare/verify/engineering/freeze/run/probe/select/segment/evaluate/benchmark，命令以最终实现为准；本计划不编造尚不存在的CLI标志。\n\n若只恢复改善、分割未改善，结论为迁移价值未证实；若质量改善但成本过高，说明权衡；不自动追加LoRA、Query/Patch修改或新预算。"
+          },
+          {
+            "title": "直接分发给两个Agent的提示词",
+            "body": "### 给A：工程Agent\n\n请读取 N:/Users/yzh/Disater/landslide-seg/docs/USE_V4_MIT_EXECUTION_HANDOFF.md 和项目最小接力，以用户最后确认的“取消5k探针、只评10k/20k、正式29000步、工程200步另列”为准，不照抄原附件31000预算。所有代码工作使用ponytail skill。先查认领，以真实聊天ID认领use-v4-mit-engineering的精确范围。\n\n只实现一个候选：继承固定v3的光谱前端和五Query，保留早期Fine，第五Query经新stride2空间适配器接本地预训练MiT-B0。跳过RGB首卷积，只调用一次原Patch Norm；完整复用并冻结MiT原始参数，梯度仍可穿过它回到上游。旧v3空间主干和第二套MiT均不运行。无LoRA、JEPA、Query/Patch修改，不重训v2/v3。\n\n完成三视图五项目标、四个统一探针、已有All-MLP解码头＋Fine残差消费者、掩膜隔离、权重/梯度/恢复测试和200步工程试训。正式known元数据；partial/unknown作工程和分层诊断。冻结实际源码、环境、配置、来源、成员、统计、初始化与预算，交付可直接运行的命令、证据和READY_FOR_AUDIT。不要启动正式队列。B发现代码问题仍由你修复，改release后重新验收。\n\n### 给B：验收、双卡训练和报告Agent\n\n请读取 N:/Users/yzh/Disater/landslide-seg/docs/USE_V4_MIT_EXECUTION_HANDOFF.md 和项目最小接力，先查认领，再以真实聊天ID认领use-v4-mit-training的运行与固定文档范围。你统一负责独立验收、双卡正式队列和结果回写，不修改A的工程代码。\n\n核验固定v3的20k权重及本地MiT-B0来源、逐参数复用/冻结、staged数值对齐、掩膜无泄漏、梯度穿过MiT、200步工程证据、实际配置预检和512同卡资源门禁；旧v3曾跳过成本门禁不等于本轮免验。通过后发布绑定release的READY_FOR_TRAINING。\n\n仅执行正式上限29000更新：一个v4无标签20000；10k/20k各Fine、Context探针1000，共4000；无标签选定后唯一All-MLP＋Fine残差任务头5000。禁止5k探针、旧编码器重训、U-Net、第二套空间编码器或LoRA。GPU1预训练，GPU0在10k原子检查点保存后串行做其两个探针；20k两个探针分卡，随后只跑一个分割任务。不用DDP，不为占满卡加任务；受阻交A修复。\n\n最终核对USE与MiT冻结哈希、选模、预算、初始化、曝光及实际成本，交付三张合并表、曲线和固定案例。更新唯一台账、固定模型/数据文档和总入口，说明外部监督初始化、探针容量和消费者自由度差异；失败、未测和未完成如实记录。"
+          }
+        ]
+      },
+      "execution_audit": {
+        "owner": "01a17db0-9dff-7fd0-b14a-a9033092fef9",
+        "formal_updates": 29000,
+        "budget": 29000,
+        "independent_tests": 40,
+        "backward_checks": 10,
+        "backward_optimizer_updates": 0,
+        "independent_discarded_test_updates": 20,
+        "independent_test_note": "最初33测试阶段两次共11可丢弃更新；修复release独立40测试（跳过会写A工程文件的真实consumer测试）9次，合计20；真实容量另1。A原32＋修复20次另列。",
+        "eta": {
+          "median_engineering_update_seconds": 1.3545634746551514,
+          "pretrain_update_only_hours": 7.5253526369730634,
+          "pipeline_hours_after_gate": [
+            10,
+            13
+          ],
+          "status": "粗估，门禁未过，未承诺完成时刻"
+        },
+        "gpu_uuid": {
+          "0": "GPU-9b56b860-01a3-345f-a376-2b39b50563e4",
+          "1": "GPU-dacfd62c-4462-feac-01f7-88f876c209ec"
+        },
+        "release": "engineering_v3",
+        "release_sha256": "dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855",
+        "discarded_capacity_updates": 1,
+        "shared_gpu_authorized": true,
+        "cost_timing": "共享负载计时不可信，不能宣称稳定加速",
+        "started_america_new_york": "2026-10-27T10:57:54.933160-04:00",
+        "eta_hours_after_start": null,
+        "runtime_status": "outputs/use_v4/runtime/status.json",
+        "recovery": "outputs/use_v4/audit/recovery_6300.json",
+        "eta_hours_after_resume": null,
+        "uncommitted_successful_updates_range": [
+          0,
+          99
+        ],
+        "uncommitted_successful_updates_exact": null,
+        "storage_block": "outputs/use_v4/audit/storage_block_10000.json",
+        "eta_status": "训练与验收完成，无待续队列",
+        "output_physical_path": "C:/Users/yzh/DisaterRuns/use_v4/runs",
+        "output_canonical_path": "outputs/use_v4/runs",
+        "migration": "outputs/use_v4/audit/runs_c_migration.json",
+        "resume_milestone": "outputs/use_v4/audit/milestone_10000_reconciled.json",
+        "final_artifact_status": "PASS_WITH_DOCUMENTED_LIMITATIONS",
+        "worker_wall_gpu_hours": 7.262231154441833,
+        "update_gpu_hours": 6.443499701486694,
+        "B_discarded_cost_updates": 2
+      },
+      "interim_results": {
+        "status": "10k probes complete; 20k probes and downstream pending",
+        "current_10k": {
+          "fine_pixel": 2.176853348232672,
+          "context_spectral": 0.909882185139258,
+          "context_spatial": 0.3886393646566937,
+          "public_score": 1.1584582993428745
+        },
+        "historical_selected_20k": {
+          "fine_pixel": 1.7117138413677808,
+          "context_spectral": 0.7592766227712824,
+          "context_spatial": 0.2920593329788925,
+          "public_score": 0.9210165990393185
+        },
+        "pretrain_saved": 16900,
+        "formal_saved": 18900,
+        "protocol": "599 PRETRAIN_VAL, sensor-equal and three-task-equal public v3 denominators, known metadata",
+        "boundary": "Different pretraining budgets/initialization/architecture; no final ranking or new segmentation quality claim"
+      },
+      "final_acceptance": "outputs/use_v4/audit/final_acceptance.json",
+      "comparisons": [
+        {
+          "name": "公共恢复评价",
+          "comparison": "历史USE双向空间交互20k入选权重，对比继承光谱前端后注入冻结MiT的10k/20k候选",
+          "evaluation_context": "同599重建验证；公共v3分母；known元数据；传感器与三任务等权；不是滑坡IoU",
+          "observation": "历史总分0.9210；新10k/20k为1.1585/1.1491，选20k；Fine未随预算改善，Context两项下降。",
+          "possible_answer": "20k相对10k仅小幅改善公共总分，没有超过历史恢复参考；初始化/空间机制不同，单seed，不作单组件因果判断。",
+          "evidence": [
+            "outputs/use_v4/runs/selection.json",
+            "outputs/use_v4/runs/probe_20000_context/evaluation.json"
+          ]
+        },
+        {
+          "name": "同开发验证集的分割迁移",
+          "comparison": "当前十波段直入SegFormer B0＋细节、历史冻结USE双向空间表征＋完整SegFormer、新冻结MiT＋All-MLP/Fine残差",
+          "evaluation_context": "同广岛448＋特里苏尔221；阈值0.5；二事件等权IoU；开发复用非盲测",
+          "observation": "当前参照0.3081，历史USE0.1258，新方案best/last0.0600/0.0597；新best4500步。",
+          "possible_answer": "本轮完整新方案没有迁移收益；外部监督、早期Fine、空间主干和消费者自由度同时不同，唯一失败机制未验证。",
+          "evidence": [
+            "outputs/use_v4/runs/segment/evaluation_best.json",
+            "outputs/use_v4/runs/segment/evaluation_last.json"
+          ]
+        },
+        {
+          "name": "前向成本与大图容量",
+          "comparison": "同卡FP32的历史USE裸编码器/完整SegFormer、新冻结MiT裸编码器/轻量头及十波段直入参照",
+          "evaluation_context": "C10 B1；30预热100测量×3；共享负载墙钟；1024仅一次合成前向，>=2048静态",
+          "observation": "512消费者中位新38.90ms、历史52.95ms、直入18.05ms，显存新1969.6MiB；1024单次前向通过，约7734.6MiB。",
+          "possible_answer": "新消费者图中不再重复空间编码；共享负载下不宣称稳定加速，精度下降仍是实测边界。训练分项仅冷样本、512训练未测，切片不能恢复跨窗注意力。",
+          "evidence": [
+            "outputs/use_v4/benchmarks/final_weights_cost.json",
+            "outputs/use_v4/benchmarks/final_large_capacity.json"
           ]
         }
       ]

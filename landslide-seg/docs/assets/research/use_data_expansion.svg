@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+<rect width="1200" height="420" fill="#f6f8fc"/><style>text{font-family:Microsoft YaHei,Arial,sans-serif;fill:#192d49} .title{font-size:25px;font-weight:bold}.main{font-size:21px}.note{font-size:17px}.box{fill:white;stroke:#9db3cd;stroke-width:2}.flow{stroke:#5176a5;stroke-width:3;fill:none;marker-end:url(#arrow)}</style>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#5176a5"/></marker></defs>
+<text x="36" y="42" class="title">补充USE训练数据：先审查来源与空间，再按物理量接入</text>
+<rect x="35" y="78" width="270" height="73" rx="10" class="box"/><text x="52" y="108" class="main">Sentinel-2 / Landsat</text><text x="52" y="135" class="note">优先增加地域与光学观测</text>
+<rect x="35" y="177" width="270" height="73" rx="10" class="box"/><text x="52" y="208" class="main">CAS RGB + 滑坡掩膜</text><text x="52" y="235" class="note">图像数值与标签分别审计</text>
+<rect x="35" y="276" width="270" height="73" rx="10" class="box"/><text x="52" y="307" class="main">Sentinel-1 VV / VH</text><text x="52" y="334" class="note">后续独立雷达扩展</text>
+<rect x="375" y="78" width="330" height="271" rx="10" class="box"/><text x="395" y="114" class="main">统一来源、质量与空间审查</text><text x="395" y="157" class="note">许可 / 通道 / 日期 / 物理量</text><text x="395" y="191" class="note">排除评价事件及空间缓冲</text><text x="395" y="225" class="note">跨日期与传感器分组去重</text><text x="395" y="259" class="note">训练 / 重建验证 / 隔离</text><text x="395" y="307" class="note">未能确认来源或位置 → 隔离</text>
+<rect x="780" y="78" width="385" height="73" rx="10" class="box"/><text x="798" y="108" class="main">光学反射率恢复预训练</text><text x="798" y="135" class="note">保留波段身份与原生分辨率</text>
+<rect x="780" y="177" width="385" height="73" rx="10" class="box"/><text x="798" y="208" class="main">RGB适配 / 独立滑坡监督</text><text x="798" y="235" class="note">掩膜不进入无标签模型输入</text>
+<rect x="780" y="276" width="385" height="73" rx="10" class="box"/><text x="798" y="307" class="main">雷达独立入口与训练目标</text><text x="798" y="334" class="note">后向散射不按光学反射率处理</text>
+<path d="M305 115H375 M305 214H375 M305 313H375 M705 115H780 M705 214H780 M705 313H780" class="flow"/>
+<text x="36" y="392" class="note">当前交付为方案；新增下载、数据适配与训练尚未执行，收益有待同条件对照验证。</text></svg>

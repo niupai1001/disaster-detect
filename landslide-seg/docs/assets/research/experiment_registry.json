@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-26",
+  "as_of": "2026-10-28",
   "policy": "原固定事件留出基线默认开发；不默认四折，明显进步后才新增官方比较",
   "default_protocol": "event_ood_v4r1",
   "scope": "磁盘现有SegFormer、独立USE预训练及冻结消费者resolved_config；U-TAE由对应协议文档及阶段证据另列",
@@ -31601,174 +31601,74 @@
       "acceptance_source": "outputs/use_independent_frozen/pretraining/spatial/acceptance.json"
     },
     {
-      "run_id": "526a1d37832f8184",
-      "architecture_id": "use-v3-stage-v3-pretrain-encoder",
-      "display_name": "双向空间交互编码器｜无标签恢复预训练",
-      "run_display_name": "双向空间交互编码器｜无标签恢复预训练｜seed1234｜continuous30000",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
+      "run_id": "1eaed98390dbcbd4",
+      "architecture_id": "use-v4-mit-b0-pretrain",
+      "display_name": "SegFormer B0｜光谱Token注入冻结MiT｜三视图五目标重建",
+      "run_display_name": "SegFormer B0｜光谱Token注入冻结MiT｜三视图五目标重建｜USE_FIXED_TRAIN_PRETRAIN_VAL｜seed1234/head1235｜20000更新",
+      "treatment": "固定MiT外部预训练；完整USE仅在探针/分割冻结；FP32/TF32关闭；batch8=micro2×accum4",
+      "protocol": "USE_FIXED_TRAIN_PRETRAIN_VAL",
+      "data_context": "11132无标签训练；599重建验证；239隔离",
       "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/pretrain",
-      "legacy_experiment": "use_v3_pretrain",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/pretrain/summary.json",
-      "global_step": 30000,
-      "best_selection_value": 0.9210165990393187,
-      "selection_metric": "equal_sensor_equal_three_unified_probe_error",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": true,
-      "last_exists": true,
+      "head_seed": 1235,
+      "status": "完成训练；最终证据见v4验收",
+      "run_dir": "outputs/use_v4/runs/pretrain",
+      "legacy_experiment": "pretrain",
+      "config_path": "configs/use_v4/execution.yaml",
+      "config_sha256": "d5d5b160f7cbd46d3fa835c1a32773314964b408414322ac01373f1d21b5a826",
       "model_config": {
-        "type": "use_v3_stage",
+        "type": "use_v4_mit",
         "job": {
           "mode": "pretrain",
-          "encoder": "v3",
-          "steps": 30000,
-          "warmup": 1500
+          "steps": 20000,
+          "warmup": 1000
         }
       },
       "effective_structure": {
         "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
+        "input_seen_by_encoder": "真实反射率、质量掩膜与known物理元数据；光谱Query注入冻结MiT",
+        "source": "engineering_v3实际加载与v4源码"
       },
-      "effective_training": {
-        "stop_updates": 30000,
-        "schedule_updates": 30000,
-        "warmup_updates": 1500,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
+      "summary_source": "outputs/use_v4/runs/pretrain/summary.json",
+      "global_step": 20000,
+      "best_selection_value": null,
+      "selection_metric": "public_unlabeled_recovery_score; probes use final state",
+      "n_train": 11132,
+      "n_val": 599,
+      "params": {
+        "total": 3371705,
+        "trainable": 52313
       },
-      "initialization": {
-        "encoder_source_sha256": null,
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
+      "best_exists": true,
+      "last_exists": true,
       "evaluations": [],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "e7a9a3ff3f645ede381c04531e79383d4b7d9beb13713bb3555ed7d3e7df43ec",
-        "last.pt": "95bbf0000b36a21a8324700c6dcaaeb034f78580424cd4bfb3be7ce5a4bff60a",
-        "u5000.pt": "6d0826af5ac058aabfd2736febfa8d89a6fdd0848398115725289a2157ec5e60",
-        "u10000.pt": "0f3d52ef9a5c7689867a9f2fe4edfb6984b1a5e97f6ed2cec44d5c3c0910e0f1",
-        "u20000.pt": "e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886",
-        "u30000.pt": "1e7d65034228640e11e7b902781a5a2b2b3c8e4f0840d6cf086702b02ff8b70f"
-      }
+      "release_sha256": "dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855",
+      "execution_job": {
+        "mode": "pretrain",
+        "steps": 20000,
+        "warmup": 1000
+      },
+      "output_physical_path": "C:/Users/yzh/DisaterRuns/use_v4/runs/pretrain"
     },
     {
-      "run_id": "bb0c03021123dc3c",
-      "architecture_id": "use-v3-stage-v2-probe-context",
-      "display_name": "原生金字塔编码器｜冻结原生Context光谱与空间恢复探针",
-      "run_display_name": "原生金字塔编码器｜冻结原生Context光谱与空间恢复探针｜seed1234｜initial",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
+      "run_id": "e25e90bb31ba7f52",
+      "architecture_id": "use-v4-mit-b0-probe-fine",
+      "display_name": "SegFormer B0｜光谱Token注入冻结MiT｜早期Fine恢复探针",
+      "run_display_name": "SegFormer B0｜光谱Token注入冻结MiT｜早期Fine恢复探针｜USE_FIXED_TRAIN_PRETRAIN_VAL｜seed1234/head1235｜1000更新",
+      "treatment": "固定MiT外部预训练；完整USE仅在探针/分割冻结；FP32/TF32关闭；batch8=micro2×accum4",
+      "protocol": "USE_FIXED_TRAIN_PRETRAIN_VAL",
+      "data_context": "11132无标签训练；599重建验证；239隔离",
       "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v2_initial_context",
-      "legacy_experiment": "use_v3_probe_v2_initial_context",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v2_initial_context/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
+      "head_seed": 1235,
+      "status": "完成训练；最终证据见v4验收",
+      "run_dir": "outputs/use_v4/runs/probe_10000_fine",
+      "legacy_experiment": "probe_10000_fine",
+      "config_path": "configs/use_v4/execution.yaml",
+      "config_sha256": "d5d5b160f7cbd46d3fa835c1a32773314964b408414322ac01373f1d21b5a826",
       "model_config": {
-        "type": "use_v3_stage",
+        "type": "use_v4_mit",
         "job": {
           "mode": "probe",
-          "encoder": "v2",
-          "point": "initial",
-          "task": "context",
-          "steps": 1000,
-          "warmup": 50
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": null,
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v2_initial_context/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_initial_context/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_initial_context/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "3971ba3e399fc48d2ff263f65882b8e65891f95b7de25aede799bb9c1c35245f",
-        "last.pt": "a901109dff708146f3a13f6c9c0f9487ff85c3cce147b3ece70ba778b743c386"
-      }
-    },
-    {
-      "run_id": "d898f140ff9e9b48",
-      "architecture_id": "use-v3-stage-v2-probe-fine",
-      "display_name": "原生金字塔编码器｜冻结Fine像素恢复探针",
-      "run_display_name": "原生金字塔编码器｜冻结Fine像素恢复探针｜seed1234｜initial",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v2_initial_fine",
-      "legacy_experiment": "use_v3_probe_v2_initial_fine",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v2_initial_fine/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v2",
-          "point": "initial",
+          "point": 10000,
           "task": "fine",
           "steps": 1000,
           "warmup": 50
@@ -31776,75 +31676,52 @@
       },
       "effective_structure": {
         "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
+        "input_seen_by_encoder": "真实反射率、质量掩膜与known物理元数据；光谱Query注入冻结MiT",
+        "source": "engineering_v3实际加载与v4源码"
       },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": null,
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v2_initial_fine/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_initial_fine/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_initial_fine/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "855f6de68ebf9539f6a4a8beac02a308d77cec06b2064b24245ea39818c0a819",
-        "last.pt": "21dc85d46176b904c9809695254a4680bea151ffe76dac28a13cae920e4433e2"
-      }
-    },
-    {
-      "run_id": "cdbb08b182b77a05",
-      "architecture_id": "use-v3-stage-v2-probe-context",
-      "display_name": "原生金字塔编码器｜冻结原生Context光谱与空间恢复探针",
-      "run_display_name": "原生金字塔编码器｜冻结原生Context光谱与空间恢复探针｜seed1234｜selected",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v2_selected_context",
-      "legacy_experiment": "use_v3_probe_v2_selected_context",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v2_selected_context/summary.json",
+      "summary_source": "outputs/use_v4/runs/probe_10000_fine/summary.json",
       "global_step": 1000,
       "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
+      "selection_metric": "public_unlabeled_recovery_score; probes use final state",
       "n_train": 11132,
       "n_val": 599,
+      "params": {
+        "total": 3355193,
+        "trainable": 11681
+      },
       "best_exists": false,
       "last_exists": true,
+      "evaluations": [],
+      "release_sha256": "dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855",
+      "execution_job": {
+        "mode": "probe",
+        "point": 10000,
+        "task": "fine",
+        "steps": 1000,
+        "warmup": 50
+      },
+      "output_physical_path": "C:/Users/yzh/DisaterRuns/use_v4/runs/probe_10000_fine"
+    },
+    {
+      "run_id": "827230259f0a3745",
+      "architecture_id": "use-v4-mit-b0-probe-context",
+      "display_name": "SegFormer B0｜光谱Token注入冻结MiT｜四尺度Context恢复探针",
+      "run_display_name": "SegFormer B0｜光谱Token注入冻结MiT｜四尺度Context恢复探针｜USE_FIXED_TRAIN_PRETRAIN_VAL｜seed1234/head1235｜1000更新",
+      "treatment": "固定MiT外部预训练；完整USE仅在探针/分割冻结；FP32/TF32关闭；batch8=micro2×accum4",
+      "protocol": "USE_FIXED_TRAIN_PRETRAIN_VAL",
+      "data_context": "11132无标签训练；599重建验证；239隔离",
+      "seed": 1234,
+      "head_seed": 1235,
+      "status": "完成训练；最终证据见v4验收",
+      "run_dir": "outputs/use_v4/runs/probe_10000_context",
+      "legacy_experiment": "probe_10000_context",
+      "config_path": "configs/use_v4/execution.yaml",
+      "config_sha256": "d5d5b160f7cbd46d3fa835c1a32773314964b408414322ac01373f1d21b5a826",
       "model_config": {
-        "type": "use_v3_stage",
+        "type": "use_v4_mit",
         "job": {
           "mode": "probe",
-          "encoder": "v2",
-          "point": "selected",
+          "point": 10000,
           "task": "context",
           "steps": 1000,
           "warmup": 50
@@ -31852,75 +31729,52 @@
       },
       "effective_structure": {
         "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
+        "input_seen_by_encoder": "真实反射率、质量掩膜与known物理元数据；光谱Query注入冻结MiT",
+        "source": "engineering_v3实际加载与v4源码"
       },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "675c650bb6e6e49523bcbf16db4597555e3d7332263cb8857765cee5bc48e63d",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v2_selected_context/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_selected_context/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_selected_context/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "69a89ad133697cfbc2b4d8760b6c3a5180d098011fe95d6fe0ad2af51890b9a3",
-        "last.pt": "9ec8bbd5e6454d8fb293c1db7bd1fcaf805b34e60d0a4cb9a5fdcceb51672f76"
-      }
-    },
-    {
-      "run_id": "dc30fce3b0484730",
-      "architecture_id": "use-v3-stage-v2-probe-fine",
-      "display_name": "原生金字塔编码器｜冻结Fine像素恢复探针",
-      "run_display_name": "原生金字塔编码器｜冻结Fine像素恢复探针｜seed1234｜selected",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v2_selected_fine",
-      "legacy_experiment": "use_v3_probe_v2_selected_fine",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v2_selected_fine/summary.json",
+      "summary_source": "outputs/use_v4/runs/probe_10000_context/summary.json",
       "global_step": 1000,
       "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
+      "selection_metric": "public_unlabeled_recovery_score; probes use final state",
       "n_train": 11132,
       "n_val": 599,
+      "params": {
+        "total": 3371705,
+        "trainable": 28193
+      },
       "best_exists": false,
       "last_exists": true,
+      "evaluations": [],
+      "release_sha256": "dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855",
+      "execution_job": {
+        "mode": "probe",
+        "point": 10000,
+        "task": "context",
+        "steps": 1000,
+        "warmup": 50
+      },
+      "output_physical_path": "C:/Users/yzh/DisaterRuns/use_v4/runs/probe_10000_context"
+    },
+    {
+      "run_id": "1719a8b38be03511",
+      "architecture_id": "use-v4-mit-b0-probe-fine",
+      "display_name": "SegFormer B0｜光谱Token注入冻结MiT｜早期Fine恢复探针",
+      "run_display_name": "SegFormer B0｜光谱Token注入冻结MiT｜早期Fine恢复探针｜USE_FIXED_TRAIN_PRETRAIN_VAL｜seed1234/head1235｜1000更新",
+      "treatment": "固定MiT外部预训练；完整USE仅在探针/分割冻结；FP32/TF32关闭；batch8=micro2×accum4",
+      "protocol": "USE_FIXED_TRAIN_PRETRAIN_VAL",
+      "data_context": "11132无标签训练；599重建验证；239隔离",
+      "seed": 1234,
+      "head_seed": 1235,
+      "status": "完成训练；最终证据见v4验收",
+      "run_dir": "outputs/use_v4/runs/probe_20000_fine",
+      "legacy_experiment": "probe_20000_fine",
+      "config_path": "configs/use_v4/execution.yaml",
+      "config_sha256": "d5d5b160f7cbd46d3fa835c1a32773314964b408414322ac01373f1d21b5a826",
       "model_config": {
-        "type": "use_v3_stage",
+        "type": "use_v4_mit",
         "job": {
           "mode": "probe",
-          "encoder": "v2",
-          "point": "selected",
+          "point": 20000,
           "task": "fine",
           "steps": 1000,
           "warmup": 50
@@ -31928,75 +31782,52 @@
       },
       "effective_structure": {
         "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
+        "input_seen_by_encoder": "真实反射率、质量掩膜与known物理元数据；光谱Query注入冻结MiT",
+        "source": "engineering_v3实际加载与v4源码"
       },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "675c650bb6e6e49523bcbf16db4597555e3d7332263cb8857765cee5bc48e63d",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v2_selected_fine/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_selected_fine/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v2_selected_fine/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "c363c49045b8477b7543f894e6afbc674e8dea8a9ba76d7638b57a42a4530297",
-        "last.pt": "87c900496546fa92bf7ff4e5a2bc95eba8b14159418bdfe738f247985fe6fd27"
-      }
-    },
-    {
-      "run_id": "881363b6b546e7ea",
-      "architecture_id": "use-v3-stage-v3-probe-context",
-      "display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针｜seed1234｜10000",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_10000_context",
-      "legacy_experiment": "use_v3_probe_v3_10000_context",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_10000_context/summary.json",
+      "summary_source": "outputs/use_v4/runs/probe_20000_fine/summary.json",
       "global_step": 1000,
       "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
+      "selection_metric": "public_unlabeled_recovery_score; probes use final state",
       "n_train": 11132,
       "n_val": 599,
+      "params": {
+        "total": 3355193,
+        "trainable": 11681
+      },
       "best_exists": false,
       "last_exists": true,
+      "evaluations": [],
+      "release_sha256": "dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855",
+      "execution_job": {
+        "mode": "probe",
+        "point": 20000,
+        "task": "fine",
+        "steps": 1000,
+        "warmup": 50
+      },
+      "output_physical_path": "C:/Users/yzh/DisaterRuns/use_v4/runs/probe_20000_fine"
+    },
+    {
+      "run_id": "afaca82acbbbc848",
+      "architecture_id": "use-v4-mit-b0-probe-context",
+      "display_name": "SegFormer B0｜光谱Token注入冻结MiT｜四尺度Context恢复探针",
+      "run_display_name": "SegFormer B0｜光谱Token注入冻结MiT｜四尺度Context恢复探针｜USE_FIXED_TRAIN_PRETRAIN_VAL｜seed1234/head1235｜1000更新",
+      "treatment": "固定MiT外部预训练；完整USE仅在探针/分割冻结；FP32/TF32关闭；batch8=micro2×accum4",
+      "protocol": "USE_FIXED_TRAIN_PRETRAIN_VAL",
+      "data_context": "11132无标签训练；599重建验证；239隔离",
+      "seed": 1234,
+      "head_seed": 1235,
+      "status": "完成训练；最终证据见v4验收",
+      "run_dir": "outputs/use_v4/runs/probe_20000_context",
+      "legacy_experiment": "probe_20000_context",
+      "config_path": "configs/use_v4/execution.yaml",
+      "config_sha256": "d5d5b160f7cbd46d3fa835c1a32773314964b408414322ac01373f1d21b5a826",
       "model_config": {
-        "type": "use_v3_stage",
+        "type": "use_v4_mit",
         "job": {
           "mode": "probe",
-          "encoder": "v3",
-          "point": "10000",
+          "point": 20000,
           "task": "context",
           "steps": 1000,
           "warmup": 50
@@ -32004,878 +31835,80 @@
       },
       "effective_structure": {
         "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
+        "input_seen_by_encoder": "真实反射率、质量掩膜与known物理元数据；光谱Query注入冻结MiT",
+        "source": "engineering_v3实际加载与v4源码"
       },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "0f3d52ef9a5c7689867a9f2fe4edfb6984b1a5e97f6ed2cec44d5c3c0910e0f1",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_10000_context/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_10000_context/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_10000_context/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "e3f151798b2ca3e71ab7784bea5c1091ca8192694fb5e671489b4a860f6feeed",
-        "last.pt": "87ca3cf19d07c41a3c5122a931705376acaef40ab755bf724d5026a4b1a3e81f"
-      }
-    },
-    {
-      "run_id": "b78f038491366dcb",
-      "architecture_id": "use-v3-stage-v3-probe-fine",
-      "display_name": "双向空间交互编码器｜冻结Fine像素恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结Fine像素恢复探针｜seed1234｜10000",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_10000_fine",
-      "legacy_experiment": "use_v3_probe_v3_10000_fine",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_10000_fine/summary.json",
+      "summary_source": "outputs/use_v4/runs/probe_20000_context/summary.json",
       "global_step": 1000,
       "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
+      "selection_metric": "public_unlabeled_recovery_score; probes use final state",
       "n_train": 11132,
       "n_val": 599,
+      "params": {
+        "total": 3371705,
+        "trainable": 28193
+      },
       "best_exists": false,
       "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v3",
-          "point": "10000",
-          "task": "fine",
-          "steps": 1000,
-          "warmup": 50
-        }
+      "evaluations": [],
+      "release_sha256": "dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855",
+      "execution_job": {
+        "mode": "probe",
+        "point": 20000,
+        "task": "context",
+        "steps": 1000,
+        "warmup": 50
       },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "0f3d52ef9a5c7689867a9f2fe4edfb6984b1a5e97f6ed2cec44d5c3c0910e0f1",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_10000_fine/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_10000_fine/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_10000_fine/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "51829603c2cfed91306c5d0a400e9b98ed86baffb178d58b34805549bad1037f",
-        "last.pt": "724a04f028bad0b039702487a5a6081df21ea63b0746ea8d7e5bfa1844ec4e39"
-      }
+      "output_physical_path": "C:/Users/yzh/DisaterRuns/use_v4/runs/probe_20000_context"
     },
     {
-      "run_id": "de34d56a668a9f6f",
-      "architecture_id": "use-v3-stage-v3-probe-context",
-      "display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针｜seed1234｜20000",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_20000_context",
-      "legacy_experiment": "use_v3_probe_v3_20000_context",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_20000_context/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v3",
-          "point": "20000",
-          "task": "context",
-          "steps": 1000,
-          "warmup": 50
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_20000_context/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_20000_context/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_20000_context/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "16e7bae2efacb62201e6803c8757220097e3157e24be6e57afdfef447e051d28",
-        "last.pt": "8a8c6ee90486085a0eedaca8160356748e38612c7e7f16d92d766ef9ce28f880"
-      }
-    },
-    {
-      "run_id": "ab3d565aaea73491",
-      "architecture_id": "use-v3-stage-v3-probe-fine",
-      "display_name": "双向空间交互编码器｜冻结Fine像素恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结Fine像素恢复探针｜seed1234｜20000",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_20000_fine",
-      "legacy_experiment": "use_v3_probe_v3_20000_fine",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_20000_fine/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v3",
-          "point": "20000",
-          "task": "fine",
-          "steps": 1000,
-          "warmup": 50
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_20000_fine/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_20000_fine/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_20000_fine/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "cbe8503007700d24f7717c294f1cafbca228247db2318f673a7cefd58525b490",
-        "last.pt": "e795ea3ab5f1efbb335aa2aa2b7cd3a4fca923b62eb8bff4ad43e4d0eb5505ed"
-      }
-    },
-    {
-      "run_id": "9a44d25962ea0335",
-      "architecture_id": "use-v3-stage-v3-probe-context",
-      "display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针｜seed1234｜30000",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_30000_context",
-      "legacy_experiment": "use_v3_probe_v3_30000_context",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_30000_context/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v3",
-          "point": "30000",
-          "task": "context",
-          "steps": 1000,
-          "warmup": 50
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "1e7d65034228640e11e7b902781a5a2b2b3c8e4f0840d6cf086702b02ff8b70f",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_30000_context/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_30000_context/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_30000_context/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "c2e63fdee0cd40272167f608805fe2efc0e09a698ea4eb3d690c4821427b2675",
-        "last.pt": "a21d80c4db4ad17e4eb8b530e431ca6a82d2415c3dd80d74467a72b74ee2ef88"
-      }
-    },
-    {
-      "run_id": "9a3ee6ee4f0d5b3e",
-      "architecture_id": "use-v3-stage-v3-probe-fine",
-      "display_name": "双向空间交互编码器｜冻结Fine像素恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结Fine像素恢复探针｜seed1234｜30000",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_30000_fine",
-      "legacy_experiment": "use_v3_probe_v3_30000_fine",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_30000_fine/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v3",
-          "point": "30000",
-          "task": "fine",
-          "steps": 1000,
-          "warmup": 50
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "1e7d65034228640e11e7b902781a5a2b2b3c8e4f0840d6cf086702b02ff8b70f",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_30000_fine/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_30000_fine/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_30000_fine/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "c49bed53f3077fa11008774a85da29720577617948c5b39d96ba1a8e090ecfe7",
-        "last.pt": "e2043f779f843298864c1641fe263b49a4010f29b3a416ee0846acbd0c237036"
-      }
-    },
-    {
-      "run_id": "0f26558cd606092d",
-      "architecture_id": "use-v3-stage-v3-probe-context",
-      "display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结原生Context光谱与空间恢复探针｜seed1234｜initial",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_initial_context",
-      "legacy_experiment": "use_v3_probe_v3_initial_context",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_initial_context/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v3",
-          "point": "initial",
-          "task": "context",
-          "steps": 1000,
-          "warmup": 50
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "e7a9a3ff3f645ede381c04531e79383d4b7d9beb13713bb3555ed7d3e7df43ec",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_initial_context/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_initial_context/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_initial_context/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "7555b96e9b149d87dbeec182c2bfae3226a81c1d7eb6386ab7b9dd304084fddd",
-        "last.pt": "63028116715a354f98b833d91eed7e0d0088aee13ff614937a0da89f5fd5b73a"
-      }
-    },
-    {
-      "run_id": "c19f3df8c3fb8286",
-      "architecture_id": "use-v3-stage-v3-probe-fine",
-      "display_name": "双向空间交互编码器｜冻结Fine像素恢复探针",
-      "run_display_name": "双向空间交互编码器｜冻结Fine像素恢复探针｜seed1234｜initial",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "USE_V3_UNLABELED_GEOGRAPHIC_HOLDOUT",
-      "data_context": "无标签TRAIN11132／PRETRAIN_VAL599／GUARD239；不使用滑坡标签",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/probe_v3_initial_fine",
-      "legacy_experiment": "use_v3_probe_v3_initial_fine",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/probe_v3_initial_fine/summary.json",
-      "global_step": 1000,
-      "best_selection_value": null,
-      "selection_metric": "fixed_1000_updates_last_only_no_selection",
-      "n_train": 11132,
-      "n_val": 599,
-      "best_exists": false,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "probe",
-          "encoder": "v3",
-          "point": "initial",
-          "task": "fine",
-          "steps": 1000,
-          "warmup": 50
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 1000,
-        "schedule_updates": 1000,
-        "warmup_updates": 50,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "e7a9a3ff3f645ede381c04531e79383d4b7d9beb13713bb3555ed7d3e7df43ec",
-        "visual": "seed1234编码器／seed1235恢复头"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/probe_v3_initial_fine/evaluation.json",
-          "metadata_mode": "known"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_initial_fine/evaluation_partial.json",
-          "metadata_mode": "partial"
-        },
-        {
-          "path": "outputs/use_v3/runs/probe_v3_initial_fine/evaluation_unknown.json",
-          "metadata_mode": "unknown"
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "a489c54a7719ef65c1b5905ca1a049a4c90e6df0650c42386c48951951a8ff2a",
-        "last.pt": "a7ee88e8069dba8e1f0335d69008ae6423561f12d50dc7e8a9fa085e0f1ac415"
-      }
-    },
-    {
-      "run_id": "5cecc6e34725d232",
-      "architecture_id": "use-v3-stage-v2-segmentation-segformer",
-      "display_name": "SegFormer B0｜十波段经冻结原生金字塔编码器｜学习投影＋Fine",
-      "run_display_name": "SegFormer B0｜十波段经冻结原生金字塔编码器｜学习投影＋Fine｜seed1234｜selected",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
+      "run_id": "d91069dae5105b98",
+      "architecture_id": "use-v4-mit-b0-segmentation",
+      "display_name": "SegFormer B0｜光谱Token注入冻结MiT｜All-MLP＋Fine残差",
+      "run_display_name": "SegFormer B0｜光谱Token注入冻结MiT｜All-MLP＋Fine残差｜event_ood_v4r1｜seed1234/head1235｜5000更新",
+      "treatment": "固定MiT外部预训练；完整USE仅在探针/分割冻结；FP32/TF32关闭；batch8=micro2×accum4",
       "protocol": "event_ood_v4r1",
-      "data_context": "九事件训练2223；广岛448＋特里苏尔221开发验证",
+      "data_context": "九事件2223训练；广岛448＋特里苏尔221开发验证",
       "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/seg_v2_segformer",
-      "legacy_experiment": "use_v3_seg_v2_segformer",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/seg_v2_segformer/summary.json",
-      "global_step": 5000,
-      "best_selection_value": 0.12846288548716248,
-      "selection_metric": "dev_event_mean_iou",
-      "n_train": 2223,
-      "n_val": 669,
-      "best_exists": true,
-      "last_exists": true,
+      "head_seed": 1235,
+      "status": "完成训练；最终证据见v4验收",
+      "run_dir": "outputs/use_v4/runs/segment",
+      "legacy_experiment": "segment",
+      "config_path": "configs/use_v4/execution.yaml",
+      "config_sha256": "d5d5b160f7cbd46d3fa835c1a32773314964b408414322ac01373f1d21b5a826",
       "model_config": {
-        "type": "use_v3_stage",
+        "type": "use_v4_mit",
         "job": {
           "mode": "segmentation",
-          "encoder": "v2",
-          "network": "segformer",
-          "point": "selected",
           "steps": 5000,
           "warmup": 250
         }
       },
       "effective_structure": {
         "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
+        "input_seen_by_encoder": "真实反射率、质量掩膜与known物理元数据；光谱Query注入冻结MiT",
+        "source": "engineering_v3实际加载与v4源码"
       },
-      "effective_training": {
-        "stop_updates": 5000,
-        "schedule_updates": 5000,
-        "warmup_updates": 250,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "675c650bb6e6e49523bcbf16db4597555e3d7332263cb8857765cee5bc48e63d",
-        "visual": "U-Net全随机；SegFormer B0新32通道首层随机，其余本地通用预训练"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/seg_v2_segformer/eval_3500.json",
-          "stage": "best",
-          "event_mean_iou": 0.12846288548716248
-        },
-        {
-          "path": "outputs/use_v3/runs/seg_v2_segformer/eval_5000.json",
-          "stage": "last",
-          "event_mean_iou": 0.1124991217249214
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "4f4d2dd54fc9b4ec352e72f138de170ebb96db6ed759737dd25f0a68cee8cd8c",
-        "last.pt": "edcb57c8d9fa5ef3ebec04a910c3e4218cb0c437cf15aee5f00b6d0319a8baaa",
-        "best.pt": "dec928b4d4f47e7dc37782c11677104fe811f46dc1a6d90dff230a97cb15db23"
-      }
-    },
-    {
-      "run_id": "4c6ab977671ca5c3",
-      "architecture_id": "use-v3-stage-v2-segmentation-unet",
-      "display_name": "U-Net｜十波段经冻结原生金字塔编码器｜学习投影＋Fine",
-      "run_display_name": "U-Net｜十波段经冻结原生金字塔编码器｜学习投影＋Fine｜seed1234｜selected",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "event_ood_v4r1",
-      "data_context": "九事件训练2223；广岛448＋特里苏尔221开发验证",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/seg_v2_unet",
-      "legacy_experiment": "use_v3_seg_v2_unet",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/seg_v2_unet/summary.json",
+      "summary_source": "outputs/use_v4/runs/segment/summary.json",
       "global_step": 5000,
-      "best_selection_value": 0.12634997427888017,
+      "best_selection_value": 0.05998524570926321,
       "selection_metric": "dev_event_mean_iou",
       "n_train": 2223,
       "n_val": 669,
+      "params": {
+        "total": 3757082,
+        "trainable": 413570
+      },
       "best_exists": true,
       "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "segmentation",
-          "encoder": "v2",
-          "network": "unet",
-          "point": "selected",
-          "steps": 5000,
-          "warmup": 250
-        }
+      "evaluations": [],
+      "release_sha256": "dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855",
+      "execution_job": {
+        "mode": "segmentation",
+        "steps": 5000,
+        "warmup": 250
       },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 5000,
-        "schedule_updates": 5000,
-        "warmup_updates": 250,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "675c650bb6e6e49523bcbf16db4597555e3d7332263cb8857765cee5bc48e63d",
-        "visual": "U-Net全随机；SegFormer B0新32通道首层随机，其余本地通用预训练"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/seg_v2_unet/eval_5000.json",
-          "stage": "best",
-          "event_mean_iou": 0.12634997427888017
-        },
-        {
-          "path": "outputs/use_v3/runs/seg_v2_unet/eval_5000.json",
-          "stage": "last",
-          "event_mean_iou": 0.12634997427888017
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "4e625a58029d526677a9500a9e5a65a9c2d6866f9b1915b3d83e1d7fc8d0e8d1",
-        "last.pt": "b4b3baf684043a95a6f3681037527b61e4543664a885280f81c1907355cad552",
-        "best.pt": "5121a88c6216a1be02241c2bdecbe0d4e009551fc679a0f83489fce397896960"
-      }
-    },
-    {
-      "run_id": "40b59dda6331910e",
-      "architecture_id": "use-v3-stage-v3-segmentation-segformer",
-      "display_name": "SegFormer B0｜十波段经冻结双向空间交互编码器｜学习投影＋Fine",
-      "run_display_name": "SegFormer B0｜十波段经冻结双向空间交互编码器｜学习投影＋Fine｜seed1234｜selected",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "event_ood_v4r1",
-      "data_context": "九事件训练2223；广岛448＋特里苏尔221开发验证",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/seg_v3_segformer",
-      "legacy_experiment": "use_v3_seg_v3_segformer",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/seg_v3_segformer/summary.json",
-      "global_step": 5000,
-      "best_selection_value": 0.12577674894206678,
-      "selection_metric": "dev_event_mean_iou",
-      "n_train": 2223,
-      "n_val": 669,
-      "best_exists": true,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "segmentation",
-          "encoder": "v3",
-          "network": "segformer",
-          "point": "selected",
-          "steps": 5000,
-          "warmup": 250
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 5000,
-        "schedule_updates": 5000,
-        "warmup_updates": 250,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886",
-        "visual": "U-Net全随机；SegFormer B0新32通道首层随机，其余本地通用预训练"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/seg_v3_segformer/eval_4500.json",
-          "stage": "best",
-          "event_mean_iou": 0.12577674894206678
-        },
-        {
-          "path": "outputs/use_v3/runs/seg_v3_segformer/eval_5000.json",
-          "stage": "last",
-          "event_mean_iou": 0.12383842466370254
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "bcc585f15843d23adce7172ff2e34b7fc56866d3ba8540d8de42ef7c1adb4246",
-        "last.pt": "ee41825e3212a5a460e424d89eb68a950c3d32be483c365f9a9a3949ff03a797",
-        "best.pt": "4a1f9e4fe80f0ab9b3744dabfdc478a21896bb0342c0af1bf3b9da559dbbb45b"
-      }
-    },
-    {
-      "run_id": "7c0e125b4decc4ab",
-      "architecture_id": "use-v3-stage-v3-segmentation-unet",
-      "display_name": "U-Net｜十波段经冻结双向空间交互编码器｜学习投影＋Fine",
-      "run_display_name": "U-Net｜十波段经冻结双向空间交互编码器｜学习投影＋Fine｜seed1234｜selected",
-      "treatment": "原定62000正式预算中的单项；无额外训练",
-      "protocol": "event_ood_v4r1",
-      "data_context": "九事件训练2223；广岛448＋特里苏尔221开发验证",
-      "seed": 1234,
-      "status": "正式训练与产物核对完成；完整成本门禁按用户要求跳过",
-      "run_dir": "outputs/use_v3/runs/seg_v3_unet",
-      "legacy_experiment": "use_v3_seg_v3_unet",
-      "config_path": "configs/use_v3/execution.yaml",
-      "config_sha256": "e6bac64b4e6594f246ae9d1fa81bd289fc7a1546a57a5109d302cbd49c4d6a6a",
-      "summary_source": "outputs/use_v3/runs/seg_v3_unet/summary.json",
-      "global_step": 5000,
-      "best_selection_value": 0.1305062488032559,
-      "selection_metric": "dev_event_mean_iou",
-      "n_train": 2223,
-      "n_val": 669,
-      "best_exists": true,
-      "last_exists": true,
-      "model_config": {
-        "type": "use_v3_stage",
-        "job": {
-          "mode": "segmentation",
-          "encoder": "v3",
-          "network": "unet",
-          "point": "selected",
-          "steps": 5000,
-          "warmup": 250
-        }
-      },
-      "effective_structure": {
-        "stem": false,
-        "input_seen_by_encoder": "既有单期反射率＋质量掩膜＋物理元数据；分割为十波段",
-        "source": "engineering_v5 immutable release and actual job identity"
-      },
-      "effective_training": {
-        "stop_updates": 5000,
-        "schedule_updates": 5000,
-        "warmup_updates": 250,
-        "precision": "FP32",
-        "microbatch": 2,
-        "accumulation": 4,
-        "lr_peak": 0.0006,
-        "weight_decay": 0.01,
-        "grad_clip": 1.0,
-        "head_seed": 1235
-      },
-      "initialization": {
-        "encoder_source_sha256": "e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886",
-        "visual": "U-Net全随机；SegFormer B0新32通道首层随机，其余本地通用预训练"
-      },
-      "release_sha256": "3d48dc5d8817b8ca76a531b3fc240f3df5936c59d249d67a1a9a987ad721caf9",
-      "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
-      "acceptance_source": "outputs/use_v3/audit/final_acceptance.json",
-      "evaluations": [
-        {
-          "path": "outputs/use_v3/runs/seg_v3_unet/eval_5000.json",
-          "stage": "best",
-          "event_mean_iou": 0.1305062488032559
-        },
-        {
-          "path": "outputs/use_v3/runs/seg_v3_unet/eval_5000.json",
-          "stage": "last",
-          "event_mean_iou": 0.1305062488032559
-        }
-      ],
-      "artifact_checkpoint_sha256": {
-        "initial.pt": "cc6f2c11a8b6a1eddf5e26cea743247d3d694a4d305c627af3768dd34ac91400",
-        "last.pt": "80e7e3c705e195d5b5e812b973c51f3e46807deec0d553e538c4def38d1411d0",
-        "best.pt": "d7b5e44dd580d6c8d28c423d042f1ad1c615aa2e620729dfb210f471ea2f1b96"
-      }
+      "output_physical_path": "C:/Users/yzh/DisaterRuns/use_v4/runs/segment"
     }
   ],
   "excluded_engineering_runs": [
@@ -32924,8 +31957,7 @@
     "outputs/use/s2_10band_v4r1_p20/smoke_pretrained_mixed/1234",
     "outputs/use/s2_10band_v4r1_p20/smoke_random/1234",
     "outputs/use/s2_10band_v4r1_p20/smoke_self_mean/1234",
-    "outputs/use/s2_10band_v4r1_p20/smoke_self_query/1234",
-    "outputs/use_v3/engineering/trial500"
+    "outputs/use/s2_10band_v4r1_p20/smoke_self_query/1234"
   ],
-  "supplemental_refresh_command": "python -X utf8 outputs/use_v3/runtime/update_run_index.py; run after scripts/build_research_inventory.py --no-figures"
+  "v4_inventory_extension": "Run scripts/build_research_inventory.py --no-figures, then outputs/use_v4/runtime/register_completed_runs.py; legacy generator has no v4 discovery and protected release sources remain unchanged."
 }

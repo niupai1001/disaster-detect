@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-27T03:03:49.184577+00:00",
+  "updated_at": "2026-10-28T07:10:07.762416+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -1709,6 +1709,313 @@
         "outputs/use_v3/runtime/update_run_index.py"
       ],
       "note": "已补录17项既有正式运行与别名并核对身份/配置哈希；通用扫描器尚未覆盖v3，已明确记录先通用刷新再补录的可复现命令。未修改受保护训练代码。"
+    },
+    {
+      "id": "use-v3-diagnostics",
+      "title": "执行USE v3表征异常与高分辨率成本只读诊断计划",
+      "owner": "01a178d4-2172-7aa3-affb-c490f4b987db",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_v3_diagnostics",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v3_diagnostics"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T09:40:55.788744+00:00",
+      "updated_at": "2026-10-27T10:29:20.006376+00:00",
+      "evidence": [
+        "outputs/use_v3_diagnostics/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "docs/MODEL_EVOLUTION.md"
+      ],
+      "note": "完成用户授权的冻结权重诊断、空间一致性、表征/梯度及有界同卡成本，图表与固定文档已回写并核对；人工未确认ROI依用户决定全部uncertain，类别因果未验证。未新增训练、优化器更新、架构或生产代码修改。"
+    },
+    {
+      "id": "use-v3-diagnostic-report",
+      "title": "整理USE v3诊断报告与用户下一步行动",
+      "owner": "01a178d4-2172-7aa3-affb-c490f4b987db",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T11:04:25.858638+00:00",
+      "updated_at": "2026-10-27T11:09:58.530609+00:00",
+      "evidence": [
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "docs/MODEL_EVOLUTION.md",
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "已补完整诊断解释及用户行动表，明确精度参照、单因素消费者对照候选、复用参照与5000或10000待定预算边界、真实大图交付条件和可选人工类别确认；665本地链接及生成幂等性通过。未启动新训练或实现候选架构。"
+    },
+    {
+      "id": "use-v3-report-preservation",
+      "title": "保留诊断报告解释修订，防止旧图表生成器覆盖",
+      "owner": "01a178d4-2172-7aa3-affb-c490f4b987db",
+      "scopes": [
+        "outputs/use_v3_diagnostics/report.py",
+        "outputs/use_v3_diagnostics/report_original_snapshot.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T11:08:04.893537+00:00",
+      "updated_at": "2026-10-27T11:09:56.090276+00:00",
+      "evidence": [
+        "outputs/use_v3_diagnostics/report.py",
+        "outputs/use_v3_diagnostics/report_original_snapshot.py"
+      ],
+      "note": "保留与原诊断验收SHA一致的生成器快照；当前生成器遇台账reader_revision只重建图表，不覆盖用户要求补写的解释报告和行动建议。未运行模型或训练。"
+    },
+    {
+      "id": "use-v3-standalone-report",
+      "title": "仅从本次诊断文档生成独立报告",
+      "owner": "01a178d4-2172-7aa3-affb-c490f4b987db",
+      "scopes": [
+        "docs/use_v3_表征与高分辨率成本诊断报告.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T12:04:58.927270+00:00",
+      "updated_at": "2026-10-27T12:05:11.630616+00:00",
+      "evidence": [
+        "docs/USE_v3_表征与高分辨率成本诊断报告.md"
+      ],
+      "note": "依用户明确要求生成独立新报告，仅整理本次诊断文档，保留表图、结论限制及原文建议；本地链接与图片核对通过，原固定文档及台账SHA未变，无新实验。"
+    },
+    {
+      "id": "use-data-expansion-plan",
+      "title": "CAS与多源卫星影像补充USE数据方案",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_data_expansion.svg",
+        "docs/data_event_protocol.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T12:08:14.915827+00:00",
+      "updated_at": "2026-10-27T12:12:04.975929+00:00",
+      "evidence": [
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_data_expansion.svg"
+      ],
+      "note": "已核实CAS正式发布与README、许可及数量差异；交付来源/规模/试取/隔离/物理量/RGB与雷达适配/存储/同条件预算方案，固定文档链接与SVG结构通过；未下载训练，收益未验证。"
+    },
+    {
+      "id": "use-data-expansion-index",
+      "title": "数据补充方案固定入口刷新",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "docs/model_evolution.md",
+        "docs/research_index.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T12:09:01.331366+00:00",
+      "updated_at": "2026-10-27T12:12:08.842942+00:00",
+      "evidence": [
+        "docs/RESEARCH_INDEX.md",
+        "docs/MODEL_EVOLUTION.md"
+      ],
+      "note": "固定入口增加仅方案交接，刷新既有生成区；当前阶段和历史结果保持，未恢复下载或训练。"
+    },
+    {
+      "id": "use-multisensor-pairing-plan",
+      "title": "同区域多分辨率配对数据可行性与清单核查",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "outputs/use_data_pairing_plan"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T12:15:24.487224+00:00",
+      "updated_at": "2026-10-27T12:17:53.124680+00:00",
+      "evidence": [
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/use_data_pairing_plan/metadata_coverage.json",
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "完成现成配对数据来源核实、2892成员坐标日期核查与固定vendor S1位置索引匹配，保存逐成员及源哈希；细化原方案为位置锚点多视图。匹配未验日期/覆盖/质量；无下载训练，未改生成区所依赖字段。"
+    },
+    {
+      "id": "use-general-corpus-inventory",
+      "title": "按通用星基USE预训练纠正数据范围并核实公开规模",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_corpus_inventory.svg",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_data_pairing_plan/general_corpus_inventory.json"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T12:38:35.837335+00:00",
+      "updated_at": "2026-10-27T12:40:47.315248+00:00",
+      "evidence": [
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/use_data_pairing_plan/general_corpus_inventory.json",
+        "docs/assets/research/use_corpus_inventory.svg"
+      ],
+      "note": "按用户明确范围改为全球通用星基预训练，核实S12/组合库/VENUS/WorldStrat规模及单位，区分航空与合成、0至255处理和原生分辨率；外部S2/Landsat窗口求交0，固定文档与台账及图更新。公开数非准入数，无影像下载训练。"
+    },
+    {
+      "id": "use-v4-mit-plan-handoff",
+      "title": "USE v4 MiT双Agent双卡执行计划与提示词归档",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "docs/use_v4_mit_execution_handoff.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T13:27:54.933470+00:00",
+      "updated_at": "2026-10-27T13:35:12.923249+00:00",
+      "evidence": [
+        "docs/USE_V4_MIT_EXECUTION_HANDOFF.md",
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "已完成两Agent双卡v4执行快照与可分发提示词。用户确认取消5k探针，正式29000、工程200单列；核对v3/MiT来源哈希及真实阶段接口，快照与唯一台账一致、预算和692本地链接通过。未实施模型或启动训练。"
+    },
+    {
+      "id": "use-v4-mit-engineering",
+      "title": "USE v4 MiT工程实现测试试训与release",
+      "owner": "01a17d93-b52e-7583-b643-460411603a46",
+      "scopes": [
+        "configs/use_v4",
+        "outputs/use_v4/engineering",
+        "outputs/use_v4/releases",
+        "scripts/benchmark_use_v4.py",
+        "scripts/evaluate_use_v4.py",
+        "scripts/pretrain_use_v4.py",
+        "scripts/run_use_v4.py",
+        "scripts/verify_use_v4_mit.py",
+        "src/landslide_seg/models/use_v4_mit.py",
+        "src/landslide_seg/models/use_v4_reconstruction.py",
+        "tests/test_use_v4_loading.py",
+        "tests/test_use_v4_masks.py",
+        "tests/test_use_v4_mit.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T13:39:02.117449+00:00",
+      "updated_at": "2026-10-27T14:07:06.359621+00:00",
+      "evidence": [
+        "outputs/use_v4/releases/engineering_v2/READY_FOR_AUDIT.json",
+        "outputs/use_v4/engineering/final_acceptance.json",
+        "outputs/use_v4/engineering/HANDOFF.md"
+      ],
+      "note": "唯一v4候选、三视图五目标、四探针与轻量消费者实现；33测试、200成功工程更新及四次599验证通过；MiT冻结与上游梯度核对，正式初始化匹配；engineering_v2已封装逐文件SHA并只读，release_sha256=66c9e1a3d0e59bf99509a87c2af4872428091869a7c2a0b33d757c35185b8e4c。正式更新0；B独立成本及放行未做，代码问题交回A修复；v1封装失败无marker，失败与32次可丢弃测试更新单列。"
+    },
+    {
+      "id": "use-v4-mit-training",
+      "title": "USE v4独立验收双卡训练与固定文档报告",
+      "owner": "01a17db0-9dff-7fd0-b14a-a9033092fef9",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_v4",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "docs/use_v4_mit_execution_handoff.md",
+        "outputs/use_v4/audit",
+        "outputs/use_v4/benchmarks",
+        "outputs/use_v4/runs",
+        "outputs/use_v4/runtime"
+      ],
+      "status": "active",
+      "started_at": "2026-10-28T02:51:32.327731+00:00",
+      "updated_at": "2026-10-28T02:55:34.711423+00:00",
+      "evidence": [
+        "outputs/use_v4/audit/runs_c_migration.json",
+        "outputs/use_v4/audit/milestone_10000_reconciled.json",
+        "outputs/use_v4/runtime/status.json"
+      ],
+      "note": "用户授权本轮runs迁C，21文件/171245495字节逐SHA一致；C实体目录、N原路径junction可用，release/配置身份不变。保留9900状态备份，从完整10k协调last/curve并恢复模型优化器RNG，下一步10001，无重放。主管22:52已恢复：GPU1预训练继续并产生新检查点，GPU0十k Fine探针并行。旧outputs_run2唯一31.4MiB检查点按授权删，日志保留。"
+    },
+    {
+      "id": "use-v4-mit-engineering-b1",
+      "title": "修复B独立验收回传的正式执行门禁与审计记录",
+      "owner": "01a17d93-b52e-7583-b643-460411603a46",
+      "scopes": [
+        "outputs/use_v4/engineering",
+        "outputs/use_v4/releases",
+        "scripts/run_use_v4.py",
+        "tests/test_use_v4_loading.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T14:14:37.268745+00:00",
+      "updated_at": "2026-10-27T14:50:42.305805+00:00",
+      "evidence": [
+        "outputs/use_v4/releases/engineering_v3/READY_FOR_AUDIT.json",
+        "outputs/use_v4/engineering/repair_b1_acceptance.json",
+        "outputs/use_v4/engineering/REPAIR_B1_HANDOFF.md"
+      ],
+      "note": "B回传修复完成：先锁卡再门禁/上卡，每步无权重拷贝边界检查，initial/best/里程碑/last保存前后完整SHA，逐步allocated/reserved，显式配置与实际统计绑定，best/last分开评价。41项CPU测试通过，真实TRAIN消费者1步及DEV1样本验证；原200步证据SHA不变，数值更新AST及CPU逐字节一致。新增20测试更新单列，累计52；正式0。engineering_v3 release_sha256=dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855，已核验并只读；B仍需独立稳定性与训练放行。"
+    },
+    {
+      "id": "use-v4-mit-engineering-b1-evaluation",
+      "title": "B回传：best与last评价分别保留",
+      "owner": "01a17d93-b52e-7583-b643-460411603a46",
+      "scopes": [
+        "scripts/evaluate_use_v4.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T14:17:58.754204+00:00",
+      "updated_at": "2026-10-27T14:50:42.546101+00:00",
+      "evidence": [
+        "outputs/use_v4/releases/engineering_v3/READY_FOR_AUDIT.json",
+        "outputs/use_v4/engineering/repair_b1_acceptance.json",
+        "outputs/use_v4/engineering/REPAIR_B1_HANDOFF.md"
+      ],
+      "note": "B回传修复完成：先锁卡再门禁/上卡，每步无权重拷贝边界检查，initial/best/里程碑/last保存前后完整SHA，逐步allocated/reserved，显式配置与实际统计绑定，best/last分开评价。41项CPU测试通过，真实TRAIN消费者1步及DEV1样本验证；原200步证据SHA不变，数值更新AST及CPU逐字节一致。新增20测试更新单列，累计52；正式0。engineering_v3 release_sha256=dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855，已核验并只读；B仍需独立稳定性与训练放行。"
+    },
+    {
+      "id": "use-v4-mit-engineering-b1-verifier",
+      "title": "同步新增回归测试的可丢弃更新计数",
+      "owner": "01a17d93-b52e-7583-b643-460411603a46",
+      "scopes": [
+        "scripts/verify_use_v4_mit.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-27T14:45:28.883445+00:00",
+      "updated_at": "2026-10-27T14:50:42.776164+00:00",
+      "evidence": [
+        "outputs/use_v4/releases/engineering_v3/READY_FOR_AUDIT.json",
+        "outputs/use_v4/engineering/repair_b1_acceptance.json",
+        "outputs/use_v4/engineering/REPAIR_B1_HANDOFF.md"
+      ],
+      "note": "B回传修复完成：先锁卡再门禁/上卡，每步无权重拷贝边界检查，initial/best/里程碑/last保存前后完整SHA，逐步allocated/reserved，显式配置与实际统计绑定，best/last分开评价。41项CPU测试通过，真实TRAIN消费者1步及DEV1样本验证；原200步证据SHA不变，数值更新AST及CPU逐字节一致。新增20测试更新单列，累计52；正式0。engineering_v3 release_sha256=dcccb8a029788c62cc32132c5c9a87b6d41206bce2ef7da447f95a2aaf3ad855，已核验并只读；B仍需独立稳定性与训练放行。"
+    },
+    {
+      "id": "use-v4-storage-cleanup-run2",
+      "title": "按用户明确目录清理outputs_run2旧检查点并恢复v4",
+      "owner": "01a17db0-9dff-7fd0-b14a-a9033092fef9",
+      "scopes": [
+        "outputs_run2"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T02:48:00.320919+00:00",
+      "updated_at": "2026-10-28T02:50:12.917833+00:00",
+      "evidence": [
+        "outputs/use_v4/audit/outputs_run2_checkpoint_cleanup.json"
+      ],
+      "note": "用户明确指定outputs_run2；仅删除该目录唯一last.pt，32950052字节，SHA b7ee90cf…已记账，保留三份日志。N盘仅余约75MiB仍不足续训，未扩大删除范围；当前v4所有权重保持不变。"
+    },
+    {
+      "id": "use-v4-completed-run-index",
+      "title": "登记USE v4六项已完成运行及索引核验",
+      "owner": "01a17db0-9dff-7fd0-b14a-a9033092fef9",
+      "scopes": [
+        "docs/assets/research/experiment_aliases.csv",
+        "docs/assets/research/experiment_registry.json",
+        "docs/assets/research/verification.json"
+      ],
+      "status": "active",
+      "started_at": "2026-10-28T07:10:07.762416+00:00",
+      "updated_at": "2026-10-28T07:10:07.762416+00:00"
     }
   ],
   "transfers": [
