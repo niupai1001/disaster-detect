@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T07:10:07.762416+00:00",
+  "updated_at": "2026-10-29T06:52:38.627676+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -1925,15 +1925,15 @@
         "outputs/use_v4/runs",
         "outputs/use_v4/runtime"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-28T02:51:32.327731+00:00",
-      "updated_at": "2026-10-28T02:55:34.711423+00:00",
+      "updated_at": "2026-10-28T09:12:20.441758+00:00",
       "evidence": [
-        "outputs/use_v4/audit/runs_c_migration.json",
-        "outputs/use_v4/audit/milestone_10000_reconciled.json",
-        "outputs/use_v4/runtime/status.json"
+        "outputs/use_v4/audit/final_acceptance.json",
+        "outputs/use_v4/audit/exposure_and_wall_cost.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
       ],
-      "note": "用户授权本轮runs迁C，21文件/171245495字节逐SHA一致；C实体目录、N原路径junction可用，release/配置身份不变。保留9900状态备份，从完整10k协调last/curve并恢复模型优化器RNG，下一步10001，无重放。主管22:52已恢复：GPU1预训练继续并产生新检查点，GPU0十k Fine探针并行。旧outputs_run2唯一31.4MiB检查点按授权删，日志保留。"
+      "note": "20000预训练＋四项1000探针＋唯一5000轻量头共29000全部完成。选20k公共1.1491，分割best4500/last IoU0.0600/0.0597；当前直入0.3081不变。release/来源/继承/冻结/初始化/曝光/预算、六固定例四预登记误报例和文档索引验收通过。共享成本、训练分项冷样本、512训练静态受限、CUDA未知0–99窗口单列；A工程200/A测试52/B测试20/容量1/成本2另列。C迁移逐SHA、10k完整恢复无重放。未增正式预算或模型，未测与原因未验证均明确。"
     },
     {
       "id": "use-v4-mit-engineering-b1",
@@ -2013,9 +2013,232 @@
         "docs/assets/research/experiment_registry.json",
         "docs/assets/research/verification.json"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-28T07:10:07.762416+00:00",
-      "updated_at": "2026-10-28T07:10:07.762416+00:00"
+      "updated_at": "2026-10-28T09:12:20.352962+00:00",
+      "evidence": [
+        "docs/assets/research/experiment_registry.json",
+        "outputs/use_v4/audit/final_document_checks.json"
+      ],
+      "note": "既有inventory刷新后补入v4六项实际作业，中央200项身份/alias/config SHA与742本地链接核验通过；完整索引方法在registry扩展字段记录，未改release绑定生成器。"
+    },
+    {
+      "id": "use-v4-interface-diagnostics",
+      "title": "执行USE v4 MiT接口与冻结迁移失败只读诊断",
+      "owner": "01a17db0-9dff-7fd0-b14a-a9033092fef9",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_v4_interface_diagnostics",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v4_interface_diagnostics",
+        "scripts/diagnose_use_v4_interface.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T09:12:20.685175+00:00",
+      "updated_at": "2026-10-28T09:41:11.743531+00:00",
+      "evidence": [
+        "outputs/use_v4_interface_diagnostics/acceptance.json",
+        "outputs/use_v4_interface_diagnostics/final_document_checks.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "完成固定S2/Landsat各32及历史DEV22的四组只读诊断、三幅图与唯一四假设表。全部参数/buffer哈希不变、重复前向差0、所有尝试0更新；Stage1分布不同但损害未证实，四级未完全失去差异，Fine因果未验证。BN方差比中位0.0439；残差提高固定22例AP/IoU并减少误报，同时降低召回。唯一优先建议Decoder BN策略两条件共10000更新，仅待授权建议，尚未实现或执行。"
+    },
+    {
+      "id": "use-v4-interface-doc-verification",
+      "title": "USEv4只读诊断文档链接与索引核验",
+      "owner": "01a17db0-9dff-7fd0-b14a-a9033092fef9",
+      "scopes": [
+        "docs/assets/research/verification.json"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T09:37:39.281462+00:00",
+      "updated_at": "2026-10-28T09:41:11.646495+00:00",
+      "evidence": [
+        "outputs/use_v4_interface_diagnostics/final_document_checks.json"
+      ],
+      "note": "200项运行身份与配置、768本地链接、四份文档及生成幂等核验通过；不重建run索引。0训练更新，失败因果未确认。"
+    },
+    {
+      "id": "use-v4-bn-residual-diagnostics",
+      "title": "USEv4零训练BN重校准及Fine残差分解诊断",
+      "owner": "01a17db0-9dff-7fd0-b14a-a9033092fef9",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_v4_bn_residual_diagnostics",
+        "docs/assets/research/verification.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_v4_bn_residual_diagnostics",
+        "scripts/diagnose_use_v4_bn_residual.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T10:10:59.732560+00:00",
+      "updated_at": "2026-10-28T10:27:50.185480+00:00",
+      "evidence": [
+        "outputs/use_v4_bn_residual_diagnostics/acceptance.json",
+        "outputs/use_v4_bn_residual_diagnostics/final_document_checks.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "完成0参数更新BN统计/残差分解诊断。D0漏全局确定性设置已定位并恢复原设置，669份概率随后全部逐字节复现、指标差0；门槛前未校准。TRAIN2223只解压影像和质量，FP64全网格矩；仅独立副本两项BN运行buffer变化。八条件/5352逐图/176固定例转移/三图与文档幂等、795链接核验通过。FULL事件IoU0.0600→0.0292、池化AP0.0844→0.0787；不支持追加BN训练，优先Q5/USE→MiT诊断。Fine含图级抑制与空间排序作用，367图改善300图下降；后校准非训练时BN策略，单seed开发集限制保留。"
+    },
+    {
+      "id": "use-mit-dual-routes-plan-handoff",
+      "title": "USE MiT双路线两Agent执行计划与提示词归档",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "docs/use_mit_dual_routes_execution_handoff.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T13:45:40.959254+00:00",
+      "updated_at": "2026-10-28T13:54:04.934968+00:00",
+      "evidence": [
+        "docs/USE_MIT_DUAL_ROUTES_EXECUTION_HANDOFF.md",
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "完成两Agent双卡双路线执行快照与提示词；阶段台账唯一计划源，59000正式/工程各≤200、编码器固定20k。核查v4及BN既有结果、全量清单RGB映射和代表缓存，明确探针只TRAIN训练及遮挡/教师边界；文件/预算/链接一致。未实现新路线或启动训练。"
+    },
+    {
+      "id": "use-mit-dual-routes-engineering",
+      "title": "USE双路线工程实现与有限试训",
+      "owner": "01a182ce-44b4-77d3-82c3-57ddd69845da",
+      "scopes": [
+        "configs/use_mit_dual_routes",
+        "outputs/use_mit_dual_routes/engineering",
+        "outputs/use_mit_dual_routes/releases",
+        "scripts/run_use_mit_dual_routes.py",
+        "scripts/verify_use_mit_dual_routes.py",
+        "src/landslide_seg/models/use_mit_dual_routes.py",
+        "tests/test_use_mit_dual_routes.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T14:00:57.720031+00:00",
+      "updated_at": "2026-10-28T14:28:25.995831+00:00",
+      "evidence": [
+        "outputs/use_mit_dual_routes/releases/engineering_v1/READY_FOR_AUDIT.json",
+        "outputs/use_mit_dual_routes/engineering/acceptance_summary.json",
+        "outputs/use_mit_dual_routes/engineering/CLI_HANDOFF.md"
+      ],
+      "note": "工程交付READY_FOR_AUDIT，release SHA339f5fb656e930aa8398111e85d9341abaaa5bf4b3b0bb694403f5cec556d08c；全成员RGB通过、37测试与40扩展组合、真实消费者及200+200工程完成，2恢复重放另列且模型/优化器/RNG完全一致。修复B验证教师诊断调用，保留原源码和历史记录，599份MAE逐值不变、教师调用0；正式0。独立放行、59000正式队列、完整成本与分割收益未验证，由训练Agent负责。原release/旧权重和既有修改保留。"
+    },
+    {
+      "id": "use-mit-dual-routes-training",
+      "title": "USE双路线独立验收双卡训练与固定文档报告",
+      "owner": "01a182cf-45d6-73e3-b7e2-f9bdf296a934",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/assets/research/use_mit_dual_routes",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "docs/use_mit_dual_routes_execution_handoff.md",
+        "outputs/use_mit_dual_routes/audit",
+        "outputs/use_mit_dual_routes/benchmarks",
+        "outputs/use_mit_dual_routes/figures",
+        "outputs/use_mit_dual_routes/runs",
+        "outputs/use_mit_dual_routes/runtime"
+      ],
+      "status": "active",
+      "started_at": "2026-10-28T15:08:32.339545+00:00",
+      "updated_at": "2026-10-29T06:46:10.213745+00:00",
+      "evidence": [
+        "outputs/use_mit_dual_routes/audit/release_v2/available_gpu_dispatch.json"
+      ],
+      "note": "用户明确要求改用空闲卡，无需再考虑原分卡等待。只停止空等控制器，原成果保留；新串行队列已在GPU0运行B Fine，后续原B Context及三分割头自动选空闲卡，最多一个子作业。并发上限1回归通过，训练源码/设置/59000预算不变，同卡成本另存保留旧记录。"
+    },
+    {
+      "id": "use-mit-dual-routes-engineering-repair-v1",
+      "title": "修复独立验收的评价设备锁与正式分割成本加载",
+      "owner": "01a182ce-44b4-77d3-82c3-57ddd69845da",
+      "scopes": [
+        "outputs/use_mit_dual_routes/engineering/repair_v1",
+        "outputs/use_mit_dual_routes/releases",
+        "scripts/run_use_mit_dual_routes.py",
+        "scripts/verify_use_mit_dual_routes.py",
+        "tests/test_use_mit_dual_routes.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T14:57:58.581844+00:00",
+      "updated_at": "2026-10-28T15:06:42.377209+00:00",
+      "evidence": [
+        "outputs/use_mit_dual_routes/releases/engineering_v2/READY_FOR_AUDIT.json",
+        "outputs/use_mit_dual_routes/engineering/repair_v1/acceptance.json",
+        "outputs/use_mit_dual_routes/engineering/repair_v1/REPAIR_HANDOFF.md"
+      ],
+      "note": "修复独立验收两问题：评价最外层先锁再上卡，最终成本统一加载正式best头并核验release/作业/编码器/完整model SHA。43测试通过；12训练函数AST未改，评价移除锁上下文后AST相同，三初始消费者SHA相同，旧release400快照与200+200证据保留。新增优化器更新0。engineering_v2 SHA4671b2fa4ec72db13bc0a4c755fc6b4388db0be2bb92f997802d054704dc14d2已只读且READY_FOR_AUDIT；训练Agent需独立重验、更新runtime队列release指向v2后继续原59000预算。本对话未启动正式训练或修改训练Agent状态文件。"
+    },
+    {
+      "id": "use-download-size-budget",
+      "title": "通用星基数据下载量与磁盘初步预算",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "outputs/use_data_pairing_plan/download_budget"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T15:28:01.254985+00:00",
+      "updated_at": "2026-10-28T15:33:00.189753+00:00",
+      "evidence": [
+        "outputs/use_data_pairing_plan/download_budget/budget.md",
+        "outputs/use_data_pairing_plan/download_budget/budget.json",
+        "outputs/use_data_pairing_plan/download_budget/source_file_sizes.json"
+      ],
+      "note": "按HF14目录和Zenodo文件字节汇总，给出试取22.73GB、首轮403.76GB、完整主来源1269.37GB及磁盘/缓存预算；同名分片/公式/链接验证通过。Landsat组合库未知未计；仅元数据读取，无影像下载训练。固定文档由双路线训练持有，本次保存独立预算产物供回写。"
+    },
+    {
+      "id": "use-single-epoch-four-view-budget",
+      "title": "单期同区域RGB Landsat S1 S2图像包尺寸与净体积估算",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "outputs/use_data_pairing_plan/single_epoch_four_view_budget"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T15:45:44.703849+00:00",
+      "updated_at": "2026-10-28T15:46:02.503669+00:00",
+      "evidence": [
+        "outputs/use_data_pairing_plan/single_epoch_four_view_budget/budget.md",
+        "outputs/use_data_pairing_plan/single_epoch_four_view_budget/budget.json"
+      ],
+      "note": "按用户明确四源同区各一期重新估算，给出960米范围像素尺寸、不同RGB网格与dtype净体积。纠正旧403GB不代表完整配对包；仅设计算例，非实际下载包流量，四源齐全数尚待核验，无下载训练。"
+    },
+    {
+      "id": "use-four-view-all-band-download-plan",
+      "title": "同区域单期四源全波段下载可执行交接方案",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "outputs/use_data_pairing_plan/four_view_all_band_plan"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T15:54:25.148759+00:00",
+      "updated_at": "2026-10-28T15:57:13.357956+00:00",
+      "evidence": [
+        "outputs/use_data_pairing_plan/four_view_all_band_plan/download_plan.md",
+        "outputs/use_data_pairing_plan/four_view_all_band_plan/download_plan.json"
+      ],
+      "note": "交付以独立HR为锚点的同区单次采集四源全波段方案，1.44km共同范围、L1/L2物理域分开、100/1000/合格全体分阶段与网络停止预算、源/QA/配准/哈希要求及待实现清单。未影像下载/训练，不并发写训练会话持有的固定文档台账。"
+    },
+    {
+      "id": "use-four-view-10gb-pilot",
+      "title": "约10GB同区域四源全波段配对下载与验收",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "data/use_multisensor/four_view_pilot_v1",
+        "outputs/use_data_pairing_plan/four_view_10gb_pilot",
+        "scripts/download_use_four_view_pilot.py",
+        "tests/test_use_four_view_pilot.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-28T17:14:08.075321+00:00",
+      "updated_at": "2026-10-29T06:52:38.627676+00:00",
+      "evidence": [
+        "outputs/use_data_pairing_plan/four_view_10gb_pilot/acceptance.json",
+        "data/use_multisensor/four_view_pilot_v1/manifest.json"
+      ],
+      "note": "四源试下载已结束：288个完整同区包，18138个主清单栅格哈希/覆盖复核通过；实际计量网络9531711632字节。Landsat L1 C1和L2 C2分开，无同日/亚像素保证，无训练；详见status与acceptance。"
     }
   ],
   "transfers": [

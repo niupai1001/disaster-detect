@@ -2,6 +2,50 @@
 
 最后维护：2026-10-22。本页使用**我们的数据划分（留事件验证）**：先定义成员，再报告地形结果；历史四折单独放在后文。官方随机划分的结果见[官方专题](DATA_OFFICIAL.md)，不与本页分数排名。
 
+## USE双路线独立验收与执行状态
+
+本轮比较三种同接口方案：保留真实RGB视觉入口并增加光谱残差、由光谱特征生成入口Token并在预训练期对齐同样本RGB教师，以及固定视觉入口加共同初始Fine的参照。无标签11132份训练观测用于更新，599份无标签验证只评价；分割仍是九事件2223块训练、广岛448与特里苏尔221块开发验证。正式预算已授权59000次成功更新，现已启动；GPU0视觉残差与GPU1光谱对齐均已正式运行，GPU1在外部计算退出后由原队列启动，实时步数见[runtime状态](../outputs/use_mit_dual_routes/runtime/status.json)。目前尚无最终正式分割或恢复成绩。
+
+独立检查已逐份重读11731份训练/验证RGB缓存，文件SHA、实际波长与质量均通过；37项数值/接口测试、共同初始化、两路200步工程试训与完整恢复证据通过。B仅从MiT第四阶段输出反传时，适配器、tokenizer及光谱读出均获得梯度，MiT参数与buffer未改变。另有两次可丢弃真实128尺寸、微批2累积4更新，计在工程外；不进入正式起点。
+
+同一GPU1上三组模型、裸编码器/冻结封装/完整消费者、128/256/512共27项初始成本已完成，每项30次预热、100次同步重复、3轮。它们是初始权重的运行成本，不是正式训练结果，也不能替代正式权重的最终复测。旧v1的评价锁顺序和最终成本任务头加载问题已在v2修复；43项独立重验通过，训练函数AST与初始完整模型哈希一致，因此复用原容量和27项初始成本证据。已发布绑定v2的训练放行标记，详见[修复独立验收](../outputs/use_mit_dual_routes/audit/release_v2/repair_independent_acceptance.json)与[实际启动证据](../outputs/use_mit_dual_routes/audit/release_v2/training_launch.json)。修复范围与恢复条件见[工程修复要求](../outputs/use_mit_dual_routes/audit/ENGINEERING_REPAIR_REQUEST.md)；完整通过项、预算账本与限制见[独立门禁决定](../outputs/use_mit_dual_routes/audit/independent_gate_decision.json)、[容量证据](../outputs/use_mit_dual_routes/audit/capacity_independent.json)、[初始成本原始记录](../outputs/use_mit_dual_routes/benchmarks/initial.json)。单seed、外部MiT监督、Fine训练变化、适配容量及RGB依赖仍是正式报告必须说明的边界。
+
+<!-- DUAL_ROUTE_CURRENT_SEGMENTATION_START -->
+### 当前分割任务头结果
+
+分割在我们的数据划分（留事件验证）下进行：九事件2223块训练，广岛448＋特里苏尔221块开发验证。下表IoU先分别计算两事件有效像元的交并比，再等权平均；固定阈值0.5，每500次更新评价一次。当前训练步数、最新已评价步数和当前已评价最佳步数严格分开；三组最终预算均为5000，未完成组不称最终成绩。
+
+| 架构方案 | 任务头更新 | 当前已评价最佳IoU | 最新已完成评价IoU |
+|---|---:|---:|---:|
+| SegFormer B0｜原生RGB入口＋固定初始Fine（同构参照） | 5000/5000 | 0.2419（第1500步） | 0.2335（第5000步） |
+| SegFormer B0｜RGB视觉入口＋光谱残差 | 5000/5000 | 0.0628（第4500步） | 0.0615（第5000步） |
+| SegFormer B0｜光谱Token＋RGB教师对齐 | 5000/5000 | 0.0517（第5000步） | 0.0517（第5000步） |
+
+![三组分割已完成评价点](assets/research/use_mit_dual_routes/segmentation_current.png)
+
+横轴为任务头成功更新，纵轴为IoU；各条线分别表示一组架构的两事件等权IoU，星号表示该组当前已经评价过的最佳点；无评价点的方案暂不画线。当前参照最佳为0.2419，广岛0.2009、特里苏尔0.2830。最佳点与5000步末态分列，完成情况见表。完整预算结果须以三组完成标记为准；三组均完成后，可以比较本轮连接与预训练组合的实际表现，但不能将差异归因于单个模块。单seed、反复使用开发验证的限制保留。
+
+原始逐点评价、训练/评价步数及数据口径见[当前分割数值与来源](../outputs/use_mit_dual_routes/audit/release_v2/current_segmentation_results.json)。训练是否结束以表中完成步数为准；全部训练结束后仍须核对冻结、初始化、预算、成本及最终产物，不能把训练结束等同最终验收。
+<!-- DUAL_ROUTE_CURRENT_SEGMENTATION_END -->
+
+<!-- DUAL_ROUTE_CURRENT_PROBES_START -->
+### 当前冻结恢复探针结果（已完成）
+
+两条编码器均使用各自固定20000步末态，整个编码器冻结。恢复探针仅在11132份无标签训练观测上更新1000步，599份无标签验证观测（521 S2＋78 Landsat）只用于评价；它们不是广岛与特里苏尔的669块分割开发验证。Fine探针用早期细节特征补回被遮像元；Context探针分别检查被遮波段和被遮空间区域的恢复。误差除以固定v3参考分母，再对两传感器等权平均，越低越好，数值不是百分比或IoU。同构视觉参照本轮不设置恢复探针。
+
+| 架构方案 | Fine细节恢复误差↓ | Context光谱恢复误差↓ | Context空间恢复误差↓ | 分割IoU |
+|---|---:|---:|---:|---|
+| SegFormer B0｜原生RGB入口＋固定初始Fine（同构参照） | 未设置探针 | 未设置探针 | 未设置探针 | 尚无结果 |
+| SegFormer B0｜RGB视觉入口＋光谱残差 | 2.1732 | 0.8863 | 0.3716 | 尚无结果 |
+| SegFormer B0｜光谱Token＋RGB教师对齐 | 2.1986 | 0.9794 | 0.3593 | 尚无结果 |
+
+![两路线三类恢复误差](assets/research/use_mit_dual_routes/all_probe_current.png)
+
+图中每列为一种恢复任务，每根柱是一条方案，三列纵轴均从0开始；Fine列应看两柱相差仅0.0254。两探针实际初始头的8个张量逐一相同，评价成员与固定分母相同，因此这项恢复误差可以直接比较。视觉入口残差方案为2.1732，光谱教师对齐方案为2.1986，前者低约1.2%。差异原因未验证；单seed不能宣称显著性，两个整体方案同时有入口、额外目标与容量差异，不能归因于单一组件。四项恢复探针均已完成：视觉残差方案的光谱恢复误差较低（0.8863对0.9794），光谱对齐方案的空间恢复误差较低（0.3593对0.3716），方向并不一致。三任务等权公共恢复总分为1.1437对1.1791，仅作描述，不据此反选编码器。分割中间结果见上表；当前仍不能判断光谱预训练净收益或替换现有参照。
+
+下一步仍按原预算完成三组同构分割，编码器不按此表反选。原始评价及SHA见[当前数值与来源](../outputs/use_mit_dual_routes/audit/release_v2/current_probe_results.json)；全部预训练与配对曝光核验见[预训练验收](../outputs/use_mit_dual_routes/audit/release_v2/completed_pretrains_acceptance.json)。
+<!-- DUAL_ROUTE_CURRENT_PROBES_END -->
+
 ## 阅读约定与实验设置
 
 ### “按事件留出”和“固定”分别表示什么
@@ -1706,3 +1750,120 @@ CUDA中断另列：6300步后成功但未落盘更新的精确数量未知，范
 
 证据补充：[初始化/曝光/进程墙钟](../outputs/use_v4/audit/exposure_and_wall_cost.json)、[参数量](../outputs/use_v4/audit/model_parameter_counts.json)、[1024单次容量与更大图静态](../outputs/use_v4/benchmarks/final_large_capacity.json)、[训练分项与512预检](../outputs/use_v4/benchmarks/final_training_components.json)、[IO与完整哈希分时](../outputs/use_v4/benchmarks/final_io_hash_components.json)、[输出迁C核验](../outputs/use_v4/audit/runs_c_migration.json)。探针逐文件曝光由锁定的无状态采样器重建，未把重建记录伪称原始逐步日志。
 <!-- USE_V4_EXECUTION_END -->
+
+<!-- USE_V4_INTERFACE_DIAGNOSTICS_START -->
+
+## USE v4接口与冻结迁移只读诊断
+
+阅读约定与实验设置：本节是已完成29000更新之后的只读机制检查，**本轮优化器、LoRA及探针训练更新均为0**。沿用我们的数据划分（留事件验证）：九事件2223块训练；广岛448、特里苏尔221块供研发验证。本次仅取无标签重建验证集的S2 32、Landsat 32个观测，以及旧诊断固定22个带标签案例（广岛12、特里苏尔10）。旧清单每传感器只有2例，保留其顺序，再将剩余文件名排序、用seed1234打乱补30例；实际成员、顺序、质量文件与缓存SHA均见[manifest.json](../outputs/use_v4_interface_diagnostics/manifest.json)。不新增训练成员，不按当前误差挑图。真值只参与本节只读统计，不进入编码器、选模或阈值选择。
+
+连接和来源：v4采用既定20k USE，Q5→32通道步长2适配器→原MiT第一层Patch LayerNorm→冻结四级MiT；原RGB首卷积绕过，Fine保留早期读出。下游从原best@4500完整重载All-MLP、单通道分类器和Fine残差头。参照一从同一S2物理反射率取B04/B03/B02，使用本地processor的ImageNet均值/标准差，但保留128网格、未执行512重采样，因此称“同源RGB、非预训练标准分布”；参照二使用已监督训练的十波段直入best和实际core25标准化，不能称原始预训练权重。对无标签S2先反标准化到物理反射率，十波段参照再转回DN口径，不重复施加产品offset。Landsat单列，不构造虚假十波段参考。
+
+指标口径：RMS表示有效特征幅度；有效秩由中心化通道协方差的奇异值熵计算，反映采样特征变化的维度，不等于任务准确率。每图最多抽256个原生位置，同一图、同一网格的不同路径采用相同坐标；跨图秩另取32幅均值向量，秩上限31。像素统计按原网格共同波段质量、标签有效区域排除像素，再取原生格点最近邻中心；有效中心不代表整个感受野无云。AP为概率排序指标；IoU、Precision、Recall、FPR均用原定0.5阈值，FPR是背景像素被判前景的比例。22例指标拼接有效像素计算，不是669例的事件等权IoU。特征RMS及Token秩则先逐图统计，再对样本等权平均。
+
+| 假设 | 支持证据（文件与指标） | 反证或限制 | 建议下一动作 |
+|---|---|---|---|
+| Stage1分布失配 | [stage1_alignment.json](../outputs/use_v4_interface_diagnostics/stage1_alignment.json)：同32个S2：LN前RMS为v4 3.819、监督直入0.520、同源RGB 0.352；LN后Token有效秩分别6.37/18.96/13.54。 | Q5本身有效秩仅4.68，adapter与LN没有继续降低该统计；LN只执行一次。RGB未按512重采样，直入已监督训练；分布不同，损害未证实。 | 保留Token接口为候选；本轮不据此启动适配或LoRA。 |
+| 冻结MiT深层失配 | [stage_geometry.json](../outputs/use_v4_interface_diagnostics/stage_geometry.json)：S2四级原生Token有效秩10.45→16.85→13.08→9.24；跨图均值有效秩5.08→7.77→9.95→10.07。Landsat方向相近。 | Stage4只有4×4=16个位置，中心化秩上限15；RGB/监督直入也降至11.46/10.14。未观察到空间差异完全消失，不能定位深层损害。 | 暂不优先进行无标签LoRA。 |
+| Fine增强缺失 | [fine_decoder.json](../outputs/use_v4_interface_diagnostics/fine_decoder.json)：v3最终−早期范数比例：S2 2.22、Landsat 2.48。S2有效秩v3早期/最终/v4早期=5.39/9.38/5.46；初始化早期Fine逐元素差为0。 | v4早期Fine与v3早期的秩相近；DEV边界/非边界梯度比约1.64/1.78/1.64，仅描述性证据。结构、预训练日程与消费者不同，不能归因于移除反馈。 | 保留适度细节增强假设，当前不改Fine结构。 |
+| Decoder BN/残差失配 | [fine_decoder.json](../outputs/use_v4_interface_diagnostics/fine_decoder.json)：BN输入/运行方差比中位数0.0439；残差/主分支RMS=5.07/0.67。固定22例base→final AP 0.0582→0.1055，FPR 0.1817→0.0281，Recall 0.3057→0.1584。 | 残差减少误报并提高IoU，不能建议直接删除；BN均值偏移RMS仅0.35且仿射已训练。22例组成干预不是训练消融，不证明BN导致完整669例低分。 | 下一轮唯一优先候选：受控比较Decoder BN统计策略；尚未授权或执行。 |
+
+图与解释：下列三幅图只展示固定样本与原生特征，没有通过上采样制造新的原生细节。
+
+![Stage1前后分布](assets/research/use_v4_interface_diagnostics/stage1_alignment.png)
+
+图1左右分别是RMS和每图Token有效秩，横轴为同一Stage1 LayerNorm前后。每条线对应同源RGB、已监督十波段直入或v4注入。v4在LN前幅度更大、LN后秩更低，但它的Q5已呈较低秩，adapter和LN并未进一步降低这一统计。LN执行一次；保留的仿射参数允许LN后RMS不等于1。v4的2×2局部读出接3×3适配器，本来就不同于RGB入口的7×7首卷积；后续注意力、带深度卷积的前馈层及归一化位置沿用原MiT，没有新增绝对位置编码。原生RGB入口与分阶段实现的全有效数值等价直接复用[既有工程测试](../outputs/use_v4/engineering/repair_b1_cpu_tests.xml)，未重复测试；这不表示RGB和Q5注入彼此等价。
+
+![四阶段几何与Fine差异](assets/research/use_v4_interface_diagnostics/stage_geometry_fine.png)
+
+图2从左到右是每图Token有效秩、跨图均值有效秩、v3最终Fine相对早期Fine的变化范数。四阶段真实网格依次32×32、16×16、8×8、4×4，通道依次32/64/160/256。Stage4只有16个位置，所有参考都受到秩上限15约束；不能把9.24直接解释成深层完全丢失空间信息。v4的跨图差异随阶段增加，S2从5.08增至10.07，Landsat从3.27增至9.76。逐层临近/远距相似性、方差谱、支持率、FP32单个临时张量静态尺寸及DEV类中心描述均保存在[stage_geometry.json](../outputs/use_v4_interface_diagnostics/stage_geometry.json)，静态尺寸不是实测峰值显存。
+
+![分割组成与固定案例](assets/research/use_v4_interface_diagnostics/decoder_composition.png)
+
+图3每行依次是原固定广岛1173、广岛600、特里苏尔1903；每列是RGB、真值、主分支概率、最终概率、主分支差错、最终差错。概率使用固定0–1色标（紫低黄高），红为误报、蓝为漏检、绿为正确前景，灰为排除像素。特里苏尔案例说明残差会抑制大片背景前景预测；广岛案例同时显示部分真前景变低，不能只看一张图认定有益或有害。
+
+展开结论：**优先核查Decoder统计和融合接口，但失败原因尚未确定。** BN输入相对保存运行方差的中位比值为0.0439，说明当前输入的变化范围明显较窄；标准化均值偏移RMS为0.350。BN前/BN后的融合特征RMS为8.529/0.407，主分支/残差/最终logit RMS为0.669/5.072/5.626。残差平均logit约−4.753，明显影响背景概率；这符合统计和分支幅度接口需要检查的假设，尚不证明其导致迁移失败，因为BN仿射已训练，模型也可学习补偿。
+
+固定22例共有351186个有效像素、8821个前景像素。主分支→最终预测：AP 0.0582→0.1055，IoU 0.0380→0.0758，Precision 0.0415→0.1269，Recall 0.3057→0.1584，FPR 0.1817→0.0281。FP由62223降至9614，TP由2697降至1397；逐位置共移除55361个原误报、增加2752个新误报。输出严格满足**sigmoid(base_logit + delta_logit)**，不是概率相加。该前向组成干预说明残差同时影响误报和漏检，不能据此建议删除Fine或宣称训练消融结论。
+
+Fine方面，未训练v4继承源权重时，S2和Landsat早期Fine与v3临时Hook提取结果逐元素最大差均为0，提取路径可信。v4早期Fine有效秩与v3早期接近，DEV边界/非边界邻接特征变化比约1.64/1.64，v3最终值约1.78。v3增强后变化确实较大，但幅度、结构、预训练日程及消费者同时不同；“缺少增强使细节不可用”仍是未验证假设。Stage1/2 centered CKA在v4与直入之间为0.767/0.487，与RGB之间为0.255/0.609；相似度不同不能直接判断预训练有效性。
+
+限制与下一步：固定22例含历史诊断挑选案例，不能代表整个开发验证集，不能与完整669例事件等权IoU 0.0600、历史USE 0.1258、直入参照0.3081混成一列排名。RGB不是自然图像标准分布，直入已有监督，v3/v4并非单因素关系；原生参考没有USE的无效key屏蔽，虽然排除了统计中心，远处影响仍可能保留。没有进行新的类别头、反馈移除、BN重校准、LoRA或训练消融，也未发现需改变生产计算的功能错误。
+
+唯一优先建议是下一轮只比较Decoder BN统计策略：固定同一USE、MiT、头初始化、训练成员顺序、学习率、seed与0.5阈值，两条件各5000个轻量头更新，一组保留ADE运行统计，一组仅以合法TRAIN更新BN运行统计，合计10000更新。用既定669例研发选模与误报/召回分析；不以本22例反选检查点或阈值。目前生产`train()`强制BN为eval，新的统计策略尚未实现，需要独立工程适配和门禁。**这只是待授权的受控方案，本轮不执行，效果未验证。** 当前十波段直入参照保持不变。
+
+附录（复现、成本与产物）：实际HEAD为`578749d68a46be20bd1e60790a61c4c8798201a3`，与附件基线相同。所有6个加载对象的参数及buffer前后SHA一致，v4下游中的USE与已选20k状态一致；S2/Landsat各一例的Fine和四级Context、DEV一例的各分割中间量重复前向逐元素差均为0。全程FP32、TF32关闭、eval/inference_mode、batch1，未恢复梯度。最终完整诊断墙钟约53.3秒，含加载、I/O、CPU统计与绘图，不是独占GPU训练成本；之前[成本矩阵](../outputs/use_v4/benchmarks/final_weights_cost.json)直接复用。四次只读尝试均0更新，首次依赖错误和后续坐标/数值/图面复核版本留在输出目录，不将这些计算冒充新训练结果。
+
+真实命令：`.venv-use-independent/Scripts/python.exe -X utf8 scripts/diagnose_use_v4_interface.py --dry-run`；`.venv-use-independent/Scripts/python.exe -X utf8 scripts/diagnose_use_v4_interface.py --device cuda:1`。完成目录拒绝覆盖，独立复现应另给`--output-dir`。命令、`--help`、配置/统计/processor/权重和逐样本SHA见[产物目录](../outputs/use_v4_interface_diagnostics)、[验收](../outputs/use_v4_interface_diagnostics/acceptance.json)、[汇总](../outputs/use_v4_interface_diagnostics/summary.json)。本轮只读检查不改变上一轮选模、预算和哈希结论。
+
+<!-- USE_V4_BN_RESIDUAL_START -->
+
+### TRAIN-only BN重校准与Fine残差信息分解（零训练）
+
+本小节是前述只读诊断的增量验证，更新其“下一轮优先检查BN”的待验证假设，不重写旧训练结果。**本轮成功参数更新0，监督训练0、无标签训练0、LoRA0。** 上节的10000步BN训练方案没有实施；本次只在独立内存副本中替换两个预登记缓冲区`decoder.batch_norm.running_mean/running_var`。所有参数（含BN affine、分类器、Fine残差头）、其他buffer、原权重字节均保持相同，`num_batches_tracked`保持160000。
+
+阅读约定与数据：固定九事件2223块TRAIN，只解压缓存`x10`和独立影像质量文件`pixel_valid`，不打开TRAIN的`mask/valid`标注键；缓存字节哈希读取的是压缩归档字节，不将标注数组用于统计。按sample_id排序、无增强、原core25十波段标准化，统计来源仍是原559块训练核心。DEV为完整广岛448＋特里苏尔221，共669块，仅用于预固定条件的只读评价。Italy、New Zealand和PRETRAIN_VAL均不参与重校准。实际HEAD `578749d68a46be20bd1e60790a61c4c8798201a3`，原best严格核对为4500步，没有重选USE或下游checkpoint。
+
+复现门槛：669份历史概率图、真值、有效掩膜全部逐字节一致；TP/FP/FN/TN、两事件IoU与AP、像素池化AP未舍入差值均为0，总评价像素10573787。原完整模型事件等权IoU为0.059985245709，池化AP为0.084433080077，见[baseline_reproduction.json](../outputs/use_v4_bn_residual_diagnostics/baseline_reproduction.json)。首次D0缺少PyTorch全局确定性设置而停止，未开始校准；[最小复现](../outputs/use_v4_bn_residual_diagnostics/d0_numeric_check.json)定位后恢复原评价设置，保持原门槛重新通过，失败证据保留。
+
+组成定义：均在logit空间操作，再执行sigmoid。主分支为BASE；MEAN只加每图残差均值μ；SPATIAL加残差减μ；FULL加完整残差。μ只由原像素上至少一个观测波段质量有效的位置计算，与GT或标签有效性无关。所有八条件评价均沿用原`sample.valid`，因此与上节22例采用的更严格“全波段质量交集”统计口径不同。AP表示前景概率排序，IoU/Precision/Recall/FPR使用既定0.5阈值；FPR是背景被判前景的比例。两事件AP等权仅作额外描述，不是新选模规则；逐图AP只平均667块含前景影像，另2块未定义，均保留记录。
+
+| BN统计策略 | 输出组成 | 广岛 IoU / AP | 特里苏尔 IoU / AP | 事件等权IoU | 事件等权AP | 像素池化AP | 逐图AP均值 |
+|---|---|---|---|---|---|---|---|
+| 原运行统计 | 仅主分支 | 0.0764 / 0.0970 | 0.0357 / 0.0340 | 0.0561 | 0.0655 | 0.0702 | 0.1301 |
+| 原运行统计 | 主分支＋逐图偏置 | 0.0000 / 0.0251 | 0.0000 / 0.0324 | 0.0000 | 0.0288 | 0.0265 | 0.1301 |
+| 原运行统计 | 主分支＋中心化空间残差 | 0.0508 / 0.0984 | 0.0553 / 0.1292 | 0.0531 | 0.1138 | 0.0943 | 0.1481 |
+| 原运行统计 | 完整融合 | 0.0825 / 0.0883 | 0.0374 / 0.1116 | 0.0600 | 0.1000 | 0.0844 | 0.1482 |
+| TRAIN全局矩 | 仅主分支 | 0.0277 / 0.1055 | 0.0242 / 0.0341 | 0.0259 | 0.0698 | 0.0802 | 0.1263 |
+| TRAIN全局矩 | 主分支＋逐图偏置 | 0.0208 / 0.0376 | 0.0231 / 0.0238 | 0.0220 | 0.0307 | 0.0318 | 0.1263 |
+| TRAIN全局矩 | 主分支＋中心化空间残差 | 0.0316 / 0.1200 | 0.0318 / 0.0956 | 0.0317 | 0.1078 | 0.1090 | 0.1516 |
+| TRAIN全局矩 | 完整融合 | 0.0257 / 0.0985 | 0.0327 / 0.0667 | 0.0292 | 0.0826 | 0.0787 | 0.1516 |
+
+逐事件阈值行为如下，TP是正确前景、FP是误报、FN是漏检；上表的各事件IoU/AP与本表共用同一批有效像素。完整8行宽表含两事件等权AP、逐事件及池化计数和BN-R−BN-O差值，见[factorial_results.csv](../outputs/use_v4_bn_residual_diagnostics/factorial_results.csv)。
+
+| BN统计策略 | 输出组成 | 事件 | Precision | Recall | FPR | TP / FP / FN | 预测前景比例 |
+|---|---|---|---|---|---|---|---|
+| 原运行统计 | 仅主分支 | 广岛 | 0.0832 | 0.4829 | 0.0964 | 60493 / 666282 / 64771 | 0.1033 |
+| 原运行统计 | 仅主分支 | 特里苏尔 | 0.0389 | 0.3046 | 0.1702 | 23839 / 588736 / 54429 | 0.1732 |
+| 原运行统计 | 主分支＋逐图偏置 | 广岛 | 0.0000 | 0.0000 | 0.0000 | 0 / 0 / 125264 | 0.0000 |
+| 原运行统计 | 主分支＋逐图偏置 | 特里苏尔 | 0.0000 | 0.0000 | 0.0000 | 0 / 0 / 78268 | 0.0000 |
+| 原运行统计 | 主分支＋中心化空间残差 | 广岛 | 0.0516 | 0.7798 | 0.2600 | 97687 / 1796712 / 27577 | 0.2692 |
+| 原运行统计 | 主分支＋中心化空间残差 | 特里苏尔 | 0.0562 | 0.7698 | 0.2924 | 60252 / 1011602 / 18016 | 0.3030 |
+| 原运行统计 | 完整融合 | 广岛 | 0.1112 | 0.2426 | 0.0352 | 30391 / 242975 / 94873 | 0.0389 |
+| 原运行统计 | 完整融合 | 特里苏尔 | 0.2108 | 0.0435 | 0.0037 | 3408 / 12758 / 74860 | 0.0046 |
+| TRAIN全局矩 | 仅主分支 | 广岛 | 0.0279 | 0.8120 | 0.5133 | 101718 / 3547250 / 23546 | 0.5186 |
+| TRAIN全局矩 | 仅主分支 | 特里苏尔 | 0.0244 | 0.7496 | 0.6788 | 58667 / 2348070 / 19601 | 0.6803 |
+| TRAIN全局矩 | 主分支＋逐图偏置 | 广岛 | 0.0210 | 0.7194 | 0.6087 | 90121 / 4206442 / 35143 | 0.6106 |
+| TRAIN全局矩 | 主分支＋逐图偏置 | 特里苏尔 | 0.0237 | 0.4940 | 0.4605 | 38667 / 1592926 / 39601 | 0.4612 |
+| TRAIN全局矩 | 主分支＋中心化空间残差 | 广岛 | 0.0318 | 0.8718 | 0.4819 | 109209 / 3330261 / 16055 | 0.4888 |
+| TRAIN全局矩 | 主分支＋中心化空间残差 | 特里苏尔 | 0.0320 | 0.8078 | 0.5525 | 63228 / 1911281 / 15040 | 0.5581 |
+| TRAIN全局矩 | 完整融合 | 广岛 | 0.0258 | 0.8438 | 0.5776 | 105703 / 3992000 / 19561 | 0.5824 |
+| TRAIN全局矩 | 完整融合 | 特里苏尔 | 0.0332 | 0.7009 | 0.4619 | 54855 / 1597999 / 23413 | 0.4672 |
+
+![BN通道统计](assets/research/use_v4_bn_residual_diagnostics/bn_statistics.png)
+
+图1左、中、右分别为256通道均值、方差（对数轴）和TRAIN方差/原运行方差的分布。原模型始终eval，累计全部2223块的32×32原生BN输入，即每通道2276352个位置，使用FP64 count/sum/sumsq计算全局均值和无偏样本方差。完整网格主结果不筛去无效区；影像质量有效原生中心比例0.9288，原始像素至少一波段/全十波段有效比例0.9290/0.9290，不能保证整个感受野都干净。TRAIN方差相对原运行方差中位比为0.1021；与上节DEV有效中心的0.0439估计集合和分母不同。逐通道值及唯一[BN-R缓冲区快照](../outputs/use_v4_bn_residual_diagnostics/BN-R_diagnostic_buffers.npz)仅作诊断，不是新训练checkpoint。
+
+![八条件逐事件结果](assets/research/use_v4_bn_residual_diagnostics/eight_conditions.png)
+
+图2两行分别是广岛、特里苏尔，四列是IoU/AP/FPR/Recall；每组柱对应一种残差组成，两根柱对应原统计与TRAIN全局矩。应同时看AP排序与0.5阈值行为，不能只凭IoU变化判断学到新语义。BN重校准下FULL的广岛IoU/AP变化为-0.0569/+0.0102，特里苏尔为-0.0047/-0.0449。池化FULL的Precision/Recall/FPR从0.1167/0.1661/0.0247变为0.0279/0.7889/0.5390。
+
+![原固定案例的均值与空间残差](assets/research/use_v4_bn_residual_diagnostics/fixed_cases_decomposition.png)
+
+图3仍为预登记的广岛1173、广岛600、特里苏尔1903；每例两行分别对应两种BN，列为RGB及四种组成的概率/差错对。概率共用0–1范围（紫低黄高），红误报、蓝漏检、绿正确前景、灰排除；没有按新结果挑图。完整22例的误报解除、新增误报、救回和丢失TP见[fixed22_error_transitions.csv](../outputs/use_v4_bn_residual_diagnostics/fixed22_error_transitions.csv)，所有计数相对同BN的BASE。
+
+展开结论一（BN）：未达到两个事件IoU和AP一致改善的证据，不自动开展额外BN训练；优先级转回Q5信息保留与USE→MiT接口的受控诊断。 全局矩替换只改变现有已训练头的统计环境；它不是“训练时使用TRAIN BN”的等价实验。即使下降，也不能据此断定训练时BN适配必然无效；即使提高，也不能说模型学到新语义。当前十波段直入参照0.3081及原best选模保持不变。
+
+展开结论二（偏置与空间）：原BN下逐图AP均值BASE/MEAN/SPATIAL/FULL为0.1301/0.1301/0.1481/0.1482；重校准下为0.1263/0.1263/0.1516/0.1516。原BN的FULL相对BASE逐图AP差均值+0.0180、中位数+0.0016。MEAN在每图内只加常数，FP64原logit平移的AP不变检查全部通过；但它可改变跨图像排序，故池化AP可以变化。主结果使用FP32 sigmoid概率，极端logit的饱和与并列会引入微小AP差异；另报逐图、逐事件和池化原logit AP，不能把数值并列当作空间信息增益。
+
+原BN下μ均值-4.6650，中心化空间残差的逐图标准差均值1.6598。仅保留逐图偏置时，0.5阈值下TP=0、FP=0，全部203532个前景像素漏检；说明均值项能解释强烈的整体抑制，却不能独自解释完整预测。加入空间项后，逐图AP相对主分支均值提高0.0180，但中位数仅提高0.0016，667幅有前景影像中367幅改善、300幅下降。**Fine既承担图级偏置，也具有位置相关的排序修正，不能归结为纯偏置或建议删除；它也没有稳定改善每幅图。** 本轮不能为分割失败分配一个BN或偏置的因果解释百分比，更不能把无训练组成干预当成训练消融。所有5352条逐图记录、BN配对变化及AP分布保存在[per_image_diagnostics.csv](../outputs/use_v4_bn_residual_diagnostics/per_image_diagnostics.csv)与[summary.json](../outputs/use_v4_bn_residual_diagnostics/summary.json)。
+
+限制与下一步：本阶段只有两个预固定BN条件和四种预固定组成，没有调μ系数、扫描阈值或按DEV挑统计方法。全网格统计包含部分无效感受野；两事件开发集已反复使用，只有单seed，不能宣称独立泛化或显著性。后校准不能取代训练中BN策略对照；下一步遵循上面的证据判断，**本轮不自动启动5000/10000步训练或LoRA**。
+
+附录：全部参数逐张量`torch.equal`，只有BN-R两项运行统计不同；原BN完整状态前后相同，BN affine及`num_batches_tracked`不变。分解恒等式`MEAN+SPATIAL−BASE≈FULL`最大绝对误差3.81e-06，全部预测有限，评估掩膜相同。最终过程墙钟166.2秒，含I/O、前向、AP排序、CPU统计和绘图，不是独占GPU测速。本轮旧成本基准直接引用，没有新大图基准。
+
+实际命令：`.venv-use-independent/Scripts/python.exe -X utf8 scripts/diagnose_use_v4_bn_residual.py --dry-run`；`.venv-use-independent/Scripts/python.exe -X utf8 scripts/diagnose_use_v4_bn_residual.py --device cuda:1`。已完成输出拒绝覆盖，复现须另给`--output-dir`。成员顺序、代码/配置/权重/统计SHA、机器、BN属性及依赖见[manifest.json](../outputs/use_v4_bn_residual_diagnostics/manifest.json)；[验收](../outputs/use_v4_bn_residual_diagnostics/acceptance.json)、[TRAIN全局矩](../outputs/use_v4_bn_residual_diagnostics/bn_train_moments.json)及逐图文件共同构成可审计产物。没有覆盖原训练输出或上轮诊断文件。
+
+<!-- USE_V4_BN_RESIDUAL_END -->
+
+<!-- USE_V4_INTERFACE_DIAGNOSTICS_END -->

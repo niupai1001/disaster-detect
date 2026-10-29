@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-10-27",
-  "current_stage": "use-v4-mit",
+  "as_of": "2026-10-28",
+  "current_stage": "use-mit-dual-routes",
   "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
   "stages": [
     {
@@ -4509,6 +4509,1540 @@
           ]
         }
       ]
+    },
+    {
+      "id": "use-v4-interface-diagnostics",
+      "name": "USE v4：MiT接口与冻结分割组成只读诊断",
+      "previous": "use-v4-mit",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "在不更新权重下定位注入、四级空间表示、早期Fine与Decoder统计的具体证据及限制。",
+      "delta": "固定64个PRETRAIN_VAL和历史22个DEV，同坐标前向、特征统计、logit组成和BN统计；无新增训练或模型。",
+      "result": "0更新、参数与buffer SHA不变。Stage1分布不同但损害未证实；四级未完全失去差异；Fine增强的因果贡献未验证。BN方差比中位0.0439，残差在22例将AP0.0582升至0.1055、FPR0.1817降至0.0281，Recall0.3057降至0.1584；优先受控检查Decoder统计。",
+      "status": "只读诊断与证据验收完成；失败因果未确认",
+      "next": "已由后续零训练BN重校准与残差分解诊断检验；当前优先级见use-v4-bn-residual-diagnostics，旧10000步训练建议未执行。",
+      "reader_status": "最新只读诊断；当前十波段直入参照不变",
+      "evidence_level": "固定64无标签观测与22历史案例的描述性统计；非随机抽样、非训练消融，不能确认因果。",
+      "evidence": [
+        "scripts/diagnose_use_v4_interface.py",
+        "outputs/use_v4_interface_diagnostics/manifest.json",
+        "outputs/use_v4_interface_diagnostics/stage1_alignment.json",
+        "outputs/use_v4_interface_diagnostics/stage_geometry.json",
+        "outputs/use_v4_interface_diagnostics/fine_decoder.json",
+        "outputs/use_v4_interface_diagnostics/acceptance.json",
+        "outputs/use_v4_interface_diagnostics/summary.json"
+      ],
+      "source_document": {
+        "path": "N:\\Users\\yzh\\Data\\USE_v4_MiT89E5818EE5A3_8FE8BBAFE6AD89E88CAEE592.md",
+        "sha256": "05822728cf6aebb33e04ae9bf95aef7f43faeae3290b8ff661587ef3ad66c0ae"
+      },
+      "diagnostic_results": {
+        "hypotheses": [
+          {
+            "hypothesis": "Stage1分布失配",
+            "evidence": "同32个S2：LN前RMS为v4 3.819、监督直入0.520、同源RGB 0.352；LN后Token有效秩分别6.37/18.96/13.54。",
+            "file": "stage1_alignment.json",
+            "limit": "Q5本身有效秩仅4.68，adapter与LN没有继续降低该统计；LN只执行一次。RGB未按512重采样，直入已监督训练；分布不同，损害未证实。",
+            "action": "保留Token接口为候选；本轮不据此启动适配或LoRA。"
+          },
+          {
+            "hypothesis": "冻结MiT深层失配",
+            "evidence": "S2四级原生Token有效秩10.45→16.85→13.08→9.24；跨图均值有效秩5.08→7.77→9.95→10.07。Landsat方向相近。",
+            "file": "stage_geometry.json",
+            "limit": "Stage4只有4×4=16个位置，中心化秩上限15；RGB/监督直入也降至11.46/10.14。未观察到空间差异完全消失，不能定位深层损害。",
+            "action": "暂不优先进行无标签LoRA。"
+          },
+          {
+            "hypothesis": "Fine增强缺失",
+            "evidence": "v3最终−早期范数比例：S2 2.22、Landsat 2.48。S2有效秩v3早期/最终/v4早期=5.39/9.38/5.46；初始化早期Fine逐元素差为0。",
+            "file": "fine_decoder.json",
+            "limit": "v4早期Fine与v3早期的秩相近；DEV边界/非边界梯度比约1.64/1.78/1.64，仅描述性证据。结构、预训练日程与消费者不同，不能归因于移除反馈。",
+            "action": "保留适度细节增强假设，当前不改Fine结构。"
+          },
+          {
+            "hypothesis": "Decoder BN/残差失配",
+            "evidence": "BN输入/运行方差比中位数0.0439；残差/主分支RMS=5.07/0.67。固定22例base→final AP 0.0582→0.1055，FPR 0.1817→0.0281，Recall 0.3057→0.1584。",
+            "file": "fine_decoder.json",
+            "limit": "残差减少误报并提高IoU，不能建议直接删除；BN均值偏移RMS仅0.35且仿射已训练。22例组成干预不是训练消融，不证明BN导致完整669例低分。",
+            "action": "下一轮唯一优先候选：受控比较Decoder BN统计策略；尚未授权或执行。"
+          }
+        ],
+        "recommendation": "Decoder统计/融合接口优先，因果未确认",
+        "fixed22": {
+          "base": {
+            "n": 351186,
+            "positives": 8821,
+            "AP": 0.058241969221579225,
+            "IoU": 0.03796238950509544,
+            "Precision": 0.04154343807763401,
+            "Recall": 0.3057476476589956,
+            "FPR": 0.1817446292699312,
+            "tp": 2697,
+            "fp": 62223,
+            "fn": 6124,
+            "tn": 280142
+          },
+          "final": {
+            "n": 351186,
+            "positives": 8821,
+            "AP": 0.1055292494386691,
+            "IoU": 0.07577976674803363,
+            "Precision": 0.12687312687312688,
+            "Recall": 0.15837206665910894,
+            "FPR": 0.02808114147182101,
+            "tp": 1397,
+            "fp": 9614,
+            "fn": 7424,
+            "tn": 332751
+          }
+        },
+        "fine_delta_norm_ratio": {
+          "s2": 2.224461480975151,
+          "landsat": 2.482557699084282
+        },
+        "DEV_boundary_to_nonboundary_gradient_ratio": {
+          "v3_early": 1.6389404085776815,
+          "v3_final": 1.7765486315956187,
+          "v4_early": 1.642100249250766
+        },
+        "decoder_rms": {
+          "project1": 0.6258763788895305,
+          "project2": 0.2003418408561792,
+          "project3": 0.17992732794139127,
+          "project4": 1.5367675376408518,
+          "fuse": 8.52918295183358,
+          "bn": 0.4067375787669815,
+          "base_native": 0.6789668217706891,
+          "delta": 5.07215951017359,
+          "base": 0.668552149702216,
+          "final": 5.6256077998084875
+        },
+        "bn_variance_ratio_median": 0.04388794979531742,
+        "bn_normalized_mean_offset_rms": 0.3500286861712067,
+        "dev_events": {
+          "hiroshima": 12,
+          "thrissur": 10
+        },
+        "acceptance": "PASS_WITH_LIMITATIONS",
+        "optimizer_updates": 0,
+        "limitations": [
+          "固定22例是历史选择案例，非随机样本或完整DEV669。",
+          "RGB参考非标准预训练图像分布；直入权重有监督来源。",
+          "所有因果归因与下一轮BN策略效果均未验证。"
+        ],
+        "readonly_attempts": {
+          "total": 4,
+          "completed": 3,
+          "interrupted": 1,
+          "optimizer_updates_all_attempts": 0,
+          "note": "保留首次可选sklearn依赖错误日志；最终复用项目AP实现，不安装依赖。前两个完成版本用于坐标/数值与图面复核；不含训练或成本基准。"
+        }
+      },
+      "actual_updates": 0,
+      "comparisons": [
+        {
+          "name": "冻结USE v4现有best的主预测与最终预测组成",
+          "evaluation_context": "历史固定DEV22例，351186共同有效像素；0.5阈值；非完整669例事件等权结果。",
+          "comparison": "同权重base logit与base+Fine残差，GT只读；组成干预，不是训练消融。",
+          "observation": "AP0.0582→0.1055、IoU0.0380→0.0758、Precision0.0415→0.1269、Recall0.3057→0.1584、FPR0.1817→0.0281。",
+          "possible_answer": "残差同时抑制大量误报和部分真前景；有BN统计与幅度差异，尚不能确认迁移失败的原因。"
+        }
+      ]
+    },
+    {
+      "id": "use-v4-bn-residual-diagnostics",
+      "name": "USE v4：TRAIN-only BN重校准与残差均值/空间分解",
+      "previous": "use-v4-interface-diagnostics",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "不更新参数，检验TRAIN全局BN统计与逐图偏置/空间残差对现有best预测的作用。",
+      "delta": "TRAIN2223仅影像和质量统计，DEV669先逐字节复现，再比较两个BN×四种logit组成；仅副本的BN运行均值/方差可变。",
+      "result": "0参数更新。原BN/FULL逐像素复现，后校准FULL事件IoU 0.0600→0.0292，池化AP 0.0844→0.0787。原BN逐图AP均值BASE/MEAN/SPATIAL/FULL=0.1301/0.1301/0.1481/0.1482。",
+      "status": "零训练干预完成并验收；不作为训练消融或新模型选模",
+      "next": "未达到两个事件IoU和AP一致改善的证据，不自动开展额外BN训练；优先级转回Q5信息保留与USE→MiT接口的受控诊断。",
+      "reader_status": "最新完成的零训练诊断；当前生产参照不变",
+      "evidence_level": "完整669开发集配对推理；单seed、开发集复用；不证明训练时BN策略的效果。",
+      "evidence": [
+        "scripts/diagnose_use_v4_bn_residual.py",
+        "outputs/use_v4_bn_residual_diagnostics/manifest.json",
+        "outputs/use_v4_bn_residual_diagnostics/baseline_reproduction.json",
+        "outputs/use_v4_bn_residual_diagnostics/bn_train_moments.json",
+        "outputs/use_v4_bn_residual_diagnostics/factorial_results.csv",
+        "outputs/use_v4_bn_residual_diagnostics/per_image_diagnostics.csv",
+        "outputs/use_v4_bn_residual_diagnostics/summary.json",
+        "outputs/use_v4_bn_residual_diagnostics/acceptance.json"
+      ],
+      "source_document": {
+        "path": "N:\\Users\\yzh\\Data\\USE_v4_B8E480BDE98DA0E586B8E68BB7E586A7E9B6AEE783AFE6ADAEE592.md",
+        "sha256": "f9552f5404823c38d482f417f45ebad8442d6407531a46bebc6888a0dd50fa57"
+      },
+      "actual_updates": 0,
+      "diagnostic_results": {
+        "full_original": {
+          "BN": "BN-O",
+          "composition": "FULL",
+          "pooled": {
+            "tp": 33799,
+            "fp": 255733,
+            "fn": 169733,
+            "tn": 10114522,
+            "n": 10573787,
+            "positives": 203532,
+            "IoU": 0.07359367685323288,
+            "Precision": 0.11673666468645953,
+            "Recall": 0.16606233909164161,
+            "FPR": 0.024660242202337358,
+            "predicted_positive_fraction": 0.027382053374065508,
+            "AP": 0.08443308007672096,
+            "logit_AP": 0.08443308037473139
+          },
+          "by_event": {
+            "hiroshima": {
+              "tp": 30391,
+              "fp": 242975,
+              "fn": 94873,
+              "tn": 6667907,
+              "n": 7036146,
+              "positives": 125264,
+              "IoU": 0.08253063906864835,
+              "Precision": 0.11117329880087502,
+              "Recall": 0.24261559586154044,
+              "FPR": 0.03515831987870723,
+              "predicted_positive_fraction": 0.03885166680736869,
+              "AP": 0.0883427060648534,
+              "logit_AP": 0.08834270591903007,
+              "tiles": 448
+            },
+            "thrissur": {
+              "tp": 3408,
+              "fp": 12758,
+              "fn": 74860,
+              "tn": 3446615,
+              "n": 3537641,
+              "positives": 78268,
+              "IoU": 0.03743985234987806,
+              "Precision": 0.21081281702338242,
+              "Recall": 0.04354269944293964,
+              "FPR": 0.003687951544976503,
+              "predicted_positive_fraction": 0.004569711850354516,
+              "AP": 0.11160187469226755,
+              "logit_AP": 0.11160187984276324,
+              "tiles": 221
+            }
+          },
+          "event_mean_IoU": 0.05998524570926321,
+          "event_mean_AP": 0.09997229037856048,
+          "per_image_AP": {
+            "n": 667,
+            "nonfinite_fraction": 0.0,
+            "mean": 0.1481534617824151,
+            "std": 0.1849724685018098,
+            "rms": 0.23699000472966478,
+            "quantiles": {
+              "min": 0.00010352172087194748,
+              "p01": 0.0003955475086311166,
+              "p25": 0.01473486596909117,
+              "median": 0.07301611304152286,
+              "p75": 0.21107163999542716,
+              "p99": 0.8164238802902939,
+              "max": 0.9316228875464241
+            }
+          },
+          "per_image_AP_undefined": 2,
+          "BN_R_minus_O": {
+            "event_mean_IoU": 0.0,
+            "event_mean_AP": 0.0,
+            "pooled_IoU": 0.0,
+            "pooled_AP": 0.0,
+            "pooled_Precision": 0.0,
+            "pooled_Recall": 0.0,
+            "pooled_FPR": 0.0,
+            "pooled_tp": 0,
+            "pooled_fp": 0,
+            "pooled_fn": 0,
+            "pooled_predicted_positive_fraction": 0.0,
+            "hiroshima_IoU": 0.0,
+            "hiroshima_AP": 0.0,
+            "hiroshima_Precision": 0.0,
+            "hiroshima_Recall": 0.0,
+            "hiroshima_FPR": 0.0,
+            "hiroshima_tp": 0,
+            "hiroshima_fp": 0,
+            "hiroshima_fn": 0,
+            "hiroshima_predicted_positive_fraction": 0.0,
+            "thrissur_IoU": 0.0,
+            "thrissur_AP": 0.0,
+            "thrissur_Precision": 0.0,
+            "thrissur_Recall": 0.0,
+            "thrissur_FPR": 0.0,
+            "thrissur_tp": 0,
+            "thrissur_fp": 0,
+            "thrissur_fn": 0,
+            "thrissur_predicted_positive_fraction": 0.0
+          }
+        },
+        "full_recalibrated": {
+          "BN": "BN-R",
+          "composition": "FULL",
+          "pooled": {
+            "tp": 160558,
+            "fp": 5589999,
+            "fn": 42974,
+            "tn": 4780256,
+            "n": 10573787,
+            "positives": 203532,
+            "IoU": 0.027713323705353437,
+            "Precision": 0.027920425795275136,
+            "Recall": 0.7888587543973429,
+            "FPR": 0.5390416146951064,
+            "predicted_positive_fraction": 0.5438502780508062,
+            "AP": 0.07872324137747078,
+            "logit_AP": 0.07872355594763895
+          },
+          "by_event": {
+            "hiroshima": {
+              "tp": 105703,
+              "fp": 3992000,
+              "fn": 19561,
+              "tn": 2918882,
+              "n": 7036146,
+              "positives": 125264,
+              "IoU": 0.025673116904818345,
+              "Precision": 0.025795671379794972,
+              "Recall": 0.8438418061055052,
+              "FPR": 0.5776397281852013,
+              "predicted_positive_fraction": 0.582378904587824,
+              "AP": 0.09851998169451529,
+              "logit_AP": 0.0985204055548648,
+              "tiles": 448
+            },
+            "thrissur": {
+              "tp": 54855,
+              "fp": 1597999,
+              "fn": 23413,
+              "tn": 1861374,
+              "n": 3537641,
+              "positives": 78268,
+              "IoU": 0.03272450033318081,
+              "Precision": 0.03318804927718964,
+              "Recall": 0.7008611437624572,
+              "FPR": 0.4619331306569138,
+              "predicted_positive_fraction": 0.46721925712642975,
+              "AP": 0.06674185101048381,
+              "logit_AP": 0.06674207453841813,
+              "tiles": 221
+            }
+          },
+          "event_mean_IoU": 0.02919880861899958,
+          "event_mean_AP": 0.08263091635249956,
+          "per_image_AP": {
+            "n": 667,
+            "nonfinite_fraction": 0.0,
+            "mean": 0.1516279581451295,
+            "std": 0.18220842729563919,
+            "rms": 0.23704630068577612,
+            "quantiles": {
+              "min": 0.0001448894998123049,
+              "p01": 0.00020677609125559305,
+              "p25": 0.015143263201662838,
+              "median": 0.07121147882565128,
+              "p75": 0.24376570549547594,
+              "p99": 0.7431341579850078,
+              "max": 0.8358107566619426
+            }
+          },
+          "per_image_AP_undefined": 2,
+          "BN_R_minus_O": {
+            "event_mean_IoU": -0.03078643709026363,
+            "event_mean_AP": -0.017341374026060924,
+            "pooled_IoU": -0.045880353147879444,
+            "pooled_AP": -0.00570983869925018,
+            "pooled_Precision": -0.0888162388911844,
+            "pooled_Recall": 0.6227964153057013,
+            "pooled_FPR": 0.514381372492769,
+            "pooled_tp": 126759,
+            "pooled_fp": 5334266,
+            "pooled_fn": -126759,
+            "pooled_predicted_positive_fraction": 0.5164682246767407,
+            "hiroshima_IoU": -0.05685752216383001,
+            "hiroshima_AP": 0.010177275629661892,
+            "hiroshima_Precision": -0.08537762742108004,
+            "hiroshima_Recall": 0.6012262102439647,
+            "hiroshima_FPR": 0.542481408306494,
+            "hiroshima_tp": 75312,
+            "hiroshima_fp": 3749025,
+            "hiroshima_fn": -75312,
+            "hiroshima_predicted_positive_fraction": 0.5435272377804553,
+            "thrissur_IoU": -0.004715352016697247,
+            "thrissur_AP": -0.04486002368178374,
+            "thrissur_Precision": -0.1776247677461928,
+            "thrissur_Recall": 0.6573184443195176,
+            "thrissur_FPR": 0.45824517911193735,
+            "thrissur_tp": 51447,
+            "thrissur_fp": 1585241,
+            "thrissur_fn": -51447,
+            "thrissur_predicted_positive_fraction": 0.4626495452760752
+          }
+        },
+        "decision": {
+          "next": "未达到两个事件IoU和AP一致改善的证据，不自动开展额外BN训练；优先级转回Q5信息保留与USE→MiT接口的受控诊断。",
+          "both_events_IoU_AP_improve": false,
+          "FULL_BN_R_minus_O": {
+            "hiroshima": {
+              "IoU": -0.05685752216383001,
+              "AP": 0.010177275629661892,
+              "Precision": -0.08537762742108004,
+              "Recall": 0.6012262102439647,
+              "FPR": 0.542481408306494,
+              "tp": 75312,
+              "fp": 3749025,
+              "fn": -75312,
+              "predicted_positive_fraction": 0.5435272377804553
+            },
+            "thrissur": {
+              "IoU": -0.004715352016697247,
+              "AP": -0.04486002368178374,
+              "Precision": -0.1776247677461928,
+              "Recall": 0.6573184443195176,
+              "FPR": 0.45824517911193735,
+              "tp": 51447,
+              "fp": 1585241,
+              "fn": -51447,
+              "predicted_positive_fraction": 0.4626495452760752
+            }
+          },
+          "decomposition": {
+            "BN-O": {
+              "mu": {
+                "n": 669,
+                "nonfinite_fraction": 0.0,
+                "mean": -4.664985726588866,
+                "std": 1.0708589481233632,
+                "rms": 4.78631703045815,
+                "quantiles": {
+                  "min": -6.48721170425415,
+                  "p01": -6.339658641815186,
+                  "p25": -5.357827186584473,
+                  "median": -4.875889301300049,
+                  "p75": -4.150412082672119,
+                  "p99": -1.4363886642456045,
+                  "max": -0.8142910003662109
+                }
+              },
+              "spatial_std": {
+                "n": 669,
+                "nonfinite_fraction": 0.0,
+                "mean": 1.6597826579315602,
+                "std": 0.6350056033478062,
+                "rms": 1.7771073653140559,
+                "quantiles": {
+                  "min": 0.462976336479187,
+                  "p01": 0.5080716919898987,
+                  "p25": 1.1170903444290161,
+                  "median": 1.6788341999053955,
+                  "p75": 2.1802613735198975,
+                  "p99": 2.925800781250001,
+                  "max": 3.4188108444213867
+                }
+              },
+              "relative_to_BASE": {
+                "BASE": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.0,
+                    "std": 0.0,
+                    "rms": 0.0,
+                    "quantiles": {
+                      "min": 0.0,
+                      "p01": 0.0,
+                      "p25": 0.0,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 0.0,
+                      "max": 0.0
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.0,
+                    "std": 0.0,
+                    "rms": 0.0,
+                    "quantiles": {
+                      "min": 0.0,
+                      "p01": 0.0,
+                      "p25": 0.0,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 0.0,
+                      "max": 0.0
+                    }
+                  },
+                  "positive_AP_change_tiles": 0,
+                  "negative_AP_change_tiles": 0
+                },
+                "MEAN": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 5.445036179088648e-09,
+                    "std": 7.133302705437441e-07,
+                    "rms": 7.133510519323587e-07,
+                    "quantiles": {
+                      "min": -3.3521687937687616e-06,
+                      "p01": -1.5451578069164417e-06,
+                      "p25": -1.3010426069826053e-18,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 2.0237647811527607e-06,
+                      "max": 9.322800871888748e-06
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 5.5694470165546005e-08,
+                    "std": 1.3419728710819117e-06,
+                    "rms": 1.3431280879822482e-06,
+                    "quantiles": {
+                      "min": -4.310961972620042e-06,
+                      "p01": -1.887168132176098e-06,
+                      "p25": -7.292366680997087e-09,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 5.017146992124943e-06,
+                      "max": 2.543940823448998e-05
+                    }
+                  },
+                  "positive_AP_change_tiles": 60,
+                  "negative_AP_change_tiles": 172
+                },
+                "SPATIAL": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.01801956770892086,
+                    "std": 0.12628175638982264,
+                    "rms": 0.12756091414424287,
+                    "quantiles": {
+                      "min": -0.6051917403271535,
+                      "p01": -0.3261015984817121,
+                      "p25": -0.013747515470484611,
+                      "median": 0.00160269181006504,
+                      "p75": 0.04237962428508897,
+                      "p99": 0.4762400690857706,
+                      "max": 0.83101176400266
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.01803236222924796,
+                    "std": 0.12628556462846077,
+                    "rms": 0.1275664921564278,
+                    "quantiles": {
+                      "min": -0.6051917403271535,
+                      "p01": -0.3261017664761262,
+                      "p25": -0.013747515470484556,
+                      "median": 0.00160269181006504,
+                      "p75": 0.042379624285088985,
+                      "p99": 0.476239916450021,
+                      "max": 0.83101176400266
+                    }
+                  },
+                  "positive_AP_change_tiles": 367,
+                  "negative_AP_change_tiles": 300
+                },
+                "FULL": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.018032336029388436,
+                    "std": 0.12628557403287285,
+                    "rms": 0.1275664977628883,
+                    "quantiles": {
+                      "min": -0.6051917403271535,
+                      "p01": -0.3261015984817121,
+                      "p25": -0.01374751547048456,
+                      "median": 0.00160269181006504,
+                      "p75": 0.04237962428508897,
+                      "p99": 0.47623828236909455,
+                      "max": 0.83101176400266
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.01803235598918359,
+                    "std": 0.12628554805874764,
+                    "rms": 0.1275664748710213,
+                    "quantiles": {
+                      "min": -0.6051917403271535,
+                      "p01": -0.3261017664761262,
+                      "p25": -0.01374751547048456,
+                      "median": 0.00160269181006504,
+                      "p75": 0.042379624285088985,
+                      "p99": 0.47623812973334495,
+                      "max": 0.83101176400266
+                    }
+                  },
+                  "positive_AP_change_tiles": 367,
+                  "negative_AP_change_tiles": 300
+                }
+              },
+              "per_image_AP_means": {
+                "BASE": 0.13012112575302662,
+                "MEAN": 0.13012113119806282,
+                "SPATIAL": 0.1481406934619475,
+                "FULL": 0.1481534617824151
+              }
+            },
+            "BN-R": {
+              "mu": {
+                "n": 669,
+                "nonfinite_fraction": 0.0,
+                "mean": 0.23462240232930134,
+                "std": 2.047583366876818,
+                "rms": 2.0609816389248548,
+                "quantiles": {
+                  "min": -3.904491662979126,
+                  "p01": -3.5983885383605956,
+                  "p25": -1.3616331815719604,
+                  "median": 0.048802852630615234,
+                  "p75": 1.6289949417114258,
+                  "p99": 4.65029094696045,
+                  "max": 5.014298439025879
+                }
+              },
+              "spatial_std": {
+                "n": 669,
+                "nonfinite_fraction": 0.0,
+                "mean": 2.281249393885802,
+                "std": 0.6938692656871608,
+                "rms": 2.3844398409206256,
+                "quantiles": {
+                  "min": 0.8085066080093384,
+                  "p01": 1.0421253395080565,
+                  "p25": 1.757432222366333,
+                  "median": 2.2231690883636475,
+                  "p75": 2.7391254901885986,
+                  "p99": 3.97181483268738,
+                  "max": 4.711109638214111
+                }
+              },
+              "relative_to_BASE": {
+                "BASE": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.0,
+                    "std": 0.0,
+                    "rms": 0.0,
+                    "quantiles": {
+                      "min": 0.0,
+                      "p01": 0.0,
+                      "p25": 0.0,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 0.0,
+                      "max": 0.0
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.0,
+                    "std": 0.0,
+                    "rms": 0.0,
+                    "quantiles": {
+                      "min": 0.0,
+                      "p01": 0.0,
+                      "p25": 0.0,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 0.0,
+                      "max": 0.0
+                    }
+                  },
+                  "positive_AP_change_tiles": 0,
+                  "negative_AP_change_tiles": 0
+                },
+                "MEAN": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": -8.241058518484451e-07,
+                    "std": 1.3064196828409829e-05,
+                    "rms": 1.3090163834974884e-05,
+                    "quantiles": {
+                      "min": -0.0001921602927505428,
+                      "p01": -2.9903983766091936e-05,
+                      "p25": -8.673617379884035e-18,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 1.1379164226905684e-05,
+                      "max": 0.00020580262697450502
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 9.735364875177393e-09,
+                    "std": 3.616712700570226e-07,
+                    "rms": 3.618022732293325e-07,
+                    "quantiles": {
+                      "min": -1.158806273021673e-06,
+                      "p01": -9.033491068177745e-08,
+                      "p25": 0.0,
+                      "median": 0.0,
+                      "p75": 0.0,
+                      "p99": 7.438494264988726e-17,
+                      "max": 9.17374099793089e-06
+                    }
+                  },
+                  "positive_AP_change_tiles": 80,
+                  "negative_AP_change_tiles": 179
+                },
+                "SPATIAL": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.02534926691615363,
+                    "std": 0.09282974636482241,
+                    "rms": 0.09622861914910585,
+                    "quantiles": {
+                      "min": -0.4966859367765795,
+                      "p01": -0.2162107631097983,
+                      "p25": -0.002281039949645761,
+                      "median": 0.006708457707490491,
+                      "p75": 0.050474059740818145,
+                      "p99": 0.30844991580074416,
+                      "max": 0.6166546247725155
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.025349821864405677,
+                    "std": 0.09283103614828134,
+                    "rms": 0.09623000956521108,
+                    "quantiles": {
+                      "min": -0.4966859367765795,
+                      "p01": -0.21621037382918462,
+                      "p25": -0.002281039949645761,
+                      "median": 0.006708457707490491,
+                      "p75": 0.05047505526752785,
+                      "p99": 0.3084556008977973,
+                      "max": 0.6166546247725155
+                    }
+                  },
+                  "positive_AP_change_tiles": 446,
+                  "negative_AP_change_tiles": 221
+                },
+                "FULL": {
+                  "probability_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.025342665583900744,
+                    "std": 0.0928227184293182,
+                    "rms": 0.09622010057937955,
+                    "quantiles": {
+                      "min": -0.4966859367765795,
+                      "p01": -0.21640354728587313,
+                      "p25": -0.002281054214755822,
+                      "median": 0.006708428198125147,
+                      "p75": 0.050762999842660805,
+                      "p99": 0.30844629216002023,
+                      "max": 0.6166642278541663
+                    }
+                  },
+                  "raw_logit_AP_change": {
+                    "n": 667,
+                    "nonfinite_fraction": 0.0,
+                    "mean": 0.02534985460344035,
+                    "std": 0.09283085386292071,
+                    "rms": 0.09622984234287464,
+                    "quantiles": {
+                      "min": -0.4966859367765795,
+                      "p01": -0.21621037382918462,
+                      "p25": -0.002281039949645761,
+                      "median": 0.006708428198125147,
+                      "p75": 0.05047505526752785,
+                      "p99": 0.3084556008977973,
+                      "max": 0.6166546247725155
+                    }
+                  },
+                  "positive_AP_change_tiles": 446,
+                  "negative_AP_change_tiles": 221
+                }
+              },
+              "per_image_AP_means": {
+                "BASE": 0.12628529256122875,
+                "MEAN": 0.12628446845537694,
+                "SPATIAL": 0.1516345594773824,
+                "FULL": 0.1516279581451295
+              }
+            }
+          },
+          "causal_status": "Inference-only intervention; not training ablation or proof of the unique failure mechanism."
+        }
+      },
+      "comparisons": [
+        {
+          "name": "冻结USE＋MiT＋原best轻量头的BN统计与残差组成干预",
+          "evaluation_context": "九事件2223 TRAIN仅统计；广岛448＋特里苏尔221完整DEV；0.5阈值。",
+          "comparison": "同参数，两种BN运行统计×四种logit组成，0训练。",
+          "observation": "完整融合事件等权IoU 0.0600→0.0292、池化AP 0.0844→0.0787；逐事件方向与逐图分布见固定文档。",
+          "possible_answer": "未达到两个事件IoU和AP一致改善的证据，不自动开展额外BN训练；优先级转回Q5信息保留与USE→MiT接口的受控诊断。 训练后统计替换与训练中统计适配不可等同。"
+        }
+      ]
+    },
+    {
+      "id": "use-mit-dual-routes",
+      "name": "USE双路线：保留视觉入口与光谱Token教师对齐",
+      "previous": "use-v4-bn-residual-diagnostics",
+      "data_split_display": "我们的数据划分（留事件验证）",
+      "goal": "通过视觉入口残差、光谱Token教师对齐两个完整方案及同构视觉参照，比较多光谱补充、独立Token生成、冻结分割迁移和实际成本。",
+      "delta": "A保留冻结RGB首投影并加零起点光谱残差；B仅训练期用原RGB Patch Token余弦教师对齐，固定0.20；C0原视觉入口加固定初始Fine。三者同构MiT与All-MLP/Fine任务头，主评价固定20k末态。",
+      "result": "两路固定u20000与四项1000步冻结恢复探针及599评价已完成，Fine头8张量、Context头16张量逐一相同，编码器冻结核查通过。公共恢复三任务均分1.1437对1.1791，视觉残差方案Fine和光谱误差较低，光谱对齐方案空间误差较低；方向不完全一致，不反选编码器，不推断分割收益。GPU0另存27项初始成本，原GPU1记录保留。现已进入原三组同构分割，尚无最终分割成绩；正式总上限59000及10次恢复重放分别记账。",
+      "status": "两路预训练和四探针共44000完成；GPU0初始成本重测完成，三同构分割头按空闲卡串行启动",
+      "next": "按空闲卡严格串行完成C0/A/B各5000同构分割及best/last原始评价、固定案例、同卡最终成本，再做全部预算/曝光/冻结与初始化最终验收和固定文档报告。",
+      "reader_status": "正式训练中：原59000预算",
+      "evidence_level": "独立验收通过、实际正式更新进行中；非最终实验结论",
+      "evidence": [
+        "docs/USE_MIT_DUAL_ROUTES_EXECUTION_HANDOFF.md",
+        "outputs/use_mit_dual_routes/audit/pre_release_sources.json",
+        "outputs/use_mit_dual_routes/audit/rgb_members_independent_summary.json",
+        "outputs/use_mit_dual_routes/audit/independent_gate_decision.json",
+        "outputs/use_mit_dual_routes/audit/ENGINEERING_REPAIR_REQUEST.md",
+        "outputs/use_mit_dual_routes/audit/release_independent_acceptance.json",
+        "outputs/use_mit_dual_routes/audit/capacity_independent.json",
+        "outputs/use_mit_dual_routes/benchmarks/initial.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/repair_independent_acceptance.json",
+        "outputs/use_mit_dual_routes/audit/READY_FOR_TRAINING.json",
+        "outputs/use_mit_dual_routes/runtime/status.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/training_launch.json",
+        "outputs/use_mit_dual_routes/runtime/recovery_ledger.json",
+        "outputs/use_mit_dual_routes/runtime/monitor/monitor_recovery_1793206361.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/actual_recovery_replay_equivalence.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/pretrain_A_completed_acceptance.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/completed_pretrains_acceptance.json",
+        "outputs/use_mit_dual_routes/runtime/original_probe_queue_overlap.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/probes_A_completed_acceptance.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/available_gpu_dispatch.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/current_probe_results.json",
+        "outputs/use_mit_dual_routes/audit/release_v2/current_segmentation_results.json"
+      ],
+      "source_document": {
+        "path": "N:/Users/yzh/Data/USE_双路线_预训练MiT迁移_完整实验执行计划.md",
+        "sha256": "2df3ea9726b2504e699dbb81c1805248d1f866790100dd73e8157d4f42861fc8"
+      },
+      "request_scope": "用户已明确要求创建工程和训练两个对话并开始执行，授权工程门禁通过后运行固定59000次成功更新上限及结果回写；硬门槛失败停止相应依赖作业，不重复请求相同预算授权。",
+      "source_verification": {
+        "date": "2026-10-28",
+        "git_head": "578749d68a46be20bd1e60790a61c4c8798201a3",
+        "v3_checkpoint_sha256": "e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886",
+        "mit_safetensors_sha256": "6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9",
+        "processor_sha256": "8039d1d210abaa7117ad78e58cdfd6141a2ec72c03dae891b3cd76737e422c6c",
+        "members_sha256": "b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578",
+        "cache_acceptance_sha256": "eb288c231e0eebde69d11e6871f353eb3ed40bdd65f683232942bac9fa894587",
+        "public_calibration_sha256": "eae806d0a2b111397a44fb56054c5912b51e36700cdedc4fef10fa04a42e8a95",
+        "rgb_manifest_counts": {
+          "TRAIN": {
+            "s2": 9510,
+            "landsat": 1622,
+            "mapped": 11132
+          },
+          "PRETRAIN_VAL": {
+            "s2": 521,
+            "landsat": 78,
+            "mapped": 599
+          }
+        },
+        "coverage_limit": "清单全量映射、每命名/来源/角色代表缓存及历史cache_audit记录；本次未全量重读像元质量，P0须复核并保存逐成员准入。"
+      },
+      "execution_plan": {
+        "basis": "依据用户双路线附件和当前v4失败/BN零更新诊断制定下一阶段。两名Agent仍按工程/训练分工，避免与模型路线A/B混淆。当前仅计划归档，细则由本条handoff_sections生成分发快照；不恢复旧队列或启动训练。",
+        "contract": "无标签TRAIN11132=9510 S2+1622 Landsat，验证599=521+78，隔离239；每更新6 S2+2 Landsat。下游九事件2223训练、广岛448+特里苏尔221开发验证，seed1234/stats_core25。无新数据/下载/日期/GSD/地形/四折/官方/保留集。",
+        "inputs": "物理反射率RGB独立于USE z-score；S2 red/green/blue或B04/B03/B02，Landsat依实际语义ID/波长核验。RGB不resize/rescale，ImageNet均值/标准差，保留物理值；A读取同遮挡学生RGB，B教师原始同源RGB仅stop-gradient目标，部署无教师。探针只在TRAIN更新。",
+        "budget": "正式59000=两预训练×20000+四探针×1000+三同构分割×5000，共9作业；工程A/B各≤200、失败重放另列。FP32/TF32关、micro2×accum4、AdamW WD0.01/clip1；前端LR1e-4、新模块6e-4，预热1000后余弦。探针/分割LR6e-4，预热50/250。固定u20000，不按探针或DEV选USE，无5k/10k探针。",
+        "initialization": "A/B从同一固定v3前端和本地ADE MiT开始，禁止续用训练后v4。C0 Fine固定共同初始；A/B Fine可更新。MiT原权重冻结eval但训练期保留输入梯度；B教师只冻结Patch Conv+Norm。模型/采样seed1234、头seed1235，保存共同任务头初始state逐张量核对；A末端1×1零初始化。",
+        "formal_successful_update_limit": 59000,
+        "engineering_update_limit": 400,
+        "alignment_weight": 0.2,
+        "encoder_evaluation_checkpoint": 20000,
+        "jobs": [
+          {
+            "id": "pretrain_visual_residual",
+            "route": "A",
+            "mode": "pretrain",
+            "updates": 20000,
+            "warmup": 1000
+          },
+          {
+            "id": "pretrain_token_alignment",
+            "route": "B",
+            "mode": "pretrain",
+            "updates": 20000,
+            "warmup": 1000
+          },
+          {
+            "id": "probe_visual_residual_fine",
+            "route": "A",
+            "mode": "probe",
+            "checkpoint": 20000,
+            "task": "fine",
+            "updates": 1000,
+            "warmup": 50
+          },
+          {
+            "id": "probe_visual_residual_context",
+            "route": "A",
+            "mode": "probe",
+            "checkpoint": 20000,
+            "task": "context",
+            "updates": 1000,
+            "warmup": 50
+          },
+          {
+            "id": "probe_token_alignment_fine",
+            "route": "B",
+            "mode": "probe",
+            "checkpoint": 20000,
+            "task": "fine",
+            "updates": 1000,
+            "warmup": 50
+          },
+          {
+            "id": "probe_token_alignment_context",
+            "route": "B",
+            "mode": "probe",
+            "checkpoint": 20000,
+            "task": "context",
+            "updates": 1000,
+            "warmup": 50
+          },
+          {
+            "id": "segment_visual_reference",
+            "route": "C0",
+            "mode": "segmentation",
+            "updates": 5000,
+            "warmup": 250
+          },
+          {
+            "id": "segment_visual_residual",
+            "route": "A",
+            "mode": "segmentation",
+            "checkpoint": 20000,
+            "updates": 5000,
+            "warmup": 250
+          },
+          {
+            "id": "segment_token_alignment",
+            "route": "B",
+            "mode": "segmentation",
+            "checkpoint": 20000,
+            "updates": 5000,
+            "warmup": 250
+          }
+        ],
+        "steps": [
+          {
+            "order": "1",
+            "model": "工程Agent：RGB准入与三组实现",
+            "change": "全成员映射/单位/支持审计；新入口组合A/B/C0及既有masked MiT/任务头；两路线各≤200工程试训",
+            "question": "视觉入口不泄漏、A零起点等价、B教师边界与学生梯度是否可靠",
+            "status": "待实现与复核"
+          },
+          {
+            "order": "2",
+            "model": "训练Agent：独立release和资源验收",
+            "change": "复核关键测试、哈希、共同初始化、128真实更新与静态容量，封装门禁",
+            "question": "实际配置和来源是否可比且可运行",
+            "status": "待执行"
+          },
+          {
+            "order": "3",
+            "model": "双卡：视觉残差与光谱对齐各20000",
+            "change": "GPU0 A、GPU1 B；固定五项MAE和共同分母，B仅额外0.20 Token余弦",
+            "question": "两个整体目标如何学习，残差/对齐覆盖和成本如何",
+            "status": "待执行；40000更新"
+          },
+          {
+            "order": "4",
+            "model": "双卡：最终编码器四项公共探针",
+            "change": "仅u20000，A/B各Fine/Context1000；TRAIN训练，599验证评价",
+            "question": "公共恢复是否改善；弱分数不阻断分割",
+            "status": "待执行；4000更新"
+          },
+          {
+            "order": "5",
+            "model": "同构视觉参照与两路线各5000分割",
+            "change": "三组同一ADE All-MLP/classifier/Fine残差初始化、BN策略与监督规则；USE全冻结",
+            "question": "A/C0、B/C0及B/A的净收益和RGB依赖成本是什么",
+            "status": "待执行；15000更新"
+          },
+          {
+            "order": "6",
+            "model": "训练Agent：结果与固定文档",
+            "change": "三张主表、曲线/固定案例、原始评价、哈希和完整预算/成本账本，同源回写",
+            "question": "证据和限制是否足够，下一步是否值得另行研究",
+            "status": "待执行"
+          }
+        ],
+        "acceptance": [
+          "原成员与RGB合法性/单位/质量核验；不能静默改子集或让A/B成员不同；固定教师质量≥80%及学生可见≥50%感受野支持。",
+          "A零残差与同支持视觉路径对齐；B教师detach且部署不载教师；MiT原权重冻结、梯度到上游，遮挡RGB无泄漏，无第二套空间主干。",
+          "200+200工程、确定性/微批与恢复、全部来源/初始张量/配置覆盖和128真实更新通过；训练Agent门禁绑定release，代码变更重验。"
+        ],
+        "decisions": [
+          "主编码器直接用u20000，不按10k趋势、探针或DEV换权重；四探针仅TRAIN更新，599验证评价。",
+          "公共恢复弱仍执行规定分割；非有限/冻结破坏/加载错误/泄漏/实际断梯度/全常量等工程错误才阻断，不改0.20/学习率/预算补偿。",
+          "三组分割同构、同初始化/BN/预算，best只选任务头；历史v4/v3/十波段另标历史，不代替C0。",
+          "单seed/开发集复用、外部监督、A依赖RGB、Fine变化及适配容量不同明确披露，不把净收益全部归因一个模块；无收益不自动追加实验。"
+        ],
+        "handoff": "仅工程Agent use-mit-dual-routes-engineering与训练Agent use-mit-dual-routes-training。工程精确认领新增文件/配置/engineering/releases；训练认领runs/runtime/audit/benchmarks及固定文档。训练不改代码，故障交工程；详细路径/提示词在同源快照。",
+        "deliverables": "九作业完整曲线/checkpoint/原始指标/概率/有效掩膜、教师覆盖和A残差只读干预、三张合并表/固定六例及同卡128/256/512成本；来源/种子/命令/恢复重放与GPU账本，唯一台账和固定模型/数据/入口回写。",
+        "handoff_sections": [
+          {
+            "title": "本轮目标、主矩阵与固定预算",
+            "body": "本文件是用户要求的可分发执行快照，唯一阶段事实和计划源是[阶段台账](assets/research/stage_ledger.json)中的 `use-mit-dual-routes`。当前只制定和写入计划，尚未实现双路线或启动训练；附件中的执行命令不等于本会话已获启动授权。两名执行者称“工程Agent”和“训练Agent”，不要与架构路线A/B混淆。\n\n目标：直接比较保留视觉入口的光谱残差方案、光谱Token教师对齐方案和同接口视觉参照。停止继续追加零散BN/残差调参诊断；本轮不增加组件消融、LoRA、Query/Patch修改、新数据、旧模型重训或预算续尾。\n\n| 架构描述（路径代号） | 编码器主Token | 无标签预训练 | 冻结恢复探针 | 同构分割任务头 |\n|---|---|---:|---:|---:|\n| 原生视觉入口＋固定早期Fine（C0） | 固定RGB Patch投影＋原Patch LN | 0 | 0，不用未训练头作排名 | 5000 |\n| 原生视觉入口＋光谱零起点残差（A） | RGB投影＋USE Q5残差→原Patch LN | 20000 | Fine/Context各1000 | 5000 |\n| 光谱Token直接生成＋RGB教师对齐（B） | USE Q5适配→原Patch LN；教师只训练期存在 | 20000 | Fine/Context各1000 | 5000 |\n| **正式上限** | **9项：2预训练＋4探针＋3分割** | **40000** | **4000** | **15000** |\n\n**正式合计59000次成功更新。** 工程试训每路线最多200步，共最多400，另列；校准/可丢弃检查、失败、中止、恢复重放和推理成本分别登记。C0没有预训练，不增加C0恢复探针。默认执行新C0分割，除非训练Agent先证明已有结果在结构、Fine、初始化、成员、样本顺序、预算上全部相同并出具复用审计；省下的预算不转给其他组。\n\n主编码器固定使用两条路线的u20000末态，不根据探针、10k曲线或滑坡DEV反选编码器。保存5k/10k作追溯，不新增5k/10k探针。恢复分数弱本身不阻断分割；只因工程错误停机，不为弱组改学习率、对齐系数或续训。"
+          },
+          {
+            "title": "现场现状、已有来源与边界",
+            "body": "2026-10-28核查：仓库HEAD与附件相同，为 `578749d68a46be20bd1e60790a61c4c8798201a3`；已有未提交文档与诊断源码须保留。实施前再次记录实际分支、HEAD、工作树差异和逐文件哈希，不切换main，不回退他人内容。\n\nv4已完成29000正式更新并验收：公共恢复评分20k为1.1491454；轻量头best/last两事件等权IoU约0.0600/0.0597。后续TRAIN-only BN后校准未修复，完整融合IoU降到约0.0292。历史v3＋完整SegFormer约0.1258，现有十波段直入细节参照约0.3081。它们仅作历史定位，训练自由度、消费者和初始化不同，不能替代新C0或作单因素归因。\n\n已存在并可复用的组件：\n- `src/landslide_seg/models/use_v4_mit.py` 的光谱前端、`propagate/staged/masked_block` 及本地MiT加载。\n- `use_v4_reconstruction.py` 的32/64/160/256原生投影、恢复头和同构All-MLP＋Fine残差分割头。\n- 既有数据、三视图五项目标、公共评价、设备锁、保存恢复与度量逻辑。应以新入口组合它们，不修改旧release绑定源码。\n\n共同起点是v3的固定无标签入选权重，不是已适配20000步的v4，也不是任何滑坡监督最佳模型：\n- v3：`outputs/use_v3/runs/pretrain/best_unlabeled.pt`；SHA256 `e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886`。\n- 本地MiT：`weights/segformer/segformer-b0-finetuned-ade-512-512/model.safetensors`；SHA256 `6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9`。\n- processor配置SHA256 `8039d1d210abaa7117ad78e58cdfd6141a2ec72c03dae891b3cd76737e422c6c`。\n- 无标签成员清单SHA256 `b23c43487927f57d49980754915e22f5ca3c23eef6d258e0bd935e7604d74578`。\n- 公共v3评价分母SHA256 `eae806d0a2b111397a44fb56054c5912b51e36700cdedc4fef10fa04a42e8a95`。\n- 本次附件SHA256 `2df3ea9726b2504e699dbb81c1805248d1f866790100dd73e8157d4f42861fc8`。\n\nMiT具有ImageNet/ADE20K外部监督历史，不能称整个模型从零纯自监督。两条路线是不同整体方案：A依赖RGB、适配器容量不同，B增加教师目标；A/B的Fine可随光谱前端训练变化，C0 Fine固定于v3初始来源。A优于C0也不能无证据全部归因于Context残差。"
+          },
+          {
+            "title": "数据与RGB准入：先复核、再冻结",
+            "body": "无标签固定11132 TRAIN、599 PRETRAIN_VAL、239隔离位置；训练每次更新6份S2＋2份Landsat，微批2×累积4。监督采用“我们的数据划分（留事件验证）”：九事件2223块训练，广岛448＋特里苏尔221块开发验证，seed1234，stats_core25由559块TRAIN核心拟合。Italy/NewZealand不用，不做四折或官方划分，不更换日期、GSD、地形、标签或数据来源，下载保持暂停。\n\n本会话只读清单并抽取每种命名/传感器/角色代表缓存，得到：\n\n| 数据角色 | S2 | Landsat | 清单可映射RGB |\n|---|---:|---:|---:|\n| 无标签TRAIN | 9510 | 1622 | 11132/11132 |\n| 无标签验证PRETRAIN_VAL | 521 | 78 | 599/599 |\n\n既有缓存审计中的所有波段共同有效面积下限：TRAIN S2约0.80005、Landsat约0.80060，验证分别约0.82886/0.81256。这说明已有准入记录支持RGB可用，并不等于本次重新逐图解压验证。P0仍须复核实际文件哈希、RGB三波段质量、单位/元数据和教师支持率，保存逐成员审计，不能把清单名称当成全部像元合格。\n\n明确RGB别名表：S2外部缓存`red/green/blue`、本地缓存`B04/B03/B02`；Landsat当前清单为`red/green/blue`，代表缓存中心波长约0.65/0.56/0.48μm。按名字和来源注册表映射并核对已知物理波长，不能按“前三个”猜测。不是临时按波长最近邻生成伪RGB，unknown metadata也不抹掉已核验的来源映射。\n\n默认保持全部11132/599共同成员。任一来源映射无法核验、成员/质量与锁定证据矛盾，就记录受阻及共同合法子集候选，不由Agent自行删样本或让A/B用不同数据。即使B可对无RGB样本继续MAE，主实验也不擅自扩展B独有来源。P0通过后锁定实际成员、统计、RGB映射、支持门槛和预算。"
+          },
+          {
+            "title": "RGB处理与学生/教师接口",
+            "body": "USE输入是传感器TRAIN统计标准化后的反射率；RGB入口是物理反射率的独立归一化，两者不是同一张量。对每通道按实际对齐的mean/std解除z-score；若监督缓存以DN保存，则先按原管线转换为物理反射率，不能把DN和反射率统计混用。缓存已完成scale/offset，不重复加减产品offset。代表缓存有负反射率，保留已验收物理值，不用显示拉伸或重复缩放“修正外观”。\n\n固定RGB顺序R/G/B，沿用本地processor均值[0.485,0.456,0.406]、标准差[0.229,0.224,0.225]；物理反射率直接归一化，`do_resize=False`、`do_rescale=False`。不放大到512，不乘255后再除255，不做百分位拉伸、gamma或新增裁剪。质量无效及学生人工遮挡的RGB值先填物理0，再做该归一化，支持掩膜单独传递。\n\n新入口建议 `forward(observation, rgb_visible=None, rgb_valid=None)`：保留现有OpticalObservation白名单，标签不能进入编码计算。路线A/C0的RGB是调用端从同一学生观测构造的辅助输入；路线B部署入口只需observation，不依赖RGB或教师。图像裁剪、翻转/旋转与掩膜在所有学生、教师视图中完全同坐标，记录变换矩阵。\n\nA无标签三个视图的RGB都从对应**已人工遮挡**的学生输入构造。整波段隐藏时不能从完整影像补RGB；像素/块隐藏同步到视觉入口。缺失RGB真实来源时A/C0明确拒绝或标为不适用，不能宣称任意波段支持；人工遮挡不等于来源缺失，允许以已知映射填0并传播支持。\n\nB教师目标使用同一TRAIN样本、同一几何增强、未人工遮挡但真实质量有效的RGB。教师只有冻结原Patch Conv＋Patch LN，固定eval/no_grad，不运行第二套Stage1–4。教师作为预训练任务模块保存在编码器外，只生成stop-gradient目标，不进入学生前向或visible summary；公共验证和部署不依赖教师。允许缓存同一批原始教师目标供三个学生视图共用，不能跨样本/变换错配。\n\n教师Token有效支持预登记：原7×7/s4感受野内RGB三波段共同真实有效面积≥80%；学生同位置可见支持面积≥50%，以实际Patch2＋适配器卷积感受野计算，边缘分母只计图内像元。二者交集才算对齐位置，并记录每传感器/每视图比例。无有效对齐位置的样本仅贡献MAE，对齐项记0及原因，不伪造目标；工程200步任一传感器累计无对齐、或超过10%更新完全无对齐，先阻断并核查映射/掩码，不改0.20系数掩盖问题。"
+          },
+          {
+            "title": "三组架构与目标的准确实现",
+            "body": "共同光谱前端从同一v3逐张量继承tokenizer、physical、spectral_norm、spectral、ffn、queries、readout、residual、residual_out。保留Patch2、五Query、波段注意力和元数据接口；Q1–Q4＋像元残差构成早期Fine[B,32,H,W]，Q5为[B,32,ceil(H/2),ceil(W/2)]。不执行旧v3空间主干、inject/feedback/local。MiT Stage1–4宽度32/64/160/256、步长4/8/16/32，每个学生只运行一次完整空间主干，原始参数全冻结eval，但训练期保留对上游的梯度，不能整体no_grad。\n\n视觉入口残差路线A：\n```text\nZ_rgb = 原MiT RGB Conv7×7/s4(RGB_visible)\nZ_spec = Conv1×1_zero(Conv3×3/s2/p1(Q5))\nT_A = 原Patch LayerNorm(flatten(Z_rgb + Z_spec))\nT_A → 原MiT Stage1 Blocks/末端Norm → Stage2–4\n```\n新3×3常规随机初始化，末端1×1权重和bias为0，不再同时增加零门控。初始Z_spec逐元素0；同样RGB和空间支持下Patch前后Token及四阶段Context应与原生视觉staged路径assert_close。全有效时与官方原生forward核对。第一步末端1×1应有梯度，前面的3×3/上游经该残差路径可为0，后续应接通，不能把零初始化预期当断路。\n\n光谱Token对齐路线B：\n```text\nT_student = 原Patch LayerNorm(flatten(Conv3×3/s2/p1(Q5)))\nT_student → 原MiT Stage1–4\nT_teacher = stopgrad(原Patch LayerNorm(flatten(原RGB Conv(RGB_original))))\nL_align = 有效位置mean[1-cosine(T_student,T_teacher)]\nL_B = L_MAE + 0.20 L_align\n```\n取原Patch LN之后、Stage1 Block之前的32维Token，通道单位化计算余弦。三个学生视图等权，先对每样本有效Token平均，再对样本平均，无对齐样本贡献0且计覆盖；随微批累积归一，不因缺样本临时放大系数。教师权重来自原ADE预训练，不是任何滑坡监督模型。导出的B编码器与独立加载入口不得包含或依赖教师/视觉预处理，需对无RGB的合法波段子集实测加载和前向。\n\nC0：使用固定原RGB Patch Conv＋Patch LN，接同一冻结MiT，Fine固定来自共同v3前端；无光谱残差、无无标签更新。它仍执行生成Fine所需光谱前端，成本不能冒充纯RGB直入模型。\n\n三组复用既有支持传播和masked_block，原始无效数值先归零，禁止标签valid进入编码器。A第一阶段空间支持为RGB卷积支持与光谱适配支持的并集；C0仅视觉支持；B仅光谱支持。零残差等价测试在全有效或显式相同支持掩膜下进行，不因部分遮挡支持规则不同而宣称C0全条件等价。记录混合感受野的填0语义，保护原预训练投影，不新增注意力架构。\n\nMAE沿用v4三视图及五项定义：spectral、fine、16/32/64轮换context，加0.1 gradient和0.1 consistency，总和除3.2。恢复头读取早期Fine和完整原生四尺度学习投影；保留现有空间粗格混入可见区域的已记录口径，不临时换目标。A/B统一使用既有v4 TRAIN-only五项校准分母（验收时锁定实际SHA），不按各路线重新调归一化；公共探针用独立v3公共分母。B只额外加0.20余弦项，不再为align拟合新分母。known元数据为正式训练，partial/unknown仅接口和评价分层。"
+          },
+          {
+            "title": "正式训练、公共探针与同构任务头",
+            "body": "A/B工程各最多200步、每50步记录MAE/对齐/梯度和验证，使用可丢弃副本，正式重新从共同起点初始化。A、B的新增适配器容量不同，报告参数数；共享3×3及公共光谱初始张量按键拷贝核对，不只比较seed。新任务头统一seed1235并保存共享初始state，避免不同编码器构造消耗随机数造成头不一致。\n\nA/B正式预训练各20000成功更新：FP32/TF32关，有效batch8=micro2×accum4；seed1234，采样6 S2＋2 Landsat，双方相同样本与增强/三视图mask流。AdamW WD0.01、clip1；光谱前端峰值LR1e-4，新适配器/重建头6e-4；预热1000步后余弦至20000。MiT、A视觉卷积、B教师排除优化器并固定eval；光谱前端可训练。\n\n保存initial、u5000、u10000、u20000、last和优化器/RNG/成员/配置身份，每1000步记录无标签验证曲线。**u20000直接作为固定评价编码器，不执行USE best-checkpoint选择**。A残差/RGB RMS比例和参数变化在初始/5k/10k/20k记录；在固定无标签验证样本只读将A残差置0、使用同一已训练重建头比较影响，不能借此挑权重或融合系数。B记录MAE与align原始/加权值、cosine、梯度和每传感器覆盖。有限曲线检查不能变成无目标长诊断。\n\n四探针只对应最终20k：A Fine、A Context、B Fine、B Context，各1000步，末态评价。**探针参数只在无标签TRAIN更新，599 PRETRAIN_VAL仅评价**，修正附件“在验证集上训练探针”可能引起的歧义。冻结整个编码器与MiT，Fine只读32通道早期Fine，Context每尺度1×1到32后上采样平均，接现有同容量恢复头。两路线同类头初始张量、数据、掩码和预算相同；AdamW LR6e-4/WD0.01/clip1，预热50后余弦，batch8。C0不训练探针，描述性特征不与训练后恢复头排名。\n\n公共评分沿用固定v3分母及原始目标口径：known元数据、相同599成员和mask；Fine像素、Context光谱、Context空间三类等权，空间16/32/64等权，S2/Landsat等权，保留物理/未归一化误差。恢复弱仍继续规定分割；只有非有限、冻结破坏、错误加载/数据泄漏、实际梯度断开、全常量等工程失败才阻断。1000步不代表充分收敛，不增步。\n\nC0/A/B分割各5000步，完整编码器全冻结eval，仅训练同一个ADE初始化的All-MLP Decode Head＋新单通道classifier＋ResidualFusionHead(256,32)。输入MiT原生四尺度，Fine直接使用32通道早期读出，不再执行SpectralStem或第二套MiT。残差末层零初始化；三组Decoder/classifier/残差初始张量必须一致，BN原运行统计eval、仿射按原任务头规则训练，不做BN对照或后校准。\n\n分割沿用TRAIN2223/DEV669、同样本步序和增强，0.5 BCE＋0.5 Dice，FP32/TF32关，micro2×accum4；AdamW LR6e-4/WD0.01/clip1，预热250后余弦至5000。每500步按两事件等权IoU选任务头best，last另外报告。阈值0.5，标签不更新USE、不选择A/B编码器。冻结哈希在作业首尾及保存点核验，逐步检查优化器/模式，不把全参数CPU哈希耗时混进神经网络前向。"
+          },
+          {
+            "title": "只有两个Agent：认领、交接和失败处理",
+            "body": "工作目录：`N:/Users/yzh/Disater/landslide-seg`。全部代码编写、修复和审查使用[ponytail skill](C:/Users/yzh/.codex/skills/ponytail/SKILL.md)。先读RESEARCH_INDEX最小接力、项目AGENTS、research_policy，查认领与真实进程，再精确认领；模型路线A/B并不对应两个Agent的工作划分。\n\n**工程Agent，任务ID use-mit-dual-routes-engineering**：\n- 认领 `src/landslide_seg/models/use_mit_dual_routes.py`。\n- 认领 `scripts/run_use_mit_dual_routes.py`、`scripts/verify_use_mit_dual_routes.py`。\n- 认领 `tests/test_use_mit_dual_routes.py`、`configs/use_mit_dual_routes`。\n- 认领 `outputs/use_mit_dual_routes/engineering`、`outputs/use_mit_dual_routes/releases`。\n负责RGB成员审计、两路线/C0实现、必要测试、A/B最多200+200工程试训和不可变release。尽量在这几个新文件组合旧组件；确需新增辅助文件先补认领，不改旧release源码，不抢整个src/scripts/tests，不启动正式队列。\n\n**训练Agent，任务ID use-mit-dual-routes-training**：\n- 认领 `outputs/use_mit_dual_routes/runs`、`runtime`、`audit`、`benchmarks`、`figures`（以上runtime等均在同一outputs/use_mit_dual_routes下）。\n- 认领 `docs/assets/research/stage_ledger.json`、`docs/assets/research/use_mit_dual_routes`、`docs/MODEL_EVOLUTION.md`、`docs/DATA_EVENT_PROTOCOL.md`、`docs/RESEARCH_INDEX.md`。\n- 需要同步分发快照时认领 `docs/USE_MIT_DUAL_ROUTES_EXECUTION_HANDOFF.md`。\n负责独立核验、统一双卡队列、全部正式更新、评价与固定文档回写；不自行改模型代码，问题交工程Agent修复。\n\n```text\npython -X utf8 scripts/manage_agent_work.py list\npython -X utf8 scripts/manage_agent_work.py claim <任务ID> --owner <真实聊天ID> --title <职责> --scope <精确相对路径>\n```\n多个scope重复参数，必须完整填写相对路径，不直接执行占位符。一个文件只有一个活动写入者；不替对方登记，不使用别人的owner，不关闭旧v2/旧队列。已完成任务修复用新ID，不重复claim。受阻block并给原因/恢复证据，完成先存证据再finish。\n\n工程Agent交付READY_FOR_AUDIT：实际源码和依赖、RGB映射/预处理/支持门槛、成员统计、共同起点、参数组、预算、目标/公共评分、配置及所有覆盖、真实命令和200+200证据。训练Agent独立核对后发布与release SHA绑定的READY_FOR_TRAINING。修改受保护代码、配置或数据使原门禁失效，修复后重新核验。\n\n最终实现CLI尚不存在，由工程Agent用真实--help和日志交付prepare/verify/engineering/freeze/run/probe/segment/evaluate/benchmark等命令，不编造旧脚本参数。登记文件只记职责和证据，计划事实不另抄一套。"
+          },
+          {
+            "title": "双卡队列和有限成本验收",
+            "body": "训练Agent统一管理两卡；按真实GPU UUID和可见设备映射记录设备，一卡一个计算进程，不用DDP、不翻倍单实验batch，不终止别人的任务。启动前检查进程、实测显存和前后向，使用现有每卡锁；显示占用不作为拒绝条件。设备故障迁移需登记并验证恢复，不增加实验。\n\n| 阶段 | GPU 0 | GPU 1 |\n|---|---|---|\n| 工程 | 视觉入口残差路线最多200步 | 光谱Token对齐路线最多200步 |\n| 独立成本核查 | 本轮计算暂停 | C0/A/B同卡串行测量 |\n| 正式预训练 | 路线A 20000 | 路线B 20000 |\n| 全部编码器冻结后 | A Fine→A Context，共2000 | B Fine→B Context，共2000 |\n| 同构分割第一轮 | C0任务头5000 | A任务头5000 |\n| 同构分割第二轮 | B任务头5000 | 空闲；日志/CPU汇总 |\n| 最终成本核对 | 本轮计算暂停 | 固定正式权重同卡串行复测 |\n\nC0依赖release和共同起点，不依赖预训练成绩；为便于盲于中途DEV，默认预训练结束后统一跑三组分割。空闲卡不填充新实验。C0/A/B头训练次序固定，设备差异不拿来解释速度倍数；成本统一同卡重测。\n\n128、256、512，C10/B1/FP32/TF32关：C0/A/B裸编码器、冻结封装、完整分割消费者分别测30预热、100同步重复、3轮，报告中位/p90、吞吐、峰值allocated/reserved、参数/激活/输出字节及Top10；IO/预处理/CPU→GPU、完整哈希校验单独计时。A视觉额外卷积与RGB处理、B训练期教师开销均计入相应范围；B部署不得携带教师。旧v4/十波段只作注明结构范围的同卡历史成本参考。\n\n正式必须通过128 micro2×accum4两个路线的真实三视图更新，参数边界和显存有余量；512 B1先静态预检，不安全则保留证据、标未测，不强行OOM。本轮成本报告不设相对历史模型的倍率停止阈值，不因模型较慢自动改预算；成本问题记录原因，真实128无法运行才阻断正式队列。1024仅资源安全时最多一次前向，否则静态；2048及更大只静态/切片估计，不新增训练尺度。\n\n所有训练测速用可丢弃副本，优化器step单列工程消耗，不改正式权重。MiT序列缩减注意力并非严格线性，切片不能恢复跨窗上下文。"
+          },
+          {
+            "title": "验收、主要比较与固定文档交付",
+            "body": "工程最小验收：\n- A零残差初始化精确，原视觉入口/单次Patch LN/四Stage对齐，第一步末端投影梯度及后续上游接通；B教师stop-gradient，学生梯度穿过冻结MiT。\n- 三组加载来源和MiT全部原参数逐张量一致/哈希不变；C0初始Fine固定；A/B光谱继承相同，Fine训练变化有记录；三组任务头初始张量一致。\n- C=1/3/6/10/16、127/128/129/256、联合置换/填充/删除/未知元数据：B覆盖完整合法形状，A/C0只在RGB可映射条件通过，无RGB条件明确不适用/拒绝，不伪造RGB。\n- 无效NaN/任意值替换、全无效拒绝、奇数对齐/裁剪、质量/人工遮挡/输出掩膜分离；RGB人工隐藏同步，改变隐藏真值不能改变学生前向。改变教师目标只能改变B的对齐损失，不能直接改变学生特征。\n- 教师不含滑坡监督权重，部署独立加载不加载教师；同sample确定性、微批归一化和完整优化器/RNG恢复等价。\n- P0逐样本RGB合法性、A/B各≤200步、128真实训练、配置及所有覆盖协议预检、release身份和设备边界完整。恢复弱不当工程错误，错误不靠多训练掩盖。\n\n正式结果主要比较：\n1. 视觉入口残差方案对同接口视觉参照：是否有净收益；Fine也发生训练变化，不能只归因光谱残差。\n2. 光谱对齐方案对同接口视觉参照：移除部署视觉入口后是否仍有可用迁移。\n3. 两路线的质量、RGB依赖和计算权衡；对齐loss下降不等于分割收益。\n4. 历史v4/v3/十波段仅单独标记历史行，不能代替新参照或单因素归因。\n\n最终最多三张合并主表：预训练/四探针与对齐覆盖和残差贡献；C0/A/B分割best/last及两事件；同卡成本/适用条件。主分割指标为两事件等权IoU（0.5阈值），同时列像素池化IoU、Dice、Precision/Recall、AP、FPR、边界F1及对象召回（1–4像素、<50像素）。固定Recall 0.5/0.8时取达到该Recall的最小FPR并报告实际Recall/阈值，只作描述，不反调阈值。\n\n完整曲线、原始评价JSON、逐样本概率/有效掩膜、固定六例和相同坐标误报案例必须保留；每个主要结论配图，解释机制＋证据＋限制，PCA颜色不作跨模型语义等价。单seed、两开发事件反复研发、外部监督、Fine变化及容量差异全部披露。\n\n阶段计划/状态/结果/下一步只回写stage_ledger的use-mit-dual-routes；结构与实际加载到MODEL_EVOLUTION，成员/指标/结果到DATA_EVENT_PROTOCOL，短接力到RESEARCH_INDEX；图在docs/assets/research/use_mit_dual_routes。此文件是同源分发快照，不另立日期研究报告，不改旧run/权重。\n```text\npython -X utf8 scripts/query_research.py --refresh-stages\n```\n只在新增run索引时刷新inventory，核验四份固定文档链接和生成幂等，再结束登记。若A/B都不超过C0，诚实报告本数据/预算下未形成净收益；若只有单事件或阈值指标改善，说明边界。进一步解冻/LoRA/新系数/数据扩量另行授权，不自动执行。"
+          },
+          {
+            "title": "可直接分发的两段提示词",
+            "body": "### 发给工程Agent\n\n请读取 N:/Users/yzh/Disater/landslide-seg/docs/USE_MIT_DUAL_ROUTES_EXECUTION_HANDOFF.md，以该文件和唯一阶段台账use-mit-dual-routes为本轮契约。所有代码工作使用ponytail skill。先查认领，以真实聊天ID认领use-mit-dual-routes-engineering的精确范围，不接管旧实验。\n\n实现视觉入口残差路线、光谱Token教师对齐路线和同接口C0；它们是三种模型，不是三名Agent。优先组合既有v4前端、masked MiT、恢复和分割头，不修改旧release。先做全成员RGB映射/单位/质量审计；A的RGB来自同一遮挡学生输入，B教师仅同样本真实RGB的stop-gradient目标。A零起点残差须数值等价原视觉入口；B只增加固定0.20对齐项，教师不进入部署。MiT冻结eval但保留上游梯度，不运行第二套空间主干。\n\n完成必要测试、A/B各最多200步工程试训和不可变release，交付真实可运行命令、来源/成员/统计/初始化/参数组/预算证据及READY_FOR_AUDIT。正式上限59000，编码器固定u20000，无5k/10k探针、不按DEV选USE。不要启动正式队列；训练Agent发现代码问题由你修复并重发release。\n\n### 发给训练Agent\n\n请读取 N:/Users/yzh/Disater/landslide-seg/docs/USE_MIT_DUAL_ROUTES_EXECUTION_HANDOFF.md，先查认领，以真实聊天ID认领use-mit-dual-routes-training的运行与固定文档范围。你统一负责独立验收、双卡训练、评价和回写，不自行修改工程代码。架构A/B不对应Agent角色。\n\n先核验RGB成员/物理单位、A遮挡RGB无泄漏、零残差数值等价、B教师stop-gradient/部署独立、MiT冻结和上游梯度、200+200工程证据、128真实更新及实际配置预检。通过后发布绑定release的门禁。两卡分别预训练A/B各20000，再四项冻结探针各1000、C0/A/B同构分割头各5000，正式上限59000；工程/失败/恢复重放另列。编码器直接用u20000，探针只在TRAIN更新、599验证仅评价。恢复弱仍执行分割，工程错误才停。\n\n任务头三组同一初始化和BN规则，完整USE冻结；不改0.20、学习率、Query/Patch、不加LoRA/新BN实验或旧模型重训。双卡一卡一个进程，不用DDP、不为占满卡加任务；故障交工程Agent。最终交三张合并表、曲线/固定例、原始评价、哈希和实际成本，更新唯一台账及固定文档；区别C0/A/B严格同构比较与历史不同自由度参照，失败和未测如实记录。"
+          }
+        ]
+      },
+      "execution_observation": {
+        "owner": "01a182cf-45d6-73e3-b7e2-f9bdf296a934",
+        "formal_successful_updates": 0,
+        "source_preflight": "outputs/use_mit_dual_routes/audit/pre_release_sources.json",
+        "training_gate": "READY_FOR_TRAINING",
+        "v4_calibration_sha256": "8b2e42fce822a8391fdd99874726c71a7cd3747ffb3ec88347575a423cb7551d",
+        "rgb_full_member_precheck": "PASS;11731;0 failures;0 optimizer updates",
+        "status": "RUNNING_AFTER_RECOVERY",
+        "release_sha256": "4671b2fa4ec72db13bc0a4c755fc6b4388db0be2bb92f997802d054704dc14d2",
+        "formal_budget": 59000,
+        "engineering_successful_updates": 400,
+        "engineering_replay_updates": 2,
+        "independent_disposable_updates": 2,
+        "total_physical_optimizer_updates": 404,
+        "ready_for_training": true,
+        "passed": [
+          "11731 member RGB byte/pixel/quality/wavelength checks",
+          "37 independent numerical/interface tests",
+          "Common encoder/reconstruction/task head initial tensors",
+          "Two 200-step engineering trials and exact optimizer/all-RNG replay",
+          "Frozen MiT parameter and buffer hashes",
+          "B context-only gradient through all four frozen MiT stages",
+          "Teacher-free B public validation",
+          "Two independent actual128 micro2 accumulation4 updates",
+          "27 same-card initial inference cost conditions at128/256/512"
+        ],
+        "blocking_findings": [],
+        "repair_request": "outputs/use_mit_dual_routes/audit/ENGINEERING_REPAIR_REQUEST.md",
+        "hourly_monitor": {
+          "automation_id": "use",
+          "status": "ACTIVE_HOURLY_MONITOR_AND_APPROVED_RECOVERY",
+          "automatic_recovery": "User explicitly approved resume of started accepted jobs and supported safe reset of faulted target GPU; no initial launch or gate bypass"
+        },
+        "scope": "No engineering source/release modified; no formal weights started; no GPU reset attempted.",
+        "actual_pretrain_A_updates": 130,
+        "active_jobs": [
+          "segment_C0"
+        ],
+        "queued_jobs": [],
+        "resource_blockers": {},
+        "supervisor_pid": 104812,
+        "started": 1793200421.7528548,
+        "independent_tests": 43,
+        "original_budget_unchanged": true,
+        "engineering_repair_resolved": true,
+        "evidence": [
+          "outputs/use_mit_dual_routes/audit/release_v2/repair_independent_acceptance.json",
+          "outputs/use_mit_dual_routes/audit/READY_FOR_TRAINING.json",
+          "outputs/use_mit_dual_routes/runtime/status.json"
+        ],
+        "resolved_findings": [
+          "评价先锁后上卡",
+          "最终成本统一加载正式best任务头"
+        ],
+        "latest_monitor": "outputs/use_mit_dual_routes/runtime/monitor/monitor_1793257314.json",
+        "saved_updates_at_monitor": {
+          "pretrain_A": 20000,
+          "pretrain_B": 20000,
+          "probe_A_fine": 1000,
+          "probe_A_context": 1000,
+          "probe_B_fine": 1000,
+          "probe_B_context": 1000,
+          "segment_C0": 530,
+          "segment_A": 0,
+          "segment_B": 0
+        },
+        "known_runtime_replay_updates": 10,
+        "recovery_ledger": "outputs/use_mit_dual_routes/runtime/recovery_ledger.json",
+        "observer_active_file_reading": "append-only logs",
+        "gpu1_additional_python_context_pid": 95420,
+        "actual_replay_equivalence": "PASS;2021-2030",
+        "immutable_5000_hash_check": "PASS for both routes",
+        "immutable_A_10000_hash_check": "PASS",
+        "immutable_B_10000_hash_check": "PASS",
+        "pretrain_A_complete": true,
+        "pretrain_A_u20000_encoder_sha256": "d34a3f9d3c501118fee607784cab8081738ef7620b2384e894c3b978d293e196",
+        "pretrain_B_complete": true,
+        "formal_pretrain_unique_updates": 40000,
+        "paired_pretrain_acceptance": "PASS",
+        "additional_original_worker": {
+          "job": "probe_A_context",
+          "pid": 104128,
+          "device": "cuda:0",
+          "status": "RUNNING"
+        },
+        "probes_A_complete": true,
+        "device_policy_override": "User explicitly authorizes available-card dispatch; strictly one child at a time",
+        "controller_script": "outputs/use_mit_dual_routes/runtime/supervise_available_serial.py",
+        "controller_pid": 79120,
+        "available_gpu_dispatch_evidence": "outputs/use_mit_dual_routes/audit/release_v2/available_gpu_dispatch.json",
+        "active_device": "cuda:0",
+        "current_probe_results": {
+          "status": "RESTORATION_COMPLETE_PENDING_SEGMENTATION",
+          "values": {
+            "A": {
+              "fine": 2.1732036758100137,
+              "spectral": 0.8863405265653588,
+              "context": 0.3716283813003676
+            },
+            "B": {
+              "fine": 2.198595345817835,
+              "spectral": 0.9793558450772796,
+              "context": 0.3592903503360827
+            }
+          },
+          "sources": {
+            "A/fine": {
+              "path": "outputs/use_mit_dual_routes/runs/probe_A_fine/evaluation.json",
+              "sha256": "b55cd4292f878b03973df9c37ec7ec69ff280ab2c1328ca5d8bd37e058706611"
+            },
+            "A/context": {
+              "path": "outputs/use_mit_dual_routes/runs/probe_A_context/evaluation.json",
+              "sha256": "6f3e965e4b58e184aa8a01ad04ef12c14f9a6a077d4a998f56c1c68a01aa3749"
+            },
+            "B/fine": {
+              "path": "outputs/use_mit_dual_routes/runs/probe_B_fine/evaluation.json",
+              "sha256": "90f7f0c57458e4a94b92df8f1830defbd13054b0d98477eb4b1106249d02e37f"
+            },
+            "B/context": {
+              "path": "outputs/use_mit_dual_routes/runs/probe_B_context/evaluation.json",
+              "sha256": "c301dae843ce3f8bcdbad0707ab24e99e23f5d1ce6a107ff6ac5e9f4a2a06146"
+            }
+          },
+          "fine_initial_tensors_identical": 8,
+          "B_fine_frozen_encoder_sha256": "5f2f91ec44fd4c7033116d1dbe53734944a9b9b32c030121cbb488192445d6ab",
+          "fine_absolute_difference": 0.025391670007821165,
+          "A_fine_relative_error_reduction": 0.011549042008171794,
+          "metric": "Fixed v3 denominator normalized MAE, sensors equal, lower better",
+          "probe_training": "11132 TRAIN only;1000 updates;fixed u20000 encoder",
+          "evaluation": "599 PRETRAIN_VAL only;521 S2+78 Landsat",
+          "segmentation_results_available": false,
+          "optimizer_updates_by_publication": 0,
+          "public_equal_family_scores": {
+            "A": 1.14372419455858,
+            "B": 1.1790805137437324
+          },
+          "context_initial_tensors_identical": 16
+        },
+        "segmentation_results_available": false,
+        "all_four_probes_complete": true,
+        "gpu0_initial_cost_complete": true,
+        "current_segmentation_results": {
+          "status": "TRAINING_COMPLETE_PENDING_FINAL_ACCEPTANCE",
+          "recorded_at": 1793263206.8638058,
+          "results": {
+            "C0": {
+              "saved_updates": 5000,
+              "budget": 5000,
+              "complete": true,
+              "best": {
+                "step": 1500,
+                "event_mean_iou": 0.24192753109632792,
+                "event_iou": {
+                  "hiroshima": 0.2008928074452571,
+                  "thrissur": 0.2829622547473987
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_1500.json"
+              },
+              "latest": {
+                "step": 5000,
+                "event_mean_iou": 0.23349767760460516,
+                "event_iou": {
+                  "hiroshima": 0.1840843793987775,
+                  "thrissur": 0.2829109758104328
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_5000.json"
+              }
+            },
+            "A": {
+              "saved_updates": 5000,
+              "budget": 5000,
+              "complete": true,
+              "best": {
+                "step": 4500,
+                "event_mean_iou": 0.06276186768629455,
+                "event_iou": {
+                  "hiroshima": 0.07762178777154419,
+                  "thrissur": 0.047901947601044895
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_4500.json"
+              },
+              "latest": {
+                "step": 5000,
+                "event_mean_iou": 0.06153212584272187,
+                "event_iou": {
+                  "hiroshima": 0.07639861858761644,
+                  "thrissur": 0.04666563309782729
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_5000.json"
+              }
+            },
+            "B": {
+              "saved_updates": 5000,
+              "budget": 5000,
+              "complete": true,
+              "best": {
+                "step": 5000,
+                "event_mean_iou": 0.05165418085496243,
+                "event_iou": {
+                  "hiroshima": 0.05235803253952176,
+                  "thrissur": 0.0509503291704031
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_5000.json"
+              },
+              "latest": {
+                "step": 5000,
+                "event_mean_iou": 0.05165418085496243,
+                "event_iou": {
+                  "hiroshima": 0.05235803253952176,
+                  "thrissur": 0.0509503291704031
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_5000.json"
+              }
+            }
+          },
+          "curves": {
+            "C0": [
+              {
+                "step": 500,
+                "event_mean_iou": 0.21418462769033497,
+                "event_iou": {
+                  "hiroshima": 0.16936811655045295,
+                  "thrissur": 0.25900113883021697
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_500.json"
+              },
+              {
+                "step": 1000,
+                "event_mean_iou": 0.21899830160178296,
+                "event_iou": {
+                  "hiroshima": 0.16830064732494024,
+                  "thrissur": 0.26969595587862566
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_1000.json"
+              },
+              {
+                "step": 1500,
+                "event_mean_iou": 0.24192753109632792,
+                "event_iou": {
+                  "hiroshima": 0.2008928074452571,
+                  "thrissur": 0.2829622547473987
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_1500.json"
+              },
+              {
+                "step": 2000,
+                "event_mean_iou": 0.22757213202573567,
+                "event_iou": {
+                  "hiroshima": 0.17733440634885222,
+                  "thrissur": 0.2778098577026191
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_2000.json"
+              },
+              {
+                "step": 2500,
+                "event_mean_iou": 0.22757813158799156,
+                "event_iou": {
+                  "hiroshima": 0.17763764548708677,
+                  "thrissur": 0.27751861768889635
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_2500.json"
+              },
+              {
+                "step": 3000,
+                "event_mean_iou": 0.2210648390144032,
+                "event_iou": {
+                  "hiroshima": 0.17773328884439996,
+                  "thrissur": 0.2643963891844065
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_3000.json"
+              },
+              {
+                "step": 3500,
+                "event_mean_iou": 0.23387145411029825,
+                "event_iou": {
+                  "hiroshima": 0.18425910906155618,
+                  "thrissur": 0.2834837991590403
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_3500.json"
+              },
+              {
+                "step": 4000,
+                "event_mean_iou": 0.22853835988457671,
+                "event_iou": {
+                  "hiroshima": 0.18211749851158962,
+                  "thrissur": 0.2749592212575638
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_4000.json"
+              },
+              {
+                "step": 4500,
+                "event_mean_iou": 0.2344821403546608,
+                "event_iou": {
+                  "hiroshima": 0.1844055397862572,
+                  "thrissur": 0.2845587409230644
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_4500.json"
+              },
+              {
+                "step": 5000,
+                "event_mean_iou": 0.23349767760460516,
+                "event_iou": {
+                  "hiroshima": 0.1840843793987775,
+                  "thrissur": 0.2829109758104328
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_C0/eval_5000.json"
+              }
+            ],
+            "A": [
+              {
+                "step": 500,
+                "event_mean_iou": 0.0001213700765270272,
+                "event_iou": {
+                  "hiroshima": 0.0,
+                  "thrissur": 0.0002427401530540544
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_500.json"
+              },
+              {
+                "step": 1000,
+                "event_mean_iou": 0.00780585667711679,
+                "event_iou": {
+                  "hiroshima": 0.009048291525325025,
+                  "thrissur": 0.0065634218289085545
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_1000.json"
+              },
+              {
+                "step": 1500,
+                "event_mean_iou": 0.00042132375153027966,
+                "event_iou": {
+                  "hiroshima": 0.0008426475030605593,
+                  "thrissur": 0.0
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_1500.json"
+              },
+              {
+                "step": 2000,
+                "event_mean_iou": 0.043116349224111325,
+                "event_iou": {
+                  "hiroshima": 0.050057503978810654,
+                  "thrissur": 0.03617519446941199
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_2000.json"
+              },
+              {
+                "step": 2500,
+                "event_mean_iou": 0.047744966909462117,
+                "event_iou": {
+                  "hiroshima": 0.057855227487034415,
+                  "thrissur": 0.03763470633188982
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_2500.json"
+              },
+              {
+                "step": 3000,
+                "event_mean_iou": 0.05134810972057949,
+                "event_iou": {
+                  "hiroshima": 0.07007868913830714,
+                  "thrissur": 0.032617530302851826
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_3000.json"
+              },
+              {
+                "step": 3500,
+                "event_mean_iou": 0.051704538020169416,
+                "event_iou": {
+                  "hiroshima": 0.07098792957041988,
+                  "thrissur": 0.03242114646991895
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_3500.json"
+              },
+              {
+                "step": 4000,
+                "event_mean_iou": 0.059155581338015045,
+                "event_iou": {
+                  "hiroshima": 0.07446122690068349,
+                  "thrissur": 0.04384993577534659
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_4000.json"
+              },
+              {
+                "step": 4500,
+                "event_mean_iou": 0.06276186768629455,
+                "event_iou": {
+                  "hiroshima": 0.07762178777154419,
+                  "thrissur": 0.047901947601044895
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_4500.json"
+              },
+              {
+                "step": 5000,
+                "event_mean_iou": 0.06153212584272187,
+                "event_iou": {
+                  "hiroshima": 0.07639861858761644,
+                  "thrissur": 0.04666563309782729
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_A/eval_5000.json"
+              }
+            ],
+            "B": [
+              {
+                "step": 500,
+                "event_mean_iou": 0.00016632477684759106,
+                "event_iou": {
+                  "hiroshima": 0.0003326495536951821,
+                  "thrissur": 0.0
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_500.json"
+              },
+              {
+                "step": 1000,
+                "event_mean_iou": 0.02094314387369722,
+                "event_iou": {
+                  "hiroshima": 0.02480829128795468,
+                  "thrissur": 0.01707799645943976
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_1000.json"
+              },
+              {
+                "step": 1500,
+                "event_mean_iou": 0.024291676647888935,
+                "event_iou": {
+                  "hiroshima": 0.029790067416593572,
+                  "thrissur": 0.0187932858791843
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_1500.json"
+              },
+              {
+                "step": 2000,
+                "event_mean_iou": 0.046253703008557454,
+                "event_iou": {
+                  "hiroshima": 0.0460277144732497,
+                  "thrissur": 0.046479691543865206
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_2000.json"
+              },
+              {
+                "step": 2500,
+                "event_mean_iou": 0.04077366971526565,
+                "event_iou": {
+                  "hiroshima": 0.04372332349986591,
+                  "thrissur": 0.0378240159306654
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_2500.json"
+              },
+              {
+                "step": 3000,
+                "event_mean_iou": 0.046677657650466206,
+                "event_iou": {
+                  "hiroshima": 0.05069548267443841,
+                  "thrissur": 0.042659832626494004
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_3000.json"
+              },
+              {
+                "step": 3500,
+                "event_mean_iou": 0.04451191720263452,
+                "event_iou": {
+                  "hiroshima": 0.04983069780430761,
+                  "thrissur": 0.03919313660096143
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_3500.json"
+              },
+              {
+                "step": 4000,
+                "event_mean_iou": 0.050108063637014484,
+                "event_iou": {
+                  "hiroshima": 0.05232007663660363,
+                  "thrissur": 0.04789605063742534
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_4000.json"
+              },
+              {
+                "step": 4500,
+                "event_mean_iou": 0.05023389735920564,
+                "event_iou": {
+                  "hiroshima": 0.05183433648609917,
+                  "thrissur": 0.0486334582323121
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_4500.json"
+              },
+              {
+                "step": 5000,
+                "event_mean_iou": 0.05165418085496243,
+                "event_iou": {
+                  "hiroshima": 0.05235803253952176,
+                  "thrissur": 0.0509503291704031
+                },
+                "path": "outputs/use_mit_dual_routes/runs/segment_B/eval_5000.json"
+              }
+            ]
+          },
+          "evaluation": "669 DEV; Hiroshima448+Thrissur221; threshold0.5; event IoU equal-weight mean",
+          "boundary": "Best among evaluated steps only; incomplete runs have no final score. No A/B gain claim before matched5000-step comparison.",
+          "optimizer_updates_by_publication": 0
+        }
+      }
     }
   ],
   "evidence_review_note": "每个comparison显式列评价集合、比较对象、观察、可能含义和证据；归档报告不等于本次重新训练或逐run复算。"
