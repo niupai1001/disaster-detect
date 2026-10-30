@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-29T06:52:38.627676+00:00",
+  "updated_at": "2026-10-30T06:37:44.090175+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -2133,7 +2133,6 @@
       "scopes": [
         "docs/assets/research/stage_ledger.json",
         "docs/assets/research/use_mit_dual_routes",
-        "docs/data_event_protocol.md",
         "docs/model_evolution.md",
         "docs/research_index.md",
         "docs/use_mit_dual_routes_execution_handoff.md",
@@ -2143,13 +2142,15 @@
         "outputs/use_mit_dual_routes/runs",
         "outputs/use_mit_dual_routes/runtime"
       ],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-10-28T15:08:32.339545+00:00",
-      "updated_at": "2026-10-29T06:46:10.213745+00:00",
+      "updated_at": "2026-10-29T10:00:08.993151+00:00",
       "evidence": [
-        "outputs/use_mit_dual_routes/audit/release_v2/available_gpu_dispatch.json"
+        "outputs/use_mit_dual_routes/audit/final_delivery_acceptance.json",
+        "outputs/use_mit_dual_routes/audit/aoff/final_acceptance.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
       ],
-      "note": "用户明确要求改用空闲卡，无需再考虑原分卡等待。只停止空等控制器，原成果保留；新串行队列已在GPU0运行B Fine，后续原B Context及三分割头自动选空闲卡，最多一个子作业。并发上限1回归通过，训练源码/设置/59000预算不变，同卡成本另存保留旧记录。"
+      "note": "原九项59000＋用户唯一授权A-off5000累计64000正式更新全部完成并验收。完整模型/优化器/RNG恢复、初始化、编码器参数buffer冻结、采样流、预算和原27同卡成本核验通过；六幅最终曲线/相同案例图已视觉检查。结果文档由主聊天合并，SHA未变；旧模板guard保留。入口/模型/唯一台账更新为完成，四固定文档863本地链接及生成幂等通过。单seed/两研发事件、残差与支持组合、补充单独推理成本未测限制保留；无待续训练，停止监控。"
     },
     {
       "id": "use-mit-dual-routes-engineering-repair-v1",
@@ -2239,6 +2240,376 @@
         "data/use_multisensor/four_view_pilot_v1/manifest.json"
       ],
       "note": "四源试下载已结束：288个完整同区包，18138个主清单栅格哈希/覆盖复核通过；实际计量网络9531711632字节。Landsat L1 C1和L2 C2分开，无同日/亚像素保证，无训练；详见status与acceptance。"
+    },
+    {
+      "id": "use-mit-dual-routes-aoff-code",
+      "title": "A已训练细节与纯RGB空间路径补充对照入口",
+      "owner": "01a182cf-45d6-73e3-b7e2-f9bdf296a934",
+      "scopes": [
+        "configs/use_mit_aoff.yaml",
+        "scripts/run_use_mit_aoff.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T09:10:29.483003+00:00",
+      "updated_at": "2026-10-29T09:24:35.030337+00:00",
+      "evidence": [
+        "scripts/run_use_mit_aoff.py",
+        "outputs/use_mit_dual_routes/audit/aoff/acceptance.json"
+      ],
+      "note": "独立A-off入口和配置封装完成，原源码/release不变；Fine=A及纯RGBContext/support=C0、禁用调用0、共同头真实初始化、2工程更新+1精确恢复重放通过。补充正式5000训练已启动，完成后的独立验收和固定文档由原训练认领继续负责。"
+    },
+    {
+      "id": "data-event-protocol-consolidation",
+      "title": "DATA_EVENT_PROTOCOL重复内容合并与结构整理",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "outputs/document_cleanup/data_event_protocol"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T09:39:13.803846+00:00",
+      "updated_at": "2026-10-29T09:56:53.258919+00:00",
+      "evidence": [
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/document_cleanup/data_event_protocol/validation.json",
+        "outputs/document_cleanup/data_event_protocol/before_paused.md"
+      ],
+      "note": "按用户授权移交后整理固定报告：共同口径集中，最新四模型结果合并，删除中途状态及同义解释重复，历史按主题折叠；从原JSON重建探针表。唯一原结果数值行、全部原链接及标记保留，856本地链接/16引用锚点通过；快照可恢复，无训练或配置变更。"
+    },
+    {
+      "id": "use-next-execution-planning",
+      "title": "USE-Next更新数据后的分阶段执行计划与双Agent交接",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/data_event_protocol.md",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_next/planning"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T11:28:12.567742+00:00",
+      "updated_at": "2026-10-29T11:44:11.475228+00:00",
+      "evidence": [
+        "docs/MODEL_EVOLUTION.md",
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/use_next/planning/source_audit.json",
+        "outputs/use_next/planning/validation.json"
+      ],
+      "note": "已依据用户确认的288同址四源更新USE-Next唯一台账与固定文档，制定两Agent/双卡/分段64k及配对资格和提示词；全清单元数据、4栅格和DOFA哈希核查，887链接/8新锚点及旧台账保护通过。P0配置、像元质量/定标/隔离与模型前向待执行，无新训练或下载。"
+    },
+    {
+      "id": "use-next-local-inventory-review",
+      "title": "USE-Next本机额外影像库存与准入边界核查",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "docs/research_index.md",
+        "outputs/use_next/local_inventory_audit"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T11:54:20.580852+00:00",
+      "updated_at": "2026-10-29T11:59:08.806259+00:00",
+      "evidence": [
+        "docs/DATA_EVENT_PROTOCOL.md",
+        "outputs/use_next/local_inventory_audit/audit.json",
+        "outputs/use_next/local_inventory_audit/validation.json"
+      ],
+      "note": "核实E盘3781组主十波段文件存在、firepaper220份表头、F盘额外日期590旧门槛/3595像元口径及角色去重；G旧源当前不存在。更新固定数据专题，原始数据和预算不变，无新缓存/准入/训练。"
+    },
+    {
+      "id": "use-data-admission-entry",
+      "title": "USE库存准入清单、S2与Landsat补全任务及数据入口",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "outputs/use_data_admission",
+        "scripts/build_use_data_admission.py",
+        "src/landslide_seg/data/use_admission.py",
+        "tests/test_use_admission.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T12:03:36.289036+00:00",
+      "updated_at": "2026-10-29T12:09:55.402918+00:00",
+      "evidence": [
+        "outputs/use_data_admission/release.json",
+        "outputs/use_data_admission/validation.json",
+        "docs/DATA_EVENT_PROTOCOL.md"
+      ],
+      "note": "全11970冻结缓存哈希/数组复核通过，发布11132训练/599验证及239隔离登记；80%锚点覆盖的跨传感器配对0，生成11731条离线补全请求；5单测及8组真实入口和混合批通过。候选按缺证据暂不准入，无新增下载训练或原缓存改变；新入口未自动替换旧训练调用。"
+    },
+    {
+      "id": "use-data-integration-completion",
+      "title": "本地各源实际接入及配对补全执行",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "docs/data_event_protocol.md",
+        "outputs/use_data_integration",
+        "scripts/complete_use_pairs.py",
+        "scripts/integrate_use_sources.py",
+        "src/landslide_seg/data/use_integrated.py",
+        "tests/test_use_integrated.py"
+      ],
+      "status": "active",
+      "started_at": "2026-10-29T12:13:07.824369+00:00",
+      "updated_at": "2026-10-29T12:53:17.380108+00:00",
+      "evidence": [
+        "outputs/use_data_integration/live_acceptance.json",
+        "outputs/use_data_integration/completion/status.json"
+      ],
+      "note": "台账及研究总入口scope已按协调移交，不再写这两文件、不重置current_stage。继续持有数据专题和数据脚本/输出；首批9.55GB计量加150MB在途预留不扩大。模型任务从现有已验收发布另存一致性冻结快照；后续下载不改其冻结成员，不实现模型、不启动训练。"
+    },
+    {
+      "id": "use-data-integration-render",
+      "title": "数据接入台账的模型文档生成区同步",
+      "owner": "session-01a17d3f-5cb9-7c50-8674-7b22c4d7b5bb",
+      "scopes": [
+        "docs/model_evolution.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T12:30:28.586896+00:00",
+      "updated_at": "2026-10-29T12:36:31.917176+00:00",
+      "evidence": [
+        "docs/MODEL_EVOLUTION.md",
+        "docs/assets/research/stage_ledger.json"
+      ],
+      "note": "由同一阶段台账刷新数据实际接入及下载运行事实，模型训练仍0，未改变P0/P1模型执行授权。"
+    },
+    {
+      "id": "use-next-v2-execution-planning",
+      "title": "USE-Next v2统一数据与77k分段双卡执行契约和提示词",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_next_v2/planning"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T12:44:21.891438+00:00",
+      "updated_at": "2026-10-29T12:56:21.924884+00:00",
+      "evidence": [
+        "docs/MODEL_EVOLUTION.md",
+        "docs/assets/research/stage_ledger.json",
+        "outputs/use_next_v2/planning/data_snapshot/snapshot_identity.json",
+        "outputs/use_next_v2/planning/validation.json"
+      ],
+      "note": "已合入use-next-v2统一计划及两Agent/P0和分段继续提示词，77k预算；依用户最新指示冻结当前已验收12395光学+275SAR成员索引开工，HR另275，补全继续且新增另版。预算/历史保护/成员哈希/920链接和7锚点通过；未实现模型或训练，缓存/v2物理几何仍待P0。"
+    },
+    {
+      "id": "use-next-v2-engineering",
+      "title": "USE-Next v2 P0工程与最小测试",
+      "owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+      "scopes": [
+        "configs/use_next_v2",
+        "outputs/use_next_v2/data",
+        "outputs/use_next_v2/engineering",
+        "outputs/use_next_v2/releases",
+        "outputs/use_next_v2/requests",
+        "scripts/use_next_v2",
+        "src/landslide_seg/models/use_next_v2",
+        "tests/use_next_v2"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T13:04:26.435297+00:00",
+      "updated_at": "2026-10-29T15:03:15.532746+00:00",
+      "evidence": [
+        "outputs/use_next_v2/releases/p0_engineering_v2/release_manifest.json",
+        "outputs/use_next_v2/engineering/HANDOFF.json"
+      ],
+      "note": "工程已交付READY_FOR_INDEPENDENT_AUDIT，e0a22d957ef003f0278f084f5a4b1b644858ebb8b8c59699221acb2fd714730e；全173键DOFA与AnySat严格加载/数值差0，10测试、全路径mask/EMA/CUDA磁盘精确恢复、微批2两P1工程与重放通过。冻结派生TRAIN8841，599原验证保留，3829训练有据筛除，HR只读；配对0不做P4。累计工程49正式0。P2/P3/P5未实现门禁关闭。独立cuda1复验及READY_P0签发交验收Agent，命令已落盘；用户最新要求继续完成并在实际开始训练时告知。"
+    },
+    {
+      "id": "use-next-v2-training",
+      "title": "USE-Next v2 P0独立验收",
+      "owner": "01a187c0-ecca-77d0-9206-00fae0754f81",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/model_evolution.md",
+        "docs/research_index.md",
+        "outputs/use_next_v2/audit",
+        "outputs/use_next_v2/benchmarks",
+        "outputs/use_next_v2/runs",
+        "outputs/use_next_v2/runtime"
+      ],
+      "status": "active",
+      "started_at": "2026-10-29T13:04:45.610719+00:00",
+      "updated_at": "2026-10-29T20:18:48.309081+00:00",
+      "evidence": [
+        "outputs/use_next_v2/audit/P1_FINAL_ACCEPTANCE.json",
+        "outputs/use_next_v2/audit/READY_P2.json",
+        "outputs/use_next_v2/audit/P2_START_CONFIRMATION.json"
+      ],
+      "note": "P1两3000完成，冻结/逐步采样和LR/六次669评价/best-last/原始概率重放与基线解释通过并签P1_ACCEPTED。P2四配置独立CUDA各2步+精确磁盘重放共12工程更新、8单测通过，READY_P2绑定P1验收SHA与fd5811发布。两6000预训已双卡实更新并两次采样增长，持久链在各自固定末态验收后自动接3000头。首次启动UTF8编码失败0更新，已标准-X utf8修复且保留日志，绑定源不变。完整流程未完成，P3工程并行。"
+    },
+    {
+      "id": "use-next-v2-protocol-adapter",
+      "title": "USE-Next v2共享预检精确适配",
+      "owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+      "scopes": [
+        "scripts/check_research_protocol.py",
+        "tests/test_use_next_v2_protocol.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T13:42:26.172199+00:00",
+      "updated_at": "2026-10-29T15:03:15.372416+00:00",
+      "evidence": [
+        "outputs/use_next_v2/engineering/tests_final.xml",
+        "outputs/use_next_v2/engineering/protocol_receipts.json"
+      ],
+      "note": "共享预检仅增加v2配置分支，保留原九事件成员/559统计预检；两实际P1配置通过，错误预算覆盖拒绝。正式0。"
+    },
+    {
+      "id": "use-next-v2-run-ownership-fix",
+      "title": "训练异常恢复责任与执行闭环修订",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "agents.md",
+        "outputs/use_next_v2/coordination_review"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T16:13:00.303619+00:00",
+      "updated_at": "2026-10-29T16:15:29.768106+00:00",
+      "evidence": [
+        "AGENTS.md",
+        "outputs/use_next_v2/coordination_review/review.json",
+        "outputs/use_next_v2/runtime/P1_RESUME1.json"
+      ],
+      "note": "纠正训练只启动/只监控责任缺口，补项目稳定恢复规则；原持有者按同release从139/63恢复，两次独立采样173/79→191/88及checkpoint增长核实。原各3000预算不变，根因未证实，P1继续由原训练Agent负责，本任务未并发启动/杀进程。"
+    },
+    {
+      "id": "use-next-v2-p2-continuation-authorization",
+      "title": "P1验收后自动接续P2的用户授权与调度同步",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "outputs/use_next_v2/continuation_authorization"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T16:21:00.198939+00:00",
+      "updated_at": "2026-10-29T16:24:53.824143+00:00",
+      "evidence": [
+        "outputs/use_next_v2/continuation_authorization/authorization.json",
+        "outputs/use_next_v2/workflow_rules/authorization.json"
+      ],
+      "note": "最初P1→P2授权已派发，用户随后扩大为整个已确认77k工作流，后续按新全程授权执行，不保留逐阶段等待。"
+    },
+    {
+      "id": "use-next-v2-p2-engineering",
+      "title": "P2隔离工程、旋转元数据修复及独立发布",
+      "owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+      "scopes": [
+        "configs/use_next_p2",
+        "outputs/use_next_v2/p2_engineering",
+        "outputs/use_next_v2/p2_releases",
+        "outputs/use_next_v2/p2_requests",
+        "scripts/use_next_p2",
+        "src/landslide_seg/models/use_next_p2",
+        "tests/use_next_p2"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T16:21:42.898074+00:00",
+      "updated_at": "2026-10-29T17:33:13.447794+00:00",
+      "evidence": [
+        "outputs/use_next_v2/p2_releases/engineering_v1/manifest.json",
+        "outputs/use_next_v2/p2_requests/HANDOFF.json"
+      ],
+      "note": "P2工程完成交独立验收，fd5811cfd26b583a4f4a67352915e072f580f14a2db30a4f8190615fb5dc96fb；四实际CUDA配置各2更新+精确重放通过，u0/消费者相同张量初值、8测试、旋转spacing/标签回投、120m共同低频目标、固定TRAIN8841与日程、TRAIN校准/未知支持边界和冻结均落盘。CPU4末位差异保留，CPU1确定性路径/CUDA严格通过。P2工程46正式0，P1绑定源完整性仍通过。完整工作流工程尚未结束，followthrough认领继续做P3/P5及条件性门禁。"
+    },
+    {
+      "id": "use-next-v2-workflow-execution-rules",
+      "title": "完整工作流自动推进规则与77k全阶段授权同步",
+      "owner": "01a16e71-e5a0-7113-a026-569964d1e29a",
+      "scopes": [
+        "agents.md",
+        "outputs/use_next_v2/workflow_rules"
+      ],
+      "status": "completed",
+      "started_at": "2026-10-29T16:22:02.525838+00:00",
+      "updated_at": "2026-10-29T16:24:54.014879+00:00",
+      "evidence": [
+        "AGENTS.md",
+        "outputs/use_next_v2/workflow_rules/authorization.json",
+        "outputs/use_next_v2/workflow_rules/validation.json"
+      ],
+      "note": "项目稳定自动接续规则落盘；两Agent已收到全流程授权，现有巡检扩到完整77k队列，已核台账WORKFLOW_AUTHORIZED_P1_RUNNING及下一阶段自动接续，预算/条件跳过/冻结数据不变。原训练持有者继续运行和验收，本任务不并发控制作业。"
+    },
+    {
+      "id": "use-next-v2-followthrough-engineering",
+      "title": "P3与P4/P5条件性工作流隔离工程",
+      "owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+      "scopes": [
+        "configs/use_next_p3",
+        "outputs/use_next_v2/conditional_gates",
+        "outputs/use_next_v2/p3_engineering",
+        "outputs/use_next_v2/p3_releases",
+        "outputs/use_next_v2/p3_requests",
+        "scripts/use_next_p3",
+        "src/landslide_seg/models/use_next_p3",
+        "tests/use_next_p3"
+      ],
+      "status": "active",
+      "started_at": "2026-10-29T16:43:43.861545+00:00",
+      "updated_at": "2026-10-29T21:18:15.196598+00:00",
+      "evidence": [
+        "outputs/use_next_v2/p3_releases/engineering_v1/manifest.json",
+        "outputs/use_next_v2/audit/P3_ENGINEERING_INDEPENDENT_ACCEPTANCE.json"
+      ],
+      "note": "P3/P5完整工程e29已获独立验收：288文件/父绑定/environment、15测试、六CUDA路径源SHA重绑通过；同release联合预训练/联合冻结头各2更新+精确重放额外6工程更新由独立方记账，表示诊断复验通过但不称语义。CPUscale头末位失败保留。P3/P5正式仍0，等P2完整验收后由训练持有者按授权自动推进；保留本工程认领承担后续实际故障支持，未宣称整项训练完成。正常父调度替换许可仍由原审批渠道处理，不停止健康进程。"
+    },
+    {
+      "id": "use-next-v2-geometry-recovery",
+      "title": "P2原生几何故障隔离诊断",
+      "owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+      "scopes": [
+        "outputs/use_next_v2/geometry_recovery",
+        "scripts/use_next_recovery",
+        "tests/use_next_recovery"
+      ],
+      "status": "active",
+      "started_at": "2026-10-30T01:22:20.824490+00:00",
+      "updated_at": "2026-10-30T01:32:17.195474+00:00",
+      "evidence": [
+        "outputs/use_next_v2/geometry_recovery/original_cuda_two_step_replay.json",
+        "outputs/use_next_v2/geometry_recovery/manifest.json"
+      ],
+      "note": "固定8观测24次几何对照/2单测通过；原FD完整u1678→1679磁盘重载→1680两独立链全state/optimizer/RNG/history逐位PASS，4工程更新正式0。candidate未采用，未改FD/e29或生产UUID锁；最初旧生产锁拒绝为0更新，随后按训练方授权独立probe锁。A最终1680、B原1679保留、B2最终1680。训练方独立复核后负责正式原入口恢复。原生crash根因及长程稳定性未验证，保持故障支持认领。"
+    },
+    {
+      "id": "use-next-v2-performance",
+      "title": "零更新性能诊断与等价优化候选",
+      "owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+      "scopes": [
+        "outputs/use_next_v2/performance",
+        "scripts/use_next_perf",
+        "tests/use_next_perf"
+      ],
+      "status": "active",
+      "started_at": "2026-10-30T05:32:24.819304+00:00",
+      "updated_at": "2026-10-30T06:23:02.724836+00:00",
+      "evidence": [
+        "outputs/use_next_v2/performance/ADOPTION_POLICY.json",
+        "outputs/use_next_v2/performance/gradient_check/result.json",
+        "outputs/use_next_v2/performance/schedule_reuse.json"
+      ],
+      "note": "用户明确条件授权有效后用于后续训练。像素/物理实际batch8 backward缓存前后损失/全部梯度/RNG逐位一致，全模型SHA不变，0optimizer。固定48k观测源几何键估算7881唯一：128容量4.0%、全覆盖83.6%复用；非真实矩阵命中率/吞吐。后续路线持久化几何缓存加有界RAM，当前不改生产；仍需持久化实现/混合流端到端与完整优化器恢复独验，跨聊天同步受原auto-review拒绝限制待明确许可。"
+    },
+    {
+      "id": "use-next-v2-cached-p3",
+      "title": "用户提前停止P2后的P3缓存隔离入口",
+      "owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+      "scopes": [
+        "outputs/use_next_v2/cached_p3",
+        "scripts/use_next_cached",
+        "tests/use_next_cached"
+      ],
+      "status": "active",
+      "started_at": "2026-10-30T06:31:57.039243+00:00",
+      "updated_at": "2026-10-30T06:37:44.090175+00:00",
+      "evidence": [
+        "outputs/use_next_v2/cached_p3/release_v1/manifest.json",
+        "outputs/use_next_v2/cached_p3/HANDOFF.json"
+      ],
+      "note": "用户授权提前停止P2后P3隔离缓存release6776已冻结并verify，明确P2_USER_STOPPED前置而不伪造P2_ACCEPTED；三目标原/缓存两步+精确磁盘恢复、完整EMA/optimizer/RNG/history跨版逐位通过。共同新NumPy1234启动修正记录，旧unseeded18+新18共36工程正式0。数据/u0/日程/FP32/batch8/各10000不变；用户已明确跨聊天协调授权，已交训练方独验混合流并启动P3。"
     }
   ],
   "transfers": [
@@ -2262,6 +2633,25 @@
         "outputs/use_v2/runtime"
       ],
       "authorization": "用户2026-10-25明确授权：由本会话接管B的正式队列，停止串行派发但保留正在运行的pretrain_mean，改用engineering_v2按两卡waves执行"
+    },
+    {
+      "at": "2026-10-29T09:43:54.400722+00:00",
+      "source": "use-mit-dual-routes-training",
+      "target": "data-event-protocol-consolidation",
+      "scopes": [
+        "docs/data_event_protocol.md"
+      ],
+      "authorization": "用户2026-10-29在主对话明确选择通知原训练Agent暂停回写，并将这一个文档编辑范围移交本对话整理；已通知原持有者。仅移交DATA_EVENT_PROTOCOL.md，其余训练/验收/文档范围保持。"
+    },
+    {
+      "at": "2026-10-29T12:52:30.422484+00:00",
+      "source": "use-data-integration-completion",
+      "target": "use-next-v2-execution-planning",
+      "scopes": [
+        "docs/assets/research/stage_ledger.json",
+        "docs/research_index.md"
+      ],
+      "authorization": "用户在台账/入口通知移交询问后回复：根据现在已经整理完成的数据开始，数据补全同步进行。已通知数据对话暂缓这两份写入，其补全/发布和DATA正文继续；主对话合入v2执行计划。"
     }
   ]
 }

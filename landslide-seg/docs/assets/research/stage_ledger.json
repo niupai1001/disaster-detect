@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-10-28",
-  "current_stage": "use-mit-dual-routes",
+  "as_of": "2026-10-29",
+  "current_stage": "use-next-v2",
   "policy": "九事件训练、广岛与特里苏尔验证；随机种子1234，不默认四折或官方划分；机器标识见research_policy.json。",
   "stages": [
     {
@@ -5303,11 +5303,11 @@
       "data_split_display": "我们的数据划分（留事件验证）",
       "goal": "通过视觉入口残差、光谱Token教师对齐两个完整方案及同构视觉参照，比较多光谱补充、独立Token生成、冻结分割迁移和实际成本。",
       "delta": "A保留冻结RGB首投影并加零起点光谱残差；B仅训练期用原RGB Patch Token余弦教师对齐，固定0.20；C0原视觉入口加固定初始Fine。三者同构MiT与All-MLP/Fine任务头，主评价固定20k末态。",
-      "result": "两路固定u20000与四项1000步冻结恢复探针及599评价已完成，Fine头8张量、Context头16张量逐一相同，编码器冻结核查通过。公共恢复三任务均分1.1437对1.1791，视觉残差方案Fine和光谱误差较低，光谱对齐方案空间误差较低；方向不完全一致，不反选编码器，不推断分割收益。GPU0另存27项初始成本，原GPU1记录保留。现已进入原三组同构分割，尚无最终分割成绩；正式总上限59000及10次恢复重放分别记账。",
-      "status": "两路预训练和四探针共44000完成；GPU0初始成本重测完成，三同构分割头按空闲卡串行启动",
-      "next": "按空闲卡严格串行完成C0/A/B各5000同构分割及best/last原始评价、固定案例、同卡最终成本，再做全部预算/曝光/冻结与初始化最终验收和固定文档报告。",
-      "reader_status": "正式训练中：原59000预算",
-      "evidence_level": "独立验收通过、实际正式更新进行中；非最终实验结论",
+      "result": "原九项59000成功更新及独立A-off补充5000全部完成，共64000；10次原运行恢复重放、原工程400及2重放/独立可丢弃2、新增工程2及1重放分别记录。固定u20000与四探针不反选编码器。最佳/末态两事件等权IoU：原生RGB参照0.2419/0.2335，保留A细节且纯RGB空间路径0.2409/0.2323，完整光谱残差0.0628/0.0615，光谱教师对齐0.0517/0.0517。补充与参照接近，未见训练后Fine收益；完整残差及支持路径组合明显较差，具体失败机制未验证。原三组27项同卡初末成本、固定六例/四诊断例、原始评价、完整哈希和初始化/冻结/样本流核验通过。单seed及两事件研发复用限制保留，历史十波段端到端参照0.3081不变。",
+      "status": "原九项59000及唯一增补5000均完成并验收；累计64000",
+      "next": "本轮交付结束，停止监控；保留现有参照和原权重。无新增实验或预算授权；后续如研究空间入口与有效支持的独立作用，需另行明确任务。DATA_EVENT_PROTOCOL已由主聊天整理，旧发布模板继续拦截。",
+      "reader_status": "本轮已完成，无待续训练；当前参照不变",
+      "evidence_level": "独立数值/恢复/冻结/初始化/曝光/预算/完整模型重载与最终图文核对通过；单seed研发验证",
       "evidence": [
         "docs/USE_MIT_DUAL_ROUTES_EXECUTION_HANDOFF.md",
         "outputs/use_mit_dual_routes/audit/pre_release_sources.json",
@@ -5330,7 +5330,14 @@
         "outputs/use_mit_dual_routes/audit/release_v2/probes_A_completed_acceptance.json",
         "outputs/use_mit_dual_routes/audit/release_v2/available_gpu_dispatch.json",
         "outputs/use_mit_dual_routes/audit/release_v2/current_probe_results.json",
-        "outputs/use_mit_dual_routes/audit/release_v2/current_segmentation_results.json"
+        "outputs/use_mit_dual_routes/audit/release_v2/current_segmentation_results.json",
+        "outputs/use_mit_dual_routes/audit/aoff/manifest.json",
+        "outputs/use_mit_dual_routes/audit/aoff/acceptance.json",
+        "configs/use_mit_aoff.yaml",
+        "outputs/use_mit_dual_routes/audit/release_v2/final_training_artifact_acceptance.json",
+        "outputs/use_mit_dual_routes/audit/aoff/final_acceptance.json",
+        "outputs/use_mit_dual_routes/audit/aoff_final_comparison.json",
+        "outputs/use_mit_dual_routes/audit/original_final_comparison.json"
       ],
       "source_document": {
         "path": "N:/Users/yzh/Data/USE_双路线_预训练MiT迁移_完整实验执行计划.md",
@@ -5361,7 +5368,7 @@
         "coverage_limit": "清单全量映射、每命名/来源/角色代表缓存及历史cache_audit记录；本次未全量重读像元质量，P0须复核并保存逐成员准入。"
       },
       "execution_plan": {
-        "basis": "依据用户双路线附件和当前v4失败/BN零更新诊断制定下一阶段。两名Agent仍按工程/训练分工，避免与模型路线A/B混淆。当前仅计划归档，细则由本条handoff_sections生成分发快照；不恢复旧队列或启动训练。",
+        "basis": "本节保留原59000更新执行安排及其完成状态；不是新训练授权。原九项及用户随后唯一授权的5000更新补充均已完成，详细事实见本阶段结果与独立验收。",
         "contract": "无标签TRAIN11132=9510 S2+1622 Landsat，验证599=521+78，隔离239；每更新6 S2+2 Landsat。下游九事件2223训练、广岛448+特里苏尔221开发验证，seed1234/stats_core25。无新数据/下载/日期/GSD/地形/四折/官方/保留集。",
         "inputs": "物理反射率RGB独立于USE z-score；S2 red/green/blue或B04/B03/B02，Landsat依实际语义ID/波长核验。RGB不resize/rescale，ImageNet均值/标准差，保留物理值；A读取同遮挡学生RGB，B教师原始同源RGB仅stop-gradient目标，部署无教师。探针只在TRAIN更新。",
         "budget": "正式59000=两预训练×20000+四探针×1000+三同构分割×5000，共9作业；工程A/B各≤200、失败重放另列。FP32/TF32关、micro2×accum4、AdamW WD0.01/clip1；前端LR1e-4、新模块6e-4，预热1000后余弦。探针/分割LR6e-4，预热50/250。固定u20000，不按探针或DEV选USE，无5k/10k探针。",
@@ -5451,42 +5458,49 @@
             "model": "工程Agent：RGB准入与三组实现",
             "change": "全成员映射/单位/支持审计；新入口组合A/B/C0及既有masked MiT/任务头；两路线各≤200工程试训",
             "question": "视觉入口不泄漏、A零起点等价、B教师边界与学生梯度是否可靠",
-            "status": "待实现与复核"
+            "status": "已完成并核验；原计划预算不变"
           },
           {
             "order": "2",
             "model": "训练Agent：独立release和资源验收",
             "change": "复核关键测试、哈希、共同初始化、128真实更新与静态容量，封装门禁",
             "question": "实际配置和来源是否可比且可运行",
-            "status": "待执行"
+            "status": "已完成并核验；原计划预算不变"
           },
           {
             "order": "3",
             "model": "双卡：视觉残差与光谱对齐各20000",
             "change": "GPU0 A、GPU1 B；固定五项MAE和共同分母，B仅额外0.20 Token余弦",
             "question": "两个整体目标如何学习，残差/对齐覆盖和成本如何",
-            "status": "待执行；40000更新"
+            "status": "已完成并核验；原计划预算不变"
           },
           {
             "order": "4",
             "model": "双卡：最终编码器四项公共探针",
             "change": "仅u20000，A/B各Fine/Context1000；TRAIN训练，599验证评价",
             "question": "公共恢复是否改善；弱分数不阻断分割",
-            "status": "待执行；4000更新"
+            "status": "已完成并核验；原计划预算不变"
           },
           {
             "order": "5",
             "model": "同构视觉参照与两路线各5000分割",
             "change": "三组同一ADE All-MLP/classifier/Fine残差初始化、BN策略与监督规则；USE全冻结",
             "question": "A/C0、B/C0及B/A的净收益和RGB依赖成本是什么",
-            "status": "待执行；15000更新"
+            "status": "已完成并核验；原计划预算不变"
           },
           {
             "order": "6",
             "model": "训练Agent：结果与固定文档",
             "change": "三张主表、曲线/固定案例、原始评价、哈希和完整预算/成本账本，同源回写",
             "question": "证据和限制是否足够，下一步是否值得另行研究",
-            "status": "待执行"
+            "status": "已完成并核验；原计划预算不变"
+          },
+          {
+            "order": "7",
+            "model": "原生RGB空间路径＋A固定u20000细节补充对照",
+            "change": "仅新增5000分割头更新；保留A Fine，纯RGBContext及支持，从共同初始头/新优化器开始",
+            "question": "区分训练后Fine变化与额外空间残差/支持路径的关联",
+            "status": "已完成并独立验收；新增5000单列，累计64000"
           }
         ],
         "acceptance": [
@@ -5547,12 +5561,12 @@
       },
       "execution_observation": {
         "owner": "01a182cf-45d6-73e3-b7e2-f9bdf296a934",
-        "formal_successful_updates": 0,
+        "formal_successful_updates": 59000,
         "source_preflight": "outputs/use_mit_dual_routes/audit/pre_release_sources.json",
         "training_gate": "READY_FOR_TRAINING",
         "v4_calibration_sha256": "8b2e42fce822a8391fdd99874726c71a7cd3747ffb3ec88347575a423cb7551d",
         "rgb_full_member_precheck": "PASS;11731;0 failures;0 optimizer updates",
-        "status": "RUNNING_AFTER_RECOVERY",
+        "status": "FINAL_ACCEPTED",
         "release_sha256": "4671b2fa4ec72db13bc0a4c755fc6b4388db0be2bb92f997802d054704dc14d2",
         "formal_budget": 59000,
         "engineering_successful_updates": 400,
@@ -5575,14 +5589,12 @@
         "repair_request": "outputs/use_mit_dual_routes/audit/ENGINEERING_REPAIR_REQUEST.md",
         "hourly_monitor": {
           "automation_id": "use",
-          "status": "ACTIVE_HOURLY_MONITOR_AND_APPROVED_RECOVERY",
+          "status": "STOP_AFTER_FINAL_DELIVERY",
           "automatic_recovery": "User explicitly approved resume of started accepted jobs and supported safe reset of faulted target GPU; no initial launch or gate bypass"
         },
-        "scope": "No engineering source/release modified; no formal weights started; no GPU reset attempted.",
-        "actual_pretrain_A_updates": 130,
-        "active_jobs": [
-          "segment_C0"
-        ],
+        "scope": "Original nine plus separately authorized A-off accepted; immutable original release preserved; no pending training.",
+        "actual_pretrain_A_updates": 20000,
+        "active_jobs": [],
         "queued_jobs": [],
         "resource_blockers": {},
         "supervisor_pid": 104812,
@@ -5624,12 +5636,6 @@
         "pretrain_B_complete": true,
         "formal_pretrain_unique_updates": 40000,
         "paired_pretrain_acceptance": "PASS",
-        "additional_original_worker": {
-          "job": "probe_A_context",
-          "pid": 104128,
-          "device": "cuda:0",
-          "status": "RUNNING"
-        },
         "probes_A_complete": true,
         "device_policy_override": "User explicitly authorizes available-card dispatch; strictly one child at a time",
         "controller_script": "outputs/use_mit_dual_routes/runtime/supervise_available_serial.py",
@@ -5683,7 +5689,7 @@
           },
           "context_initial_tensors_identical": 16
         },
-        "segmentation_results_available": false,
+        "segmentation_results_available": true,
         "all_four_probes_complete": true,
         "gpu0_initial_cost_complete": true,
         "current_segmentation_results": {
@@ -6041,7 +6047,1205 @@
           "evaluation": "669 DEV; Hiroshima448+Thrissur221; threshold0.5; event IoU equal-weight mean",
           "boundary": "Best among evaluated steps only; incomplete runs have no final score. No A/B gain claim before matched5000-step comparison.",
           "optimizer_updates_by_publication": 0
+        },
+        "aoff_supplement": {
+          "status": "FINAL_ACCEPTED",
+          "authorized_additional_updates": 5000,
+          "original_formal_updates": 59000,
+          "cumulative_authorized_updates": 64000,
+          "source": "pretrain_A/u20000.pt",
+          "mode": "trained_A_fine_pure_RGB_context_v1",
+          "verification": "outputs/use_mit_dual_routes/audit/aoff/acceptance.json",
+          "engineering_disposable_updates": 2,
+          "engineering_replay_updates": 1,
+          "authorization_source_chat": "01a16e71-e5a0-7113-a026-569964d1e29a",
+          "source_manifest_sha256": "7539459fcffe005e20dfe7fc9694c3ca47b46fda41cb07cfbe684a22c6cf9fc8",
+          "configuration": "configs/use_mit_aoff.yaml",
+          "no_additional_pretraining_or_probes": true,
+          "runtime_status": "outputs/use_mit_dual_routes/runtime/aoff_status.json",
+          "controller": "outputs/use_mit_dual_routes/runtime/run_aoff_worker.py",
+          "postprocess": "outputs/use_mit_dual_routes/runtime/finish_aoff_artifacts.py",
+          "formal_updates": 5000,
+          "final_acceptance": "outputs/use_mit_dual_routes/audit/aoff/final_acceptance.json",
+          "final_publication": {
+            "status": "COMPARISON_PUBLISHED",
+            "routes": [
+              "C0",
+              "A_off",
+              "A"
+            ],
+            "evidence": "outputs/use_mit_dual_routes/audit/aoff_final_comparison.json",
+            "figures": [
+              "docs/assets/research/use_mit_dual_routes/aoff_final_curves.png",
+              "docs/assets/research/use_mit_dual_routes/aoff_final_fixed_cases.png",
+              "docs/assets/research/use_mit_dual_routes/aoff_final_error_cases.png"
+            ]
+          },
+          "visual_review": "PASS; complete curves and same six fixed/four diagnostic cases reviewed"
+        },
+        "original_final_publication": {
+          "status": "COMPARISON_PUBLISHED",
+          "routes": [
+            "C0",
+            "A",
+            "B"
+          ],
+          "evidence": "outputs/use_mit_dual_routes/audit/original_final_comparison.json",
+          "figures": [
+            "docs/assets/research/use_mit_dual_routes/original_final_curves.png",
+            "docs/assets/research/use_mit_dual_routes/original_final_fixed_cases.png",
+            "docs/assets/research/use_mit_dual_routes/original_final_error_cases.png"
+          ]
+        },
+        "original_formal_successful_updates": 59000,
+        "original_training_artifact_acceptance": "outputs/use_mit_dual_routes/audit/release_v2/final_training_artifact_acceptance.json",
+        "cumulative_formal_successful_updates": 64000,
+        "final_delivery": "outputs/use_mit_dual_routes/audit/final_delivery_acceptance.json",
+        "historical_additional_original_worker": {
+          "job": "probe_A_context",
+          "pid": 104128,
+          "device": "cuda:0",
+          "status": "COMPLETED_HISTORICAL_OVERLAP"
         }
+      },
+      "comparisons": [
+        {
+          "name": "本轮同构视觉参照、光谱残差、教师对齐及Fine保留补充",
+          "comparison": "相同MiT/分割头结构与真实共同头初始化，完整编码器冻结；原生RGB＋原Fine，对比原生RGB＋A训练后Fine、完整A空间残差＋A Fine及光谱教师对齐。",
+          "evaluation_context": "九TRAIN事件2223块训练；广岛448＋特里苏尔221研发验证，阈值0.5、两事件IoU等权，单seed1234；固定u20000编码器，不按下游反选。",
+          "observation": "最佳/末态IoU依次为0.2419/0.2335、0.2409/0.2323、0.0628/0.0615、0.0517/0.0517；原59000和增补5000均完成并独立核验，固定案例与曲线已复核。",
+          "possible_answer": "训练后Fine单独替换未显示改善；完整A相对相同Fine的纯RGB空间路径明显较差，支持问题与额外空间残差及其支持规则组合有关，但未分别确定两者作用。外部监督初始化、单seed及两DEV事件复用限制保留。",
+          "evidence": [
+            "outputs/use_mit_dual_routes/audit/original_final_comparison.json",
+            "outputs/use_mit_dual_routes/audit/aoff_final_comparison.json",
+            "outputs/use_mit_dual_routes/audit/release_v2/final_training_artifact_acceptance.json",
+            "outputs/use_mit_dual_routes/audit/aoff/final_acceptance.json"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-next",
+      "name": "USE-Next：原生DOFA与同地点光学配对的独立局部编码",
+      "previous": "use-mit-dual-routes",
+      "data_split_display": "我们的数据划分（留事件验证）；新增无标签数据按地点隔离",
+      "goal": "完整保留预训练DOFA语义通路，研究独立局部光谱表示与同地点跨光学语义约束的冻结迁移。",
+      "delta": "封存Q5→MiT修补；复用锁定官方DOFA，新增独立s1/s4局部出口，288四源包先准入、分组并使用合格S2/Landsat配对。",
+      "result": "模型正式更新0。用户已授权数据实际接入及配对补全：F额外711缓存（TRAIN590/验证39/隔离82）、288包合格视图与7项修复已进入独立统一入口；E/firepaper官方重建与原池缺配后台执行，实时数量见active_release。原模型P0工程门禁仍未通过，不据数据准入启动训练。",
+      "status": "旧64k模型计划已被v2替代；数据接入与补全继续，模型训练未开始",
+      "next": "模型工作转use-next-v2当前冻结成员快照；数据补全继续产出下一版本，不重启旧64k队列。",
+      "reader_status": "数据实际接入与下载已启动；模型训练0",
+      "evidence_level": "原11970缓存全核、1856本地新缓存复核、全地点元数据及真实下载；模型工程验收仍待实施",
+      "evidence": [
+        "outputs/use_next/planning/source_audit.json",
+        "outputs/use_data_integration/local_acceptance.json",
+        "outputs/use_data_integration/completion/status.json"
+      ],
+      "source_document": "C:/Users/yzh/Downloads/USE-Next_架构重建与分阶段实验计划.md",
+      "user_decisions": [
+        "原任务为制定计划、写文件、给提示词；未请求本聊天实际训练。",
+        "用户确认更新为288个四源包，要求利用其对应位置；据此修订旧附件数据条款与latent目标。",
+        "延续两名Agent分工与双卡独立作业，不增加训练角色；代码必须ponytail。"
+      ],
+      "source_verification": {
+        "audit": "outputs/use_next/planning/source_audit.json",
+        "source_document_sha256": "f0f350003e55c4e9f7bb922b90ed6b09624febca19c81320a9fbbb59cf950eaa",
+        "dataset_manifest_sha256": "3aa5b4dbc5f84bbce521c694d2d2e41d1a0c82f7fe9d318d77963f401aad95b0",
+        "user_confirmed_dataset": true,
+        "actual_gpu_forward_this_task": false
+      },
+      "execution_plan": {
+        "basis": "旧64k模型执行安排已被use-next-v2替代，不再派发；本阶段数据接入的真实记录继续保留。\n\n### USE-Next：更新数据后的执行契约\n\n本节由唯一台账生成，可直接交给下游 Agent。当前交付为**计划、现场证据与提示词**，没有启动新训练。用户已确认新增数据就是288个同地点四源影像包，并要求利用其位置对应关系；附件旧的“固定11132/599、不加新数据”据此修订。旧USE双路线累计64000已完成；本阶段另一个64000是待分段执行的预算上限，两者不得相加后当成已执行。\n\n改变方向的现有证据：同一669块开发验证上，原生RGB入口＋固定细节IoU0.2419，保留训练后细节但关闭空间残差0.2409，完整光谱残差0.0628，光谱Token教师对齐0.0517。空间残差及其支持规则组合与下降相关，唯一原因未验证；本轮据此保留原生预训练入口，不继续叠加Q5修补。十波段直入SegFormer B0＋细节0.3081是历史量级参照，其训练预算/消费者不同，不充当本轮同头对照。数值见[上一阶段合并结果](DATA_EVENT_PROTOCOL.md#原九项完整分割结果与成本)。\n\n[新增数据核查](DATA_EVENT_PROTOCOL.md#use-next新增同地点四源数据核查)；[本次只读证据](../outputs/use_next/planning/source_audit.json)；[两名Agent提示词](#use-next两名agent提示词)。\n\n```mermaid\nflowchart LR\n    X[合法光学影像与波长/质量/GSD] --> M[学生观测：训练同步遮挡，推理无人工遮挡]\n    M --> D[官方DOFA动态Patch与ViT：全冻结]\n    M --> L[独立共享局部光谱编码：可训练]\n    D --> S[原生s16语义与全局表示]\n    L --> F[s1细节与s4局部表示]\n    S --> O[统一USE输出：各分量独立]\n    F --> O\n    O --> H[编码器冻结后训练统一任务头]\n    S --> P[仅自监督期：潜在预测器]\n    F --> P\n    T[同源未遮挡/合格同址光学对] --> V[同一冻结DOFA教师目标：停止梯度]\n    V --> C[只进入自监督损失]\n    P --> C\n```\n\n图中DOFA和local是并行路径；教师目标只用于训练损失，不能送进学生特征。配对目标使用同地点的另一光学观测，不是另一个地区的图。",
+        "contract": "监督分割继续使用“我们的数据划分（留事件验证）”：九事件2223块TRAIN更新任务头，广岛448＋特里苏尔221共669块DEV用于选头，seed1234；阈值0.5，按两个事件等权IoU选最佳任务头。Italy/NewZealand不参与本轮。该监督清单未因新增无标签影像改变。\n\n无标签训练采用**旧合法池＋新增合格L2A光学观测**，不是沿用11132这个固定总数。旧11132 TRAIN、599 PRETRAIN_VAL、239隔离观测保留原身份；新增包先按地点完成准入与划分，实际总数及逐来源计数由P0发布后锁定，不能写成11132＋288，也不能把18138个栅格文件当训练样本数。",
+        "inputs": "**同地点资料如何使用。** 四源关系存入site_id/anchor_root、各自采集日期、footprint、CRS/transform和文件哈希。原始288包只读。第一轮正式训练用S2 L2A十个主光学波段和Landsat C2 L2七个反射率波段；QA/SCL只生成质量掩膜，AOT/WVP、热红外/温度/辐射辅助层、全色、HR及SAR不混入光学波段列表。HR与SAR保留同地点关联，进入P0元数据检查和固定对应案例；物理定标或模态入口尚不可靠时不进入训练，也不冒充已验证的四模态通用能力。\n\n**位置对应进入训练设计。** 按site组织新数据，两个光学视图同角色、同源地面范围抽样。进入共同训练清单的新光学观测可各自做遮挡学习；跨S2—Landsat的区域语义约束另加资格掩膜：采集日期相差≤30天、两个视图共同区域清晰有效比例均≥80%、波段/单位及共同覆盖已核验，无明显地表变化或配准异常。清单仅39/288对日期差≤30天，尚未通过其余条件；中位日期差326.5天。其余同地点观测保留对应关系，**配对约束权重为0**，不为增加配对数量放宽日期或质量门槛。首轮不做跨传感器逐像素重建/像素一致性；区域聚合目标不要求亚像素一一对应，但仍须真实共同范围。",
+        "budget": "正式共11项、最多64000次成功优化器更新：P1两分割头各5000；P2三目标各12000；P3三个分割头各5000＋三个统一恢复探针各1000。没有5k检查点探针、中间点编码器反选、旧v2/v3/v4重训、自动续尾或额外配对训练作业。配对目标纳入原P2的12000预算，教师前向额外成本单列。工程试训每个正式配置最多100次成功更新、至多1100，使用可丢弃副本；不计正式成绩，失败/中止/重放单列。\n\n默认FP32、TF32关闭、AdamW(weight_decay=0.01)、clip=1、microbatch2×accum4（每更新8份光学观测）。P2 local LR=3e-4、自监督头LR=6e-4、warmup600、cosine到12000；P1/P3头LR=6e-4、warmup250、cosine到5000；1000步probe warmup50。若P0显存不足，只能在正式启动前统一降低microbatch并提高accum保持8，不能改变某一组有效批量、精度或预算。机器有两张约32GiB RTX5090，双卡运行独立作业，不默认DDP。\n\nP2每4次更新为一固定周期：前3次各6份旧S2＋2份旧Landsat；第4次3份旧S2＋1份旧Landsat＋2个新增地点各S2/Landsat两视图，共8份。这样新来源占观测曝光12.5%，利用同地点关系且不把小样本新池按数据源等权过度抽样。每版本12000更新预计旧84000、新12000份观测曝光，新地点共6000次；真实合格地点数决定重复次数，须报告。三目标严格共享成员、地点顺序、波段子集、几何增强和遮挡计划。若没有足够合法光学双视图地点或配对资格为零，发布受阻与影响，不能静默回退旧池或声称已验证配对训练。",
+        "initialization": "优先复用已在本机重新核对SHA的DOFA Base/16官方来源：源码vendor/dofa-official-0cfb7e1（commit 0cfb7e1099f4d4c4022946ff7862c7cd7b8411b9），权重weights/dofa/XShadow_DOFA_base/DOFA_ViT_base_e100.pth（SHA256 4720985e42b918ac0307009eb06121a3435d9bbce6fd95446f84824a538165b1；HF revision 7a5219e48d2f8848511b0fabea7920a8836bc480）。这是待P0证明代码/权重/输入域配对正确的本地起点，不能混搭当前网上新版动态层或悄悄更换权重。官方仓库确有版本配对提醒，见[官方DOFA](https://github.com/zhu-xlab/DOFA)。\n\n旧DOFA wrapper只支持10×128、UPerNet且默认可微调，不是本轮可变波段冻结轻量头；复用官方源和加载校验，不重跑历史脚本、不改旧DOFASeg和旧release。严格加载编码必需张量，预训练专用或任务分类层的省略必须逐键白名单并说明，不用strict=False掩盖缺失主干。已有DOFA完整系统历史IoU0.1969及四折冻结读取不替代本轮F0；历史四折含波长纠错记录，不重开四折。\n\nP2 local三个版本从同一u0状态逐张量复制；DOFA全冻结eval，任务模块在编码器外。模型/数据seed1234、任务头seed1235。F1旧Fine只读来自固定v3无标签入选权重（e20e32f9915974c570d2ad9a064af3bd46b75f0e0d78bafbf698637895533886），披露其额外无标签训练历史。P1/P3用全新同一定义、全随机初始化的轻量头：固定semantic/s4/s1槽位，F0局部槽填零、F1仅填旧Fine、P3填新local；同形张量逐值一致，保留参数/有效输入差异。统一GroupNorm或LayerNorm，不继承ADE解码器及BN运行统计。",
+        "formal_successful_update_limit": 64000,
+        "engineering_update_limit": 1100,
+        "actual_updates": 0,
+        "paired_semantic_weight": 0.1,
+        "pair_max_date_gap_days": 30,
+        "pair_common_clear_fraction": 0.8,
+        "new_data_exposure_fraction": 0.125,
+        "encoder_evaluation_checkpoint": 12000,
+        "jobs": [
+          {
+            "id": "segment_dofa_native",
+            "phase": "P1",
+            "updates": 5000
+          },
+          {
+            "id": "segment_dofa_oldfine",
+            "phase": "P1",
+            "updates": 5000
+          },
+          {
+            "id": "pretrain_mae",
+            "phase": "P2",
+            "updates": 12000
+          },
+          {
+            "id": "pretrain_latent_paired",
+            "phase": "P2",
+            "updates": 12000
+          },
+          {
+            "id": "pretrain_joint_paired",
+            "phase": "P2",
+            "updates": 12000
+          },
+          {
+            "id": "segment_mae",
+            "phase": "P3",
+            "updates": 5000
+          },
+          {
+            "id": "segment_latent_paired",
+            "phase": "P3",
+            "updates": 5000
+          },
+          {
+            "id": "segment_joint_paired",
+            "phase": "P3",
+            "updates": 5000
+          },
+          {
+            "id": "probe_mae",
+            "phase": "P3",
+            "updates": 1000
+          },
+          {
+            "id": "probe_latent_paired",
+            "phase": "P3",
+            "updates": 1000
+          },
+          {
+            "id": "probe_joint_paired",
+            "phase": "P3",
+            "updates": 1000
+          }
+        ],
+        "steps": [
+          {
+            "order": "P0-a",
+            "model": "工程Agent：新数据准入与地点划分（0正式更新）",
+            "change": "核对物理资产、质量、同址关系、日期差与隔离；冻结新清单/统计/配对资格",
+            "question": "实际多少合法新观测和可训练配对，新增语料是否与评价集合重叠",
+            "status": "待实现；先于正式训练"
+          },
+          {
+            "order": "P0-b",
+            "model": "工程Agent实现；训练Agent独立验收（0正式更新）",
+            "change": "DOFA原生数值、可变波段/尺寸、local独立出口、mask/恢复、显存与release",
+            "question": "是否保留官方预训练通路，模型和运行合同是否真实可执行",
+            "status": "待实现；P0不通过禁止P1"
+          },
+          {
+            "order": "P1",
+            "model": "DOFA原生冻结；DOFA＋旧固定细节（各5000，共10000）",
+            "change": "同一轻量头定义与监督成员；只改变局部槽是否读旧Fine",
+            "question": "原生DOFA的密集表示能否被稳定读出，旧细节是否有价值",
+            "status": "需单独派发P1授权；P0 PASS后启动"
+          },
+          {
+            "order": "P2",
+            "model": "光谱遮挡、潜在空间/配对语义、联合目标（各12000，共36000）",
+            "change": "相同新local与DOFA、共同更新后语料，比较三个整体目标；配对项固定0.10",
+            "question": "目标是否改善冻结表示，更新后同址数据是否被合法利用",
+            "status": "P1完成并解释后，另行授权"
+          },
+          {
+            "order": "P3",
+            "model": "三个冻结分割头各5000＋三个恢复探针各1000（共18000）",
+            "change": "只读三个u12000编码器，头/顺序/评价固定；做波段子集与同址检索只读评价",
+            "question": "恢复改善是否转化为迁移，缺波段和跨传感器差值多大",
+            "status": "对应P2核验通过且另行授权"
+          },
+          {
+            "order": "P4",
+            "model": "训练Agent整体验收（0新增更新）",
+            "change": "三张主表、结构图、训练曲线、原图/特征/真值/概率/掩膜、同址跨源案例和成本",
+            "question": "证据支持哪些结论，是否存在独立任务证据及后续价值",
+            "status": "无自动追加训练"
+          }
+        ],
+        "acceptance": [
+          "P0-a发布outputs/use_next/data/{members.jsonl,site_roles.json,paired_views.jsonl,leakage_audit.json,statistics.json,data_release.json}。按anchor_root合并同一HR根影像，相交/重复footprint及有效光学影像内容重复关联一起分组（全零QA的相同哈希不用于认定同地点）；滑坡DEV/DIAG/FINAL事件沿用旧准入的至少10km缓冲，旧无标签PRETRAIN_VAL/GUARD观测footprint另留至少1km；已登记边界更严时取更严者。冲突新地点隔离，无法核实坐标的新地点不准入。合格新组按排序后SHA256(seed1234＋group_id)确定90% TRAIN、10% PRETRAIN_VAL；四源及所有派生物同角色，禁止按波段/传感器/裁块随机拆分。旧成员角色不改；数量以实际空间连通组为准，不预写259/29。 新主训练池只取两份L2A光学观测均通过物理/QA准入的地点；日期差不限制各自遮挡学习，只限制区域配对loss资格。缺任一光学视图的地点保留原始资料及单视图审计，不悄悄补进本轮共同训练流。",
+          "新L1C的248地点×13波段共3224记录实际指向MSK_QUALIT质量文件；首轮全部L1C不进主训练，保留只读并给逐文件拒绝原因，不能把uint8八层mask乘0.0001伪造反射率。L2A十主波段＋SCL在288地点均有记录，但仍须逐图质量和定标审计；两个地点Landcover-420163、Landcover-769361缺Landsat QA_PIXEL/QA_RADSAT，不能用ST_QA替代，相关Landsat视图/配对先不准入。优先使用已下载的正确L2A，修复远端下载另列，不自动恢复下载器。",
+          "physical_reflectance、DOFA_input和local_input分别记录处理链。S2按各产品真实QUANTIFICATION_VALUE/BOA_ADD_OFFSET及processing baseline处理，Landsat C2 SR按DN×0.0000275−0.2，见[USGS官方定标说明](https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-reflectance)；处理前先作nodata/QA屏蔽，已缩放缓存不重复缩放；GeoTIFF默认scales=1并不证明已是反射率。DOFA归一化须对照所锁版本的训练/官方接口依据，不能直接套stats_core25或网页PNG演示统计；依据不足为BLOCKED。旧统计仅保留旧管线语义，新local统计仅用锁定TRAIN拟合；fixed599不用于拟合。",
+          "输入合同含真实波长、known mask、native_band_gsd、grid_gsd、产品域、质量/人工遮挡、坐标/原尺寸。新光学成对数据取同一1.28km中心范围，工作网格10m/128像素；Landsat约43个30m源像元重采样到128时必须标derived，不能称原生10m。连续波段仅一次显式重投影，质量层nearest；不把144/49/241/961尺寸分别拉到128后假定同范围。HR原生MS约6m、PAN约1.5m的实际值来自transform，不假定HR就是RGB，也不做未经授权的颜色拉伸。",
+          "P0-b保留原DOFA动态Patch和完整Transformer，建立ObservationBatch→{s1_local32,s4_local96,s16_semantic,patch_tokens,global_embedding,valid_masks,provenance}。s16抽取官方第3/5/7/11号block（0起），同为原生stride16；global默认最终patch均值并说明未额外加载随机分类层。128输入原生8×8；s1/s4来自独立共享逐波段卷积＋波长条件聚合，输出在主干之后由消费者融合。local不替换/注入DOFA入口。",
+          "按真实传感器/波长列表分桶，实测C=3/4/6/10和Landsat7；同步置换影像与元数据应一致，真实缺波段须从动态层输入列表移除，全缺拒绝，无效像元值扰动不得影响合法输出。mask在两学生路径同步，真实缺测和人工遮挡分开；局部卷积感受野/插值不能把隐藏真值混回学生。冻结DOFA无上游可训练模块，可no_grad；local及predictor应有有限非零梯度，DOFA/教师全参数与buffer SHA不变。",
+          "严格重载与原版数值核对、奇数尺寸padding/crop（例如127×131）、2步更新后的精确恢复重放、最小过拟合、无标签/标签隔离均通过。对两GPU记录UUID/软件版本、128真实完整优化器更新及256/512 B1推理峰值；512 OOM可作为已知容量限制，不伪称通过，不能阻断已可承受的128主实验，128也不可承受则BLOCKED。发布含代码/配置/成员/权重哈希的release，训练Agent只认独立复验绑定同一release的READY_P0.json；任一关键内容变化旧门禁失效。",
+          "正式配置与所有覆盖均须通过check_research_protocol.py；当前USE-Next的配置、预训练清单/配对扩展预检和运行入口均待实现。工程优先新增scripts/use_next/preflight.py校验新数据、预算/成员/冻结；必要的共享预检适配先精确认领再改，旧配置须仍通过。不能把旧USE或四折配置的PASS移作新阶段PASS。"
+        ],
+        "decisions": [
+          "P1/P3编码器全冻结，只训练同一定义的新头与其投影。每500步对完整669块DEV评价，best只选择任务头，last另存；P1不是必须超过历史0.3081的竞赛。P1两组若没有合理空间读出，先交付版本/数值域/尺度/头的证据与失败结论，不直接启动更复杂P2。单组弱成绩不能任意延长预算。",
+          "P2三目标精确定义：光谱遮挡组(N-M)仅L_MAE；潜在预测组(N-J)用L_latent=L_self_masked＋0.10 L_pair_region；联合组(N-JM)用L_MAE＋L_latent，系数固定。L_self教师是同一冻结DOFA看到未人工遮挡的同源合法输入的目标token；学生local与冻结DOFA均只看同一遮挡上下文，由独立predictor预测隐藏空间块。L_pair只对合格同址S2/Landsat对，在真实共同区域池化后做双向cosine预测，目标stop-grad；资格不通过的项记0并报告覆盖，不从完整教师特征向学生forward偷接旁路。不宣称完整同构I-JEPA。",
+          "三个版本共享原始波段子采样和空间遮挡计划，N-M虽不使用跨视图loss仍看到同一成对抽样流。至少3有效光学波段时，50%概率随机去掉20%–40%的有效波段，明确舍入且保留至少1；空间mask建议40%原生16像素patch，以连续block形成，被遮通道/空间真值仅用于目标。L_MAE只评价真实有效且人工隐藏位置，使用锁定TRAIN量纲；latent目标归一化和loss分母在TRAIN校准后固定。记录每传感器目标数、配对有效次数、两loss、梯度量级、forward次数和曝光；不动态调权、不因结果换更接近日期的对。",
+          "P2保存u0/u4000/u8000/u12000、optimizer/RNG/采样游标。编码器固定u12000末态进入P3；不根据DEV或恢复探针回选中间点。三个1000步探针各为一作业、同一多出口小头，统一读local/semantic并同时报告光谱恢复和固定DOFA目标恢复；探针只读TRAIN更新，旧599锚定集和新增地点验证分别评价。公共分母由本轮锁定TRAIN校准后冻结，不能拿旧不同物理域的分数硬排；恢复探针不等于语义或通用性证明。",
+          "同地点关系还用于零训练跨源检索和固定面板：查询S2时gallery是不同地点Landsat，反向同理；分别报告≤30天合格对与其他日期差层的Recall@1/@5和候选数，无资格者不称正样本泛化成功。DEV外的新地点验证组从不进入P2更新；稀少或无合法候选时NOT_AVAILABLE，不用滑坡标签补齐。",
+          "P3每个完整十波段模型只选一个best头，对其固定权重只读比较RGB、RGB+NIR、RGB+NIR+SWIR、完整十波段、50%合法子集和预注册未见组合；不为每子集重训/选头，Landsat另报物理合法性、恢复/检索，未有滑坡标签不造跨传感器分割IoU。AP、FPR@Recall0.5/0.8、对象1–4及<50像素召回、边界F1和逐事件分列，best/last不混淆。",
+          "本轮是目标组合方案对比：增加local预训练、配对目标及任务头等因素并非单组件独立消融。没有“同目标去配对”正式对照，不宣称测得配对项的净因果收益；不因配对存在就声称已验证HR/SAR或变化检测。独立公开任务先做可用性/标签/空间泄漏审计，Landcover站点名称不等于标签；无合法独立任务标UNVERIFIED_GENERALIZATION。外部任务的训练预算、三seed、LoRA、SAR入口、大数据下载都不在64k内。",
+          "当前用户只要求计划文件；下列提示词被用户派发后才构成相应执行范围。P0→P1→P2→P3逐段生效，未授权阶段保持PLANNED。数据/权重/恢复/冻结/泄漏门禁失败立即停受影响作业；不擅停他人进程，不以低GPU利用率断定设备空闲。现阶段CIM命令行读取受限，执行时结合设备锁、队列及日志核对。"
+        ],
+        "handoff": "仅两名：**工程Agent负责数据＋代码＋最小测试；训练Agent负责独立验收＋双卡训练＋最终固定文档。** 不再另拆数据Agent或每卡一个Agent。先list再claim，认领必须是真实聊天ID，不能填提示词示例ID。按实际冲突缩小到精确文件；写共享文件须另行认领，禁止绕过登记。\n\n工程任务ID建议use-next-engineering，范围：src/landslide_seg/models/use_next、scripts/use_next、configs/use_next、tests/use_next、outputs/use_next/data、outputs/use_next/engineering、outputs/use_next/releases、outputs/use_next/requests。原始data/use_multisensor/four_view_pilot_v1只读；新缓存放outputs/use_next/data/cache。阶段/结果文档不在工程默认认领内，工程先以release与变更说明交接。若共享预检确需改动，追加精确源码/测试路径认领并移交版本。\n\n训练任务ID建议use-next-training，范围：outputs/use_next/runs、outputs/use_next/runtime、outputs/use_next/audit、outputs/use_next/benchmarks、docs/assets/research/use_next，以及唯一stage_ledger.json和MODEL_EVOLUTION.md、DATA_EVENT_PROTOCOL.md、RESEARCH_INDEX.md。训练Agent不同时改工程源，故障写审计，由工程认领修复；修复后换release并重验。共享源码不可在仍有作业读它时原地改，使用锁定代码快照。\n\n**双卡队列。** P0工程测一张，训练验收用另一张，互持设备锁。P1 GPU0原生DOFA/GPU1旧Fine。P2 GPU0光谱遮挡、GPU1潜在/配对；先空闲的卡接联合组，所有作业各自固定12k。P3分割头两卡先跑两组、空闲卡接第三组；三个1k探针依空闲排队，单卡同时只跑一个训练作业。成本基准在同一卡UUID、相同精度/批量且无其他训练负载时串行测试，不能把不同卡/共享负载差异说成架构加速。\n\n### USE-Next两名Agent提示词\n\n复制下列对应块，并附本文件链接与原始附件；无需另建计划报告。\n\n**提示词一：工程Agent（先只完成P0和可交付工程）。**\n\n```text\n你负责USE-Next的数据/权重/模型/配置工程与最小测试。先读landslide-seg/AGENTS.md、RESEARCH_INDEX.md最小接力、research_policy.json，查manage_agent_work.py list，用真实聊天ID认领use-next-engineering的明确范围。读取并使用C:/Users/yzh/.codex/skills/ponytail/SKILL.md；所有代码遵守ponytail。\n唯一新阶段执行契约是stage_ledger.json的use-next，读MODEL_EVOLUTION.md的“USE-Next：更新数据后的执行契约”；附件旧11132/599不加数据条款已被用户更新288个同地点四源包的要求覆盖。先复核outputs/use_next/planning/source_audit.json。原数据只读：248地点的S2 L1C实际为质量mask，两个Landsat缺QA；S2/Landsat仅39对日期差≤30天，288不等于训练可用数。\n先交P0-a：资产语义与反射率/QA/GSD审计、同地点分组、与旧验证/保留集合的空间隔离、新TRAIN/PRETRAIN_VAL与配对资格、只用TRAIN的统计、带哈希data_release；正式用合格L2A光学，保留HR/SAR同址关联，不能擅自当光学或同日像素标签。实现按地点抽样和配对资格mask，保存实际计数与拒绝原因，不修原始影像或恢复下载。\n再交P0-b：复用本地锁定官方DOFA Base/16代码＋4720985e...权重，保留原动态Patch与Transformer全冻结eval。实现物理观测合同、真实变波段/尺寸与原生s16输出、独立新s1/s4 local；不向DOFA入口注入Q5，不改历史DOFA/UPerNet或旧USE。实现计划所需三目标、统一轻量头、预检/训练/评价/精确恢复接口；训练前配置待实现须明示，不能套旧配置PASS。\n完成严格加载/原版数值、band置换与缺失/遮挡不泄漏、教师stop-grad/local梯度、参数buffer冻结、奇数尺寸、重载恢复、两卡实际128完整更新与256/512推理成本检查。工程trial每正式配置≤100、使用可丢弃副本并单列，不启动任何正式作业。\n发布只读release_manifest.json（代码/配置/成员/权重/环境哈希）、data_release.json、测试/成本和P0_ACCEPTANCE.json，状态READY_FOR_INDEPENDENT_AUDIT或BLOCKED。64k正式训练全部留给训练Agent按阶段授权执行。不要新增平行阶段报告，不自动下载、不扩大预算；向用户交付精确文件/命令/限制，不能把forward成功称为表征有效。\n```\n\n**提示词二：训练Agent（独立验收，通过后只执行P1的10000步）。**\n\n```text\n你负责USE-Next独立验收、双卡队列与最终证据。先读项目AGENTS、RESEARCH_INDEX最小接力、research_policy与唯一阶段台账use-next，查list后用真实聊天ID认领use-next-training的输出与固定文档范围。所有新增/修复代码必须用ponytail；工程源码改动交工程Agent，不并发覆盖。\n先验证工程发布的同一release和data_release：新增288包必须有真实地点划分/隔离/统计/配对资格，不把L1C质量mask或ST_QA当光学输入/云掩膜；不得沿用附件旧训练总数。独立运行关键测试、原DOFA数值与权重加载、mask/梯度/冻结/恢复、实际配置预检与两卡容量，只有通过才发布绑定哈希的READY_P0.json。门禁不通过交付具体BLOCKED，不启动正式训练。\n本提示词被用户派发后授权的正式范围仅P1：GPU0原生DOFA＋统一新轻量头、GPU1原生DOFA＋旧固定v3 Fine＋同一定义头，各5000成功更新，合计10000。编码器全冻结，头同初始张量，九事件2223 TRAIN、广岛448＋特里苏尔221 DEV，seed1234、head1235；每500评完整DEV，best/last、逐事件、AP、固定Recall的FPR、对象/边界均保存。不能从历史DOFA或C0复用分数代替本轮同头基线。\n保存resolved_config、命令/覆盖、逐步曲线、原始评价、概率/掩膜、初始化/冻结哈希、预算与GPU账本；完成P1后回写同一台账与固定文档，解释可读性及已知限制，停止在P1交接点。P2/P3保持PLANNED，不自动消耗余下54000；不下载、不补四折/官方、不重训旧模型、不追加5k探针或续尾。\n```\n\n**后续继续用同一训练Agent的阶段提示词（按需要单独派发）。**\n\n```text\n继续执行USE-Next的P2，仅授权三个共同初始化local的目标版本各12000更新，共36000。先确认P0/P1验收、实际数据版本和release未变；双卡先跑光谱遮挡与潜在/配对，空闲卡接联合。三组同数据/遮挡/地点抽样，使用台账固定四更新周期；latent=self-masked+0.10合格同址区域配对，joint=MAE+latent。只按预注册资格使用S2/Landsat对应位置，不强迫日期差过大的同址影像逐像素一致。固定u12000进入后续评价，记录配对曝光/loss/梯度/额外教师成本。完成保存并核验，不自动开始P3或延长弱组。\n```\n\n```text\n继续执行USE-Next的P3与最终验收，仅授权三个u12000冻结编码器各5000分割头及各1000统一恢复探针，共18000。核对共同头初始化、冻结/成员/统计/恢复，TRAIN更新、DEV选头、旧599和新增地点验证分开评价。用固定best头只读评波段子集与同址跨源检索；无真实标签不造独立任务成绩。按台账三张合并主表、结构/曲线/对应原图与特征/预测面板和同卡成本交付，回写唯一台账与固定文档并验刷新幂等。没有去配对正式对照，不宣称配对项净因果收益；无独立任务标UNVERIFIED_GENERALIZATION。累计新阶段成功更新不得超过64000，结束后不自动加实验。\n```",
+        "deliverables": "P0在outputs/use_next/保存数据/权重/观测审计、原生数值/梯度/掩码测试、benchmark、release与独立准入；P1–P3每run保存identity/resolved_config/命令/成员哈希、u*与optimizer/RNG、curves.csv、逐事件/逐波段/逐来源评价、best和last、概率/质量掩膜和最终验收。新数据量、观测曝光、地点曝光、可用配对数、日期差层、许可证与被拒资产独立列明；WorldStrat HR的CC-BY-NC4.0来源保留，不能称所有源都是相同开放许可。\n\n研究正文仍只维护DATA_EVENT_PROTOCOL.md（数据/结果）、MODEL_EVOLUTION.md（连接/生成计划）、RESEARCH_INDEX.md（最小接力），阶段目标和结果唯一写stage_ledger。最终最多三张主表：①新DOFA基线与历史参照的可比性/分割结果；②三个整体目标的自监督/恢复/冻结分割；③波段缺失、同址跨源检索、资源与独立任务可用性。至少给结构图、完整训练曲线、固定六例原图/特征/真值/概率/阈值掩膜及新同址跨源面板；PCA需同一TRAIN拟合投影与色标，原生/重采样网格标清。单seed、研发验证复用、配对资格小、跨时变化和外部DOFA预训练接触未知均保留边界。\n\n完成后运行python -X utf8 scripts/query_research.py --refresh-stages并核对链接及幂等，按真实贡献finish；只有产生新run才刷新运行索引。"
+      },
+      "actual_updates": 0,
+      "comparisons": [],
+      "data_integration": {
+        "local_release": "outputs/use_data_integration/local_release/release.json",
+        "live_release": "outputs/use_data_integration/active_release/release.json",
+        "acceptance": "outputs/use_data_integration/local_acceptance.json",
+        "runtime": "outputs/use_data_integration/completion/status.json",
+        "authorization": "用户明确要求288包及外盘整理后进入入口，并开启补全；未授权模型训练",
+        "initial_queue": 16338,
+        "metered_first_batch_cap_bytes": 9550000000,
+        "cutover_reserve_bytes": 150000000,
+        "new_f_train": 590,
+        "new_f_validation": 39,
+        "new_f_guard": 82,
+        "training_updates": 0
+      },
+      "model_plan_status": "SUPERSEDED_BY_USE_NEXT_V2; data integration facts remain valid and completion continues"
+    },
+    {
+      "id": "use-next-v2",
+      "name": "USE-Next v2：物理Patch与多模态尺度表征",
+      "previous": "use-next",
+      "data_split_display": "我们的数据划分（留事件验证）；无标签全模态按地点与日期共同隔离",
+      "goal": "以原生冻结语义anchor和真实物理尺度局部编码，检验S1/S2/Landsat独立及合格配对的冻结迁移。",
+      "delta": "替代旧64k光学s1/s4/s16方案；新增120m/30m物理格、GSD/米制编码、独立SAR、EMA教师，跨源对齐移至P4；统一数据发布后冻结；增加独立任务3k。",
+      "result": "P1原生DOFA/AnySat冻结读出best/last IoU为0.1071/0.1794。P2实际12756步后用户明确停止：像素预训练4805、物理预训练6000、物理头1951、像素头0；物理头best1000 IoU0.1457，最新1500 IoU0.1285；未用5244不挪预算。完整断点与曲线独验通过，P3缓存工程/独立门禁推进中。",
+      "status": "P2_USER_STOPPED_P3_CACHED_VALIDATION",
+      "next": "用户明确提前停止P2，完整断点与实际12756步已核验，剩余5244不挪用。带几何缓存P3独立验收后，从共同freshu0开始三目标各10000步；不伪造P2完整验收。",
+      "reader_status": "P1验收完成，P2依用户决定提前结束；缓存P3独立验收进行中，不恢复P2",
+      "evidence_level": "同哈希P0/P1独立验收、真实曲线/完整checkpoint、恢复证据和新增P2人类授权",
+      "evidence": [
+        "outputs/use_next_v2/planning/source_snapshot.json"
+      ],
+      "source_document": "C:/Users/yzh/Downloads/USE-Next_v2_A4E4A084E5A889E786B0E5A6_9EE68487E5BAAEE6B4AEE98CAEE592.md",
+      "user_decisions": [
+        "最新指示：根据现在已经整理完成的数据开始，数据补全同步进行；覆盖此前等待全候选统一结案的安排",
+        "冻结已有成员索引，P0核验后锁派生子集，新增补全进入下一版本",
+        "上限77k，额外3k非滑坡消费者",
+        "两名模型Agent、双卡独立作业、所有代码ponytail",
+        "本聊天交付计划/提示词及成员快照，未启动模型训练",
+        "最新人类授权：P1完成验收后满足条件自动完成P2四作业18000，不等待重复确认；工程提前实现，P3以后未授权。",
+        "所有的工作流程顺序推进，不要我一直重复 p2到p3。完善项目执行规则；完善；覆盖逐段等待授权，原77k上限和跳过条件不变。"
+      ],
+      "execution_plan": {
+        "basis": "### USE-Next v2执行计划与认领\n\n本计划替代旧USE-Next的64k光学双路径方案，来源为用户新版附件及已确认的两项决定：**从当前已验收成员快照完成v2准入并锁定版本，补全并行、新增另版；增加3000步非滑坡消费者，正式上限77000步。** P0/P1范围已验收，P1已完成验收，P2正在正式训练；P2已获条件自动接续授权，全流程已授权，后续按技术门槛自动接续。旧USE及双路线结果保留。\n\n当前数据已由另一Agent实际接入和补全，不再重复按“全部新增0”规划。现场快照见[来源与数量证据](../outputs/use_next_v2/planning/source_snapshot.json)。本计划消费该Agent的正式产物，不停止其已授权进程，不恢复其他旧下载器。\n\n[可复制的两名Agent提示词](#use-next-v2两名agent提示词)。\n\n```mermaid\nflowchart TD\n    X[同地点资产集合：各自网格、日期、质量与物理单位]\n    X --> O[光学逐波段投影]\n    X --> R[SAR极化与后向散射投影]\n    O --> L[30米子格与尺度/米制位置编码]\n    R --> L\n    L --> M[共享局部空间汇聚：120米物理Patch]\n    X --> D[合法光学输入：完整冻结DOFA]\n    X --> A[官方匹配输入：完整冻结AnySat]\n    D --> S[原生语义特征及几何映射]\n    A --> S\n    M --> U[USEOutput：各级表示、支持掩膜与来源]\n    S --> U\n    U --> H[冻结编码器后训练统一消费者]\n```\n\n图中原生语义主干与新物理局部路径并行；不将新Token插入冻结主干。预训练时学生所有路径同步遮挡，完整教师目标只进入损失。\n\n最新授权：P1完成验收后自动P2共18000步，后续P3/P5前置/合格P4/P5收尾按依赖自动接续，总上限77000，工程提前准备。全流程已授权，后续按技术门槛自动接续。\n\n当前执行授权已扩展到整个既定流程；P1→P2→P3→P5前置→合格P4→P5收尾与最终验收，按技术门槛自动推进，无需逐段确认。\n\n最新执行覆盖：2026-10-30用户明确提前结束P2并启动带最新已验缓存策略的P3。P2_USER_STOPPED凭证独立绑定，禁止自动恢复P2或伪造原完整验收；完整恢复/吞吐验收后P3三freshu0目标各10000。P2未用5244不挪预算。",
+        "contract": "监督协议沿用九事件2223 TRAIN、广岛448＋特里苏尔221共669 DEV，seed1234、阈值0.5、两事件等权IoU选最佳消费者；Italy/NewZealand不参与研发队列。滑坡标签不进入编码器自监督或预训练检查点选择。\n\n**用户最新决定：根据已经整理、已验收的数据开工，数据补全同步进行。** 本轮已从active_release取得成员清单与配对清单哈希一致的冻结快照，位置为outputs/use_next_v2/planning/data_snapshot。快照TRAIN S2=10498、Landsat=1897，共12395份光学；SAR275，合计12670份光学/SAR训练观测。HR275另列，只读登记/案例，不进首轮主训练。验证光学664（旧599保持单独分区）、SAR13、HR13；GUARD321。观测数不等于独立地点数。\n\n**当前快照开工，不等待整个补全队列。** 冻结manifest SHA a8b4307027ef889d52278c43fb3c318efd05e15d5a88fb201f85c36aa0bd2696、pairs SHA20c1989139f656f3af7dfcb779256b3ff6b7a340d67a828df90b785748ea4079，见[快照身份](../outputs/use_next_v2/planning/data_snapshot/snapshot_identity.json)。这里只冻结成员索引，源缓存仍在原路径，P0必须逐资产核hash及v2物理/几何条件；必要剔除形成派生子清单、记录原因，并在正式训练前一次锁定，不能中途换人或补样本。\n\nE盘/firepaper及其他候选的官方重建、缺配补全由数据Agent继续，成功新资产进入下一数据版本，不改本轮快照，不因后台active_release变动使本轮成员漂移。本任务不重启/停止/prepare其进程、不扩大授权下载。旧11132/599仍是历史池，不把它当新总量；F590等已经在本轮快照内，不能再次相加。",
+        "inputs": "**新数据协议。** 地理site、所有日期、全部模态及派生缓存共同分组，继承已有角色，不重分已发布275/13地点，也不把验证地点换日期转训练。新增无角色组按seed1234的组ID哈希划为90% TRAIN/10% PRETRAIN_VAL；相交footprint、同源根影像和有效影像重复连通合组。监督留出事件沿用至少10km排除；旧无标签验证/GUARD沿用既有缓冲（不得缩小，未登记者至少1.28km），无法验证位置者隔离。旧599与新增验证分开评价；HR仅登记/案例，不借助其未知DN伪造光学反射率。\n\n**各资产独立准入。** S2/Landsat按真实产品来源、QA、scale/offset和实际波段读取：旧Landsat可能六波段，新产品可能七波段，禁止共用不匹配统计。L1C质量mask、温度/辅助层不是反射波段；先前修复的7视图以数据Agent新验收为准，不沿用旧拒绝结论。SAR单独核验VV/VH、linear/dB、sigma0/gamma0、产品/轨道/地形校正；未知入射角/有效分辨率保留known mask，不能编造。S1不进光学波长生成器。S1-only/S2-only/Landsat-only均合法；缺某模态为缺失标记，不补假零图，不强制要求同址成对才训练。\n\n**配对准入分两层。** 现有pairs.qualified只保证其已发布的空间/共同有效条件，不能直接当v2跨模态正样本。P0派生pair_eligibility，另外要求采集日期差≤30天、共同地面覆盖及双方清晰有效比例≥80%、没有明确变化/几何异常，同角色；无SAR可靠叠掩/阴影支持时该对不作密集目标。未通过的资产仍独立自监督。P4采用区域表示一致性，不做S1↔光学逐像素真值；旧39对仅是最初288包的日期检查，不能代替当前扩展配对数量。\n\n**资产自己的物理网格。** 保留各自H/W、CRS/仿射、sampling_gsd、native/effective_resolution及重采样历史。旧Landsat128×128@30m是约3.84km，S2同形状约1.28km，不能按像素下标配对。新物理Patch120m、子格30m，固定米制起点，边缘按真实交叠面积/支持率遮罩；标签继续原128×128/10m，不裁改成员凑整Patch。已重采样缓存只代表其已知支持；新EOAsset从完整manifest/source metadata恢复原网格信息，不盲用旧loader返回的精简字段。",
+        "budget": "上限77000= P1≤9000＋P2 18000＋P3 30000＋P4≤8000＋P5 9000＋独立任务≤3000。旧64k不执行、不累加。每个正式配置工程trial≤100成功更新，用可丢弃副本，至少一次2更新＋精确恢复重放，最多16个配置合计1600工程更新；新增配置超额先变更台账。失败/中止/重放/教师前向和数据处理成本单列，不混入正式成绩。\n\n默认FP32、TF32关，AdamW WD0.01/clip1，有效batch8，micro1或2配累积，按P0共同容量选最大的可承受值并在全部可比组锁定。新local/aggregator LR3e-4、任务头/predictor6e-4，warmup为各作业预算5%、cosine到该作业固定末态；P4只训练新融合/对齐模块，LR1e-4。局部表示宽度192、两层6头Transformer、MLP ratio4、dropout0；逐波段共享投影＋masked normalized aggregate，不加Query瓶颈或新的跨通道注意力搜索。P0若容量不通过即阻断，不默换小模型。\n\n模态抽样取消旧6:2及新源12.5%硬编码。P0按冻结TRAIN中各合格模态有效观测数N设p=sqrt(N)/sum(sqrt(N))，生成seed1234固定资产/地点日程；同模态先均匀抽地点，再抽合法日期，缓和密集重复日期。三目标共享日程、可见地面范围、几何/波段/mask种子。缺模态无损失不放大其他项，各模态损失分母和曝光单列。双卡各跑独立作业，不DDP；P0记录两张卡UUID、环境、128/256及代表米制范围真实前后向和峰值，比较成本须同卡无其他训练负载。",
+        "initialization": "DOFA复用本地匹配代码vendor/dofa-official-0cfb7e1与原权重SHA4720985e42b918ac0307009eb06121a3435d9bbce6fd95446f84824a538165b1；AnySat复用vendor/AnySat-main与weights/AnySat_base.pth，已读SHA ce1246527a28bade624048c448a1fa473ca85791b998f562ce2bcc3dcac93d4f。P0重新核源码/权重来源、许可、严格加载及官方数值，不能因文件存在就标通过，不下载替代权重或在线调用会自动下载的from_pretrained。原生AnySat的s1-asc两通道、s1三通道及l8通道/网格配置按实际产品匹配；不通过补假通道/改self.res宣称原生预训练适用。\n\n光学DOFA和合法AnySat全部冻结eval；新projector、metric aggregator和消费者独立初始化。P2两组从同一新初始化开始，结构与参数相同；P3三组再次从共同未训练物理架构u0开始，不继承P2在DEV上优选的权重。模型/采样seed1234，所有同形任务头seed1235并逐张量一致。EMA教师初始复制学生，只有新可训练表示模块执行EMA，momentum从0.996余弦增至1；冻结anchors不做EMA漂移。分类/分割消费者全随机、统一GroupNorm，不继承ADE BN统计。\n\n实际波段遮挡边界：P2已发布round规则对6/7/12通道可超出20%–40%的意图范围，两个模式同日程同规则，运行中不改；P3新隔离实现将删除个数限制在ceil(0.2C)至floor(0.4C)，六组边界测试通过。此为跨阶段额外实现差异，不作独立因果归因，完整证据见outputs/use_next_v2/audit/P2_BAND_DROP_ROUNDING.json。",
+        "formal_successful_update_limit": 77000,
+        "engineering_update_limit": 1600,
+        "actual_updates": 18756,
+        "jobs": [
+          {
+            "id": "native_dofa_s2",
+            "phase": "P1",
+            "updates": 3000,
+            "condition": "合法S2监督与严格匹配"
+          },
+          {
+            "id": "native_anysat_s2",
+            "phase": "P1",
+            "updates": 3000,
+            "condition": "合法S2监督与严格匹配"
+          },
+          {
+            "id": "native_anysat_sar",
+            "phase": "P1",
+            "updates": 3000,
+            "condition": "仅有已审计S1真实标签才执行，否则0更新"
+          },
+          {
+            "id": "pixel_local_pretrain",
+            "phase": "P2",
+            "updates": 6000,
+            "condition": "P0/P1验收与READY_P2通过；已获全流程授权",
+            "execution_status": "P2_USER_STOPPED",
+            "continuation_authorized": false
+          },
+          {
+            "id": "metric_local_pretrain",
+            "phase": "P2",
+            "updates": 6000,
+            "condition": "P0/P1验收与READY_P2通过；已获全流程授权",
+            "execution_status": "P2_USER_STOPPED",
+            "continuation_authorized": false
+          },
+          {
+            "id": "pixel_local_head",
+            "phase": "P2",
+            "updates": 3000,
+            "condition": "对应6000末态",
+            "execution_status": "P2_USER_STOPPED",
+            "continuation_authorized": false
+          },
+          {
+            "id": "metric_local_head",
+            "phase": "P2",
+            "updates": 3000,
+            "condition": "对应6000末态",
+            "execution_status": "P2_USER_STOPPED",
+            "continuation_authorized": false
+          },
+          {
+            "id": "scale_mae",
+            "phase": "P3",
+            "updates": 10000,
+            "condition": "统一数据与新初始化"
+          },
+          {
+            "id": "metric_jepa",
+            "phase": "P3",
+            "updates": 10000,
+            "condition": "统一数据与新初始化"
+          },
+          {
+            "id": "joint_objectives",
+            "phase": "P3",
+            "updates": 10000,
+            "condition": "统一数据与新初始化"
+          },
+          {
+            "id": "paired_alignment",
+            "phase": "P4",
+            "updates": 8000,
+            "condition": "足量合格配对且技术验收通过，已获全流程授权"
+          },
+          {
+            "id": "scale_mae_head",
+            "phase": "P5",
+            "updates": 3000,
+            "condition": "冻结P3末态"
+          },
+          {
+            "id": "metric_jepa_head",
+            "phase": "P5",
+            "updates": 3000,
+            "condition": "冻结P3末态"
+          },
+          {
+            "id": "joint_head",
+            "phase": "P5",
+            "updates": 3000,
+            "condition": "冻结P3末态，P4前先建立固定消费者"
+          },
+          {
+            "id": "external_task_head",
+            "phase": "P5_EXTERNAL",
+            "updates": 3000,
+            "condition": "合法独立非滑坡任务存在且通过许可/隔离/工程验收；已授权"
+          }
+        ],
+        "steps": [
+          {
+            "order": "P0",
+            "model": "工程实现＋训练Agent独立验收",
+            "change": "统一数据版本、物理资产、120m/30m几何、原生anchors、接口与容量；0正式更新",
+            "question": "数据与权重是否真实匹配，单模态及物理尺度是否成立",
+            "status": "P0/P1范围已验收；P2工程并行准备"
+          },
+          {
+            "order": "P1",
+            "model": "原生DOFA/AnySat冻结参照，≤9000",
+            "change": "先查历史严格可复用性；合法头各3000，S1无标签则跳过监督",
+            "question": "原生预训练表征在合法当前输入上的实际能力",
+            "status": "两项各3000完成并验收，S1监督无合法标签跳过"
+          },
+          {
+            "order": "P2",
+            "model": "像素/物理两组各6000＋冻结头各3000，共18000",
+            "change": "同一结构/初始化/尺度重建目标，仅改4×4像素子块与30m物理子格/米制PE",
+            "question": "物理表示是否有真实尺度迁移价值，而非同一S2分数微变",
+            "status": "已签READY_P2，双卡两6000预训练推进；对应3000头固定末态后自动启动"
+          },
+          {
+            "order": "P3",
+            "model": "尺度重建、EMA潜在预测、联合各10000，共30000",
+            "change": "同一物理架构u0、数据和mask；不添加跨源对齐损失",
+            "question": "三种目标对恢复、表示稳定性和后续冻结迁移的影响",
+            "status": "工程独立验收通过，正式0；用户P2提前停止凭证已验；缓存P3新release独立验收后签READY_P3_CACHED自动执行"
+          },
+          {
+            "order": "P5前置",
+            "model": "先完成联合目标的3000步冻结头",
+            "change": "计入P5的9000，不是额外预算；在P4前建立固定消费者",
+            "question": "跨源对齐前的冻结表征读取参照",
+            "status": "已授权；P3通过且P5前置入口验收后自动执行"
+          },
+          {
+            "order": "P4",
+            "model": "单项配对对齐≤8000",
+            "change": "固定联合P3末态、冻结原生anchors及原表示模块，只训练新增零起点融合/对齐模块",
+            "question": "真实同址模态能否形成可用共享表示，缺模态是否退化",
+            "status": "已授权；配对门槛与工程验收通过执行，否则按契约跳过"
+          },
+          {
+            "order": "P5收尾",
+            "model": "其余两个滑坡头6000＋独立任务3000",
+            "change": "三P3头合计9000；非滑坡头固定评联合P3末态；P4复用固定头零训练诊断",
+            "question": "恢复是否转化为迁移，通用性与输入缺失边界是什么",
+            "status": "无合法外部标签不运行对应3000，不挪预算"
+          }
+        ],
+        "acceptance": [
+          "P0直接以本次已验收成员快照开工，不等待全部候选下载完。逐项验证cache SHA、site/asset/role及v2所需单位/几何/支持，发布只读派生data_release与统计/拒绝原因；成员只能从本次快照筛选，不能吸收后续补全。复用现有IntegratedUSEData合法读取与哈希校验，新增EOAsset/EOObservation适配，不把SAR/HR送OpticalObservation。后台active_release允许继续更新，训练配置不得再指向它；原始缓存必须核哈希，不一致就隔离/阻断，不能自动改快照。",
+          "输入EOAsset包含modality、channel_names/metadata、image[C,H,W]、sample_grid、native/effective resolution known mask、pixel_valid、acquisition_time、radiometry和provenance；EOObservation包含site_id、footprint、assets、role、relation。输出FeatureLevel包含tensor/valid_mask/transform/grid_spacing_m/receptive_field_m（未知None）/origin_modality/source_native_resolution/interpolated。USEOutput分native_detail、metric_local、metric_patch、optical_semantic、sar_semantic、shared_metric_tokens和global_embedding，缺失为None/缺失标记。",
+          "几何使用真实CRS/二维仿射四角多边形，在观测中心局部米制投影下取固定起点，120m cell内16个30m子格；保留边缘真实面积与掩膜。连续量按面积支持读取，质量层最近邻；不因1280m不能整除120m改动监督标签。合成几何坐标误差≤0.1m，重投影真实源误差与插值方法逐例报告；不得将不同GSD但同形数组视为相同范围。",
+          "严格加载与全有效原版数值核对；合法C=3/4/6/7/10/12光学实际子集（不伪造波长），SAR VV/VH及AnySat入口按官方契约检测。同步置换影像/元数据、真实波段删除、未知属性、NaN/无效区扰动、单模态缺失、非整数/旋转/错位/边缘case全部测试。原生模型不能支持的尺寸用其合法原生输出再几何映射，不篡改原生forward补通。",
+          "同一目标地面cell在学生全部光学/SAR/local/DOFA/AnySat路径同步遮挡，教师未遮挡特征detach，只进入损失。全缺观测拒绝；冻结参数/buffer SHA不变、EMA边界明确、新参数梯度有限且非零；记录目标方差/协方差及mask支持，常量表示/NaN视为失败。2步完整优化器更新、保存重载与RNG/采样游标精确恢复通过。",
+          "实际配置和全部覆盖先通过项目check_research_protocol.py及新阶段补充preflight，验证冻结发布、各模态统计、角色、预算、初始化与选模来源；P0/P1/P2与隔离P3/P5配置及预检已实现，对应正式门禁仍须逐项绑定实际发布及前阶段验收，不拿旧PASS代替。共享loader/预检需改时精确另领源码及测试，保持旧数据版本和旧入口兼容。工程release绑定代码/配置/权重/数据/环境哈希；独立验收生成READY_P0.json，任一关键变化门禁失效。"
+        ],
+        "decisions": [
+          "P2像素对照采用4×4源采样像素子块，再按几何汇到120m目标格；物理组采用30m子格及米制坐标/GSD PE。两者共享192维/两层6头汇聚器、有效地面范围、源观测和损失，不声称Token数/算力相同。固定参数，不因DEV换240m或加容量。P2只作尺度比较，不选择P3初始化。",
+          "P3尺度重建组用L_scale；EMA潜在组用L_latent；联合组用L_scale+L_latent。L_scale对光学只在人工遮挡真实有效值、已知源分辨率支持上分低频MSE/高频Huber；不能从插值图造高频真值。SAR首轮仅允许已审计的低频log-backscatter恢复，不用光学高频目标；噪声/单位无法确认则SAR重建项NOT_AVAILABLE，并披露组间有效监督覆盖差异，不假造target或静默换样本。损失量纲用TRAIN校准后固定，不动态权重搜索。",
+          "EMA教师是同架构local/metric encoder（冻结anchors同源），学生以剩余可见地面context预测隐藏120m区域latent；每观测预生成40%空间cell遮挡。光学≥3有效波段时50%概率丢20%–40%，至少保留1；同一日程三目标一致。空间目标全部模态同步隐藏；人工缺失与真实质量无效分别记录。保存u0/中间步/固定末态与optimizer/RNG，P3只用u10000，不用DEV反选或延长。",
+          "P4只用pair_eligibility合格TRAIN，至少32个互不重叠地理训练组且至少8个独立验证组，否则标配对样本不足并跳过（这是本计划工程下限，不代表统计充分）。每组样本按地点均匀抽，两方向区域latent余弦对齐，不做密集伪标签；新增融合投影零起点、保留单模态原输出。P5联合头先完成并冻结，然后P4前后使用完全相同消费者进行零训练诊断。该比较不是重新适配头后的公平迁移排名，不能扩称因果收益；额外适配需另行预算。",
+          "P1历史结果只有协议、成员、波长/单位、初始化、冻结方式、消费者和预算严格等价才复用，原四折/旧3600更新不等价，不重开四折。当前无真实S1监督标签时仅零训练embedding/同址读取，不运行S1监督头；Landsat无合法标签不造滑坡IoU。P1原生读出失败先解释版本/单位/尺度，不用更复杂结构或延长预算掩盖。",
+          "分割头采用固定容量轻量多级读取器：各已声明出口投影到共同宽度后回标签网格汇聚，随机初始化、统一归一化；同形张量逐值相同，输入级数差异与参数量披露。每500步评完整DEV，best只选头，last另报；不从学习效果好的模态回选数据。三P3消费者各3000，外部头固定联合P3编码器，不以外部成绩选编码器。",
+          "独立非滑坡任务只允许一个3000步消费者：P0按本机已有合法标签优先，依次土地覆盖/场景分类→烧毁/洪水分割；验证许可、成员及空间隔离后选第一个通过的任务并预注册，不按成绩更换。无可用标签标GENERALIZATION_UNVERIFIED并跳过，不自动下载数据，不把站点Landcover名称当标签、不复用滑坡掩膜凑任务。",
+          "所有既定阶段已获用户全流程授权，阶段技术门槛互相独立；验收通过自动接续，不再等逐段确认。P3的继续门槛只检验工程/表示退化及无标签指标是否有效，不在P5头训练前宣称已证实冻结迁移。P4与独立任务条件不满足时不填补预算；原生anchor更可靠时允许淘汰新模块。官方split、三seed、LoRA、DINO、TiM、生成缺波段与新增大规模下载不在本轮。"
+        ],
+        "handoff": "**两名Agent，不按传感器或GPU再拆人。** 数据接入仍由现有数据对话负责，属于已存在的依赖任务，不额外复制一个数据Agent。\n\n工程Agent建议任务IDuse-next-v2-engineering，精确认领新models/use_next_v2、scripts/use_next_v2、configs/use_next_v2、tests/use_next_v2及outputs/use_next_v2/{data,engineering,releases,requests}。源数据、active_release和数据Agent脚本只读，不覆盖其他Agent源码；共享预检/loader确需适配时追加精确路径认领。训练Agent建议use-next-v2-training，认领outputs/use_next_v2/{runs,runtime,audit,benchmarks}、固定模型文档和唯一阶段台账；DATA/INDEX按登记与数据Agent交接后再领，不能并发覆盖。\n\n工程封装只读代码/配置/data_release/权重快照，提交READY_FOR_INDEPENDENT_AUDIT；训练Agent复验后签READY_P0，不修改工程源。故障交工程出新release重验，不在运行进程读的源码上原地修补。GPU锁按UUID：P0工程与独立验收分卡；P1两合法光学头分卡；P2像素/物理两预训练分卡、完成后各跑对应头；P3先尺度重建/潜在预测分卡、空闲卡接联合；P5先联合头、后P4及其余头按依赖/空闲排队，外部任务最后。每卡同时一个训练作业，不为占卡添加实验。同卡成本测量串行隔离负载。\n\n### USE-Next v2两名Agent提示词\n\n**工程Agent：P0已交付，提前完成P2工程与缺陷修复；不启动正式训练。**\n\n```text\n你负责USE-Next v2工程与最小测试。先读项目AGENTS、RESEARCH_INDEX最小接力、research_policy，查manage_agent_work.py list，用真实聊天ID认领use-next-v2-engineering的精确范围。所有代码必须读取并使用C:/Users/yzh/.codex/skills/ponytail/SKILL.md。唯一新契约为固定MODEL_EVOLUTION.md的“USE-Next v2执行计划与认领”和台账use-next-v2；旧64k/s1-s4-s16方案已被替代。\n先对接现有数据集成产物outputs/use_data_integration，不重复下载、转换F590、重建队列或修复旧7视图。active_release仍动态更新，直接从已冻结outputs/use_next_v2/planning/data_snapshot开工，P0核验并派生不可变data_release；候选补全继续且进入下一版本，阶段间不加数据。分别统计S2/Landsat/SAR/HR和TRAIN/验证/GUARD，保留旧599分区，HR首轮只读。已有pair.qualified不能直接作为v2语义配对，须另验日期≤30天、同角色、质量与共同覆盖及变化/几何条件。\n复用现有合法loader，构建EOAsset/EOObservation与FeatureLevel/USEOutput，保留资产独立网格和采样/原生/有效分辨率。实现120m物理Patch、30m子格、共享逐波段光学投影与独立SAR投影、米制坐标/GSD编码及共享局部汇聚。DOFA/AnySat原生完整权重严格加载、冻结eval；不得将新Token替换其Patch入口。AnySat通道/产品不合法就阻断原生语义路径，不能补假通道。缺模态独立前向；输出标原生/插值，不统一resize冒充同范围。\nP0交付数据/辐射/几何/配对审计、接口/阶段配置与预检、原生数值/梯度/冻结/跨路径mask/缺模态/旋转边缘测试、真实容量与2步精确恢复。先交最小可用P0，后续目标入口允许明确待实现，但其未验阶段不可出训练门禁。工程trial每配置≤100、独立副本；不得启动正式77k。发布绑定代码/数据/权重/环境哈希的release和P0_ACCEPTANCE，状态READY_FOR_INDEPENDENT_AUDIT或具体BLOCKED；旧模型/数据/预算不改。\n```\n\n**训练Agent：完成P1验收，条件满足后自动接续已授权P2。**\n\n```text\n你负责USE-Next v2独立验收、后续双卡训练与结果。先读AGENTS、最小接力、research_policy与唯一台账use-next-v2，按真实聊天ID认领use-next-v2-training；所有代码使用ponytail，工程源修复交工程Agent。先核现有数据任务认领，不能并发写其台账/数据/入口文件。\n当前P0/P1范围已验收且P1正在正式训练；P2新增授权18000步，须P1验收及READY_P2通过后自动接续。核验工程release与不可变数据发布、全模态真实单位/网格和角色、旧599与新增验证隔离、同址配对资格、DOFA/AnySat官方原生接口和权重、120m/30m支持与标签回投、学生所有路径遮挡、EMA/冻结/梯度边界、2步更新和恢复及两卡实际容量。本轮冻结快照不一致、派生清单尚未完成v2准入或正式配置未适配预检时，不签READY_P0；active_release后台更新本身不阻断P0。\n通过后发布绑定完全同一哈希的READY_P0.json和精确P1可执行项/复用证据。首轮上限77000（原74k+独立任务3k），旧64k不执行；S1无标签不做监督头、P4配对不足或外部任务无标签则跳过且不挪预算。P1已启动，须负责完成验收；P2工程并行准备，P1验收解释与READY_P2通过后自动接续，不再等用户确认；P3及以后已获全流程授权，按技术门槛自动接续。\n```\n\n**全流程已获授权，以下按依赖及技术门槛自动执行；预算与跳过条件不变。**\n\n```text\n执行USE-Next v2 P1，仅授权原生合法冻结参照各≤3000、总≤9000。先复核READY_P0和统一数据/配置哈希及历史结果可复用性；DOFA-S2与AnySat-S2头双卡独立，S1没有真实合法标签则0更新，仅只读诊断。监督仍2223/669，head seed1235，best/last及全指标保存。完成P1并验收解释原生参照后，核验工程新release并签READY_P2，条件满足自动启动已授权P2四作业共18000步。\n```\n\n```text\n执行USE-Next v2 P2，仅授权像素/物理两个共同初始化预训练各6000及对应冻结头各3000，共18000。仅改变4×4源像素子块与30m物理子格/米制PE，统一120m目标格、架构/数据/尺度重建目标。双卡运行，固定6000末态，头同形参数同初始化；保存真实面积、Token/算力和尺度条件。P3不继承两组训练后状态；P2完成验收后进入P3技术门槛，通过自动执行。\n```\n\n```text\n执行USE-Next v2 P3，仅授权尺度重建、EMA物理潜在预测、联合三个共同未训练u0起点各10000，共30000。统一冻结data_release/原生anchors、资产日程、人工mask与训练统计；这里不加入跨源配对损失。联合为L_scale+L_latent，EMA和低高频目标按固定契约，不调权，不用DEV选编码器。两卡先跑两组、空闲卡接联合；固定u10000，完整冻结/恢复/目标方差和覆盖核查，本阶段完成验收后按已授权依赖自动推进，条件不足按契约跳过。\n```\n\n```text\n执行USE-Next v2 P5前置，仅授权联合P3末态的3000步冻结滑坡头，计入P5既定9000。同一2223/669监督成员，best/last头保存；作为P4前的固定消费者。此次不执行P4，也不追加探针或重训其他编码器。\n```\n\n```text\n执行USE-Next v2 P4，仅在至少32个TRAIN地理组与8个验证组的真实跨模态配对均通过资格时，授权固定联合P3末态上8000步的新融合/对齐模块训练。原生anchors和原表示模块冻结，只更新零起点新增模块，区域对齐，不造密集真值。前后用已经固定的联合消费者做零训练对比，明确这不是重适配头排名。配对不足跳过、不改门槛、不转预算，本阶段完成验收后按已授权依赖自动推进，条件不足按契约跳过。\n```\n\n```text\n执行USE-Next v2 P5收尾，仅授权其余两个P3末态各3000步冻结滑坡头，以及联合P3末态的一项预注册非滑坡消费者3000步，共≤9000。独立任务先验真实标签/许可/成员隔离，无合格任务则跳过并标GENERALIZATION_UNVERIFIED。三个P3滑坡头合计9000，外部额外3000；P4只复用头诊断不暗加头训练。固定best头评波段缺失、缺模态与真实尺度，输出合并主表/图/同卡成本与完整预算账本，总正式更新≤77000，未用预算不填补，结束后不自动续训。\n```",
+        "deliverables": "工程产物在outputs/use_next_v2：data_release与site/asset/pair清单、统计来源、geometry/radiometry/weights/native数值审计、测试、capacity、release、READY_P0。各正式run保存resolved_config/全部覆盖/精确命令、源代码和数据SHA、初始化/冻结SHA、optimizer/RNG/采样游标、逐步曲线、原始评价、概率/掩膜、best/last、每模态有效支持和地面面积/配对曝光/GPU-hour。最终三张主表回答：原生基线与物理尺度；三目标冻结迁移与恢复；跨模态/缺失/独立任务及成本。配结构图、曲线、固定原图/同尺度特征/真值/概率/掩膜和跨源对应案例，PCA只在TRAIN拟合共同投影。\n\n研究计划和状态唯一进入stage_ledger，MODEL_EVOLUTION解释结构并生成本计划，DATA_EVENT_PROTOCOL由数据/结果持有者解释真实成员与指标，RESEARCH_INDEX更新短接力。原始数据/历史旧结论不覆盖；新增运行才刷新run索引。生成刷新与本地链接/锚点/预算/历史保护/幂等核对后finish。"
+      },
+      "actual_updates": 18756,
+      "comparisons": [],
+      "data_membership_snapshot": {
+        "path": "outputs/use_next_v2/planning/data_snapshot",
+        "manifest_sha256": "a8b4307027ef889d52278c43fb3c318efd05e15d5a88fb201f85c36aa0bd2696",
+        "pairs_sha256": "20c1989139f656f3af7dfcb779256b3ff6b7a340d67a828df90b785748ea4079",
+        "counts": {
+          "TRAIN/s2": 10498,
+          "TRAIN/landsat": 1897,
+          "PRETRAIN_VAL/s2": 573,
+          "PRETRAIN_VAL/landsat": 91,
+          "GUARD/s2": 321,
+          "TRAIN/s1": 275,
+          "TRAIN/hr": 275,
+          "PRETRAIN_VAL/s1": 13,
+          "PRETRAIN_VAL/hr": 13
+        },
+        "model_admission": "DERIVED_DATA_RELEASE_V1_ACCEPTED_TRAIN8841",
+        "background_completion_continues": true
+      },
+      "p0_independent_acceptance": {
+        "status": "READY_P0",
+        "owner": "01a187c0-ecca-77d0-9206-00fae0754f81",
+        "formal_updates": 0,
+        "ready_p0_issued": true,
+        "evidence": [
+          "outputs/use_next_v2/audit/READY_P0.json"
+        ],
+        "required_next": "完成P1验收与原生参照解释，核验新release并签READY_P2后自动P2；随后P3→P5联合头前置→合格P4→P5其余头/合法独立任务→最终验收。工程提前补齐，故障持续排查恢复，不等重复阶段确认；仅超预算或改变设计/成员等需人类选择时询问。",
+        "latest_checks": {
+          "release": "p0_partial_v4",
+          "preflight": "integrity_pass=true; training_allowed=false",
+          "tests": "8 local CPU tests passed; outputs/use_next_v2/audit/tests_v4.xml",
+          "engineering_replay_updates": 6,
+          "formal_updates": 0,
+          "engineering_continuation_requested": true
+        },
+        "release_sha256": "e0a22d957ef003f0278f084f5a4b1b644858ebb8b8c59699221acb2fd714730e"
+      },
+      "p1_authorization": {
+        "request": "开始训练",
+        "authorized_stage": "P1",
+        "condition": "READY_P0 independent acceptance first",
+        "maximum_formal_updates": 9000,
+        "s1_supervised_updates": 0,
+        "later_stages": "All confirmed stages authorized within77000; technical gates and eligibility remain"
+      },
+      "p1_execution": {
+        "status": "P1_ACCEPTED",
+        "budget": 6000,
+        "jobs": [
+          {
+            "name": "dofa",
+            "pid": 55072,
+            "device": "cuda:0",
+            "uuid": "GPU-9b56b860-01a3-345f-a376-2b39b50563e4",
+            "status": "COMPLETED_STAGE_ACCEPTED",
+            "observed_step": 3000,
+            "budget": 3000,
+            "observed_at_utc": "2026-10-29T17:12:29.993185+00:00",
+            "curve_mtime": 1793292039.9479463,
+            "checkpoint_mtime": 1793293492.5476594,
+            "resume_record": "outputs/use_next_v2/runtime/P1_RESUME1.json",
+            "previous_observed_step": 781,
+            "process_identity_verified": true,
+            "active_pid": null,
+            "former_pid": 55072,
+            "acceptance": "outputs/use_next_v2/audit/P1_FINAL_ACCEPTANCE.json"
+          },
+          {
+            "name": "anysat",
+            "pid": 27240,
+            "device": "cuda:1",
+            "uuid": "GPU-dacfd62c-4462-feac-01f7-88f876c209ec",
+            "status": "COMPLETED_STAGE_ACCEPTED",
+            "observed_step": 3000,
+            "budget": 3000,
+            "observed_at_utc": "2026-10-29T17:39:02.114313+00:00",
+            "curve_mtime": 1793292040.6214738,
+            "checkpoint_mtime": 1793295541.8587716,
+            "resume_record": "outputs/use_next_v2/runtime/P1_RESUME2.json",
+            "previous_observed_step": 392,
+            "process_identity_verified": true,
+            "process_identity_verified_at_utc": "2026-10-29T17:12:29.993185+00:00",
+            "process_identity": "Win32_Process49140 matches p1_anysat.yaml,cuda1,same engineering_v2 release,--resume",
+            "former_pid": 49140,
+            "active_pid": null,
+            "acceptance": "outputs/use_next_v2/audit/P1_FINAL_ACCEPTANCE.json"
+          }
+        ],
+        "additional_independent_engineering_updates": 9,
+        "first_start_attempt": "Start-Process children did not persist, no output directories/updates; direct managed exec sessions started successfully",
+        "recovery": {
+          "checkpoints": [
+            {
+              "name": "dofa",
+              "step": 139,
+              "checkpoint_sha256": "96b67c699c4cbfddb270e9735bbddd72cfbdc506e1c34c06c7102bdb3d686521",
+              "checkpoint_bytes": 448907391,
+              "config_sha256": "960f1b673cbdbc8895a7ef18d9ceb77787da40b15996fb1f14f851f345c0ab11",
+              "complete_state": true
+            },
+            {
+              "name": "anysat",
+              "step": 63,
+              "checkpoint_sha256": "22cd427f79d1edf7469cef904ac77702725392fdd8c188f7661eba482a4f9800",
+              "checkpoint_bytes": 504448117,
+              "config_sha256": "4c704eb827aeded959110972b946bf00d86dc03ca16eb55d67f1726314239dca",
+              "complete_state": true
+            }
+          ],
+          "stopped_process_evidence": "outputs/use_next_v2/audit/stalled_process_stop.json",
+          "first_observation": {
+            "dofa": 144,
+            "anysat": 65
+          },
+          "second_observation": {
+            "dofa": 203,
+            "anysat": 94
+          },
+          "current": [
+            {
+              "name": "dofa",
+              "pid": 55072,
+              "device": "cuda:0",
+              "uuid": "GPU-9b56b860-01a3-345f-a376-2b39b50563e4",
+              "status": "RUNNING_RECOVERY_CONFIRMED_TWICE",
+              "observed_step": 278,
+              "budget": 3000,
+              "observed_at_utc": "2026-10-29T16:16:20.681164+00:00",
+              "curve_mtime": 1793290579.8586717,
+              "checkpoint_mtime": 1793290579.8196537,
+              "resume_record": "outputs/use_next_v2/runtime/P1_RESUME1.json"
+            },
+            {
+              "name": "anysat",
+              "pid": 49140,
+              "device": "cuda:1",
+              "uuid": "GPU-dacfd62c-4462-feac-01f7-88f876c209ec",
+              "status": "RUNNING_RECOVERY_CONFIRMED_TWICE",
+              "observed_step": 131,
+              "budget": 3000,
+              "observed_at_utc": "2026-10-29T16:16:20.681164+00:00",
+              "curve_mtime": 1793290580.3101492,
+              "checkpoint_mtime": 1793290580.268516,
+              "resume_record": "outputs/use_next_v2/runtime/P1_RESUME1.json"
+            }
+          ],
+          "root_cause": "UNCONFIRMED: old live processes had no output progress; privileged inspection obtained CPU/thread/memory evidence; no call stack captured.",
+          "interventions": [
+            "Terminated only identity-verified stalled P1 processes and removed their matching locks after exit",
+            "Resumed exact optimizer/model/RNG/progress from checkpoint using durable elevated background processes",
+            "OMP/MKL/OpenBLAS thread limits4; observation of recovery does not establish a unique cause"
+          ],
+          "formal_budget": 6000,
+          "automation": {
+            "id": "use-next-v2-p1",
+            "interval_minutes": 30,
+            "repair_permission_confirmed": true,
+            "local_definition_sha256": "5fc3e5968a6cdc928444adda5f1de36e782ae665574754abfba63418aca99bf4",
+            "updated_by": "coordination chat via automation tool; verified locally",
+            "previous_local_tool_attempts": "approval review timed out; retry mutation cancelled after coordination confirmed successful update"
+          }
+        },
+        "dofa_acceptance": "outputs/use_next_v2/audit/P1_DOFA_ACCEPTANCE.json",
+        "anysat_resume2": {
+          "failure": "outputs/use_next_v2/audit/anysat_freeze_failure.json",
+          "last_legal_saved_step": 1778,
+          "isolated_replay": "outputs/use_next_v2/audit/anysat_freeze_replay.json",
+          "result": "1779 replay frozen SHA unchanged, no tensor differences; cause unconfirmed",
+          "unsaved_failed_optimizer_update_attempts": 1,
+          "additional_disposable_diagnostic_update": 1,
+          "resume": "outputs/use_next_v2/runtime/P1_RESUME2.json",
+          "confirmation_samples": [
+            1782,
+            1812
+          ],
+          "strict_frozen_guard_retained": true
+        },
+        "final_acceptance": "outputs/use_next_v2/audit/P1_FINAL_ACCEPTANCE.json"
+      },
+      "p2_entry_boundary": {
+        "status": "P2_ENTRY_BLOCKED_PENDING_FIX",
+        "release_sha256": "e0a22d957ef003f0278f084f5a4b1b644858ebb8b8c59699221acb2fd714730e",
+        "file": "src/landslide_seg/models/use_next_v2/pipeline.py",
+        "defect": "DOFA semantic grid_spacing_m scalar uses abs(a*w/14), becomes zero for 90-degree affine rotation. Full transform remains correct.",
+        "p1_impact": "NativeReadout does not call pipeline or consume FeatureLevel.grid_spacing_m; P1 both native heads can continue.",
+        "required_before_p2": "Engineering repair scalar to use affine axis norm and test rotated geometry; publish new immutable release, independent acceptance required. Do not modify running bound source."
+      },
+      "p2_authorization": {
+        "recorded_at_utc": "2026-10-29T16:21:00.601456+00:00",
+        "human_instruction": "完成p1后满足条件需要继续完成p2 而不是等待",
+        "supersedes": "P1 completed then wait for separate P2 authorization",
+        "execution_owner": "01a187c0-ecca-77d0-9206-00fae0754f81",
+        "engineering_owner": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+        "p2_authorized_jobs": {
+          "pixel_local_pretrain": 6000,
+          "metric_local_pretrain": 6000,
+          "pixel_local_head": 3000,
+          "metric_local_head": 3000
+        },
+        "p2_successful_update_limit": 18000,
+        "prerequisites": [
+          "P1 completed and accepted with true evaluation/frozen/budget/data/release receipts",
+          "P2 engineering defects fixed, independent READY_P2 bound to actual release/data/config",
+          "P1 remains recoverable under old release, no live source overwrite"
+        ],
+        "behavior": "Prepare P2 while P1 runs; once gates pass start automatically; resolve fixable issues instead of waiting for repeated approval.",
+        "later_stages_authorized": true,
+        "formal_p2_started_by_this_dispatch": false,
+        "received_by_training_at_utc": "2026-10-29T16:22:24.201310+00:00",
+        "source_thread_id": "01a16e71-e5a0-7113-a026-569964d1e29a",
+        "superseded_by": "outputs/use_next_v2/runtime/WORKFLOW_AUTHORIZATION.json"
+      },
+      "workflow_authorization": {
+        "recorded_at_utc": "2026-10-29T16:23:41.294458+00:00",
+        "source_thread_id": "01a16e71-e5a0-7113-a026-569964d1e29a",
+        "human_instruction": "所有的工作流程顺序推进，不要我一直重复 p2到p3。完善项目执行规则；完善",
+        "scope": "All previously confirmed USE-Next v2 stages sequentially by technical gates, no repeated stage authorization",
+        "formal_successful_update_limit": 77000,
+        "order": [
+          "P1_accepted",
+          "P2_user_stopped12756",
+          "P3_cached_independently_accepted30000",
+          "P5_joint_head3000",
+          "P4_if_eligible_up_to8000",
+          "P5_other_heads6000",
+          "external_if_eligible_up_to3000",
+          "final_acceptance"
+        ],
+        "rules": [
+          "S1 no legal labels:skip supervised head",
+          "P4 insufficient qualified pairs:skip",
+          "External no legal labels/license/isolation:skip",
+          "Unused budget not transferred",
+          "No scientific-design/data-membership/budget changes without user decision",
+          "Preserve all live/recoverable releases",
+          "Fix recoverable failures and proceed by gates; incomplete engineering is work to complete, not missing human authorization"
+        ],
+        "canonical_human_authorization": "outputs/use_next_v2/workflow_rules/authorization.json",
+        "latest_user_override": {
+          "message_id": "01a18b7d-f54f-7832-8001-9a05e03f9faf",
+          "source_thread": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+          "instruction": "我已观察到P2的实验没有更进一步的提升了。可以停止P2开始P3，使用最新的训练策略进行训练。",
+          "p2_user_stop_receipt": "outputs/use_next_v2/audit/P2_USER_STOP_ACCEPTANCE.json"
+        }
+      },
+      "p2_engineering_acceptance": {
+        "status": "P2_ENGINEERING_ACCEPTED_PENDING_P1_FINAL_ACCEPTANCE",
+        "release_sha256": "fd5811cfd26b583a4f4a67352915e072f580f14a2db30a4f8190615fb5dc96fb",
+        "checked_at_utc": "2026-10-29T17:39:02.112564+00:00",
+        "results": {
+          "pixel/pretrain": {
+            "summary_sha256": "6482a4ca2ff17b63f21ea81e692bbf961be9c1e17f0a4255f9df3f3841eb7044",
+            "initialization_sha256": "186dbfbb59e7e15b2ea96bbdcfedd5cb9884102e8b89410bd7d189023faf7594",
+            "exact_disk_replay": true,
+            "frozen_unchanged": true,
+            "formal_updates": 0,
+            "successful_engineering_updates": 3
+          },
+          "pixel/head": {
+            "summary_sha256": "db4661c7ff71df65b306ffa9a76edeff321a4a12cc9e0545048aa693657a5659",
+            "initialization_sha256": "1cf1abaf19bb24c90e6d66ccd8dd308d268af4edceb1983a85c1b79faed3d10f",
+            "exact_disk_replay": true,
+            "frozen_unchanged": true,
+            "formal_updates": 0,
+            "successful_engineering_updates": 3
+          },
+          "physical/pretrain": {
+            "summary_sha256": "5a0175f14a67135100efaea0ea2d44918f95042eacd3fddc3d733eb7837dc54a",
+            "initialization_sha256": "186dbfbb59e7e15b2ea96bbdcfedd5cb9884102e8b89410bd7d189023faf7594",
+            "exact_disk_replay": true,
+            "frozen_unchanged": true,
+            "formal_updates": 0,
+            "successful_engineering_updates": 3
+          },
+          "physical/head": {
+            "summary_sha256": "6cf9c75d628d743f3e010c74d870c3b4e60145269722108b2d43412b46f7ded3",
+            "initialization_sha256": "1cf1abaf19bb24c90e6d66ccd8dd308d268af4edceb1983a85c1b79faed3d10f",
+            "exact_disk_replay": true,
+            "frozen_unchanged": true,
+            "formal_updates": 0,
+            "successful_engineering_updates": 3
+          }
+        },
+        "cpu_tests": "8 passed; audit/p2_tests.xml",
+        "additional_engineering_updates": 12,
+        "formal_p2_updates": 0,
+        "source_review": "4x4 source pixels versus30m metric subcells; common120m lowfrequency target/u0/schedule/mask and staticTRAIN calibration, frozen native anchors; effective support unknown and SAR recovery unavailable explicitly",
+        "limitations": "CPU4 optimized head one prior mismatch retained; actual enforced CUDA path independently exact. READY_P2 must bind completed P1_ACCEPTED SHA and exact four configs/data/u0/schedule. No READY_P2 signed yet."
+      },
+      "p2_execution": {
+        "status": "P2_USER_STOPPED",
+        "formal_successful_update_budget": 18000,
+        "jobs": [
+          {
+            "name": "p2_pixel",
+            "display_name": "像素分块编码器预训练",
+            "observed_step": 4805,
+            "status": "P2_USER_STOPPED",
+            "pid": 73288,
+            "latest_loss": 0.3651330325519666,
+            "recent100_mean_loss": 0.3524940985522699,
+            "checkpoint_mtime": 1793341904.2491133,
+            "budget": 6000,
+            "evaluations": []
+          },
+          {
+            "name": "p2_physical",
+            "display_name": "物理尺度编码器预训练",
+            "observed_step": 6000,
+            "status": "COMPLETED",
+            "pid": 106660,
+            "latest_loss": 0.2726019995752722,
+            "recent100_mean_loss": 0.3357819419240695,
+            "checkpoint_mtime": 1793332823.4838324,
+            "budget": 6000,
+            "evaluations": []
+          },
+          {
+            "name": "p2_physical_head",
+            "display_name": "物理尺度编码器＋冻结分割头",
+            "observed_step": 1951,
+            "status": "P2_USER_STOPPED",
+            "pid": 89876,
+            "latest_loss": 0.4823795482516289,
+            "recent100_mean_loss": 0.4650179807841778,
+            "checkpoint_mtime": 1793341903.9993792,
+            "budget": 3000,
+            "evaluations": [
+              {
+                "step": 500,
+                "event_mean_iou": 0.09647908921308289,
+                "dice": 0.19556327339488458,
+                "precision": 0.30040113212925823,
+                "recall": 0.14496983275357192,
+                "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_500.json"
+              },
+              {
+                "step": 1000,
+                "event_mean_iou": 0.14568905123270418,
+                "dice": 0.2582315214064146,
+                "precision": 0.25344542904048406,
+                "recall": 0.263201855236523,
+                "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1000.json"
+              },
+              {
+                "step": 1500,
+                "event_mean_iou": 0.12847078972354345,
+                "dice": 0.2468961385030195,
+                "precision": 0.34467699189067824,
+                "recall": 0.19233339229212115,
+                "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1500.json"
+              }
+            ],
+            "latest_evaluation": {
+              "step": 1500,
+              "event_mean_iou": 0.12847078972354345,
+              "dice": 0.2468961385030195,
+              "precision": 0.34467699189067824,
+              "recall": 0.19233339229212115,
+              "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1500.json"
+            },
+            "best_evaluation": {
+              "step": 1000,
+              "event_mean_iou": 0.14568905123270418,
+              "dice": 0.2582315214064146,
+              "precision": 0.25344542904048406,
+              "recall": 0.263201855236523,
+              "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1000.json"
+            }
+          }
+        ],
+        "ready": "outputs/use_next_v2/audit/READY_P2.json",
+        "chain_supervisors": "outputs/use_next_v2/runtime/p2_guarded_continuation.py",
+        "startup_failure": "UTF8 decoding before0updates; execution mode corrected without source/config change",
+        "band_drop_rounding_boundary": {
+          "evidence": "outputs/use_next_v2/audit/P2_BAND_DROP_ROUNDING.json",
+          "p2_actual_rule": "round(C*U(.2,.4)); same fixed assets/seeds in both modes; can produce6band16.7%,7band14.3%/42.9%,12band16.7%/41.7%",
+          "p2_running_source_changed": false,
+          "p3_new_rule": "Clip rounded count to ceil(.2C)..floor(.4C), same50% trigger; all3 objectives share it",
+          "p3_unit_test": "outputs/use_next_v2/audit/p3_band_bounds.xml;6 passed",
+          "comparison_limit": "P3 strict integer clipping is a disclosed additional cross-stage implementation difference; no isolated causal attribution"
+        },
+        "pixel_recovery1": "outputs/use_next_v2/audit/P2_PIXEL_RECOVERY1_ACCEPTANCE.json",
+        "paired_u1000_check": "outputs/use_next_v2/audit/P2_PAIRED_U1000_CHECK.json",
+        "pixel_exit2": "outputs/use_next_v2/audit/P2_PIXEL_EXIT2.json",
+        "pixel_recovery2": "outputs/use_next_v2/audit/P2_PIXEL_RECOVERY2_ACCEPTANCE.json",
+        "user_stop_acceptance": "outputs/use_next_v2/audit/P2_USER_STOP_ACCEPTANCE.json",
+        "formal_committed_updates": 12756,
+        "unspent_updates": 5244,
+        "unspent_budget_reallocated": false
+      },
+      "p2_head_guard_requirement": {
+        "status": "BOTH_GUARDED_CONTINUATIONS_ACTIVE",
+        "recorded_at_utc": "2026-10-29T20:28:09.958904+00:00",
+        "reason": "One unresolved P1 transient freeze guard failure; strengthen not-yet-started P2 frozen consumers per optimizer update",
+        "scientific_changes": false,
+        "budget_changes": false,
+        "pretrain_release_unchanged": "fd5811cfd26b583a4f4a67352915e072f580f14a2db30a4f8190615fb5dc96fb",
+        "new_controller": "outputs/use_next_v2/runtime/p2_guarded_continuation.py",
+        "controller_checks": "Reject incomplete endpoint and unaudited command; no old head launch until independently signed READY_P2_HEAD route",
+        "migration_executed": true,
+        "automatic_review": "Prior rejection resolved by explicit human approval; physical parent12320 replaced, worker106660 preserved",
+        "pretrain_workers_unaffected": [
+          106660
+        ],
+        "current_accepted_p2_marker_preserved": true,
+        "engineering_requirement": "Separate immutable guarded-head wrapper/release, same data/config/head initialization and own formalu6000, stepwise frozen state checks, two-update exact replay, no extra research job",
+        "next": "Continue both original pretrains to6000 then accepted guarded heads3000; root cause of pixel native crashes remains unconfirmed",
+        "ready_marker": "outputs/use_next_v2/audit/READY_P2_HEAD.json",
+        "route": "outputs/use_next_v2/runtime/P2_HEAD_ROUTE.json",
+        "cuda_evidence": "outputs/use_next_v2/audit/GUARDED_HEAD_CUDA_ACCEPTANCE.json",
+        "new_independent_engineering_updates": 6,
+        "validation": "Same forward/train and initialized head tensors, exact2update+disk replay for both modes; deliberate full frozen mutation detection; safe distinct probe shared GPU capacity without touching production processes/locks",
+        "migration_execution": {
+          "pixel": "Old parent naturally exited; route installed; repeated worker crash1678 under diagnosis",
+          "physical": "New supervisor45708 adopted unchanged worker106660"
+        },
+        "healthy_processes_stopped": "Only nontraining supervisor12320, explicitly human authorized",
+        "physical_controller_review": {
+          "status": "EXPLICIT_HUMAN_APPROVED_EXECUTED",
+          "evidence": "outputs/use_next_v2/audit/P2_PHYSICAL_CONTROLLER_MIGRATION.json",
+          "production_action_executed": true
+        }
+      },
+      "p3_band_drop_boundary": {
+        "evidence": "outputs/use_next_v2/audit/P2_BAND_DROP_ROUNDING.json",
+        "p2_actual_rule": "round(C*U(.2,.4)); same fixed assets/seeds in both modes; can produce6band16.7%,7band14.3%/42.9%,12band16.7%/41.7%",
+        "p2_running_source_changed": false,
+        "p3_new_rule": "Clip rounded count to ceil(.2C)..floor(.4C), same50% trigger; all3 objectives share it",
+        "p3_unit_test": "outputs/use_next_v2/audit/p3_band_bounds.xml;6 passed",
+        "comparison_limit": "P3 strict integer clipping is a disclosed additional cross-stage implementation difference; no isolated causal attribution"
+      },
+      "p3_engineering_acceptance": {
+        "status": "TECHNICAL_ACCEPTANCE_PENDING_P2_FINAL",
+        "release_sha256": "e29be174fcf5cc34c1fb65376edbaed97a369dc0bbe11db298344a23a60f0a41",
+        "evidence": "outputs/use_next_v2/audit/P3_ENGINEERING_INDEPENDENT_ACCEPTANCE.json",
+        "tests": 15,
+        "independent_cuda_engineering_updates": 24,
+        "formal_p3_p5_updates": 0,
+        "ready_p3_issued": false,
+        "cpu_boundary": "CPU scale head last-bit strict replay FAILED retained; all6 CUDA paths exact; formal CUDA only"
+      },
+      "current_result_snapshot": {
+        "observed_at_utc": "2026-10-30T06:34:05.864134+00:00",
+        "jobs": [
+          {
+            "name": "p1_dofa",
+            "display_name": "DOFA冻结编码器＋读出头",
+            "observed_step": 3000,
+            "status": "COMPLETED",
+            "pid": null,
+            "latest_loss": 0.4968006834387779,
+            "recent100_mean_loss": 0.4845608186349273,
+            "checkpoint_mtime": 1793293492.5476594,
+            "budget": 3000,
+            "evaluations": [
+              {
+                "step": 500,
+                "event_mean_iou": 0.09516542682069401,
+                "dice": 0.14957631831884935,
+                "precision": 0.1782778665397559,
+                "recall": 0.12883477782363462,
+                "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_500.json"
+              },
+              {
+                "step": 1000,
+                "event_mean_iou": 0.1067630392254303,
+                "dice": 0.1638221336868093,
+                "precision": 0.1665118922567124,
+                "recall": 0.1612178920268066,
+                "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_1000.json"
+              },
+              {
+                "step": 1500,
+                "event_mean_iou": 0.09709110045258204,
+                "dice": 0.15486010924918928,
+                "precision": 0.2078203600741329,
+                "recall": 0.12341056934536093,
+                "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_1500.json"
+              },
+              {
+                "step": 2000,
+                "event_mean_iou": 0.10657295298071348,
+                "dice": 0.16385520876766194,
+                "precision": 0.1870543510468613,
+                "recall": 0.14577560285360533,
+                "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_2000.json"
+              },
+              {
+                "step": 2500,
+                "event_mean_iou": 0.10116302060565632,
+                "dice": 0.1564473114358004,
+                "precision": 0.18620960959331506,
+                "recall": 0.13488788003851973,
+                "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_2500.json"
+              },
+              {
+                "step": 3000,
+                "event_mean_iou": 0.10707803770028768,
+                "dice": 0.16482891518367393,
+                "precision": 0.1881199349659075,
+                "recall": 0.14666981113534971,
+                "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_3000.json"
+              }
+            ],
+            "latest_evaluation": {
+              "step": 3000,
+              "event_mean_iou": 0.10707803770028768,
+              "dice": 0.16482891518367393,
+              "precision": 0.1881199349659075,
+              "recall": 0.14666981113534971,
+              "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_3000.json"
+            },
+            "best_evaluation": {
+              "step": 3000,
+              "event_mean_iou": 0.10707803770028768,
+              "dice": 0.16482891518367393,
+              "precision": 0.1881199349659075,
+              "recall": 0.14666981113534971,
+              "source": "outputs/use_next_v2/runs/p1_dofa/evaluation_3000.json"
+            }
+          },
+          {
+            "name": "p1_anysat",
+            "display_name": "AnySat冻结编码器＋读出头",
+            "observed_step": 3000,
+            "status": "COMPLETED",
+            "pid": null,
+            "latest_loss": 0.4527501165866852,
+            "recent100_mean_loss": 0.45778928861021995,
+            "checkpoint_mtime": 1793298023.494285,
+            "budget": 3000,
+            "evaluations": [
+              {
+                "step": 500,
+                "event_mean_iou": 0.09822988637902572,
+                "dice": 0.2188553543621543,
+                "precision": 0.29582792819182324,
+                "recall": 0.17366802271878623,
+                "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_500.json"
+              },
+              {
+                "step": 1000,
+                "event_mean_iou": 0.1485215821137375,
+                "dice": 0.28194269763690105,
+                "precision": 0.30649106411454546,
+                "recall": 0.2610351197846039,
+                "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_1000.json"
+              },
+              {
+                "step": 1500,
+                "event_mean_iou": 0.1540360377501701,
+                "dice": 0.2905018325010971,
+                "precision": 0.3663470743089626,
+                "recall": 0.24067468506180847,
+                "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_1500.json"
+              },
+              {
+                "step": 2000,
+                "event_mean_iou": 0.16972520606006947,
+                "dice": 0.30313939329768647,
+                "precision": 0.311297162118082,
+                "recall": 0.2953982666116385,
+                "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_2000.json"
+              },
+              {
+                "step": 2500,
+                "event_mean_iou": 0.1784813370917076,
+                "dice": 0.3115526389738334,
+                "precision": 0.2999268005474046,
+                "recall": 0.3241161095061219,
+                "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_2500.json"
+              },
+              {
+                "step": 3000,
+                "event_mean_iou": 0.17940536568761592,
+                "dice": 0.3132262790333822,
+                "precision": 0.3026247079840594,
+                "recall": 0.32459760627321504,
+                "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_3000.json"
+              }
+            ],
+            "latest_evaluation": {
+              "step": 3000,
+              "event_mean_iou": 0.17940536568761592,
+              "dice": 0.3132262790333822,
+              "precision": 0.3026247079840594,
+              "recall": 0.32459760627321504,
+              "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_3000.json"
+            },
+            "best_evaluation": {
+              "step": 3000,
+              "event_mean_iou": 0.17940536568761592,
+              "dice": 0.3132262790333822,
+              "precision": 0.3026247079840594,
+              "recall": 0.32459760627321504,
+              "source": "outputs/use_next_v2/runs/p1_anysat/evaluation_3000.json"
+            }
+          },
+          {
+            "name": "p2_pixel",
+            "display_name": "像素分块编码器预训练",
+            "observed_step": 4805,
+            "status": "P2_USER_STOPPED",
+            "pid": 73288,
+            "latest_loss": 0.3651330325519666,
+            "recent100_mean_loss": 0.3524940985522699,
+            "checkpoint_mtime": 1793341904.2491133,
+            "budget": 6000,
+            "evaluations": []
+          },
+          {
+            "name": "p2_physical",
+            "display_name": "物理尺度编码器预训练",
+            "observed_step": 6000,
+            "status": "COMPLETED",
+            "pid": 106660,
+            "latest_loss": 0.2726019995752722,
+            "recent100_mean_loss": 0.3357819419240695,
+            "checkpoint_mtime": 1793332823.4838324,
+            "budget": 6000,
+            "evaluations": []
+          },
+          {
+            "name": "p2_physical_head",
+            "display_name": "物理尺度编码器＋冻结分割头",
+            "observed_step": 1951,
+            "status": "P2_USER_STOPPED",
+            "pid": 89876,
+            "latest_loss": 0.4823795482516289,
+            "recent100_mean_loss": 0.4650179807841778,
+            "checkpoint_mtime": 1793341903.9993792,
+            "budget": 3000,
+            "evaluations": [
+              {
+                "step": 500,
+                "event_mean_iou": 0.09647908921308289,
+                "dice": 0.19556327339488458,
+                "precision": 0.30040113212925823,
+                "recall": 0.14496983275357192,
+                "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_500.json"
+              },
+              {
+                "step": 1000,
+                "event_mean_iou": 0.14568905123270418,
+                "dice": 0.2582315214064146,
+                "precision": 0.25344542904048406,
+                "recall": 0.263201855236523,
+                "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1000.json"
+              },
+              {
+                "step": 1500,
+                "event_mean_iou": 0.12847078972354345,
+                "dice": 0.2468961385030195,
+                "precision": 0.34467699189067824,
+                "recall": 0.19233339229212115,
+                "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1500.json"
+              }
+            ],
+            "latest_evaluation": {
+              "step": 1500,
+              "event_mean_iou": 0.12847078972354345,
+              "dice": 0.2468961385030195,
+              "precision": 0.34467699189067824,
+              "recall": 0.19233339229212115,
+              "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1500.json"
+            },
+            "best_evaluation": {
+              "step": 1000,
+              "event_mean_iou": 0.14568905123270418,
+              "dice": 0.2582315214064146,
+              "precision": 0.25344542904048406,
+              "recall": 0.263201855236523,
+              "source": "outputs/use_next_v2/runs/p2_physical_head/evaluation_1000.json"
+            }
+          }
+        ]
+      },
+      "performance_diagnosis": {
+        "status": "PASSIVE_MEASURED_COMPONENT_PROFILE_PENDING",
+        "passive_summary": {
+          "samples": 16,
+          "seconds": 31.849711,
+          "gpus": {
+            "0": {
+              "util_mean": 4.0625,
+              "util_min": 0.0,
+              "util_max": 30.0,
+              "warning": "Whole-card intermittent samples, includes other work; not per-process CUDA timing"
+            },
+            "1": {
+              "util_mean": 14.6875,
+              "util_min": 12.0,
+              "util_max": 22.0,
+              "warning": "Whole-card intermittent samples, includes other work; not per-process CUDA timing"
+            }
+          },
+          "jobs": {
+            "p2_pixel": {
+              "step_first": 4078,
+              "step_last": 4084,
+              "seconds_per_update_observed": 5.308285166666667,
+              "average_cpu_cores": 2.636405397838618,
+              "latest_checkpoint_mb": 19.264929,
+              "rewritten_curve_mb": 8.941615
+            },
+            "p2_physical_head": {
+              "step_first": 1142,
+              "step_last": 1150,
+              "seconds_per_update_observed": 3.981213875,
+              "average_cpu_cores": 3.083819190698465,
+              "latest_checkpoint_mb": 8.601925,
+              "rewritten_curve_mb": 0.52832
+            }
+          }
+        },
+        "production_configuration_changed": false,
+        "engineering_coordination": "01a187c0-9b1e-7362-a220-5c4e8318ece3",
+        "effective_batch": 8,
+        "microbatch": 2,
+        "precision": "FP32",
+        "speedup_verified": false
+      },
+      "p2_user_stop": {
+        "acceptance": "outputs/use_next_v2/audit/P2_USER_STOP_ACCEPTANCE.json",
+        "sha256": "53c445de0a6e63b1826134e0e06378afc9507f9666721bf4e9ea105561217f21",
+        "reason": "Explicit user early termination, not completed full P2 acceptance",
+        "next": "P3 cache release independent validation then three freshu0 objectives each10000"
       }
     }
   ],

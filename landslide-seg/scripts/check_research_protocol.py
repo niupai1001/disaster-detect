@@ -567,7 +567,15 @@ def audit_config(config: str | Path, overrides: list[str] | None = None,
     if selected == policy["default_protocol"]:
         if "utae_cv" in cfg:
             return audit_utae_baseline(path, cfg, policy, root, policy_path)
-        return audit_baseline(path, cfg, policy, root, policy_path)
+        result = audit_baseline(path, cfg, policy, root, policy_path)
+        if 'use_next_v2' in cfg:
+            import importlib.util
+            extension = root/'scripts/use_next_v2/protocol.py'
+            spec = importlib.util.spec_from_file_location('use_next_v2_protocol', extension)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            result['use_next_v2'] = module.audit(cfg, root)
+        return result
     require(selected in policy.get("optional_protocols", {}), "Unknown explicit historical protocol")
     policy = merge(policy, policy["optional_protocols"][selected])
     policy["default_protocol"] = selected
