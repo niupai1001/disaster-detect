@@ -1,0 +1,26 @@
+# Model and DINO settings used for the Phase 2/3 runs.
+# Tuned only to the point where the loss is finite and the teacher keeps
+# tracking the student; no claim that these are good hyper-parameters.
+model:
+  width: 32              # per-band stem channels; backbone widths scale from here
+  aggregate: mean        # mean | attention
+dino:
+  out_dim: 64
+  hidden: 512
+  bottleneck: 64
+  teacher_temp: 0.07
+  student_temp: 0.1
+  center_momentum: 0.99   # batch is small: slow centring avoids uniform collapse
+  freeze_last_steps: 20
+train:
+  steps: 300
+  batch_size: 8
+  lr: 0.001
+  weight_decay: 0.04
+  ema_base: 0.99
+  ema_cap: 0.99
+aug:
+  mode: standard
+  global_size: 128
+  local_size: 64
+  n_local: 2

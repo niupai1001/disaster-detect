@@ -1,0 +1,110 @@
+# Data source contract for the shared-representation project.
+# Every scaling constant, QA layer and provenance field used by the adapters is
+# declared here once; adapters must not hard-code values that belong in a product
+# definition file. Phase 0 verified each entry against real pixels.
+version: 1
+generated: 2026-10-31
+
+hls:
+  collections: [HLSS30_2.0, HLSL30_2.0]
+  catalogue: https://cmr.earthdata.nasa.gov/stac/LPCLOUD
+  catalogue_auth: none
+  data_auth: earthdata_token          # bearer token, injected as GDAL_HTTP_HEADER_FILE
+  assets:
+    s30: [B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B10, B11, B12, Fmask, SAA, SZA, VAA, VZA, metadata]
+    l30: [B01, B02, B03, B04, B05, B06, B07, B09, B10, B11, Fmask, SAA, SZA, VAA, VZA, metadata]
+  gsd_m: 30
+  dtype: int16
+  nodata: -9999
+  scaling:
+    rule: reflectance = dn * scale_factor + add_offset, read from the product XML
+    observed_scale_factor: 0.0001
+    observed_add_offset: 0
+    caveat: do not assume the values are identical for every granule; parse the XML
+  qa:
+    layer: Fmask
+    bits:
+      0: fill
+      1: cloud
+      2: adjacent_cloud
+      3: cloud_shadow
+      4: snow
+      5: water
+    usable_rule: bits 0-4 clear
+  provenance: [PRODUCT_URI, LANDSAT_PRODUCT_ID, SENSING_TIME]
+  license: NASA LP DAAC open data
+  phase0:
+    granules_in_catalogue: {HLSS30_2.0: 1737, HLSL30_2.0: 1400}
+    granules_read: 4
+    bytes: 13.1e6
+    aoi_clear_fraction: [0.9512, 0.9972, 0.9972, 0.9981]
+    verified: [crs_utm, pixel_size_30m, nodata_declared, fmask_bits, metadata_xml_scale]
+
+sentinel2:
+  collection: sentinel-2-l2a
+  catalogue: https://planetarycomputer.microsoft.com/api/stac/v1
+  catalogue_auth: none
+  data_auth: sas_token               # /api/sas/v1/token/{account}/{container}
+  gsd_m: {B02: 10, B03: 10, B04: 10, B08: 10, B05: 20, B06: 20, B07: 20, B8A: 20, B11: 20, B12: 20, SCL: 20}
+  dtype: uint16
+  nodata: 0
+  scaling:
+    rule: reflectance = (dn + BOA_ADD_OFFSET) / BOA_QUANTIFICATION_VALUE
+    source: SAFE metadata (processing baseline decides whether the offset applies)
+    caveat: never divide every product by 10000
+  qa:
+    layer: SCL
+    classes: {3: cloud_shadow, 8: cloud_medium_prob, 9: cloud_high_prob, 10: thin_cirrus, 11: snow, 0: nodata, 1: saturated}
+  provenance: [s2:product_uri, s2:processing_baseline, s2:generation_time]
+  license: Copernicus open data
+  phase0:
+    scenes_in_catalogue: 3028
+    scenes_clear_under_10pct: 776
+    read_test_bands: 11
+    bytes: 99.6e6
+    note: Earth Search was dropped after sustained HTTP 502; PC serves the same L2A product.
+
+landsat:
+  collection: landsat-c2-l2
+  catalogue: https://planetarycomputer.microsoft.com/api/stac/v1
+  catalogue_auth: none
+  data_auth: sas_token
+  platforms: [landsat-8, landsat-9]   # Landsat 7 ETM+ must be filtered out
+  bands: [coastal, blue, green, red, nir08, swir16, swir22]   # SR_B1..SR_B7
+  gsd_m: 30
+  dtype: uint16
+  nodata: 0
+  scaling:
+    rule: reflectance = dn * 0.0000275 - 0.2
+    source: Collection 2 Level-2 product specification; cross-check MTL REFLECTANCE_MULT/ADD
+  qa:
+    layers: [qa_pixel, qa_radsat]
+    qa_pixel_bits: {0: fill, 1: dilated_cloud, 2: cirrus, 3: cloud, 4: cloud_shadow, 5: snow, 6: clear, 7: water}
+  provenance: [landsat:scene_id, landsat:collection_number, landsat:processing_level, landsat:path, landsat:row]
+  license: USGS open data
+  phase0:
+    scenes_in_catalogue: 1231
+    scenes_clear_under_10pct: 270
+    read_test_bands: 9
+    bytes: 5.5e6
+
+enmap:
+  collection: ENMAP_HSI_L2A
+  catalogue: https://geoservice.dlr.de/eoc/ogc/stac/v1
+  catalogue_auth: none
+  data_auth: eoc_cas_login            # EnMAP Access Service / EO-Lab
+  assets: [vnir, swir, quality_cloud, quality_cloud_shadow, quality_snow, quality_haze, quality_cirrus]
+  gsd_m: 30
+  dtype: int16
+  scaling:
+    rule: read per-band scale/offset from the product metadata XML
+  qa:
+    layers: [quality_cloud, quality_cloud_shadow, quality_snow, quality_haze, quality_cirrus, quality_testflags]
+  provenance: [enmap:archivedVersion, enmap:acquisitionConfiguration, sat:relative_orbit]
+  license: DLR EnMAP, free for scientific use after registration
+  phase0:
+    scenes_in_catalogue: 408
+    usable_scenes_cloud_under_20pct: 218
+    usable_regions: 13
+    download: BLOCKED
+    download_error: "HTTP 401 at sso.eoc.dlr.de/eoc/auth/login for both usernames tried"

@@ -1,0 +1,23 @@
+# Phase 3 experiment matrix: same model, same data, same budget; only the
+# augmentation differs. "generic" and "physical" are strength-matched controls.
+experiments:
+  E1-0:
+    label: "标准 DINO 增强（裁剪/翻转）"
+    aug: {mode: standard}
+  E1-1:
+    label: "普通模糊/缩放（无低通）"
+    aug: {mode: generic}
+  E1-2:
+    label: "低通 + 物理采样"
+    aug: {mode: physical}
+  E1-3:
+    label: "E1-2 + 波段子采样"
+    aug: {mode: physical_band, keep_min_bands: 3}
+  E1-4:
+    label: "E1-3 + 有界辐射扰动"
+    aug: {mode: physical_band_radiometry, keep_min_bands: 3}
+
+budget:
+  steps: 60
+  seed: 0
+  patches_limit: 0
