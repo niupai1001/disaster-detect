@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "seed": 0,
+  "footprint_m": 1200,
+  "tile_m": 60,
+  "tokens_per_band_tile": 4,
+  "model": {
+    "width": 128,
+    "heads": 4,
+    "ffn": 512,
+    "spectral_blocks": 2,
+    "spatial_blocks": 4,
+    "decoder_blocks": 2
+  },
+  "training": {
+    "effective_batch": 32,
+    "precision": "bfloat16_autocast_fp32_parameters_and_loss",
+    "precision_acceptance": "outputs/phase1/precision_check.json",
+    "microbatch": 4,
+    "train_target_tiles": 16,
+    "tile_sampling": "uniform16of400; multiply sampled loss sum by400/16 and divide by full valid target pixel count; full1200m encoder context",
+    "validation_grid": "full_native",
+    "lr": 0.0005,
+    "weight_decay": 0.04,
+    "clip": 3.0,
+    "warmup_updates": 500,
+    "validation_interval": 250,
+    "relative_improvement": 0.001,
+    "lr_patience": 15,
+    "stop_patience": 50,
+    "stop_lr_fraction": 0.03125,
+    "min_lr": 1e-06,
+    "milestone_interval": 1000
+  },
+  "budgets": {
+    "masked": {
+      "runs": 3,
+      "min": 10000,
+      "max": 50000
+    },
+    "cross30": {
+      "runs": 2,
+      "min": 5000,
+      "max": 25000
+    },
+    "observation": {
+      "runs": 2,
+      "min": 5000,
+      "max": 25000
+    },
+    "pixel_mlp_max": 10000
+  },
+  "protected_regions": [
+    "hiroshima",
+    "thrissur",
+    "italy",
+    "newzealand"
+  ],
+  "pair": {
+    "gap_days_max": 2,
+    "valid_min": 0.8,
+    "registration_residual_m_max": 15,
+    "ndvi_correlation_min": 0.6,
+    "ndvi_absolute_difference_max": 0.2
+  },
+  "cross_gate": {
+    "train_regions_min": 4,
+    "val_regions_min": 2,
+    "test_regions_min": 2,
+    "heldout_acquisitions_min": 3
+  },
+  "download_cap_bytes": 10737418240,
+  "download_enabled": false,
+  "recover_nonconforming_data": false,
+  "scientific_gate": {
+    "rmse_improvement_min": 0.05,
+    "bootstrap_lower_min": 0,
+    "hard_band_regression_max": 0.02
+  },
+  "huber_delta": 0.02,
+  "automatic_continuation": true,
+  "use_landslide_labels_for_encoder": false,
+  "cross_execution": {
+    "required_by_latest_user": true,
+    "quality_thresholds_unchanged": true,
+    "coverage_policy": "run existing qualified local pairs as exploratory if original multi-region coverage gate fails; do not claim broad generalization",
+    "requires_masked_numerical_acceptance": true,
+    "requires_H1_five_percent_gain": false,
+    "download_enabled": false,
+    "pair_slots_per_update": 8,
+    "repeat_policy": "deterministic cycling when fewer than8 TRAIN pairs; log unique pairs and observation exposures separately"
+  }
+}
