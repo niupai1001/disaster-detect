@@ -37,7 +37,7 @@ class UnifiedEncoder(nn.Module):
         if torch.is_tensor(gsd_m) and gsd_m.dim() == 1:
             gsd_m = gsd_m.unsqueeze(0).expand(b, -1)
 
-        feats = self.stem(image)                       # [B,C,width,h/4,w/4]
+        feats = self.stem(image, band_mask)                       # [B,C,width,h/4,w/4]
         desc = torch.stack([descriptor_features(centre_nm[i], gsd_m[i], image.device)
                             for i in range(b)])        # [B,C,2]
         film = self.desc_proj(desc)                    # [B,C,2*width]

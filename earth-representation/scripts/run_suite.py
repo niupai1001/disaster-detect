@@ -62,6 +62,9 @@ def main(argv=None):
                "--batch-size", str(args.batch_size), "--out", str(out)]
         print("run", name, aug, scale, flush=True)
         proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+        if proc.returncode:
+            (out / f"{name}.stderr.log").write_text(proc.stderr, encoding="utf-8")
+            raise RuntimeError(f"{name} failed with {proc.returncode}; see stderr log")
         log = out / f"{name}.jsonl"
         rows = [json.loads(l) for l in log.read_text(encoding="utf-8").splitlines()
                 if l.strip()] if log.exists() else []

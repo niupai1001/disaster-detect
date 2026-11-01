@@ -19,11 +19,20 @@ class BandStem(nn.Module):
         )
         self.width = width
 
-    def forward(self, x):
+    def forward(self, x, band_mask=None):
         # x: [B, C, H, W] -> [B, C, width, H/4, W/4]
         b, c, h, w = x.shape
-        f = self.net(x.reshape(b * c, 1, h, w))
-        return f.reshape(b, c, self.width, h // 4, w // 4)
+        flat = x.reshape(b * c, 1, h, w)
+        if band_mask is None:
+            f = self.net(flat)
+        else:
+            keep = band_mask.to(device=x.device, dtype=torch.bool).expand(b, c).reshape(-1)
+            if not keep.reshape(b, c).any(dim=1).all():
+                raise ValueError("each sample needs at least one valid band")
+            encoded = self.net(flat[keep])
+            f = encoded.new_zeros((b * c, *encoded.shape[1:]))
+            f[keep] = encoded
+        return f.reshape(b, c, self.width, *f.shape[-2:])
 
 
 def descriptor_features(centre_nm, gsd_m, device=None):

@@ -16,10 +16,11 @@ S2_SCL_BAD = {
     "cloud_high": 9,
     "thin_cirrus": 10,
     "snow": 11,
+    "unknown": 255,
 }
 
 # HLS Fmask bit positions (V2.0).
-HLS_FMASK_BITS = {"fill": 0, "cloud": 1, "adjacent_cloud": 2,
+HLS_FMASK_BITS = {"cirrus_reserved": 0, "cloud": 1, "adjacent_cloud": 2,
                   "cloud_shadow": 3, "snow": 4, "water": 5}
 
 # Landsat C2 QA_PIXEL bit positions.
@@ -38,6 +39,7 @@ def hls_fmask_masks(fmask):
     out = {name: ((fmask >> bit) & 1).astype(bool)
            for name, bit in HLS_FMASK_BITS.items()}
     bad = np.zeros(fmask.shape, dtype=bool)
+    out["fill"] = fmask == 255
     for name in ("fill", "cloud", "adjacent_cloud", "cloud_shadow", "snow"):
         bad |= out[name]
     out["valid"] = ~bad

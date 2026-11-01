@@ -19,6 +19,17 @@ COLLECTIONS = {"s30": "HLSS30_2.0", "l30": "HLSL30_2.0"}
 
 
 def _token():
+    # Reuse the existing local credential rather than issuing tokens per query.
+    import base64, json, time
+    cached = C.PROJECT / ".tmp" / "edl_header.txt"
+    if cached.exists():
+        token = cached.read_text().strip().removeprefix("Authorization: Bearer ")
+        try:
+            payload = token.split(".")[1]
+            if json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4))).get("exp", 0) > time.time() + 60:
+                return token
+        except (ValueError, IndexError):
+            pass
     return C.earthdata_token(C.load_env())
 
 

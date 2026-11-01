@@ -12,7 +12,7 @@ def test_s2_scl_classes():
 
 
 def test_hls_fmask_bits():
-    fmask = np.array([[0, 1, 2, 4, 8, 16]], dtype=np.uint8)
+    fmask = np.array([[0, 255, 2, 4, 8, 16]], dtype=np.uint8)
     masks = qa_masks.hls_fmask_masks(fmask)
     assert masks["fill"][0, 1]
     assert masks["cloud"][0, 2]

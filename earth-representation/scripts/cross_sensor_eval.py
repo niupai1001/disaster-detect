@@ -61,7 +61,7 @@ def retrieval_stats(query, gallery, chunk=256):
         truth = torch.arange(i, min(i + chunk, n), device=q.device)
         true_sim = sim[torch.arange(len(truth)), truth]
         # rank = number of gallery items strictly closer than the true match
-        ranks.append((sim > true_sim.unsqueeze(1)).sum(dim=1))
+        ranks.append((sim > true_sim.unsqueeze(1)).sum(dim=1) + .5 * ((sim == true_sim.unsqueeze(1)).sum(dim=1)-1))
         same.append(true_sim)
         mask = torch.ones_like(sim, dtype=torch.bool)
         mask[torch.arange(len(truth)), truth] = False
@@ -71,7 +71,7 @@ def retrieval_stats(query, gallery, chunk=256):
     return {
         "recall@1": round(float((ranks < 1).float().mean()), 4),
         "recall@10": round(float((ranks < 10).float().mean()), 4),
-        "median_rank": int(ranks.median().item()),
+        "median_rank": float(ranks.median().item()+1),
         "cos_true": round(float(same), 4),
         "cos_random": round(float(torch.stack(other).mean()), 4),
         "n": n,
@@ -87,7 +87,8 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     device = args.device if torch.cuda.is_available() else "cpu"
-    items = triples.load_triples(limit=args.n)
+    items = triples.load_triples(limit=args.n, min_valid=.8)
+    if len(items) < 2: raise ValueError("need at least two quality-controlled triples")
     print(f"triples: {len(items)} | device {device}", flush=True)
 
     model = build().to(device)
@@ -95,7 +96,7 @@ def main(argv=None):
     model.load_state_dict(state.get("teacher", state.get("student", state)))
 
     feats = {k: features(model, items, k, device) for k in ("s2", "landsat", "hls")}
-    out = {"checkpoint": Path(args.checkpoint).name, "pairs": {}}
+    out = {"checkpoint": Path(args.checkpoint).name, "sample_ids":[it["sample_id"] for it in items], "radiometry":"version2 float32 reflectance with QA", "pairs": {}}
     for src, dst in (("s2", "landsat"), ("s2", "hls"), ("landsat", "hls")):
         st = retrieval_stats(feats[src], feats[dst])
         out["pairs"][f"{src}->{dst}"] = st

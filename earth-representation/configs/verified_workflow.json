@@ -1,0 +1,60 @@
+{
+  "seed": 0,
+  "batch_size": 32,
+  "optimizer": {
+    "type": "AdamW",
+    "lr": 0.0005,
+    "weight_decay": 0.04
+  },
+  "warmup_epochs": 10,
+  "plateau": {
+    "patience_epochs": 10,
+    "relative_improvement": 0.005,
+    "factor": 0.5,
+    "min_lr": 1e-06
+  },
+  "early_stop": {
+    "min_epochs": 100,
+    "stale_epochs": 30,
+    "lr_at_most_initial_fraction": 0.0625
+  },
+  "caps": {
+    "epochs": 400,
+    "updates": 50000
+  },
+  "gates": {
+    "single_s2": "completed_119epochs",
+    "mixed": "completed_121epochs",
+    "paired": "completed_264epochs_with_recovery",
+    "augmentation": "completed_strength_matched_no_physical_gain",
+    "scale": "completed_one_correction_auxiliary_real_labels",
+    "landcover": "independent_truth_missing; supplemental_WorldCover_completed",
+    "hls": "source_association_and_common30m_completed_small_reference",
+    "dofa": "official_local_weights_same_heads_completed",
+    "finetuning": "baseline_and_best_new_candidate_completed",
+    "enmap": "optional_not_retried"
+  },
+  "sensor_routes": {
+    "locations_per_batch": 32,
+    "observation_groups_per_location": 2,
+    "student_views_per_location": 8,
+    "teacher_views_per_location": 4,
+    "within_group_loss_terms": 12,
+    "cross_group_loss_terms": 28,
+    "single_route": "two copies of the same S2 observation; do not count as independent data",
+    "mixed_paired_comparison": "same arrays, crop geometry, init and view count; only target pairing changes",
+    "native_input_grid_m": 10,
+    "landslide_task": "auxiliary; cached target and valid masks,2223TRAIN and669DEV; no core25 z-score for physical-reflectance CNN"
+  },
+  "corrective_scale": {
+    "high_grid_m": 10,
+    "low_grid_m": 20,
+    "feature_level": "s16",
+    "common_support_m": 320,
+    "lambda": 0.1,
+    "weights": "input residual after explicit degradation; detached",
+    "selection": "half of joint-valid blocks; random uses same count and weight sum",
+    "extra_bn_forwards": "batch statistics without modifying running buffers",
+    "reason": "real auxiliary masks found; old selective IoU improves both events but small-object recall is worse; one corrective experiment only"
+  }
+}

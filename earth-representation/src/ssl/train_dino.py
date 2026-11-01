@@ -5,6 +5,8 @@ itself supports any band count, but batching needs a common shape.
 """
 
 import argparse
+from functools import lru_cache
+import json
 import json
 import math
 import os
@@ -85,6 +87,11 @@ def forward_model(model, images, centre, gsd, device, band_mask=None):
     return model["head"](levels["global"])
 
 
+@lru_cache(maxsize=1)
+def augmentation_mapping(path):
+    return json.loads(Path(path).read_text())["mapping"]
+
+
 def augment_view(x, mode, t_rng):
     """Apply the configured physical (or control) augmentation to one view."""
     from ..augment import reflectance_perturb as rp
@@ -95,12 +102,18 @@ def augment_view(x, mode, t_rng):
         if float(torch.rand(1, generator=t_rng, device=x.device)) < 0.5:
             factor = float(torch.tensor([1.5, 2.0, 3.0], device=x.device)[
                 int(torch.randint(0, 3, (1,), generator=t_rng, device=x.device))])
+            sigma = float(torch.tensor([0.6, 1.0, 1.5], device=x.device)[
+                int(torch.randint(0, 3, (1,), generator=t_rng, device=x.device))])
             if mode == "generic":
-                x = sd.generic_resize(x, factor)
-                params = {"resize": factor}
+                import json
+                calibration = os.environ.get("EARTH_AUGMENTATION_CALIBRATION")
+                if not calibration:
+                    raise ValueError("generic control requires TRAIN-only strength calibration")
+                mapping = augmentation_mapping(calibration)
+                row = next(r for r in mapping if r["factor"] == factor and abs(r["physical_sigma"]-sigma)<1e-5)
+                x = sd.generic_resize(sd.lowpass(x, row["generic_sigma"]), factor)
+                params = {"resize": factor, "generic_sigma":row["generic_sigma"]}
             else:
-                sigma = float(torch.tensor([0.6, 1.0, 1.5], device=x.device)[
-                    int(torch.randint(0, 3, (1,), generator=t_rng, device=x.device))])
                 x = sd.spatial_degrade(x, sigma, factor)
                 params = {"sigma": sigma, "factor": factor}
     if mode == "physical_band_radiometry":

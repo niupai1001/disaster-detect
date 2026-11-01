@@ -34,10 +34,18 @@ def mixed_batches(items, batch_size, rng):
             continue
         n_max = max(len(it["bands"]) for it in chunk)
         images, centres, gsds, masks = [], [], [], []
+        valid_pixels = []
         for it in chunk:
             img, cpad, gpad, mask = pad_bands(
                 it["image"], np.asarray(it["centre"], np.float32),
                 np.asarray(it["gsd"], np.float32), n_max)
+            valid = it.get("valid_mask", it.get("valid", np.ones(img.shape[-2:], bool)))
+            if np.ndim(valid) == 0: valid = np.ones(img.shape[-2:], bool)
+            valid = np.asarray(valid, dtype=bool)
+            img = np.where(valid[None], img, 0)
+            valid_pixels.append(valid)
+            if "band_mask" in it:
+                mask[:len(it["band_mask"])] &= np.asarray(it["band_mask"], bool)
             images.append(img)
             centres.append(cpad)
             gsds.append(gpad)
@@ -48,4 +56,5 @@ def mixed_batches(items, batch_size, rng):
             "gsd": torch.from_numpy(np.stack(gsds)),
             "mask": torch.from_numpy(np.stack(masks)),
             "bands": chunk[0]["bands"],
+            "valid_mask": torch.from_numpy(np.stack(valid_pixels)),
         }

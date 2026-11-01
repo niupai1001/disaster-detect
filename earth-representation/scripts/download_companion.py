@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
+from src.data.radiometry import reflectance
 from src.data.adapters import _base, hls_v2, landsat_c2  # noqa: E402
 
 SX = Path(r"N:\Users\yzh\Disater\landslide-seg\manifests")
@@ -41,9 +42,9 @@ SIZE = 128
 GSD = 10
 
 
-def load_samples():
+def load_samples(manifest=None):
     out = {}
-    for p in SX.glob("*.jsonl"):
+    for p in [Path(manifest) if manifest else SX / "v4r1" / "pool_100.jsonl"]:
         try:
             for line in open(p, encoding="utf-8"):
                 d = json.loads(line)
@@ -119,27 +120,35 @@ def read_union(scene, keys, union_wgs84, workers=6):
     return out, grid, crs
 
 
-def cut_patch(arr, src_grid, src_crs, bbox, crs):
+def cut_patch(arr, src_grid, src_crs, bbox, crs, qa=False):
     """Resample one band from the local union array onto the patch grid."""
     dst_grid = from_bounds(bbox[0], bbox[1], bbox[2], bbox[3], SIZE, SIZE)
-    dst = np.zeros((SIZE, SIZE), dtype=arr.dtype)
+    dst = np.full((SIZE, SIZE), 255 if qa else np.nan, dtype=arr.dtype)
     reproject(source=arr, destination=dst, src_transform=src_grid, src_crs=src_crs,
-              dst_transform=dst_grid, dst_crs=crs, resampling=_base.Resampling.bilinear)
+              dst_transform=dst_grid, dst_crs=crs,
+              src_nodata=255 if qa else np.nan, dst_nodata=255 if qa else np.nan,
+              resampling=_base.Resampling.nearest if qa else _base.Resampling.bilinear)
     return dst
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
+    ap.add_argument("--manifest", default=None)
+    ap.add_argument("--members", default=None, help="frozen run provenance JSON: training and validation paths")
     ap.add_argument("--only-event", nargs="*", default=None)
     ap.add_argument("--limit-groups", type=int, default=0)
     ap.add_argument("--products", nargs="*", default=["landsat", "hls"])
     ap.add_argument("--window-days", type=int, default=120)
     ap.add_argument("--max-gap-days", type=int, default=0,
                     help="drop a pair whose acquisition is further than this")
-    ap.add_argument("--out", default=str(ROOT / "data"))
+    ap.add_argument("--out", default=str(ROOT / "data" / "companions_v2_selected_time"))
     args = ap.parse_args(argv)
 
-    samples = load_samples()
+    samples = load_samples(args.manifest)
+    if args.members:
+        release = json.loads(Path(args.members).read_text())
+        allowed = {Path(p).stem for p in release["members"] + release.get("validation_members",[])}
+        samples = {sid:m for sid,m in samples.items() if sid in allowed}
     if args.only_event:
         samples = {k: v for k, v in samples.items()
                    if v.get("event_id") in args.only_event}
@@ -218,8 +227,15 @@ def main(argv=None):
                         if arr is None:
                             ok = False
                             break
+                        is_qa = key in ("qa_pixel", "qa_radsat", "Fmask")
+                        if not is_qa:
+                            invalid = (arr == (0 if product == "landsat" else -9999))
+                            arr = reflectance(arr, product)
+                            arr[invalid] = np.nan
+                        else:
+                            arr = arr.astype(np.int32)
                         variables[var] = cut_patch(arr, grid, crs, meta["bbox"],
-                                                   crs_patch).astype(np.int16)
+                                                   crs_patch, qa=is_qa)
                     if not ok:
                         stat[f"{product}_missing_band"] += 1
                         continue
@@ -229,12 +245,15 @@ def main(argv=None):
                         stat[f"{product}_too_far"] += 1
                         continue
                     attrs = {
+                        "schema_version": 2, "stored_quantity": "surface_reflectance",
+                        "unit": "1", "transform": str(tuple(from_bounds(*meta["bbox"], SIZE, SIZE))),
                         "source": "LANDSAT_C2_L2" if product == "landsat" else "HLS_S30_V2",
                         "scene_id": scene.scene_id, "sensing_date": scene.datetime,
                         "s2_sample_id": sid, "crs": str(meta["crs"]),
                         "native_gsd_m": 30, "resampled_to_m": 10,
                         "bands": ",".join(variables),
-                        "date_gap_days": gap_days,
+                        "date_gap_days": gap_days, "s2_date": meta["date"],
+                        "s2_time_index": int(meta["post_index"]),
                     }
                     write_nc(in_dirs[product] / f"{sid}.nc", variables, attrs)
                     stat[product] += 1

@@ -10,9 +10,10 @@ from pathlib import Path
 import numpy as np
 from scipy.io import netcdf_file
 
-ROOT = Path(r"N:\Users\yzh\Disater\earth-representation\data")
+import os
+ROOT = Path(os.environ.get("EARTH_COMPANION_ROOT", Path(__file__).resolve().parents[2] / "data" / "companions_v2_selected_time"))
 # the original S2 patches live in the landslide-seg project, not here
-S2_DIR = Path(r"N:\Users\yzh\Disater\landslide-seg\data\sen12")
+S2_DIR = Path(os.environ.get("EARTH_S2_ROOT", Path(__file__).resolve().parents[3] / "landslide-seg" / "data" / "sen12"))
 
 S2_VARS = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"]
 LANDSAT_VARS = ["SR_B1", "SR_B2", "SR_B3", "SR_B4", "SR_B5", "SR_B6", "SR_B7"]
@@ -43,7 +44,7 @@ for k in list(GSD):
     if k.startswith("LANDSAT") or k.startswith("HLS"):
         GSD[k] = 30
 
-SCALE = {"s2": 10000.0, "landsat": 10000.0, "hls": 10000.0}
+SCALE = {"s2": 10000.0, "landsat": 1.0, "hls": 1.0}
 
 
 def _read(path, variables):
@@ -64,20 +65,39 @@ def _read_s2(path, variables, time_index=1):
         out = []
         for v in variables:
             with rasterio.open(subs[v]) as d:
-                idx = min(max(1, time_index), d.count)
+                if not 1 <= time_index <= d.count:
+                    raise IndexError((path, time_index, d.count))
+                idx = time_index
                 # stored transposed: without .T the patch is a mirrored map
                 out.append(d.read(idx).astype(np.float32).T)
         return np.stack(out)
 
 
 def _compose(path, variables, names, scale, s2=False, time_index=1):
-    a = (_read_s2(path, variables, time_index) if s2 else _read(path, variables)) / scale
+    if s2:
+        a = _read_s2(path, variables, time_index) / scale
+        from .landslide_patches import BAD_SCL
+        scl = _read_s2(path, ["SCL"], time_index)[0]
+        valid = np.isfinite(a).all(axis=0) & ~np.isin(scl, BAD_SCL)
+        a = np.where(valid[None], a, 0)
+    else:
+        from .qa_masks import hls_fmask_masks, landsat_qa_masks
+        with netcdf_file(str(path), "r", mmap=False) as nc:
+            if int(getattr(nc, "schema_version", 0)) != 2:
+                raise ValueError("legacy companion is not valid for new evaluation")
+            a = np.stack([np.array(nc.variables[v][:], dtype=np.float32) for v in variables])
+            if "QA_PIXEL" in nc.variables:
+                valid = landsat_qa_masks(np.array(nc.variables["QA_PIXEL"][:]), np.array(nc.variables["QA_RADSAT"][:]))["valid"]
+            else:
+                valid = hls_fmask_masks(np.array(nc.variables["Fmask"][:]))["valid"]
+            valid &= np.isfinite(a).all(axis=0)
+        a = np.where(valid[None], a, 0).astype(np.float32)
     centre = np.array([CENTRE[n] for n in names], dtype=np.float32)
     gsd = np.array([GSD[n] for n in names], dtype=np.float32)
-    return {"image": a, "centre": centre, "gsd": gsd, "bands": names}
+    return {"image": a, "centre": centre, "gsd": gsd, "bands": names, "valid_mask": valid}
 
 
-def load_triples(limit=0, min_valid=0.0):
+def load_triples(limit=0, min_valid=0.0, allowed_ids=None):
     from . import manifest_index
     """Yield dicts with s2 / landsat / hls entries for the same sample_id."""
     s2_dir = S2_DIR
@@ -86,12 +106,14 @@ def load_triples(limit=0, min_valid=0.0):
     ids = sorted({p.stem for p in ls_dir.glob("*.nc")} &
                  {p.stem for p in hls_dir.glob("*.nc")} &
                  {p.stem for p in s2_dir.glob("*.nc")})
+    if allowed_ids is not None:
+        ids = [sid for sid in ids if sid in allowed_ids]
     if limit:
         ids = ids[:limit]
     out = []
     for sid in ids:
         try:
-            out.append({
+            item = {
                 "sample_id": sid,
                 "region": sid.split("_s2_")[0],
                 "s2": _compose(s2_dir / f"{sid}.nc", S2_VARS, S2_NAMES, SCALE["s2"],
@@ -99,9 +121,11 @@ def load_triples(limit=0, min_valid=0.0):
                 "landsat": _compose(ls_dir / f"{sid}.nc", LANDSAT_VARS,
                                     LANDSAT_NAMES, SCALE["landsat"]),
                 "hls": _compose(hls_dir / f"{sid}.nc", HLS_VARS, HLS_NAMES, SCALE["hls"]),
-            })
-        except Exception:
-            continue
+            }
+            if min(x["valid_mask"].mean() for x in (item["s2"],item["landsat"],item["hls"])) >= min_valid:
+                out.append(item)
+        except Exception as exc:
+            raise RuntimeError(f"invalid triple {sid}: {exc}") from exc
     return out
 
 

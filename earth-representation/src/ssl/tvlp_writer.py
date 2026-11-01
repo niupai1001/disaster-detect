@@ -27,7 +27,8 @@ def _now():
 class TvlpRun:
     def __init__(self, root, *, project, name, metric_definitions,
                  config=None, dataset=None, model=None, seed=None,
-                 experiment=None, run_id=None):
+                 experiment=None, run_id=None, resume=False):
+        self.session_id = uuid.uuid4().hex
         self.run_id = run_id or f"{name}-{datetime.now().strftime('%Y%m%dT%H%M%S')}-{uuid.uuid4().hex[:6]}"
         self.dir = Path(root) / self.run_id
         self.dir.mkdir(parents=True, exist_ok=True)
@@ -51,15 +52,16 @@ class TvlpRun:
             meta["dataset"] = {"name": dataset} if isinstance(dataset, str) else dataset
         if seed is not None:
             meta["source"] = {"seed": int(seed), "framework": "pytorch"}
-        (self.dir / "run.json").write_text(
+        if not resume:
+            (self.dir / "run.json").write_text(
             json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
         self._metrics = open(self.dir / "metrics.jsonl", "a", encoding="utf-8")
         self._events = open(self.dir / "events.jsonl", "a", encoding="utf-8")
-        self.lifecycle("started")
+        self.lifecycle("resumed" if resume else "started")
 
     def lifecycle(self, status, message=None):
         """TVLP lifecycle event: only these fields are allowed by the schema."""
-        row = {"type": "lifecycle", "timestamp": _now(), "status": status}
+        row = {"session_id": self.session_id, "type": "lifecycle", "timestamp": _now(), "status": status}
         if message:
             row["message"] = message
         self._events.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -67,7 +69,7 @@ class TvlpRun:
         os.fsync(self._events.fileno())
 
     def log(self, phase, metrics, global_step=None, wall_time_sec=None):
-        row = {"timestamp": _now(), "phase": phase,
+        row = {"session_id": self.session_id, "timestamp": _now(), "phase": phase,
                "metrics": {k: float(v) for k, v in metrics.items()}}
         if global_step is not None:
             row["global_step"] = int(global_step)
@@ -75,6 +77,11 @@ class TvlpRun:
             row["wall_time_sec"] = float(wall_time_sec)
         self._metrics.write(json.dumps(row, ensure_ascii=False) + "\n")
         self._metrics.flush()
+
+    def heartbeat(self, step):
+        self._events.write(json.dumps({"type": "heartbeat", "timestamp": _now(),
+            "session_id": self.session_id, "global_step": step}) + "\n")
+        self._events.flush()
 
     def finish(self, status="completed", message=None):
         self.lifecycle(status, message)

@@ -58,10 +58,15 @@ def read_grid(url, dst_transform, dst_crs, shape, header="", resampling=Resampli
                 return None
             win = Window(col0, row0, col1 - col0, row1 - row0)
             data = src.read(1, window=win)
-            dst = np.zeros(shape, dtype=data.dtype)
+            is_qa = resampling == Resampling.nearest
+            if not is_qa:
+                data = data.astype(np.float32)
+            fill = src.nodata if src.nodata is not None else (255 if is_qa else np.nan)
+            dst = np.full(shape, fill, dtype=data.dtype)
             reproject(
                 source=data,
                 destination=dst,
+                src_nodata=src.nodata, dst_nodata=fill,
                 src_transform=src.window_transform(win),
                 src_crs=src.crs,
                 dst_transform=dst_transform,
