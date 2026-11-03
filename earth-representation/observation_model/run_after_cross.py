@@ -1,4 +1,7 @@
 """After mandatory P3, evaluate real pairs and conditionally run exactly two P4 arms."""
+
+from .execution_gate import require_training_authorization
+if __name__ == "__main__": require_training_authorization()
 import concurrent.futures
 import hashlib
 import json

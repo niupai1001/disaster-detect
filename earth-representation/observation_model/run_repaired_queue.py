@@ -1,4 +1,7 @@
 """Corrected, budget-limited main runs; mandatory cross uses common repaired10k."""
+
+from .execution_gate import require_training_authorization
+if __name__ == "__main__": require_training_authorization()
 import concurrent.futures
 import json
 import os

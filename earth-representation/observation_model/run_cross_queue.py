@@ -1,4 +1,7 @@
 """Prioritize required cross-source runs from the common10k masked milestone."""
+
+from .execution_gate import require_training_authorization
+if __name__ == "__main__": require_training_authorization()
 import concurrent.futures
 import hashlib
 import json

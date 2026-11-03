@@ -1,4 +1,7 @@
 """Joint hidden-band supervision; isolated from the frozen v2 trainers."""
+
+from .execution_gate import require_training_authorization
+if __name__ == "__main__": require_training_authorization()
 import argparse
 import hashlib
 import itertools

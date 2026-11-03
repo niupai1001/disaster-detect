@@ -1,4 +1,7 @@
 """Native whole-band prediction, balanced32 observations and resumable adaptive budget."""
+
+from .execution_gate import require_training_authorization
+if __name__ == "__main__": require_training_authorization()
 import argparse
 import contextlib
 import hashlib

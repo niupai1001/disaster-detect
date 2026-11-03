@@ -1,4 +1,7 @@
 """Two GPUs, three independently scheduled single-seed masked prediction runs."""
+
+from .execution_gate import require_training_authorization
+if __name__ == "__main__": require_training_authorization()
 import concurrent.futures
 import json
 import os

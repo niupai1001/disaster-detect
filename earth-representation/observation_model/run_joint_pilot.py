@@ -1,4 +1,7 @@
 """One bounded pilot and its fixed geographic validation; old queue stays paused."""
+
+from .execution_gate import require_training_authorization
+if __name__ == "__main__": require_training_authorization()
 import json
 import os
 from pathlib import Path
