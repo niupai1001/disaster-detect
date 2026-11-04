@@ -10,7 +10,7 @@ import numpy as np
 import torch
 
 from .encoder_v2 import ObservationEncoderV2
-from .encoder_v2_tasks import (spatial_task,band_task,seed_for,curriculum,run_task,balanced_loss,aggregate_metrics)
+from .encoder_v2_tasks import (spatial_task,training_spatial_task,band_task,seed_for,curriculum,run_task,balanced_loss,aggregate_metrics)
 from .encoder_v2_runtime import BASE,G3,G4,V2Run,load_members,checkpoint,restore
 from .encoder_v2_controls import fit_ridge,ridge_prediction,spatial_prediction
 from .check_encoder_v2 import state_hash
@@ -99,7 +99,7 @@ def main():
         optimizer='AdamW',lr=5e-4,weight_decay=.04,clip=3.,warmup_updates=10,
         lr_schedule='linear warmup10 then fixed5e-4; no low-LR tail within this bounded diagnostic',
         task_schedule='G3 candidate smooth A/B weights at u=step/200; A replay0.25 late',
-        training_masks='fixed A draw0; B round robin by observation and update; composite A excludes B target',
+        training_masks='A resampled per member/logical update; B round robin; composite A excludes B target. Historical run used fixed A; see frozen source.',
         validation='Four existing geographic-isolation VAL members; fixed A draw0, all B target bands',
         train_new_masks='Same TRAIN members, frozen independent A draw1; measures mask generalization separately',
         train_observations=4,val_observations=4,selection='absolute minimum mean fixedVAL(A,B)',
@@ -140,7 +140,7 @@ def main():
             lambda_A,lambda_B=curriculum(step/200);tasks=[]
             for index,(meta,image) in enumerate(train):
                 key=image.bands[(step-1+index)%len(image.bands)].band_key
-                tasks.append((meta,spatial_task(image,seed_for(meta['id'],'A',0),excluded=(key,) if lambda_B>0 else ())))
+                tasks.append((meta,training_spatial_task(image,meta['id'],step,excluded=(key,) if lambda_B>0 else ())))
                 if lambda_B>0:tasks.append((meta,band_task(image,key)))
             weights=task_weights(tasks);logged=defaultdict(list);norm_vectors={};prev=gradient_vector(model)
             batch_views=batch_targets=batch_pixels=batch_visible=batch_native=batch_tokens=0

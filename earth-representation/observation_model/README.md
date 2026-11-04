@@ -1,6 +1,9 @@
 # 统一条件观测模型
 
-> 当前工作：G4已完成200步并复核，未通过对合理简单基线的基本恢复能力检查；已停止，不进入G5或跨卫星队列。
+> 当前工作：G4固定遮盖实现偏差已确认并修复；训练前逐波段Ridge审计与原生局部信息接口检查通过。按用户20,000步上限已启动一组G5，允许早停；旧队列和下载保持停止。
+
+最新：[训练前复核与Ridge能力审计](outputs/encoder_v2/pre_G5/README.md)、[G5配置与实时状态](outputs/encoder_v2/G5_native_bank/README.md)、[Training Viewer](http://127.0.0.1:8766/)。下文旧版修正版队列为历史事实，不代表自动续行授权。
+
 
 本包是统一光谱—空间编码器与目标条件预测器的稳定入口。旧CNN-DINO、USE及其数据、权重和报告保留。旧版训练因气溶胶质量掩码缺失与目标位置描述不完整已停止；修正版数据、代码和训练独立位于`outputs/repair_v2/`。修正版同源Transformer已完成15000步，真实双向跨源组与同源继续训练对照已从其固定第10000步权重接续；同容量CNN及随机编码器对照仍按原队列推进。
 
@@ -439,3 +442,158 @@ A入口另已加入每步实时TVLP写入、主线程心跳、完成/失败状�
 
 [机器复核](outputs/encoder_v2/G4_fit/review.json)、[非空优化器恢复](outputs/encoder_v2/G4_fit/resume_acceptance.json)与[Viewer校验](outputs/encoder_v2/G4_fit/viewer_validation.json)保留完整证据。曲线回摆，200步未确认收敛；没有追加训练、G5、跨源或物理损失。
 <!-- ENCODER_V2_G4_REVIEW_END -->
+
+## B课程契约澄清与独立固定组合验证
+
+G4是200步的小规模诊断，B实际仅逐个隐藏真实波段，没有落实完整混合课程；不能据此认定架构失败。G5当前训练已经混合单波段与2–3波段缺失，整组真实像元从Encoder所有输入路径移除；实际接受比例受可用波段数和未见组合排除规则影响，不宣称精确50%/50%。实际曝光按来源及缺失组合记录，见[采样核对](outputs/encoder_v2/G5_native_bank/B_combination_validation/training_distribution_audit.json)。
+
+本次补充将固定验证分为三类：单波段（原固定逐传感器、逐目标结果）、训练分布内7种成组缺失、训练未见5种成组缺失。每种组合冻结目标、成员、有效像元及像元采样规则，分别保存逐波段MAE、RMSE、偏差、预测方差和NMSE，不只报告混合B总损失；同一隐藏集合存在不同可见波段库存时，另外按可见波段集合分层。清单见[固定组合合同](outputs/encoder_v2/G5_native_bank/B_combination_validation/contract.json)。它覆盖明确列出的12种成组组合，不等于穷举所有随机训练子集。
+
+该补充是在G5已启动后按用户要求冻结的诊断，不能冒充启动前预注册。只读评价入口为`python -m observation_model.g5_b_validation --checkpoint last.pt`，首次监测到至少500步的保存检查点、其后2000步里程碑及末态/最佳进行完整固定评价；结果独立接入Viewer。不得因此重启或改写活跃训练、重置20000步预算，亦不改变已冻结选模规则。当前G5选模仍是固定A加单波段B，不能用该评分单独证明成组缺失课程收敛；后续新正式运行须在启动前明确混合训练分布、各固定验证组合以及它们是否参与选模。
+
+现有[Training Viewer](http://127.0.0.1:8766/)已登记独立任务“G5固定组合验证｜训练内与未见组合”，产物页展示12种固定组合清单、成员数量及实际B训练采样快照。完整指标产生后由只读评价入口写入同一任务。注册时没有完整验证指标，未将10步工程小批结果冒充正式曲线；Viewer API已确认3个产物可见，TVLP校验0错误、0警告。
+
+## 当前G5速度诊断
+
+G5单卡cuda:1、微批1、有效batch32；每次更新串行执行32源观测的A/B共64个编码视图与反向，不是32份同时并行。模型1432209参数。近期每步约22–31秒；另有每500步固定验证，因此wall时长不能仅由优化步数乘单步推算。12次nvidia-smi采样中GPU1为8%–25%（均值16.5%），GPU0不参与本G5；两卡显存占用不证明双卡训练。
+
+![训练执行与GPU负载诊断](outputs/encoder_v2/G5_native_bank/performance_diagnosis.png)
+
+左图为12次GPU-Util采样；右图为4份实际原生观测、8个视图的单独只读分段计时。编码前向3.203秒、解码1.769秒、反向0.558秒、缓存读取/解压0.027秒、输入哈希0.015秒。右图含冷启动、额外同步，并与活跃训练共享GPU，不能当作全程耗时占比，也不能据此保证加速倍率。模型哈希前后相同，0次参数更新。原始证据见performance_profile.json与gpu_utilization_sample.json。
+
+源码确认的优化点依次为：每波段每次前向仅生成一次SRF条件投影权重（当前每64行重复生成）；按原生尺寸/可见波段分组实现真正的2–4微批及更大张量算子，保持全局batch32、完整原生输入与原遮盖日程；向量化/合并面积聚合和查询近邻的小算子，少量复用几何描述；集中回传指标，减少逐波段float/int/bool带来的CPU/GPU同步。数据预取可补，但本次小样本没有显示I/O为主瓶颈，哈希也不能被无证据地指认为主要原因。
+
+双卡应在单卡执行粒度改善后评估DDP，保持全局32份观测分成每卡16份及同一传感器/波段权重。原生Windows安装需核对通信后端，不能承诺NCCL双卡即开即用，更不能将低GPU-Util简单换算为线性提速。当前只完成诊断，未修改活跃训练源码、训练目标、学习率、数据或优化器状态；没有测得任何已实现的提速倍率。
+
+## G5当前固定结果、状态显示修复与单卡接续
+
+固定验证只完成初始化与第500步两次：初始化A/B/综合NMSE为31.7540/24.0044/25.5543，第500步为0.61750/0.64828/0.64213。综合为(0.25A+B)/1.25，逐波段标准差只来自TRAIN。第500步为当前最佳及最近完整保存状态；其后的活跃更新没有新固定验证，不能冒充末态验证，更不能凭一个训练后验证点判断已收敛。Ridge优势与表征迁移收益尚未被新编码器推翻或证实。
+
+第500步的12种固定成组组合已完成全量合格VAL只读评价，0参数更新。结果见[B组合真实结果](outputs/encoder_v2/G5_native_bank/B_combination_validation/last_step_00500.json)。
+
+![第500步固定组合结果](outputs/encoder_v2/tvlp/encoder_v2_G5_nativebank_20k__B_fixed_panel/artifacts/B_combinations_00500.png)
+
+每行一种独立隐藏组合，蓝色为训练分布内7组、橙色为训练未见5组；横轴为按该组合有效像元、观测和目标波段平均的NMSE。不同组合的数据覆盖与难度不同，不能把跨行差异当成同条件架构排名；可见波段库存分层结果保留在JSON。单波段与成组组合不合并掩盖困难情况。
+
+单卡加速通过FP32/BF16数值对照、同32源观测/相同遮盖的完整梯度与曝光对照、最大原生窗口A/B检查：同批原实现29.509秒，加速实现15.723秒，单次测得1.877倍。完整批次梯度相对差0.0651%；FP32预测最大差约2.38e-7，BF16存在小幅舍入差异。只有运算分块、每次前向内SRF权重复用和独立目标查询融合改变，参数、原生输入、目标样本数、全局batch32、遮盖、采样、学习率、Adam状态及总预算保持同一契约。尚未完成正式接续，持续吞吐及长程效果不能由一次试跑保证。证据见acceleration_check.json与acceleration/manifest.json。
+
+接续控制器已独立启动：等待第1000步完成固定验证，并保存最佳/末态、调度与随机/采样状态后，短暂停止唯一原G5进程，保留切换前best/last，从同一状态运行`python -m observation_model.g5_fast_train`。不从500步回退，不重置20000次实际更新预算；实际接续进度、PID和可能发生的少量重放以acceleration/transition.json为准。当前还在原实现训练，不能把已验证的试跑速度当作已上线速度。
+
+Viewer中步数卡片曾错误优先取上次验证500而遮蔽新训练700+；已修为按真实最新记录时间显示，验证独立标注“最近验证：S500”，最佳卡片在没有独立primary字段时明确展示最佳验证损失。已通过TypeScript检查、构建和独立真实浏览器验收，实际看到S751、Train Loss0.6611、Validation Loss0.6421、LR3e-4且无API错误，截图时刻与后续更新严格区分。截图与验收在viewer_fix/。如用户页面仍旧显示，强制刷新[当前G5页面](http://127.0.0.1:8766/?status_fix=1#/runs/encoder_v2_G5_live_view)。
+
+## 进一步单卡优化与旧训练速度核对
+
+此前“完整原始影像A”实际为原生完整窗口，100份训练观测每步各一视图，900步约4040秒，尾段880至900步约4.23秒/步；不能用旧240m实验解释这次速度差异。旧实现为Patch对齐线性重建头，每份固定一个波段的一个60m目标区域，固定100份训练成员共1190个有效监督目标像元/步，并从完整输入原型权重初始化。当前G5每步32源观测/64视图，同批测试约414662个监督目标像元，使用原生特征库与逐像元条件查询、几何近邻检索，从随机初始化开始。当前库存6402并不能单独解释单步慢；更高的20k更新上限与每步执行方式共同影响总成本。上述任务不同，不作为同条件速度或科学效果排名。
+
+1.88倍不是上限。后续已检查两项：重复Key/Value归一化及空窗口掩码的注意力改写只额外约1.05倍，本轮不采用；对完全相同原生网格、可见有效掩码和查询位置，按视图复用精确近邻索引，同32源观测的第一轮加速版14.177秒→10.907秒，额外1.300倍。本次FP32/BF16输出、损失、完整批次梯度均与第一轮加速版一致。548次检索中422次复用、126次计算，所有可学习特征仍重新计算。最大原生A/B检查通过。保持任务、目标采样数、原生分辨率、优化器和随机日程；加速只改执行。
+
+![进一步单卡提速](outputs/encoder_v2/G5_native_bank/acceleration/continued_speedup.png)
+
+左图两柱是相同任务与批次的只读计时；右图是该批次的精确索引复用次数。它不是当前线上持续速度，也不能与旧A的4.23秒直接作同任务比较。证据与源哈希见geometry_acceleration_probe.json，数值和开销对照见acceleration/old_and_current_cost_comparison.json。
+
+第1000步安全接续已更新为包含几何缓存的版本，仍等完整验证及可恢复状态保存后切换；当前原训练继续。跨影像仍是微批1，真正按形状/波段分桶合批、进一步减少动态同步仍有空间，尚未实现或测得收益。不会把缩小原始窗口、减少目标数或改变任务当成等价加速。
+
+
+当前执行更正：原进程已完成1000次成功更新并保存完整last.pt，但随后固定验证在原子替换status.json时遇到Windows PermissionError而退出，未完成第1000步选模。失败状态及best/last均已保存在acceleration/failure_before_fast_*。已从该1000步完整状态恢复同一G5并启用已验收的单卡几何缓存版本；增加仅针对PermissionError的最多5秒写入重试，先完成中断的固定验证和原有选模/调度，再执行1001步。当前恢复验证已实际推进，新增优化更新尚待验证结束；回滚更新为0，总预算仍为20000。原冻结源码与合同不改，新执行源码哈希另记acceleration/manifest.json；Viewer桥已恢复。持续训练加速倍率尚待实测。
+
+
+加速版持续运行已验证：恢复后约480步平均前后向8.15秒/更新，原版最后50步23.57秒；不同采样批次及运行时段，倍率为线上观测而非严格配对基准。第1000步完整固定验证：A=0.222447、单波段B=0.245507、选模分数=0.240895；对第500步0.642127降低62.48%。这是重建验证改善，尚不证明优于同支持Ridge或表征迁移能力。训练卡8次采样利用率3%—23%、平均15.25%，仍有执行效率空间。详见acceleration/live_speed_verification.json。
+
+![实际持续速度与固定验证](outputs/encoder_v2/G5_native_bank/acceleration/live_speed_and_validation.png)
+
+
+单卡真实微批次加速已验收并从第1500步接续：GPU源观测微批次由1增至4，有效批次仍为32、S2/L8各16；共享光谱融合、窗口/移位空间注意力及目标查询注意力均沿独立样本批维合并，不跨样本注意。原生栅格解析、池化与邻域构造仍按各自网格执行。每组先A后B，梯度累计顺序调整，原采样成员、遮盖、目标像元、权重与总预算保持；原冻结config中的microbatch=1是历史启动配置，实际执行覆盖见acceleration/microbatch_manifest.json及TVLP execution_revision。
+
+相同真实32源批次：串行9.704秒、微批2为7.180秒、微批4为6.982秒（额外约1.390倍）；微批4完整梯度相对差0.001389、损失相对差1.29e-8，曝光计数完全一致。四幅最大原生窗口A/B峰值分别16,627,233,792及9,060,262,912字节，低于原24GiB限制；检查未创建优化器、0次更新。实际训练接续入口为`python -m observation_model.g5_microbatch_train`，不得重复启动；原唯一G5总预算20000，检查点及Adam/RNG/采样/早停状态完整恢复。对照是同一批任务的只读计时，持续线上收益待后续日志验证。
+
+
+重启后执行更正：微批次4未确认持续提速。1401—1500步B损失均值0.1679、标准差0.0514；1588—1687步均值0.2055、标准差0.1245，波动增大属实。两窗口的成员、遮盖和训练时间不同，1500步后没有新固定验证，原因未确认，不能直接认定合批或架构失败。检查点1500的Adam步数、RNG和采样位置完整。设备重启后1687状态为旧记录，旧进程已退出；从完整1500恢复已验证几何缓存版，不继续微批4，不启用共享GPU计时受干扰的池化缓存候选。187次已完成但未保存的更新计入原20k预算，后续最多19813逻辑步。微批4代码、指标及source哈希均保留，阶段证据见acceleration/reboot_review.json。
+
+
+稳定几何缓存版已实际恢复推进，rollback_updates=187，最大逻辑更新数19813；Viewer沿用原URL。相同1500检查点出发的重算前10步与微批4历史记录逐步比较，A/B损失最大绝对差分别0.0004904419183731079/0.0005781054496765137。这不支持恢复状态重置或目标改变的解释，但不证明后续波动无害或完全由随机难度导致，仍需2000步固定验证。相同日程的实际耗时和重启前后图见acceleration/reboot_review.json及下图。
+
+![重启前后损失核对](outputs/encoder_v2/G5_native_bank/acceleration/reboot_loss_diagnosis.png)
+
+
+Viewer重启后的浏览器复核：曲线和1500步验证可读，但当前版本摘要卡仍取重启前较大的逻辑步数1686，未反映最新恢复151x；不能称实时步数显示已通过。真实进度以G5/status.json的optimizer_updates和actual_successful_updates为准。browser_acceptance.json已将该限制明确标出，未改写历史科学指标或假造新步数。
+
+
+第1500步只读可视化：使用保留的acceleration/before_microbatch_last.pt（实际update=1500），没有新增优化器更新，模型前后哈希一致。输出cases/step_01500/predictions.png及grouped_predictions.png，附数组、成员、有效支持和哈希。前图每行依次为S2 B08、B11、L8 SR_B5、SR_B6，列为可见波段示例、真实目标、TRAIN Ridge、G5预测及绝对误差；后图隐藏S2 B11+B12或L8 SR_B6+SR_B7，列为可见波段示例、真实目标、预测、绝对误差及有效支持。各卫星固定最小原生完整波段VAL窗口，绝非全验证集表现；单波段真实目标/Ridge/预测共用色标。左列只展示一个输入示例，实际编码使用全部未隐藏波段。成组恢复不是跨卫星模态生成，G5未接受跨源配对监督。Viewer只读产物任务encoder_v2_G5_step1500_cases。
+
+![1500步单波段恢复](outputs/encoder_v2/G5_native_bank/cases/step_01500/predictions.png)
+
+![1500步成组恢复](outputs/encoder_v2/G5_native_bank/cases/step_01500/grouped_predictions.png)
+
+
+用户确认的1500步跨卫星零样本可视化已完成：cases/step_01500/cross_source_zero_shot.png。使用同CRS、bbox相交、时间差1.998天的真实VAL S2/Landsat观测，选例不依赖预测；源完整波段输入，目标仅以真实SRF、原生网格坐标和支持作为查询，不输入目标像元。前三行S2→Landsat红/近红外/SWIR（30m），后三行Landsat→S2红/近红外/SWIR（10/10/20m）；列为对应源波段示例、真实目标、预测、绝对差和共同有效区。G5未接受跨卫星配对监督、未验证跨源能力；未测配准残差，不能据此认定该配对正式准入；两次采集/处理域差异同样进入差值，10m查询不证明恢复真实10m细节。预测数组、日期、网格、模型/数据/输出哈希和限制见cross_source_index.json，0优化器更新。Viewer只读任务encoder_v2_G5_step1500_cross_source。
+
+![1500步跨卫星零样本诊断（未验证）](outputs/encoder_v2/G5_native_bank/cases/step_01500/cross_source_zero_shot.png)
+
+
+Viewer恢复训练入口已修复：http://127.0.0.1:8766/?resume=1#/runs/encoder_v2_G5_resumed_live 。原页面step1500_cases只展示图片；旧display桥的游标状态文件含NUL而退出，且训练进程在1533步后实际已退出（原因未确认）。保留旧日志/坏游标，确认无活进程后再次从1500步恢复，累计rollback_updates=220，最大逻辑步19780，仍仅原G5预算。新只读显示任务仅同步当前恢复session的训练及心跳，并沿用真实历史固定验证，避免历史1686步覆盖新150x步。浏览器验收已实际看到S1502、TrainLoss0.1903、VAL0.1739@1500、LR3e-4及曲线，证据viewer_fix/resumed_browser_acceptance.json、viewer_resumed_status.png。图片任务和实时训练任务分开，不新增模型训练组。
+
+
+反复退出的本次明确根因与修复：G5_fast.log最后记录forrtl error200、window-CLOSE event，表明收到控制台关闭事件；不是损失或CUDA异常。此前DETACHED_PROCESS启动链未保证venv实际工作进程独立，不能把只重启进程称为修复。现改用用户级Windows计划任务EarthRepresentation_G5_Authorized手动承载pythonw入口observation_model.g5_detached_worker，实际console_window=0；无触发器、无自动重启，不恢复旧队列。12秒零更新独立探针在启动命令退出后完成、任务退出码0，正式训练亦已在后续独立命令中持续推进。任务XML、源哈希、证据见acceleration/scheduled_task.xml、console_close_fix.json；启动日志G5_scheduled.log，失败退出将记录scheduled_worker.json。Viewer桥与训练由同一任务承载，新入口http://127.0.0.1:8766/?scheduled=1#/runs/encoder_v2_G5_scheduled_live，浏览器核验见viewer_fix/scheduled_browser_acceptance.json。历史停机已确认重算222次，原总预算20k不变、最大逻辑步19778。这里只确认修复最新控制台关闭链，不把历史蓝屏或其他退出归为同一原因，不能承诺免于系统重启或硬件故障。
+
+
+Viewer再次离线的现场：设备重新启动，原独立训练计划任务和Viewer服务均不在；停机前实际2226步，最后完整检查点2000，固定验证0.134762（1500步0.173903）。原科学日志JSON完整，派生同步游标含NUL；已保留坏游标及历史显示，重建同一scheduled_live显示入口。从2000完整状态恢复，累计rollback448、最大逻辑步19552、总预算仍20k。Viewer现也由独立手动计划任务EarthRepresentation_Viewer_8766以pythonw承载，无自动触发/重启。浏览器核验S2002、验证0.1348@2000、真实损失及LR可读。重启前239—585秒/步异常慢，原因尚未诊断，不宣称为GPU故障；恢复首步9.20秒。记录见acceleration/device_reboot_recovery.json。
+
+
+恢复断点与验证频率解耦：当前训练仍每500步完整保存；已实现并通过最小状态钩子检查的下一执行版本，每50步保存last.pt中的模型、Adam、RNG、采样、曝光、LR/早停状态并fsync，验证仍每500步、完整挑战每2000步，不改变训练有效批次或选模。独立一次性手动计划任务EarthRepresentation_G5_CheckpointHandover已安排在2500步固定验证及完整保存之后切换，禁止称50步已生效；当前训练继续，不为修改而立即回滚。2500原验证保存路径保持。准备源码/哈希见acceleration/checkpoint50_manifest.json，切换状态见checkpoint_handover.json。TRAIN6402中S2四波段4292、十波段588，L8六波段1351、七波段171；主VAL367、S2C额外VAL16。固定验证常规2567个编码视图，2000步3258个；1000/1500/2000步实耗分别169/214/144秒。时间包含完整原生输入编码及逐目标查询，绝非367次简单前向；不能用异常停机前数百秒/步代表正常验证耗时。
+
+
+当前训练继续与50步恢复断点已实测通过：设备再次重启后原训练停在2158，最后完整2000；无需再等2500，失效切换器已取消，新无控制台任务立即启用50步保存。初次启动遇到time局部导入遮蔽全局的入口错误，发生在任何优化更新前，已修复。实际last.pt=2050，Adam各参数step=2050、sampler_cursor=65600、rollback606，Python/NumPy/CPU/CUDA RNG齐全；模型、调度、曝光及早停均保存。验收见acceleration/checkpoint50_live_acceptance.json，原总预算20k不变、最大逻辑步19394。验证仍500、2000挑战不变，后续正常停机最多重算49个完整更新（崩溃时正在执行的一步是否完成可能不可确认）。固定验证1000/1500/2000为0.240895/0.173903/0.134762，当前lr3e-4、lr_wait=stop_wait=0，没有固定验证平台期证据；不能把单步波动或反复重算称为收敛。数据与模型目标保持本组冻结版本，不进行数据补全或新实验。
+
+![固定验证趋势](outputs/encoder_v2/G5_native_bank/acceleration/convergence_review.png)
+
+
+最新5750步只读可视化已生成，使用固定1500步同一观测、输入哈希、目标及有效支持，0优化更新；5750是最新恢复末态，不是5000步最佳权重。单波段MAE四项1500→5750：S2 B08 0.04083→0.02081、B11 0.03457→0.01933、L8 B5 0.03792→0.03467、B6 0.03913→0.01449；四项仍未超过相同支持Ridge。固定跨源零样本案例中S2→L8近红外及SWIR差值降低，但红光MAE0.00759→0.03564变差，不能宣称所有跨源能力随同源预训练改善。配对、日期和配准限制不变；case文件及Viewer任务均以5750明确标识。
+
+![5750步单波段恢复](outputs/encoder_v2/G5_native_bank/cases/step_05750/predictions.png)
+
+![5750步跨源零样本](outputs/encoder_v2/G5_native_bank/cases/step_05750/cross_source_zero_shot.png)
+
+
+5750步其余13个真实波段与Ridge已按同一固定VAL成员完成：S2 B02/B03/B04/B05/B06/B07/B8A/B12；L8 SR_B1/B2/B3/B4/B7。每目标整波段从输入移除，其他实际波段均可见，Ridge仅用原TRAIN拟合；双方评价像元相同。图每列为真值、Ridge、G5、Ridge绝对误差、G5绝对误差；同一行真值/预测同色标，两误差同色标，白色为共同无效区，跨行不可凭颜色直接比较。13个案例MAE均高于Ridge，仅为两幅固定影像，不能宣称全验证集13波段均落后。0优化更新、模型哈希不变，数组/输入/输出哈希见remaining/index.json，完整数值metrics.csv，Viewer任务encoder_v2_G5_step5750_remaining_bands。
+
+| 传感器与目标 | G5 MAE | Ridge MAE |
+|---|---:|---:|
+| S2 B02 | 0.00514 | 0.00427 |
+| S2 B03 | 0.01094 | 0.00334 |
+| S2 B04 | 0.01236 | 0.00847 |
+| S2 B12 | 0.01483 | 0.01242 |
+| S2 B05 | 0.01177 | 0.00762 |
+| S2 B06 | 0.00819 | 0.00613 |
+| S2 B07 | 0.00914 | 0.00559 |
+| S2 B8A | 0.01073 | 0.00581 |
+| L8 SR_B1 | 0.00812 | 0.00319 |
+| L8 SR_B2 | 0.00686 | 0.00238 |
+| L8 SR_B3 | 0.00934 | 0.00347 |
+| L8 SR_B4 | 0.01046 | 0.00655 |
+| L8 SR_B7 | 0.01500 | 0.01082 |
+
+![S2_visible_SWIR](outputs/encoder_v2/G5_native_bank/cases/step_05750/remaining/S2_visible_SWIR.png)
+
+![S2_rededge_NIR](outputs/encoder_v2/G5_native_bank/cases/step_05750/remaining/S2_rededge_NIR.png)
+
+![Landsat_remaining](outputs/encoder_v2/G5_native_bank/cases/step_05750/remaining/Landsat_remaining.png)
+
+
+用户设备重启后的7050断点恢复已核验：停机记录7053，完整last7050（模型/Adam/RNG/采样/调度/早停状态）；只重算3次，累计rollback613、最大逻辑更新19387，总成功更新仍最多20000。新无控制台工作PID26236已推进7051以上，50步恢复保存保持。原日志JSON完整，旧Viewer会话和同步游标保留后重建同一scheduled_live入口；浏览器实际读到S7051、验证0.0536@7000、LR3e-4。最佳仍6500步0.042718，7000步0.053582，平台/早停等待1，不改冻结策略。证据acceleration/restore7050.json、viewer_fix/restored7050_browser_acceptance.json。
+
+
+快捷打开Viewer：桌面`Training Viewer.lnk`，或项目根目录`打开训练查看器.cmd`。二者调用`open_training_viewer.ps1`，服务在线时直接在默认浏览器打开当前scheduled_live页；服务离线时仅启动既有EarthRepresentation_Viewer_8766任务并等待端口页面可读，不启动/恢复训练、不修改训练配置。启动失败弹出错误消息。入口脚本实际运行退出码0，桌面快捷方式已确认存在。
+
+
+用户要求继续训练后的7450断点恢复：旧进程已退出，最后记录7471、完整last7450；保留日志及Viewer历史后恢复同一独立任务，实际已推进7451以上。新增重算21、累计634，原20k实际更新预算保持（逻辑上限19366），每50步完整保存及原调度不变。Viewer原服务未重启，实际浏览器读取7451、新损失及7000验证0.0536；证据acceleration/restore7450.json、viewer_fix/restored7450_browser_acceptance.json。
+
+
+8500步平台与权重审阅：训练lambdaA按smoothstep在0—2000从1降至0.25，lambdaB始终1，2000之后未改；固定选模(0.25A+B)/1.25始终不变。7500→8500综合0.040165→0.039777改善0.967%，但B0.031430→0.031739未超7500，A0.075105→0.071926改善；属于改善放缓/平台迹象，不能证明已停止学习或B成组课程整体收敛。实际last的LR3e-4、lr_wait/stop_wait=0；best内部等待计数1源于原代码在更新等待状态前保存best，不能用其替代当前last状态。当前45次未保存更新的进程已退出，原授权范围从8500恢复，无目标改动；累计rollback679、最大逻辑步19321，已实测推进8502。
+
+8500固定案例已按原成员和目标生成（0模型更新），并与5750比较：S2 B08 MAE0.02081→0.02071、B11 0.01933→0.01349，L8 B5 0.03467→0.03945变差，B6 0.01449→0.01138，该单例低于Ridge0.01312；不能泛化为全验证优势。跨源仍为未验证零样本，不同波段变化不一致；数组/检查点/来源哈希见cases/step_08500。
+
+![8500验证与权重](outputs/encoder_v2/G5_native_bank/cases/step_08500/validation_and_weights.png)
+
+![8500波段恢复](outputs/encoder_v2/G5_native_bank/cases/step_08500/predictions.png)
+
+![8500跨源零样本](outputs/encoder_v2/G5_native_bank/cases/step_08500/cross_source_zero_shot.png)

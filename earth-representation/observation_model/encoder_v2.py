@@ -4,6 +4,7 @@ No training entry point. Native values never become an interpolated image.
 """
 from dataclasses import dataclass, field
 import math
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -30,6 +31,9 @@ class EncoderConfig:
     max_tokens: int = 8192
     pool_rows: int = 64
     query_chunk: int = 256
+    local_width: int = 0              # G2/G4 legacy remains bit-compatible at0
+    local_neighbors: int = 4
+    retrieval_chunk: int = 8192
 
 
 @dataclass
@@ -81,6 +85,18 @@ class EncoderRepresentation:
     source_support: list
     grids: list
     metadata: list = field(default_factory=list)
+    optional_local_features: list | None = None
+
+
+@dataclass
+class NativeFeatureBank:
+    features: torch.Tensor            # actual visible native pixels, learned D_local
+    relative_xy_m: torch.Tensor
+    native_pixel_support_m: tuple
+    transform: tuple
+    crs: str
+    band_key: str                     # audit only
+    index_map: torch.Tensor
 
 
 def srf_descriptor(wavelength, response, bins=64):
@@ -101,11 +117,17 @@ def srf_descriptor(wavelength, response, bins=64):
     return torch.tensor(values,dtype=torch.float32)
 
 
+@lru_cache(maxsize=128)
+def _cached_srf(path,device):
+    with np.load(Path(path),allow_pickle=False) as curve:
+        descriptor=srf_descriptor(curve['spectral_wavelength_grid_nm'],curve['normalized_response'])
+    return descriptor.to(device)
+
+
 def image_from_g1(item, device='cpu'):
     bands=[]
     for band in item['bands']:
-        with np.load(Path(band['spectral_response_ref']['path']),allow_pickle=False) as curve:
-            descriptor=srf_descriptor(curve['spectral_wavelength_grid_nm'],curve['normalized_response'])
+        descriptor=_cached_srf(band['spectral_response_ref']['path'],str(device))
         bands.append(OpticalBand(torch.as_tensor(band['reflectance'],device=device),
             torch.as_tensor(band['pixel_valid'],device=device),tuple(band['transform']),band['crs'],
             descriptor.to(device),band['band_key']))
@@ -153,6 +175,12 @@ def axis_overlap(cell_edges,pixel_lo,pixel_hi):
 
 
 def pool_native(band,grid,config):
+    # Geometry, QA area and physical moments remain FP32 under model autocast.
+    with torch.autocast(band.values.device.type,enabled=False):
+        return _pool_native_float32(band,grid,config)
+
+
+def _pool_native_float32(band,grid,config):
     """Area-integrate projected native local moments, bounded by source row chunks.
 
     Linear projection commutes with this integration; no D-wide native image is
@@ -190,9 +218,36 @@ class OpticalEncoderV2(nn.Module):
     def __init__(self,config=None,condition_mode='learned'):
         super().__init__();self.config=config or EncoderConfig();c=self.config
         self.projection=PhysicalProjection(c,condition_mode)
+        self.local_projection=PhysicalProjection(EncoderConfig(width=c.local_width),condition_mode) if c.local_width else None
+        self.local_descriptor=nn.Linear(c.srf_bins+2,c.local_width) if c.local_width else None
+        if self.local_descriptor is not None and condition_mode=='frozen':self.local_descriptor.requires_grad_(False)
         self.position=nn.Linear(6,c.width);self.query=nn.Parameter(torch.zeros(c.width))
         self.fusion=CrossBlock(c.width,c.heads)
         self.blocks=nn.ModuleList(AttentionBlock(c.width,c.heads,c.ffn) for _ in range(c.spatial_blocks))
+
+    def native_bank(self,band,grid):
+        gx,gy=band.support;left,bottom,right,top=grid['bounds'];h,w=band.values.shape
+        _,_,cx,_,_,cy=band.transform;device=band.values.device
+        x=(torch.arange(w,device=device,dtype=torch.float64)*gx+(cx-left)+gx/2).float()
+        y=(torch.arange(h,device=device,dtype=torch.float64)*gy+(top-cy)+gy/2).float()
+        xx=x[None].expand(h,w)/(right-left);yy=y[:,None].expand(h,w)/(top-bottom)
+        keep=band.keep();value=torch.where(keep,band.values,0)
+        descriptor=(self.local_descriptor(torch.cat([band.srf,torch.log(band.srf.new_tensor([gx,gy])/10)]))
+            if self.local_projection.condition_mode!='off' else band.values.new_zeros(self.config.local_width))
+        features=[];coordinates=[]
+        for begin in range(0,h,self.config.pool_rows):
+            end=min(h,begin+self.config.pool_rows);u,v=xx[begin:end],yy[begin:end];q=keep[begin:end]
+            basis=torch.stack([torch.ones_like(u),u,v,u*u,v*v,u*v,
+                torch.sin(2*math.pi*u),torch.cos(2*math.pi*u),torch.sin(2*math.pi*v),torch.cos(2*math.pi*v)],-1)
+            basis=(basis*value[begin:end,:,None])[q]
+            # Native pixels are encoded before any spatial pooling. The bank is
+            # an explicit, costed Encoder output; raw reflectance is not returned.
+            features.append(self.local_projection(basis,band.srf,band.support)+descriptor)
+            xy=torch.stack([x[None].expand(end-begin,w),y[begin:end,None].expand(end-begin,w)],-1)
+            coordinates.append(xy[q])
+        index_map=torch.full(keep.shape,-1,device=device,dtype=torch.long)
+        index_map[keep]=torch.arange(int(keep.sum()),device=device)
+        return NativeFeatureBank(torch.cat(features),torch.cat(coordinates),band.support,band.transform,band.crs,band.band_key,index_map)
 
     def spatial(self,x,keep,ny,nx):
         d=self.config.width;window=min(self.config.window,ny,nx)
@@ -233,17 +288,19 @@ class OpticalEncoderV2(nn.Module):
         ex=torch.linspace(left,right,nx+1,device=device,dtype=torch.float64)
         ey=torch.linspace(top,bottom,ny+1,device=device,dtype=torch.float64)
         footprint=torch.stack([ex[xx.flatten()],ey[yy.flatten()+1],ex[xx.flatten()+1],ey[yy.flatten()]],-1)
-        return x,keep,footprint,support,grid
+        bank=[self.native_bank(b,grid) for b in bands] if self.config.local_width else None
+        return x,keep,footprint,support,grid,bank
 
     def encode(self,images,excluded_bands=()):
         if isinstance(images,OpticalImage):images=[images]
         encoded=[self.encode_one(image,excluded_bands) for image in images]
         count=max(len(row[0]) for row in encoded)
-        features=torch.stack([F.pad(x,(0,0,0,count-len(x))) for x,_,_,_,_ in encoded])
-        valid=torch.stack([F.pad(q,(0,count-len(q))) for _,q,_,_,_ in encoded])
-        footprints=torch.stack([F.pad(p,(0,0,0,count-len(p))) for _,_,p,_,_ in encoded])
+        features=torch.stack([F.pad(x,(0,0,0,count-len(x))) for x,_,_,_,_,_ in encoded])
+        valid=torch.stack([F.pad(q,(0,count-len(q))) for _,q,_,_,_,_ in encoded])
+        footprints=torch.stack([F.pad(p,(0,0,0,count-len(p))) for _,_,p,_,_,_ in encoded])
         scale=((footprints[...,2]-footprints[...,0])*(footprints[...,3]-footprints[...,1])).clamp_min(0).sqrt()
-        return EncoderRepresentation(features,footprints,valid,scale,[r[3] for r in encoded],[r[4] for r in encoded])
+        return EncoderRepresentation(features,footprints,valid,scale,[r[3] for r in encoded],[r[4] for r in encoded],
+            optional_local_features=[r[5] for r in encoded] if self.config.local_width else None)
 
     forward=encode
 
@@ -256,8 +313,56 @@ class NativeGridDecoder(nn.Module):
         self.position=nn.Linear(6,c.width)
         self.blocks=nn.ModuleList(CrossBlock(c.width,c.heads) for _ in range(2))
         self.output=nn.Linear(c.width,1)
+        self.local_key=nn.Linear(c.local_width,c.width) if c.local_width else None
+        self.local_relative=nn.Linear(4,c.width) if c.local_width else None
 
-    def forward(self,representation,target,index=0):
+    def nearest_native(self,bank,coordinates,bounds):
+        """Exact bounded search on the native regular grid, expanding only holes.
+
+        Stop only when the fourth candidate is closer than every point outside
+        the searched square. This avoids a query-by-entire-image distance matrix.
+        """
+        gx,gy=bank.native_pixel_support_m;h,w=bank.index_map.shape;left,_,_,top=bounds
+        origin=coordinates.new_tensor([bank.transform[2]-left+gx/2,top-bank.transform[5]+gy/2])
+        fractional=(coordinates-origin)/coordinates.new_tensor([gx,gy]);centers=fractional.round().long()
+        count=min(self.config.local_neighbors,len(bank.features))
+        result=torch.empty(len(coordinates),count,device=coordinates.device,dtype=torch.long)
+        remaining=torch.arange(len(coordinates),device=coordinates.device);radius=1
+        while len(remaining):
+            offsets=torch.arange(-radius,radius+1,device=coordinates.device)
+            yy,xx=torch.meshgrid(offsets,offsets,indexing='ij');offsets=torch.stack([xx.flatten(),yy.flatten()],-1)
+            still=[];chunk=max(1,1048576//len(offsets))
+            for begin in range(0,len(remaining),chunk):
+                ids=remaining[begin:begin+chunk];pixels=centers[ids,None]+offsets[None]
+                px,py=pixels[...,0],pixels[...,1]
+                inside=(px>=0)&(px<w)&(py>=0)&(py<h)
+                feature=bank.index_map[py.clamp(0,h-1),px.clamp(0,w-1)]
+                available=inside&(feature>=0)
+                distance=((pixels-fractional[ids,None])*coordinates.new_tensor([gx,gy])).square().sum(-1)
+                distance=distance.masked_fill(~available,float('inf'))
+                best,at=distance.topk(count,largest=False)
+                outside_bound=((radius+.5)*min(gx,gy))**2
+                accepted=torch.isfinite(best[:,-1])&(best[:,-1]<=outside_bound+1e-5)
+                result[ids[accepted]]=feature.gather(1,at)[accepted]
+                still.append(ids[~accepted])
+            remaining=torch.cat(still);radius*=2
+            if radius>4*max(h,w)+8:raise ValueError('Native feature query outside bounded support')
+        return result
+
+    def local_keys(self,banks,coordinates,target_support,bounds):
+        keys=[]
+        for bank in banks:
+            count=min(self.config.local_neighbors,len(bank.features))
+            with torch.no_grad():
+                best_index=self.nearest_native(bank,coordinates,bounds)
+            relative=bank.relative_xy_m[best_index]-coordinates[:,None]
+            scale=coordinates.new_tensor(target_support)
+            relative=torch.cat([torch.tanh(relative/(4*scale)),
+                torch.log(coordinates.new_tensor(bank.native_pixel_support_m)/scale).expand(len(coordinates),count,2)],-1)
+            keys.append(self.local_key(bank.features[best_index])+self.local_relative(relative))
+        return torch.cat(keys,1)
+
+    def forward(self,representation,target,index=0,pixel_indices=None):
         grid=representation.grids[index]
         if target.crs!=grid['crs']:raise ValueError('Target CRS differs; explicit coordinate transformation required')
         a,b,c,d,e,f=target.transform
@@ -266,7 +371,8 @@ class NativeGridDecoder(nn.Module):
         tokens=representation.features[index,:ny*nx];valid=representation.valid[index,:ny*nx]
         context=tokens[valid].mean(0)
         device=tokens.device;dtype=tokens.dtype
-        ids=torch.arange(h*w,device=device);px=(ids%w).to(torch.float64)*a+(c-left)+a/2
+        ids=torch.arange(h*w,device=device) if pixel_indices is None else pixel_indices.to(device)
+        px=(ids%w).to(torch.float64)*a+(c-left)+a/2
         py=(ids//w).to(torch.float64)*(-e)+(top-f)-e/2
         xy=torch.stack([px/(right-left),py/(top-bottom)],-1).to(dtype)
         center_x=torch.floor(xy[:,0]*nx).long();center_y=torch.floor(xy[:,1]*ny).long()
@@ -284,11 +390,17 @@ class NativeGridDecoder(nn.Module):
             empty=~keep.any(1)
             k=k.clone();k[:,0]=torch.where(empty[:,None],context,k[:,0])
             keep=keep.clone();keep[:,0] |= empty
+            if representation.optional_local_features is not None:
+                coordinates=torch.stack([px[begin:end],py[begin:end]],-1).float()
+                local=self.local_keys(representation.optional_local_features[index],coordinates,(a,-e),grid['bounds'])
+                k=torch.cat([k,local],1)
+                keep=torch.cat([keep,torch.ones(local.shape[:2],device=device,dtype=torch.bool)],1)
             q=(condition+self.position(position_features(xy[begin:end])))[:,None]
             for block in self.blocks:q=block(q,k,keep)
             observed=keep.any(1)&(xy[begin:end]>=0).all(1)&(xy[begin:end]<=1).all(1)
             outputs.append(self.output(q[:,0])[:,0]*observed);coverage.append(observed)
-        return torch.cat(outputs).reshape(h,w),torch.cat(coverage).reshape(h,w)
+        shape=(h,w) if pixel_indices is None else (len(ids),)
+        return torch.cat(outputs).reshape(shape),torch.cat(coverage).reshape(shape)
 
 
 class ObservationEncoderV2(nn.Module):

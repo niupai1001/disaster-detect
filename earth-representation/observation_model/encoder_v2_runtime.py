@@ -43,14 +43,15 @@ def load_members(members,device='cpu'):
 
 def definitions():
     result={}
-    for phase in ['diagnostic_A','diagnostic_B','train_A','train_B','val_A','val_B','fixed_train_A','fixed_train_B','train_new_mask_A']:
+    for phase in ['diagnostic_A','diagnostic_B','train_A','train_B','val_A','val_B','fixed_train_A','fixed_train_B','train_new_mask_A',
+        'unseen_response_A','unseen_response_B','combo_SWIR_pair','combo_rededge_group','combo_visible_NIR_pair','combo_visible_NIR_group']:
         result[phase+'/score']={'direction':'min'}
         for sensor,bands in [('S2',['B02','B03','B04','B05','B06','B07','B08','B8A','B11','B12']),('L8',['SR_B'+str(i) for i in range(1,8)])]:
             for band in bands:
                 for metric in ['nmse','rmse','mae','bias','prediction_variance','target_variance']:
                     result[f'{phase}/{sensor}/{band}/{metric}']={'direction':'min' if metric in ['nmse','rmse','mae'] else 'none'}
     for phase,keys in dict(state=['optimizer_updates','learning_rate','lambda_A','lambda_B','remaining_updates','resume_count','gradient_norm'],
-        capacity=['source_observations','encoder_views','target_pixels','visible_pixels','native_pixels','tokens','peak_gpu_MiB','forward_backward_seconds','source_observations_per_second'],
+        capacity=['source_observations','encoder_views','target_pixels','visible_pixels','native_pixels','tokens','local_feature_vectors','encoder_feature_elements','peak_gpu_MiB','forward_backward_seconds','source_observations_per_second'],
         gradients=['A_norm','B_norm'],baseline=['A_mean','A_spatial','B_mean','B_ridge']).items():
         for key in keys:result[phase+'/'+key]={'direction':'none'}
     return result
@@ -60,7 +61,7 @@ class V2Run(TvlpRun):
     def __init__(self,run_id,name,config,resume=False,sequence=0):
         self.sequence=sequence
         super().__init__(LOG_ROOT,project='统一遥感EncoderV2',name=name,run_id=run_id,
-            experiment='G3/G4有界任务',seed=0,metric_definitions=definitions(),config=config,resume=resume)
+            experiment='G5原生局部特征与冻结迁移' if 'G5' in run_id else 'G3/G4有界任务',seed=0,metric_definitions=definitions(),config=config,resume=resume)
 
     def log(self,phase,metrics,global_step=0,wall_time_sec=None):
         self.sequence+=1

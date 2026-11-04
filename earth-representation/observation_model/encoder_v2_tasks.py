@@ -30,6 +30,17 @@ def seed_for(member,kind,draw=0):
     return int(hashlib.sha256(f'0:{member}:{kind}:{draw}'.encode()).hexdigest()[:15],16)
 
 
+def training_spatial_task(image,member,update,excluded=()):
+    if update<1:raise ValueError('Training mask needs a positive logical update')
+    task=spatial_task(image,seed_for(member,'A_train',update),excluded=excluded)
+    task.meta['sampling']=dict(role='TRAIN',logical_update=update,reproducible_after_resume=True)
+    return task
+
+
+def validation_spatial_task(image,member,draw=0):
+    return spatial_task(image,seed_for(member,'A',draw))
+
+
 def curriculum(progress):
     if not 0<=progress<=1:raise ValueError('Relative progress outside0..1')
     if progress<=.35:return 1.,0.
@@ -88,8 +99,38 @@ def band_task(image,key):
             target_valid_pixels=int(target.valid.sum()),visible_target_pixels=0,gsd_m=target.support)}))
 
 
+def spectral_task(image,hidden_keys):
+    hidden=set(hidden_keys);visible=[b for b in image.bands if b.band_key not in hidden]
+    targets=[b for b in image.bands if b.band_key in hidden]
+    if not visible or len(targets)!=len(hidden):raise ValueError('Missing spectral task member or no visible input')
+    return Task('B',OpticalImage(visible,image.product_id),
+        [Target(b.values,b.valid,target_from_band(b),b.band_key) for b in targets],
+        dict(target_bands=sorted(hidden),target_scope='entire_native_bands',exposure={b.band_key:dict(
+            target_valid_pixels=int(b.valid.sum()),visible_target_pixels=0,native_pixels=b.values.numel(),gsd_m=b.support) for b in targets}))
+
+
+def held_out_combinations(image):
+    names={b.band_key for b in image.bands}
+    candidates=[('SWIR_pair',('B11','B12')),('rededge_group',('B05','B06','B07')),
+        ('visible_NIR_pair',('B04','B08')),('SWIR_pair',('SR_B6','SR_B7')),
+        ('visible_NIR_group',('SR_B3','SR_B4','SR_B5'))]
+    return [(name,keys) for name,keys in candidates if set(keys)<=names and len(keys)<len(names)]
+
+
+def training_spectral_keys(image,member,update,anchor=None):
+    names=[b.band_key for b in image.bands];rng=np.random.default_rng(seed_for(member,'B_train',update))
+    anchor=anchor or names[int(rng.integers(len(names)))];forbidden=[set(keys) for _,keys in held_out_combinations(image)]
+    for _ in range(50):
+        maximum=min(len(names)//2,3)
+        n=1 if maximum<2 or rng.random()<.5 else int(rng.integers(2,maximum+1))
+        others=[n for n in names if n!=anchor]
+        hidden={anchor,*rng.choice(others,n-1,replace=False).tolist()}
+        if not any(group<=hidden for group in forbidden):return sorted(hidden)
+    return [anchor]
+
+
 def tensor_hash(tensor):
-    return hashlib.sha256(tensor.detach().cpu().contiguous().numpy().tobytes()).hexdigest()
+    return hashlib.sha256(tensor.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()
 
 
 def input_hash(task):
@@ -107,26 +148,44 @@ def balanced_loss(rows):
     return torch.stack([torch.stack([torch.stack(values).mean() for values in bands.values()]).mean() for bands in groups.values()]).mean()
 
 
-def run_task(model,task,observation,statistics,save_predictions=False):
+def sample_target_indices(target,member,kind,limit,logical_update):
+    indices=target.valid.flatten().nonzero().flatten()
+    if len(indices)>limit:
+        generator=torch.Generator(device=target.values.device).manual_seed(seed_for(member,kind+':pixels:'+target.band_key,logical_update))
+        indices=indices[torch.randperm(len(indices),device=indices.device,generator=generator)[:limit]]
+    return indices
+
+
+def run_task(model,task,observation,statistics,save_predictions=False,target_sample_pixels=None,logical_update=0):
     representation=model.encode(task.visible);rows=[];cases=[]
     for target in task.targets:
-        prediction,coverage=model.decoder(representation,target.grid)
-        q=target.valid&coverage
+        pixel_indices=None
+        if target_sample_pixels is not None:
+            pixel_indices=sample_target_indices(target,observation['id'],task.kind,target_sample_pixels,logical_update)
+        prediction,coverage=model.decoder(representation,target.grid,pixel_indices=pixel_indices)
+        truth=target.values if pixel_indices is None else target.values.flatten()[pixel_indices]
+        declared=target.valid if pixel_indices is None else torch.ones_like(coverage)
+        q=declared&coverage
         # Missing prediction support cannot quietly reduce the declared task.
-        if not torch.equal(q,target.valid):raise ValueError('Declared real targets are not all predicted')
+        if not torch.equal(q,declared):raise ValueError('Declared real targets are not all predicted')
         if not q.any():raise ValueError('No valid target')
         stat=statistics[observation['instrument']+':'+target.band_key]
-        error=prediction[q]-target.values[q];loss=(error/stat['std']).square().mean()
+        error=prediction[q].float()-truth[q].float();loss=(error/stat['std']).square().mean()
         if not torch.isfinite(loss):raise FloatingPointError('Nonfinite reflectance objective')
         metrics=dict(nmse=float(loss.detach()),rmse=float(error.detach().square().mean().sqrt()),
             mae=float(error.detach().abs().mean()),bias=float(error.detach().mean()),
             prediction_variance=float(prediction[q].detach().var(unbiased=False)),
-            target_variance=float(target.values[q].var(unbiased=False)),valid_pixels=int(q.sum()))
+            target_variance=float(truth[q].var(unbiased=False)),valid_pixels=int(q.sum()),declared_full_valid_pixels=int(target.valid.sum()))
         rows.append(dict(sensor=observation['sensor'],instrument=observation['instrument'],band=target.band_key,
             observation=observation['id'],loss=loss,metrics=metrics))
         if save_predictions:cases.append(dict(band=target.band_key,prediction=prediction.detach().cpu(),
-            target=target.values.detach().cpu(),valid=q.detach().cpu(),output_hash=tensor_hash(prediction)))
-    return rows,dict(input_hash=input_hash(task),tokens=representation.features.shape[1],
+            target=truth.detach().cpu(),valid=q.detach().cpu(),pixel_indices=None if pixel_indices is None else pixel_indices.cpu(),output_hash=tensor_hash(prediction)))
+    banks=representation.optional_local_features
+    local_vectors=sum(len(b.features) for b in banks[0]) if banks is not None else 0
+    local_elements=sum(b.features.numel() for b in banks[0]) if banks is not None else 0
+    return rows,dict(input_hash=input_hash(task),tokens=representation.features.shape[1],local_feature_vectors=local_vectors,
+        encoder_feature_elements=representation.features.numel()+local_elements,
+        full_valid_target_pixels=sum(r['metrics']['declared_full_valid_pixels'] for r in rows),target_estimator='uniform-valid-pixel mean' if target_sample_pixels else 'full valid target mean',
         valid_tokens=int(representation.valid.sum()),native_input_pixels=sum(b.values.numel() for b in task.visible.bands),
         visible_source_pixels=sum(int(b.keep().sum()) for b in task.visible.bands),
         target_pixels=sum(r['metrics']['valid_pixels'] for r in rows),views=1,
