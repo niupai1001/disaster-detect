@@ -15,6 +15,8 @@ import time
 def main():
     root=Path(__file__).resolve().parent.parent
     base=root/'observation_model/outputs/encoder_v2';g=base/'G5_native_bank'
+    if (g/'CLOSED_BY_USER.json').exists():
+        raise RuntimeError('G5 ended by user; explicit new authorization required before launch')
     log=(base/'G5_scheduled.log').open('a',encoding='utf-8',buffering=1)
     sys.stdout=sys.stderr=log;faulthandler.enable(file=log,all_threads=True)
     record=dict(pid=os.getpid(),parent_pid=os.getppid(),console_window=int(ctypes.windll.kernel32.GetConsoleWindow()),started_utc=datetime.now(timezone.utc).isoformat(),entry='observation_model.g5_fast_train',automatic_restart=False)
