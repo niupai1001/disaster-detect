@@ -1,0 +1,37 @@
+{
+  "optimizer_updates": 0,
+  "world_size": 2,
+  "torch": "2.11.0+cu128",
+  "nccl": false,
+  "gloo": true,
+  "ranks": [
+    {
+      "rank": 0,
+      "pid": 57116,
+      "phase": "cuda_allreduce",
+      "cpu_allreduce": true,
+      "cuda_allreduce": false,
+      "error": null
+    },
+    {
+      "rank": 1,
+      "pid": 65440,
+      "phase": "cuda_allreduce",
+      "cpu_allreduce": true,
+      "cuda_allreduce": false,
+      "error": null
+    }
+  ],
+  "status": "PROBE_TIMEOUT_OR_WORKER_ERROR_NOT_DDP_ACCEPTANCE",
+  "controller_pid": 40664,
+  "child_pids": [
+    57116,
+    65440
+  ],
+  "controller_error": "ProcessExitedException: process 0 terminated with exit code 3221225477",
+  "transport": "tcp",
+  "limitations": [
+    "Scalar collective only; no gradient/normalization/recovery/throughput acceptance",
+    "No environment migration, installs, training or model parameter updates"
+  ]
+}

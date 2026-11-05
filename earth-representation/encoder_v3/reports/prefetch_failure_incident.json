@@ -1,0 +1,29 @@
+{
+  "status": "ONE_CONTROLLED_PREUPDATE_REPLAY_ELIGIBLE_ROOT_CAUSE_UNRESOLVED",
+  "failure_controller": "pilot_runs/fit_controller_864b7e3a31e8.json",
+  "failed_log": "pilot_runs/fit_controller_864b7e3a31e8.log",
+  "committed_updates": {
+    "AdamW": 45,
+    "CAdamW": 2
+  },
+  "failed_next_logical_update": 45,
+  "budget": {
+    "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+    "reserved": 55,
+    "completed": 55,
+    "incomplete_reservations": [],
+    "remaining_total": 345,
+    "remaining_by_candidate": {
+      "AdamW": 151,
+      "CAdamW": 194
+    }
+  },
+  "serial_reproduction": "failed_prefetch_reproduction.json",
+  "concurrent_reproduction": "prefetch_concurrency_reproduction.json",
+  "new_optimizer_updates_for_reproduction": 0,
+  "code_and_study_unchanged": true,
+  "policy": "Continue only from durable committed checkpoints; replay input preparation, never completed optimizer updates. If failure recurs, stop and isolate concurrency before further fitting.",
+  "limitations": [
+    "The original corrupt index is not explained or fixed; successful repeats are limited negative evidence"
+  ]
+}

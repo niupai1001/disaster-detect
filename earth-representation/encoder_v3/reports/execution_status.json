@@ -1,0 +1,354 @@
+{
+  "status": "IN_PROGRESS_NOT_READY_FOR_FORMAL_TRAINING",
+  "engineering_tests": 59,
+  "engineering_test_skips": [],
+  "existing_native_members_reread": 7778,
+  "real_training_updates": 208,
+  "optimizer_pilot_updates": 208,
+  "pilot_budget": {
+    "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+    "reserved": 208,
+    "completed": 208,
+    "incomplete_reservations": [],
+    "remaining_total": 192,
+    "remaining_by_candidate": {
+      "AdamW": 96,
+      "CAdamW": 96
+    }
+  },
+  "fitting_pilot_updates": 200,
+  "fitting_progress": {
+    "AdamW": 100,
+    "CAdamW": 100
+  },
+  "formal_training_started": false,
+  "stages": {
+    "M0": "7,778 existing cache lineages exactly reproduced; 1,721 original QA recalculations and 6,057 traced parent masks; all-machine admission incomplete",
+    "M1": "Hypernetwork confirmed for preflight; source GSD/SRF/support metadata exported without additional embeddings",
+    "M2": "grouped/tiled synthetic equivalence pass; real broad acceptance incomplete",
+    "M3": "indexed/reference geometry equivalence pass; full-grid acceptance incomplete",
+    "M4": "local receptive regions and shared complete-input union after global attention retained; isolated observation batches tested",
+    "M5": "cell-indexed readout faster on matched P60/P120; reviewed FP32 limits passed on first two warmup inputs only",
+    "M6": "budgeted checks complete; bounded matched fitting in progress; actual progress and remaining budget reported separately; no DDP acceptance",
+    "M7": "not started",
+    "M8": "predictor/EMA helpers tested; cross-source training not started",
+    "M9": "task-head budget unset; training not started"
+  },
+  "confirmed_preflight": {
+    "hypernetwork": {
+      "input": 34,
+      "hidden": 64,
+      "output": 320,
+      "activation": "GELU",
+      "gsd_transform": "natural_log_of_gsd_in_meters",
+      "review": "reports/hypernetwork_preflight_review.json",
+      "scope": "preflight_only"
+    },
+    "spatial_mask": {
+      "count": 1,
+      "target_patch_fraction": 0.5,
+      "aspect_ratio": "log-uniform [0.5,2.0]",
+      "position": "uniform feasible patch-aligned rectangle",
+      "size_rounding": "nearest integer patch count, clipped to observation patch layout",
+      "review": "reports/spatial_mask_preflight_review.json",
+      "scope": "preflight_only"
+    },
+    "members_and_panels": {
+      "review": "reports/pilot_members_panels_review.json",
+      "candidate_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+      "scope": "optimizer_preflight_only"
+    },
+    "numerical_equivalence": {
+      "review": "reports/fp32_equivalence_tolerance_review.json",
+      "scope": "FP32_single_GPU_native_cell_readout_preflight_only"
+    }
+  },
+  "required_before_training": {
+    "hypernetwork_hidden_structure": null,
+    "frozen_data_manifest": null,
+    "pair_admission": null,
+    "mask_rectangle_distribution": null,
+    "validation_panel": null,
+    "improvement_threshold": null,
+    "stability_window": null,
+    "early_stop": null,
+    "precision_acceptance": null,
+    "resource_limit": null,
+    "execution_equivalence": null,
+    "optimizer_choice": null,
+    "formal_training_authorization": null
+  },
+  "evidence": {
+    "engineering_tests.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\engineering_tests.json",
+      "sha256": "cb5d46094465138f9b2dfaf5e9eb7ac9310d1276c58b2f58231ea95f42270d87"
+    },
+    "native_cache_audit.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\native_cache_audit.json",
+      "sha256": "ae08bda45b610242418597c4d8c5589cd676aebc2f5bd2f3036a61ca72760d86"
+    },
+    "inventory_metadata.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\inventory_metadata.json",
+      "sha256": "abd9d08716b48f73cbce5debeee2b0e4323c793d227b2b54a4f509ba5a5ae49b"
+    },
+    "inventory_scope_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\inventory_scope_review.json",
+      "sha256": "9c7fdec5ee068e9ee588afc8c456a03bacd18d47ef07715ff2b6c507faae4f11"
+    },
+    "real_s2_probe.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_s2_probe.json",
+      "sha256": "ce6511af58dfc264866c472c94eb83002535a19a4253f1719d2b84f5172b2626"
+    },
+    "real_landsat_indexed_layout_probe.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_landsat_indexed_layout_probe.json",
+      "sha256": "4020796874ca153e612bf44449c5c08354241dc7f0b494f5fd8f45ea727e0728"
+    },
+    "real_full_s2_indexed_probe.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_full_s2_indexed_probe.json",
+      "sha256": "56914e7956d073430f83d6dd9c1bfffb41779c6a074143c07d73da33e11a0e2d"
+    },
+    "real_decoder_index_probe.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_decoder_index_probe.json",
+      "sha256": "b4504c0acd7ee244d1f384354ac2edfc83d279d852a2f5eb551abc71bb5e16d4"
+    },
+    "real_precision_probe.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_precision_probe.json",
+      "sha256": "58802ca726182e3086ac9c82def016dabeef3783951a1eee4700d75ae0f8c4d2"
+    },
+    "real_full_target_streaming.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_full_target_streaming.json",
+      "sha256": "8963f07c0c67dd8d11c0312df4f6b5816a6ea829a946271eae035e6ed14bff85"
+    },
+    "real_prefetch_probe.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_prefetch_probe.json",
+      "sha256": "98bcac9b1004efe3f73390c4f71db4df488f26329eccd3b91227db2095af1b90"
+    },
+    "dual_gpu_communication_unrestricted.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\dual_gpu_communication_unrestricted.json",
+      "sha256": "7d9f3586ac4f76d73a03c47073977b4e7312471dc30e0aa64a07033fe6999543"
+    },
+    "hypernetwork_preflight_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\hypernetwork_preflight_review.json",
+      "sha256": "6932ffc10ccfa5267e47347f2abf8fca11a5a327a2fea625c0e0b84e41ffa93e"
+    },
+    "spatial_mask_preflight_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\spatial_mask_preflight_review.json",
+      "sha256": "64d9f351ee82d262aae652c752e3e4b008a23c89aca4d1f765f0cd16327ae706"
+    },
+    "real_joint_batch8.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_joint_batch8.json",
+      "sha256": "e0234b12437a351aa4fce4ae3d0fa5d40eb3251dc618c6d6720756964e457a2c"
+    },
+    "independent_gpu_batch8_unrestricted.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\independent_gpu_batch8_unrestricted.json",
+      "sha256": "2ec413b691ac67c0904b4a061c7cd0edeed1a8eb0715b8e99b5302f7f2a02bbe"
+    },
+    "pilot_study_candidate.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_study_candidate.json",
+      "sha256": "268af75006bca1d06bc5ed4918236da9c8a03453d6ceab6921b30fe68fbaa3cf"
+    },
+    "pilot_study_review.md": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_study_review.md",
+      "sha256": "bd7dc9c3a5d5dd52dfc6b522400177c7e19413320b6f3e19fa5d42117ab82158"
+    },
+    "mounted_root_discovery.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\mounted_root_discovery.json",
+      "sha256": "1b7df603f2fbccda660de41d0f4a29e12194425e6c9b53f2c8ee01de935e254b"
+    },
+    "real_microbatch_p120.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_microbatch_p120.json",
+      "sha256": "6980b9c882783adf4db9dc400b3771d7741cfe89e2f51792b6abf4c7b636aea8"
+    },
+    "real_cell_index_comparison.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_cell_index_comparison.json",
+      "sha256": "9d8684d8c34bad4a416a9ec18a9a51d9c5f97f2a3666d47987491a7354eb4e05"
+    },
+    "real_cell_index_p60_comparison.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_cell_index_p60_comparison.json",
+      "sha256": "442b590a176f2cecc5986ca0e50d3d80b7ab96352a53b9bd497933dc6f19964b"
+    },
+    "real_task_python_profile.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_task_python_profile.json",
+      "sha256": "c2348f8d82a33c482d3dd764dfd04aeadd32404e2edf3d1fd8c946242fe35b41"
+    },
+    "real_task_cuda_profiler_aborted.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_task_cuda_profiler_aborted.json",
+      "sha256": "15d945828f9dc89a7561aa387d7ead212293bdbe4c0c6970286fd50ac7e3f64d"
+    },
+    "real_task_cpu_operator_profile.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_task_cpu_operator_profile.json",
+      "sha256": "231134b57287a8b542e1d574048883e09bd08891673c7d7a6365591ec6b6c07e"
+    },
+    "p60_gpu_sampling_summary.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\p60_gpu_sampling_summary.json",
+      "sha256": "afdb3e9970f4adb19f74df8af6ee0476373d44d363f29f4e7422a42925dd29c1"
+    },
+    "gpu_efficiency_review.md": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_efficiency_review.md",
+      "sha256": "1107c2ea5d0dc76d4cd8638e337d1feeafcd3c09dcd8d179c4b17389f3873423"
+    },
+    "native_lineage_audit.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\native_lineage_audit.json",
+      "sha256": "5ce2bb8ca8280bc14c1b901e814d57c01dbb5ea848a5722c000c35cd454325b7"
+    },
+    "native_lineage_audit_source_files.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\native_lineage_audit_source_files.json",
+      "sha256": "3bbf7751130202e9e1578dd5f63c34c8d6ee356485a65e3bf7d30885d19b191b"
+    },
+    "lineage_qa_header_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\lineage_qa_header_review.json",
+      "sha256": "4a31175857dcca97c7dd1a74822af8091f203e8eaff6bdf33edd46eaf9957e02"
+    },
+    "inventory_release_reconciliation.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\inventory_release_reconciliation.json",
+      "sha256": "925246fcf48764a962364407260909b80d345967e233d02d8c49cbb3776ea980"
+    },
+    "pilot_members_panels_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_members_panels_review.json",
+      "sha256": "fef2b190bfa4b650209eeb270b36e6166fc16b775c97d4faa09eb69f005978bb"
+    },
+    "gpu_update_execution_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_update_execution_review.json",
+      "sha256": "4b9342c281b4238a345bc1f2955c6dfee896d03a37301997dbad931013797dd1"
+    },
+    "pilot_first_inputs_check.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_first_inputs_check.json",
+      "sha256": "60fb1fac6dd877707095889cf22eae4bcc8a9bc6b8733316dfa046af2c6c2d1c"
+    },
+    "gpu_update_checkpoint_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_update_checkpoint_review.json",
+      "sha256": "d007167494cea41feb7f9c2507bd12dabe2fd25deda0ad643cd9842f45b49355"
+    },
+    "fp32_equivalence_tolerance_proposal.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_tolerance_proposal.json",
+      "sha256": "d7f643a1c05bf4d5d19a8672b08fd09c609151e2e85bb8ba03447b419ae28ed7"
+    },
+    "fp32_equivalence_tolerance_review.md": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_tolerance_review.md",
+      "sha256": "ceb53b10eb30148455510964424cfc3cf88e3765cc398149bdfd312019c10513"
+    },
+    "pilot_runs/update_check_completed.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_runs\\update_check_completed.json",
+      "sha256": "11e4429298281191d5a375b262389ae13e6ca376a6ac1e4dc046dcecc874cb0e"
+    },
+    "pilot_runs/update_check_a624c7d0c860/report.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_runs\\update_check_a624c7d0c860\\report.json",
+      "sha256": "c8377e33a378f42b17fc4a05ff3581e066826726de1d35288a8ff1ea43209966"
+    },
+    "pilot_runs/budget.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_runs\\budget.json",
+      "sha256": "dac990b9a5ff913f1fb0c7a5e7db9ab71d638b4b85272449c4812db974ff7b92"
+    },
+    "fp32_equivalence_tolerance_review.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_tolerance_review.json",
+      "sha256": "59f798ac5f57fa72f1cb9c5b4f299c5c2cb66018790cd144f94b719789aae41a"
+    },
+    "fp32_equivalence_acceptance.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_acceptance.json",
+      "sha256": "5bba89caea96946b7ff47819bf8d45fb0021c5361311a9b7c0fa6bb1cb745b76"
+    },
+    "cuda_runtime_recovery.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cuda_runtime_recovery.json",
+      "sha256": "c4f9a0a8e7a62aa94f79651be7ec93ac2d0dd7aa0a267dbb5f8f396a310641b3"
+    },
+    "gpu_restart_checkpoint_comparison.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_restart_checkpoint_comparison.json",
+      "sha256": "0c74e332c36ad1042e9ec87e04a05ac0c39e4e7e48c8dddc17f7cc4bc81386aa"
+    },
+    "fast_geometry_pipeline_probe.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fast_geometry_pipeline_probe.json",
+      "sha256": "6e3d5a0e2f18d87dbe7065de160f559a245ab62c90befcd9bd6899e5c68d970e"
+    },
+    "cpu_support_index_comparison.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cpu_support_index_comparison.json",
+      "sha256": "4b3342c4eb2b899741b4c061ec54c0f15346d76bae51c9eda80a42f18fbbd873"
+    },
+    "cross_source_pair_candidates.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cross_source_pair_candidates.json",
+      "sha256": "b3a88d18041dcf6250f63e4288174b41d95017605b26e4fd74c3e10341739ada"
+    },
+    "cross_source_pair_QA_support.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cross_source_pair_QA_support.json",
+      "sha256": "41d004f4d0bd9f24beda407a7e9eca5ad6c1015385eb22ebac6f202dd9c88464"
+    },
+    "local_QA_candidate_inventory.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\local_QA_candidate_inventory.json",
+      "sha256": "91cc1606756df766a36b926aebfc57b67bd2faa91e44edb8b3db136a7904e31a"
+    },
+    "failed_prefetch_reproduction.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\failed_prefetch_reproduction.json",
+      "sha256": "43d799e30f84e1ac3cbb90a53cc1a041b8af6d14b280fb0ae499c61f4bc5bd71"
+    },
+    "prefetch_concurrency_reproduction.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\prefetch_concurrency_reproduction.json",
+      "sha256": "d347bd81306777541eebe2f50d4abc67aeaef6e3ec8ff46205303f20e8d974d6"
+    },
+    "prefetch_failure_incident.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\prefetch_failure_incident.json",
+      "sha256": "8c9c8e1d5811e30c5f0b7e9d08feaf74e7e42944bb85be65853065a23e69aa61"
+    },
+    "local_uav_hyperspectral_header_audit.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\local_uav_hyperspectral_header_audit.json",
+      "sha256": "186f5cf9de6b950650e4af0d4e98c0b93731e40af3e8bb8308b463e98886bbe0"
+    },
+    "discovery_scope_notes.json": {
+      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\discovery_scope_notes.json",
+      "sha256": "d3cd969cddac8f0a74031ac67f7114e4fbdcaa0f601451fc5ec0911b6ef43d6e"
+    }
+  },
+  "next_work": [
+    "Continue same fitting checkpoints to warmup endpoint; reserve budget for peak-LR/update/resume diagnostics",
+    "Continue full optical inventory/source association and V3 pair geometry/QA/change-risk audit",
+    "Track parent-only QA limitations and categorical QA alignment warning; do not equate reproduction with admission",
+    "Current recovered runtime exposes one GPU; multi-GPU checks require two available devices",
+    "Measure full end-to-end data preparation/wait/utilization and complete precision/validation/stability report before formal training"
+  ],
+  "cell_index_performance_candidates": [
+    {
+      "patch_m": 120.0,
+      "reference_seconds": 19.084599399997387,
+      "candidate_seconds": 5.996355700001004,
+      "forward_backward_speedup": 3.1826996854096214,
+      "relative_gradient_difference": 1.0943410640820596e-07,
+      "default_adopted": false
+    },
+    {
+      "patch_m": 60.0,
+      "reference_seconds": 45.39766480000253,
+      "candidate_seconds": 11.018626650002261,
+      "forward_backward_speedup": 4.120083767426062,
+      "relative_gradient_difference": 1.1408354152586433e-07,
+      "default_adopted": false
+    }
+  ],
+  "unresolved_runtime_incident": {
+    "status": "ONE_CONTROLLED_PREUPDATE_REPLAY_ELIGIBLE_ROOT_CAUSE_UNRESOLVED",
+    "failure_controller": "pilot_runs/fit_controller_864b7e3a31e8.json",
+    "failed_log": "pilot_runs/fit_controller_864b7e3a31e8.log",
+    "committed_updates": {
+      "AdamW": 45,
+      "CAdamW": 2
+    },
+    "failed_next_logical_update": 45,
+    "budget": {
+      "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+      "reserved": 55,
+      "completed": 55,
+      "incomplete_reservations": [],
+      "remaining_total": 345,
+      "remaining_by_candidate": {
+        "AdamW": 151,
+        "CAdamW": 194
+      }
+    },
+    "serial_reproduction": "failed_prefetch_reproduction.json",
+    "concurrent_reproduction": "prefetch_concurrency_reproduction.json",
+    "new_optimizer_updates_for_reproduction": 0,
+    "code_and_study_unchanged": true,
+    "policy": "Continue only from durable committed checkpoints; replay input preparation, never completed optimizer updates. If failure recurs, stop and isolate concurrency before further fitting.",
+    "limitations": [
+      "The original corrupt index is not explained or fixed; successful repeats are limited negative evidence"
+    ]
+  },
+  "mounted_filename_scan_summary": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\mounted_raster_discovery\\summary.json"
+}

@@ -1,0 +1,57 @@
+{
+  "status": "ENGINEERING_FULL_TARGET_BACKWARD_ONLY",
+  "optimizer_updates": 0,
+  "observation_id": "obs_0002e58c12d2c4a9e4c91a8c",
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d"
+  },
+  "precision": "fp32",
+  "planning_seconds": 0.40451759999996284,
+  "forward_backward_seconds": 3.2584496999988914,
+  "peak_bytes": 658315776,
+  "finite_gradients": true,
+  "result": {
+    "status": "OK",
+    "loss": 1.7462124517696473,
+    "weighted_loss": 1.7462124517696473,
+    "bands": [
+      {
+        "band": "B02",
+        "status": "OK",
+        "count": 16384,
+        "unsupported": 0,
+        "nmse": 1.0486624917332008,
+        "mae": 0.15967520264166524,
+        "rmse": 0.1955297747150421,
+        "bias": 0.05931782804964314,
+        "prediction_variance": 0.03508965843256515,
+        "target_variance": 0.00015291594030269941,
+        "target_mean": 0.039040129630393494
+      },
+      {
+        "band": "B08",
+        "status": "OK",
+        "count": 16384,
+        "unsupported": 0,
+        "nmse": 2.443762411806094,
+        "mae": 0.26936036706092636,
+        "rmse": 0.31049055999752573,
+        "bias": -0.25445084772445625,
+        "prediction_variance": 0.03474549809151417,
+        "target_variance": 0.004619538688608996,
+        "target_mean": 0.3487226533238754
+      }
+    ],
+    "tokens": 242,
+    "all_target_pixels": true,
+    "decoder_chunk_pixels": 512
+  },
+  "normalization": "Historical hash-bound TRAIN-only source statistics; not V3 frozen statistics",
+  "limitations": [
+    "One TRAIN observation, no optimizer step or training claim",
+    "No target sampling: every valid native hidden-band pixel is included or counted unsupported",
+    "Hypernetwork width and execution/precision remain candidates"
+  ]
+}

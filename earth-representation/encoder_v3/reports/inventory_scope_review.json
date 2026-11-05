@@ -1,0 +1,64 @@
+{
+  "status": "PARTIAL_KNOWN_ROOT_METADATA_REVIEW_NOT_FULL_MACHINE_ADMISSION",
+  "sources": {
+    "N:\\Users\\yzh\\Disater\\earth-representation\\data\\enmap\\manifest.json": {
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    "N:\\Users\\yzh\\Disater\\earth-representation\\data\\manifests\\enmap_inventory.csv": {
+      "sha256": "89a91462813fb8156e2c3b88f854ff651df47ff63aa0a52497f56aac73a8e6e9",
+      "bytes": 68911
+    },
+    "N:\\Users\\yzh\\Disater\\earth-representation\\data\\manifests\\enmap_inventory_summary.json": {
+      "sha256": "6186f98ef2e7d1d2e3bb133079b30709a99695f4ff1bab28d32ff019b222db98",
+      "bytes": 2455
+    },
+    "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\G0_audit\\inventory_srf_review.json": {
+      "sha256": "4b2e79a9972dc8076ffc6d99181927fdef6f74146c74a4b9c2cb2d8fcb361fd0",
+      "bytes": 9950
+    },
+    "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\pre_G1_data_contract\\summary.json": {
+      "sha256": "71da1b11580b716d5644e8316ab361a41637a606c147a94fbca78824c74202ad",
+      "bytes": 2207
+    },
+    "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\pre_G1_data_contract\\canonical_observations.jsonl": {
+      "sha256": "869348aab8027f21a06db2dc1b79f94bfc56dd1af718e4950ec7a892037eaffe",
+      "bytes": 61050430
+    }
+  },
+  "enmap": {
+    "local_manifest_entries": 0,
+    "local_directory_files": [
+      "manifest.json"
+    ],
+    "catalogue_rows": 408,
+    "catalogue_usable_scenes_claim": 218,
+    "v3_admitted": 0,
+    "interpretation": "Remote catalogue availability is not local calibrated image/SRF/QA/grid availability; empty local manifest cannot supply a teacher"
+  },
+  "historical_canonical_metadata": {
+    "observations": 13702,
+    "statuses": {
+      "NATIVE_METADATA_READY_PENDING_G1": 3759,
+      "TEST_METADATA_ONLY": 77,
+      "LOCAL_CONTRACT_GAPS": 9866
+    },
+    "partitions": {
+      "TRAIN": 9056,
+      "TEST_ISOLATION": 77,
+      "VAL": 1650,
+      "GUARD": 2919
+    },
+    "interpretation": "Historical report only; no V3 admission inferred and no protected pixels read"
+  },
+  "remaining": [
+    "Discover and classify optical inventories across remaining mounted data roots; present scope does not cover all disks",
+    "Associate original source files, radiometry, real instrument-specific SRF and QA for all local candidates",
+    "Reconcile historical canonical identities with expanded native cache inventory without double counting",
+    "Review existing pair geometry/time/change risk before B2",
+    "Freeze V3 role isolation and TRAIN-only statistics"
+  ],
+  "imagery_or_header_reads": 0,
+  "downloads": 0,
+  "optimizer_updates": 0
+}

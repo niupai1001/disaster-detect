@@ -1,0 +1,66 @@
+{
+  "status": "ENGINEERING_REAL_CACHE_PROBE_ONLY",
+  "optimizer_updates": 0,
+  "observation_id": "obs_0002e58c12d2c4a9e4c91a8c",
+  "role": "TRAIN",
+  "source_cache_sha256": "a712ee638422acafc15830292df7575de40947b25cfed15f38144b755d32b1af",
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d"
+  },
+  "band_shapes": [
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ]
+  ],
+  "patch_m": 120.0,
+  "hyper_hidden_candidate": 64,
+  "local_execution_batch": 64,
+  "device": "cuda:1",
+  "rows": [
+    {
+      "kind": "B1",
+      "visible_bands": 2,
+      "tokens": 242,
+      "target_band": "B02",
+      "requested_pixels": 64,
+      "supported_pixels": 64,
+      "mse": 0.01967354491353035,
+      "hyper_gradient_finite": true,
+      "seconds": 2.2347517000016524,
+      "peak_bytes": 660201984
+    },
+    {
+      "kind": "A",
+      "visible_bands": 4,
+      "tokens": 264,
+      "target_band": "B02",
+      "requested_pixels": 64,
+      "supported_pixels": 64,
+      "mse": 0.00875304639339447,
+      "hyper_gradient_finite": true,
+      "seconds": 1.911742399999639,
+      "peak_bytes": 688157696
+    }
+  ],
+  "limitations": [
+    "One TRAIN observation, fixed diagnostic target prefix; not representative evaluation",
+    "Hypernetwork width is explicit candidate, not frozen",
+    "No V3 full-data admission or pair qualification",
+    "No optimizer updates; no claim of training or convergence"
+  ]
+}

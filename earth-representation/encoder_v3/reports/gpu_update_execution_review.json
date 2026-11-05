@@ -1,0 +1,43 @@
+{
+  "status": "USER_CONFIRMED_FOR_BOUNDED_CHECK",
+  "review_type": "explicit_user_design_confirmation",
+  "scope": "bounded_optimizer_update_and_resume_check",
+  "candidate_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+  "precision": "fp32",
+  "device": "cuda:0",
+  "steps_per_optimizer": 4,
+  "total_steps": 8,
+  "reserve_from_pilot_budget": true,
+  "max_wall_seconds": 1800,
+  "max_allocated_bytes": 12884901888,
+  "max_output_bytes": 2147483648,
+  "execution_path": {
+    "microbatch_observations": 1,
+    "local_batch_size": 64,
+    "chunk_pixels": 512,
+    "native_mode": "grouped",
+    "layout_mode": "indexed",
+    "indexed_decoder": true,
+    "reference_cell_indexed": false,
+    "candidate_cell_indexed": true
+  },
+  "optimization": {
+    "peak_lr": 0.0003,
+    "warmup_updates": 100,
+    "weight_decay": 0.04,
+    "clip_norm": 3,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08
+  },
+  "conditions": [
+    "Use only the reviewed GPU when availability permits; do not stop other tasks",
+    "The 8 checks leave at most 196 fitting updates per optimizer within original 200/400 caps",
+    "Compare full predictions/losses/gradients/parameters and optimizer states; measure, do not silently approve tolerances",
+    "Checkpoint only model-used CUDA RNG devices; no migration or automatic retry",
+    "This scope does not authorize the remaining fitting pilot, formal training or task heads"
+  ],
+  "answer": "采用提案，执行这8次预算内检查"
+}

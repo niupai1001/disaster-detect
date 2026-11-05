@@ -1,0 +1,186 @@
+{
+  "status": "TINY_FP32_ATTENTION_BACKENDS_MEASURED_NOT_MODEL_ACCEPTANCE",
+  "torch_version": "2.11.0+cu128",
+  "device": "NVIDIA GeForce RTX 5090",
+  "cuda_logical_index": 0,
+  "rows": [
+    {
+      "length": 128,
+      "backend": "MATH",
+      "precision": "FP32",
+      "status": "FORWARD_BACKWARD_PASS",
+      "warnings": [
+        "Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True."
+      ],
+      "dispatch_operators": [
+        "aten::scaled_dot_product_attention",
+        "aten::_scaled_dot_product_attention_math"
+      ]
+    },
+    {
+      "length": 128,
+      "backend": "FLASH_ATTENTION",
+      "precision": "FP32",
+      "status": "UNAVAILABLE_OR_FAILED",
+      "error": "RuntimeError: No available kernel. Aborting execution."
+    },
+    {
+      "length": 128,
+      "backend": "EFFICIENT_ATTENTION",
+      "precision": "FP32",
+      "status": "FORWARD_BACKWARD_PASS",
+      "warnings": [],
+      "dispatch_operators": [
+        "aten::scaled_dot_product_attention",
+        "aten::_scaled_dot_product_efficient_attention",
+        "aten::_efficient_attention_forward",
+        "aten::_scaled_dot_product_efficient_attention_backward",
+        "aten::_efficient_attention_backward"
+      ],
+      "vs_math": {
+        "prediction": {
+          "max_absolute": 8.940696716308594e-07,
+          "relative_l2": 6.209365994364049e-07,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        },
+        "gradients": {
+          "max_absolute": 2.546585164964199e-10,
+          "relative_l2": 1.1864710147379034e-06,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        }
+      }
+    },
+    {
+      "length": 128,
+      "backend": "CUDNN_ATTENTION",
+      "precision": "FP32",
+      "status": "UNAVAILABLE_OR_FAILED",
+      "error": "RuntimeError: No available kernel. Aborting execution."
+    },
+    {
+      "length": 128,
+      "backend": "DEFAULT",
+      "precision": "FP32",
+      "status": "FORWARD_BACKWARD_PASS",
+      "warnings": [],
+      "dispatch_operators": [
+        "aten::scaled_dot_product_attention",
+        "aten::_scaled_dot_product_efficient_attention",
+        "aten::_efficient_attention_forward",
+        "aten::_scaled_dot_product_efficient_attention_backward",
+        "aten::_efficient_attention_backward"
+      ],
+      "vs_math": {
+        "prediction": {
+          "max_absolute": 8.940696716308594e-07,
+          "relative_l2": 6.209365994364049e-07,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        },
+        "gradients": {
+          "max_absolute": 2.546585164964199e-10,
+          "relative_l2": 1.1864710147379034e-06,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        }
+      }
+    },
+    {
+      "length": 512,
+      "backend": "MATH",
+      "precision": "FP32",
+      "status": "FORWARD_BACKWARD_PASS",
+      "warnings": [],
+      "dispatch_operators": [
+        "aten::scaled_dot_product_attention",
+        "aten::_scaled_dot_product_attention_math"
+      ]
+    },
+    {
+      "length": 512,
+      "backend": "FLASH_ATTENTION",
+      "precision": "FP32",
+      "status": "UNAVAILABLE_OR_FAILED",
+      "error": "RuntimeError: No available kernel. Aborting execution."
+    },
+    {
+      "length": 512,
+      "backend": "EFFICIENT_ATTENTION",
+      "precision": "FP32",
+      "status": "FORWARD_BACKWARD_PASS",
+      "warnings": [],
+      "dispatch_operators": [
+        "aten::scaled_dot_product_attention",
+        "aten::_scaled_dot_product_efficient_attention",
+        "aten::_efficient_attention_forward",
+        "aten::_scaled_dot_product_efficient_attention_backward",
+        "aten::_efficient_attention_backward"
+      ],
+      "vs_math": {
+        "prediction": {
+          "max_absolute": 8.344650268554688e-07,
+          "relative_l2": 7.770497711532793e-07,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        },
+        "gradients": {
+          "max_absolute": 3.728928277269006e-11,
+          "relative_l2": 1.0696982540760493e-06,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        }
+      }
+    },
+    {
+      "length": 512,
+      "backend": "CUDNN_ATTENTION",
+      "precision": "FP32",
+      "status": "UNAVAILABLE_OR_FAILED",
+      "error": "RuntimeError: No available kernel. Aborting execution."
+    },
+    {
+      "length": 512,
+      "backend": "DEFAULT",
+      "precision": "FP32",
+      "status": "FORWARD_BACKWARD_PASS",
+      "warnings": [],
+      "dispatch_operators": [
+        "aten::scaled_dot_product_attention",
+        "aten::_scaled_dot_product_efficient_attention",
+        "aten::_efficient_attention_forward",
+        "aten::_scaled_dot_product_efficient_attention_backward",
+        "aten::_efficient_attention_backward"
+      ],
+      "vs_math": {
+        "prediction": {
+          "max_absolute": 8.344650268554688e-07,
+          "relative_l2": 7.770497711532793e-07,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        },
+        "gradients": {
+          "max_absolute": 3.728928277269006e-11,
+          "relative_l2": 1.0696982540760493e-06,
+          "scalar_mismatches": [],
+          "dtype_mismatches": [],
+          "bitwise_equal": false
+        }
+      }
+    }
+  ],
+  "optimizer_updates": 0,
+  "limitations": [
+    "Small synthetic lengths only; no full-window feasibility, speedup or peak-memory acceptance",
+    "CPU dispatch names identify the selected path, not CUDA kernel timings",
+    "No precision, architecture, window or execution default changed"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "status": "USER_CONFIRMED_PREFLIGHT_TOLERANCES",
+  "scope": "FP32_single_GPU_native_cell_readout_preflight_only",
+  "prediction_max_absolute": 2e-06,
+  "per_band_nmse_max_absolute": 1e-05,
+  "per_task_loss_max_absolute": 1e-06,
+  "gradient_relative_l2": 2e-06,
+  "parameter_update_or_resume_max_absolute": 5e-07,
+  "optimizer_state_relative_l2": 2e-06,
+  "exact_required": [
+    "members",
+    "P",
+    "spatial_mask",
+    "hidden_bands",
+    "target_indices",
+    "supported_counts",
+    "source_identities",
+    "curriculum",
+    "LR",
+    "CPU_and_used_CUDA_RNG",
+    "state_schema"
+  ],
+  "not_covered": [
+    "BF16",
+    "compile",
+    "DDP",
+    "independent_multi_GPU_routes",
+    "microbatch_2_4_8",
+    "JEPA_EMA",
+    "peak_LR_updates"
+  ],
+  "evidence": "pilot_runs/update_check_a624c7d0c860/report.json",
+  "conditions": [
+    "No automatic relaxation after a failure",
+    "Current real update evidence covers the first two warmup inputs at P60/P120",
+    "Later peak-LR or additional equivalence checks must consume the original remaining pilot budget",
+    "Not formal training authorization"
+  ],
+  "review_type": "explicit_user_design_confirmation",
+  "answer": "确认这组数值验收参数"
+}

@@ -1,0 +1,183 @@
+{
+  "status": "REAL_MICROBATCH_MEASUREMENTS_NOT_ACCEPTANCE",
+  "optimizer_updates": 0,
+  "device": "cuda:0",
+  "patch_m": 60.0,
+  "rows": [
+    {
+      "microbatch_observations": 1,
+      "cell_indexed": false,
+      "effective_batch": 8,
+      "seconds": [
+        46.10613849999936,
+        44.6891911000057
+      ],
+      "median_seconds": 45.39766480000253,
+      "valid_observations_per_second": 0.17622051784477588,
+      "supported_supervision_pixels_per_second": 8563.458092231615,
+      "supported_supervision_pixels": 388761,
+      "peak_bytes": 1687391232,
+      "global_tokens": 41063,
+      "global_padded_tokens": 41063,
+      "global_padding_fraction": 0.0,
+      "losses_by_kind": {
+        "A": 4.031901190486327,
+        "B1": 6.813927653738956,
+        "B2": null
+      },
+      "weighted_loss": 5.735383103921066,
+      "absolute_weighted_loss_difference": 0.0,
+      "relative_gradient_difference": 0.0,
+      "max_gradient_difference": 0.0,
+      "gradient_cosine": 0.9999999999999625,
+      "speedup_vs_microbatch_1": 1.0
+    },
+    {
+      "microbatch_observations": 1,
+      "cell_indexed": true,
+      "effective_batch": 8,
+      "seconds": [
+        11.015312900002755,
+        11.021940400001768
+      ],
+      "median_seconds": 11.018626650002261,
+      "valid_observations_per_second": 0.7260432950596759,
+      "supported_supervision_pixels_per_second": 35282.16467883683,
+      "supported_supervision_pixels": 388761,
+      "peak_bytes": 1687391232,
+      "global_tokens": 41063,
+      "global_padded_tokens": 41063,
+      "global_padding_fraction": 0.0,
+      "losses_by_kind": {
+        "A": 4.031901195781543,
+        "B1": 6.813927653199392,
+        "B2": null
+      },
+      "weighted_loss": 5.735383109081392,
+      "absolute_weighted_loss_difference": 5.160325500241925e-09,
+      "relative_gradient_difference": 1.1408354152586433e-07,
+      "max_gradient_difference": 5.7220458984375e-06,
+      "gradient_cosine": 0.9999999999999512,
+      "speedup_vs_microbatch_1": 4.120083767426062
+    }
+  ],
+  "limitations": [
+    "Intact eight-observation engineering cohort; not the complete V3 inventory or a pilot authorization",
+    "A/B1 only; no B2 physical pairing has passed review",
+    "Historical TRAIN-only statistics, not newly frozen V3 statistics",
+    "No optimizer-step, recovery, BF16 or formal numerical-tolerance acceptance",
+    "Timing excludes loading/planning/transfer; full experiment time remains unmeasured"
+  ],
+  "phase": "completed",
+  "read_and_plan_seconds": 12.931427700001223,
+  "transfer_seconds": 0.3083489999989979,
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "members": [
+    "obs_0002e58c12d2c4a9e4c91a8c",
+    "obs_00218d14b4b83cc6315ee7d4",
+    "obs_002367374443a92f2872f759",
+    "obs_0024fe04e0bba36973b411fd",
+    "obs_008dbe74c0d7a99de352e5e6",
+    "obs_00bac1a5957f7b4db0ef1f95",
+    "obs_00cb3b76301992b5ece4a9f8_L8",
+    "obs_00fbb39ce16c263504831a11"
+  ],
+  "diagnostic_rectangles": [
+    [
+      638260.0,
+      8244480.0,
+      638920.0,
+      8245800.0
+    ],
+    [
+      670260.0,
+      4444460.0,
+      670920.0,
+      4445780.0
+    ],
+    [
+      554240.0,
+      3544460.0,
+      554900.0,
+      3545780.0
+    ],
+    [
+      470220.0,
+      1844480.0,
+      470880.0,
+      1845800.0
+    ],
+    [
+      602415.0,
+      6968595.0,
+      604335.0,
+      6972435.0
+    ],
+    [
+      673725.0,
+      4393125.0,
+      674445.0,
+      4394625.0
+    ],
+    [
+      482535.0,
+      -2165145.0,
+      483195.0,
+      -2163825.0
+    ],
+    [
+      759165.0,
+      -1833585.0,
+      759885.0,
+      -1832085.0
+    ]
+  ],
+  "torch": "2.11.0+cu128",
+  "source_hashes": {
+    "audit_inventory.py": "628885904b742949136b2da739ad9521dc5eb21d4334d34b513a3a9c14938904",
+    "audit_native.py": "677dbd49bf66144a426d45ded62cebd52c0e505e29bebcdd280aeac1d9298efd",
+    "benchmark.py": "455d4f57cede70493f5383c7d588ec014714de83d98e66f39969ee9483befa07",
+    "budget.py": "236e50c7058802f2a2096a134499ea003178107ffd0f323f980eb0acc97bee22",
+    "communication_probe.py": "89f692cb5c5c62f988064b09819a8cad4903602f5e624eb9367e0a5314a7f344",
+    "data.py": "4576ddd96a58b997d561325b637b083431757fa7eb7a2b0f132d64af5d2565ef",
+    "diagnostic_batch.py": "11491ce064ce52c199c02043d4d80787cdd8bc6887eac84c16d59fce82951aae",
+    "full_target_probe.py": "de77888bb5d312b4aa123df052943c3a6b365df07830d86afc26cf8d305a4ecc",
+    "gates.py": "472efd2c4946216dd6b9dc7b1d897e70df7e60904db5d9d4f1dd3b94594e83a8",
+    "independent_gpu_probe.py": "74184cdc021dd1c0adfe7d822592e82f144bdc8d661295381d07c5135be90bb6",
+    "joint.py": "ac0e17545cc6a6d96df1500a57534b0150034f88be5927e29c7c3e00f7b6b204",
+    "joint_probe.py": "6f1bde8cd9c3fe7fcc3a46f8721fd843df70ff0400bd8de1e0a7ac68e02ef437",
+    "layout.py": "f69cff56b3ce150fe58b1fbe574da84213a4f13fdb95c8a0cb6440d18e678140",
+    "losses.py": "f9a43ab5f2f695242d4b63fc70085e0ed5c59e19ba8e7a9189e7925a7e1cd0eb",
+    "microbatch_probe.py": "63ad78b079518d1ca14e6135818fc599c0853e963043a8d21035fdb56c4ee9c5",
+    "model.py": "d09597b118b4208426c228bef64479c180c5a4322ff4fd66ad69fb7dc3802a40",
+    "precision_probe.py": "023042bd52d000728e12a0e107d567f0429b2f43518b6d852d456479866406e9",
+    "prefetch.py": "82b787b23df87fbb6f311dc417dbb9601bbeeab5052e94931513290574e20099",
+    "prefetch_benchmark.py": "3f382f510074a564b8be10284948964aa18df89281503812097414cc79024649",
+    "prepare_pilot.py": "78abba258bad12c451587a534c944801dc16673fed918d2b234f26ebf42b022d",
+    "profile_task.py": "b601cad9998fc6bb8e8e2e779325b28c56ab4df261a4001163534e4cafe45f42",
+    "readout_benchmark.py": "1a378a54bdb627a5eb797e68ad1fdba4d5792ee3e1dfab8e630adff0a15bda6c",
+    "real_probe.py": "0f57dfd4be3a91828e8c438e296b82b3ed3ed67c8e64bf17ba85b4b2a5a0ae2b",
+    "spatial_index.py": "4c108f6085c1d71595443ba6af8c09166bb5e0c00987635350a2adea77432708",
+    "streaming.py": "0017f06c708fa69ed66be2767cc70d1781b7383ea634b7211223d47cf27ad12a",
+    "tasks.py": "b3dbd3527f3a46d294ebec64b1b88ffaa75ab00e0e45d6006346b154529b38f6",
+    "test_budget.py": "a81a2e4b7510b22077fdaf0ca7c06345670a2863ac492652d25512c8f54aa631",
+    "test_communication.py": "9e5f3d0a1a4a0f6f1b4043a8e1a7b80429cda879fb32cacb2ef6a41d41c85872",
+    "test_data.py": "c9c809ac4f0851cbe16b4eb848880586e17038b7b4d4a0f6138fb48ec0ed043f",
+    "test_execution.py": "1792a1a58d2a058d667fe2a522c63c71271f5a34ac1c0f3ada09eeee0f9d0d96",
+    "test_joint.py": "8461c6fa2e6fe4357018e6004742a60b3a64304afcc56f7e464810e9994427c0",
+    "test_model.py": "ba086d627f65206d8eca1762a7e0bf7f9c9debc96c1cd2ab0ad529ebb6432086",
+    "test_prefetch.py": "cbf35d13862030df35f81f562b60cef09f6ccb6d0b0082eda20259d818f40255",
+    "test_streaming.py": "89c6c36a11c16cbd77a25a8ce4167d13b20ccc8184b9898851543c09f93516a5",
+    "test_tasks.py": "f362fe026725b311da9dfc31c0b10158fcf0d26692e930c069559663bf61dc96",
+    "test_training.py": "88a87564d9128ef82f24ec106c5986cb82f3863949e53039b4ed60797a4c3e7f",
+    "training.py": "6acc5d161d8f34da78212479ccf7f439b5faad6a0d09ee2188a8ad26d911cb00",
+    "update_status.py": "2aecff010455bf58d9c341a176509144c094de4fb61e27ba22d069ae8b4aa54d",
+    "verify.py": "72309fc38c1b866e7e5a78148c4cc2e75540e0cd8f8db357b1f1d0b415797732",
+    "__init__.py": "fc9ecac433f40279e3375c8255ab84fe2ae4a3a5fdc113630ebd2b247dedfa50"
+  }
+}

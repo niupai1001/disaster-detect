@@ -1,0 +1,41 @@
+{
+  "optimizer_updates": 0,
+  "small_observation_id": "obs_00bac1a5957f7b4db0ef1f95",
+  "matched": [
+    {
+      "precision": "FP32",
+      "tokens": 3738,
+      "loss": 0.02964462898671627,
+      "seconds": 1.4463120000000345,
+      "peak_bytes": 484873216,
+      "finite_gradients": true
+    },
+    {
+      "precision": "BF16 autocast, FP32 parameters/loss",
+      "tokens": 3738,
+      "loss": 0.029770538210868835,
+      "seconds": 0.9428913999945507,
+      "peak_bytes": 307202560,
+      "finite_gradients": true
+    }
+  ],
+  "relative_prediction_difference": 0.009548418508960982,
+  "relative_gradient_difference": 0.01979361161291338,
+  "gradient_cosine": 0.9999357446923471,
+  "comparison_accumulation": "float64 on CPU",
+  "large_case": {
+    "precision": "BF16 autocast, FP32 parameters/loss",
+    "tokens": 38025,
+    "loss": 0.02522316202521324,
+    "seconds": 6.686647000002267,
+    "peak_bytes": 9052578816,
+    "finite_gradients": true,
+    "observation_id": "obs_0115e0e9f55152cfb2796244",
+    "patch_m": 60.0
+  },
+  "limitations": [
+    "Precision tolerances not yet confirmed; this is measurement, not acceptance",
+    "No optimizer-step or BF16 checkpoint recovery comparison yet",
+    "Real TRAIN diagnostic target prefix only"
+  ]
+}

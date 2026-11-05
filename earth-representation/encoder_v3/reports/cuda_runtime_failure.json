@@ -1,0 +1,41 @@
+{
+  "status": "CUDA_DRIVER_INITIALIZATION_ACCESS_VIOLATION",
+  "torch_version": "2.11.0+cu128",
+  "torch_cuda_build": "12.8",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "nvidia_smi": [
+    "0, NVIDIA GeForce RTX 5090, 595.97, 1502 MiB, 30686 MiB",
+    "1, NVIDIA GeForce RTX 5090, 595.97, 353 MiB, 31835 MiB"
+  ],
+  "tests": {
+    "normal_tensor_init": "access violation at torch._C._cuda_init",
+    "elevated_tensor_init": "same access violation",
+    "isolated_physical_GPU1": "access violation during device_count",
+    "direct_system_driver": "nvcuda.dll cuInit(0): access violation writing 0x293C"
+  },
+  "independent_of_model": true,
+  "diagnosis_limit": "Native CUDA driver initialization fails; this does not identify hardware damage or prove a specific driver cause",
+  "model_updates_added": 0,
+  "budget": {
+    "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+    "reserved": 8,
+    "completed": 8,
+    "incomplete_reservations": [],
+    "remaining_total": 392,
+    "remaining_by_candidate": {
+      "AdamW": 196,
+      "CAdamW": 196
+    }
+  },
+  "fitting_processes_terminal": true,
+  "failed_controller": "pilot_runs/fit_controller_e0eb36c42637.json",
+  "native_trace": "pilot_runs/fit_controller_e0eb36c42637.log",
+  "actions_not_taken": [
+    "GPU reset",
+    "driver/environment reinstall",
+    "system migration",
+    "CPU fitting fallback",
+    "historical queue restart"
+  ],
+  "next_work": "Continue independent CPU data/geometry audit; GPU preflight needs successful driver initialization before any new parameter update"
+}

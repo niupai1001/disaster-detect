@@ -1,0 +1,782 @@
+{
+  "status": "PYTHON_WALL_PROFILE_NOT_GPU_KERNEL_TIMING",
+  "optimizer_updates": 0,
+  "device": "cuda:0",
+  "activity": "python",
+  "observation": "obs_008dbe74c0d7a99de352e5e6",
+  "kind": "B1",
+  "patch_m": 120.0,
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "profiled_wall_seconds": 7.883509400002367,
+  "supported_supervision_pixels": 63268,
+  "tokens": 2002,
+  "named_ranges": {
+    "v3.srf": {
+      "calls": 6,
+      "wall_seconds": 0.005847100001119543
+    },
+    "v3.hypernetwork": {
+      "calls": 1,
+      "wall_seconds": 0.00011219999578315765
+    },
+    "v3.native_grouped": {
+      "calls": 1,
+      "wall_seconds": 0.003431199998885859
+    },
+    "v3.layout_and_projection": {
+      "calls": 1,
+      "wall_seconds": 0.1810375999993994
+    },
+    "v3.local_transformer": {
+      "calls": 1,
+      "wall_seconds": 0.06828809999569785
+    },
+    "v3.global_transformer": {
+      "calls": 1,
+      "wall_seconds": 0.0023788999969838187
+    },
+    "v3.decoder_geometry_aggregate": {
+      "calls": 124,
+      "wall_seconds": 7.133822599993437
+    },
+    "v3.decoder_mlp": {
+      "calls": 124,
+      "wall_seconds": 0.04098069998144638
+    }
+  },
+  "top_self_wall": [
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\spatial_index.py",
+      "line": 14,
+      "function": "edges",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 5.1381376,
+      "cumulative_wall_seconds": 7.0699563
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\model.py",
+      "line": 238,
+      "function": "union_overlap",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.689204,
+      "cumulative_wall_seconds": 1.8378662000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'run_backward' of 'torch._C._EngineBase' objects>",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.2705232,
+      "cumulative_wall_seconds": 0.2705232
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'sum' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 19752,
+      "calls": 19752,
+      "self_wall_seconds": 0.2574434,
+      "cumulative_wall_seconds": 0.2574434
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'prod' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.24343640000000002,
+      "cumulative_wall_seconds": 0.24343640000000002
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'clamp_min' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 18885,
+      "calls": 18885,
+      "self_wall_seconds": 0.24066240000000003,
+      "cumulative_wall_seconds": 0.24066240000000003
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.maximum>",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.2217934,
+      "cumulative_wall_seconds": 0.2217934
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.minimum>",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.19918480000000002,
+      "cumulative_wall_seconds": 0.19918480000000002
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\layout.py",
+      "line": 5,
+      "function": "native_layout",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_wall_seconds": 0.11847540000000001,
+      "cumulative_wall_seconds": 0.16227550000000002
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\streaming.py",
+      "line": 83,
+      "function": "stream_task_roots",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_wall_seconds": 0.0667537,
+      "cumulative_wall_seconds": 7.740038200000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch._C._nn.linear>",
+      "primitive_calls": 600,
+      "calls": 600,
+      "self_wall_seconds": 0.0450534,
+      "cumulative_wall_seconds": 0.0450534
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'query' of 'shapely.lib.STRtree' objects>",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.029071200000000002,
+      "cumulative_wall_seconds": 0.029071200000000002
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\shapely\\creation.py",
+      "line": 457,
+      "function": "box",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.0249476,
+      "cumulative_wall_seconds": 0.0249476
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\spatial_index.py",
+      "line": 51,
+      "function": "aggregate",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0190395,
+      "cumulative_wall_seconds": 7.121032700000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch._unique2>",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0165677,
+      "cumulative_wall_seconds": 0.0165677
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.isfinite>",
+      "primitive_calls": 267,
+      "calls": 267,
+      "self_wall_seconds": 0.015857100000000002,
+      "cumulative_wall_seconds": 0.015857100000000002
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\model.py",
+      "line": 250,
+      "function": "forward",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0151623,
+      "cumulative_wall_seconds": 7.2058412
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'index_add' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 372,
+      "calls": 372,
+      "self_wall_seconds": 0.0126878,
+      "cumulative_wall_seconds": 0.0126878
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'to' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 622,
+      "calls": 622,
+      "self_wall_seconds": 0.0114065,
+      "cumulative_wall_seconds": 0.0114065
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.stack>",
+      "primitive_calls": 174,
+      "calls": 174,
+      "self_wall_seconds": 0.009701900000000001,
+      "cumulative_wall_seconds": 0.009701900000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'argsort' of 'numpy.ndarray' objects>",
+      "primitive_calls": 4,
+      "calls": 4,
+      "self_wall_seconds": 0.0093567,
+      "cumulative_wall_seconds": 0.0093567
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.as_tensor>",
+      "primitive_calls": 260,
+      "calls": 260,
+      "self_wall_seconds": 0.009066300000000001,
+      "cumulative_wall_seconds": 0.009066300000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'new_zeros' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 496,
+      "calls": 496,
+      "self_wall_seconds": 0.0089301,
+      "cumulative_wall_seconds": 0.0089301
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'double' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 380,
+      "calls": 380,
+      "self_wall_seconds": 0.0084197,
+      "cumulative_wall_seconds": 0.0084197
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'square' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 496,
+      "calls": 496,
+      "self_wall_seconds": 0.007118800000000001,
+      "cumulative_wall_seconds": 0.007118800000000001
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\transformer.py",
+      "line": 799,
+      "function": "forward",
+      "primitive_calls": 84,
+      "calls": 84,
+      "self_wall_seconds": 0.006945300000000001,
+      "cumulative_wall_seconds": 0.055267500000000004
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'unbind' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 44,
+      "calls": 44,
+      "self_wall_seconds": 0.0063673,
+      "cumulative_wall_seconds": 0.0063673
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.where>",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.0061389,
+      "cumulative_wall_seconds": 0.0061389
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'cpu' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 154,
+      "calls": 154,
+      "self_wall_seconds": 0.0061062,
+      "cumulative_wall_seconds": 0.0061062
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'all' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 403,
+      "calls": 403,
+      "self_wall_seconds": 0.0059143,
+      "cumulative_wall_seconds": 0.0059143
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch._ops.profiler._record_function_enter_new>",
+      "primitive_calls": 259,
+      "calls": 259,
+      "self_wall_seconds": 0.0057099,
+      "cumulative_wall_seconds": 0.0057099
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\profile_task.py",
+      "line": 19,
+      "function": "run",
+      "primitive_calls": 255,
+      "calls": 259,
+      "self_wall_seconds": 0.005607,
+      "cumulative_wall_seconds": 7.430679700000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.cat>",
+      "primitive_calls": 168,
+      "calls": 168,
+      "self_wall_seconds": 0.005446,
+      "cumulative_wall_seconds": 0.005446
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+      "primitive_calls": 6008,
+      "calls": 6008,
+      "self_wall_seconds": 0.0053168,
+      "cumulative_wall_seconds": 0.0053168
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method numpy._core._multiarray_umath._unique_hash>",
+      "primitive_calls": 2002,
+      "calls": 2002,
+      "self_wall_seconds": 0.0049471,
+      "cumulative_wall_seconds": 0.0049471
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'tolist' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 128,
+      "calls": 128,
+      "self_wall_seconds": 0.004558100000000001,
+      "cumulative_wall_seconds": 0.004558100000000001
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\module.py",
+      "line": 1783,
+      "function": "_call_impl",
+      "primitive_calls": 129,
+      "calls": 1454,
+      "self_wall_seconds": 0.0044874,
+      "cumulative_wall_seconds": 7.464082400000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch._C._nn.gelu>",
+      "primitive_calls": 216,
+      "calls": 216,
+      "self_wall_seconds": 0.004296100000000001,
+      "cumulative_wall_seconds": 0.004296100000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch._C._get_tracing_state>",
+      "primitive_calls": 4378,
+      "calls": 4378,
+      "self_wall_seconds": 0.004266300000000001,
+      "cumulative_wall_seconds": 0.004266300000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.layer_norm>",
+      "primitive_calls": 168,
+      "calls": 168,
+      "self_wall_seconds": 0.0041339,
+      "cumulative_wall_seconds": 0.0041339
+    }
+  ],
+  "top_cumulative_wall": [
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\streaming.py",
+      "line": 147,
+      "function": "stream_task",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_wall_seconds": 0.0016157,
+      "cumulative_wall_seconds": 7.880142200000001
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\streaming.py",
+      "line": 83,
+      "function": "stream_task_roots",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_wall_seconds": 0.0667537,
+      "cumulative_wall_seconds": 7.740038200000001
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\module.py",
+      "line": 1775,
+      "function": "_wrapped_call_impl",
+      "primitive_calls": 129,
+      "calls": 1454,
+      "self_wall_seconds": 0.0022838000000000003,
+      "cumulative_wall_seconds": 7.464650400000001
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\module.py",
+      "line": 1783,
+      "function": "_call_impl",
+      "primitive_calls": 129,
+      "calls": 1454,
+      "self_wall_seconds": 0.0044874,
+      "cumulative_wall_seconds": 7.464082400000001
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\profile_task.py",
+      "line": 19,
+      "function": "run",
+      "primitive_calls": 255,
+      "calls": 259,
+      "self_wall_seconds": 0.005607,
+      "cumulative_wall_seconds": 7.430679700000001
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\model.py",
+      "line": 250,
+      "function": "forward",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0151623,
+      "cumulative_wall_seconds": 7.2058412
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\spatial_index.py",
+      "line": 51,
+      "function": "aggregate",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0190395,
+      "cumulative_wall_seconds": 7.121032700000001
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\spatial_index.py",
+      "line": 14,
+      "function": "edges",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 5.1381376,
+      "cumulative_wall_seconds": 7.0699563
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\model.py",
+      "line": 238,
+      "function": "union_overlap",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.689204,
+      "cumulative_wall_seconds": 1.8378662000000001
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\autograd\\__init__.py",
+      "line": 253,
+      "function": "backward",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.0020248,
+      "cumulative_wall_seconds": 0.2795673
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\autograd\\graph.py",
+      "line": 860,
+      "function": "_engine_run_backward",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.0009667,
+      "cumulative_wall_seconds": 0.2718666
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'run_backward' of 'torch._C._EngineBase' objects>",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.2705232,
+      "cumulative_wall_seconds": 0.2705232
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'sum' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 19752,
+      "calls": 19752,
+      "self_wall_seconds": 0.2574434,
+      "cumulative_wall_seconds": 0.2574434
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\model.py",
+      "line": 206,
+      "function": "forward",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_wall_seconds": 0.0001004,
+      "cumulative_wall_seconds": 0.25220400000000004
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'prod' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.24343640000000002,
+      "cumulative_wall_seconds": 0.24343640000000002
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'clamp_min' of 'torch._C.TensorBase' objects>",
+      "primitive_calls": 18885,
+      "calls": 18885,
+      "self_wall_seconds": 0.24066240000000003,
+      "cumulative_wall_seconds": 0.24066240000000003
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.maximum>",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.2217934,
+      "cumulative_wall_seconds": 0.2217934
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch.minimum>",
+      "primitive_calls": 18760,
+      "calls": 18760,
+      "self_wall_seconds": 0.19918480000000002,
+      "cumulative_wall_seconds": 0.19918480000000002
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\model.py",
+      "line": 150,
+      "function": "_prepare",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_wall_seconds": 0.0032955000000000003,
+      "cumulative_wall_seconds": 0.18025770000000002
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\layout.py",
+      "line": 5,
+      "function": "native_layout",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_wall_seconds": 0.11847540000000001,
+      "cumulative_wall_seconds": 0.16227550000000002
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\_tensor.py",
+      "line": 576,
+      "function": "backward",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0009427000000000001,
+      "cumulative_wall_seconds": 0.1420372
+    },
+    {
+      "file": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\model.py",
+      "line": 192,
+      "function": "_local_tokens",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_wall_seconds": 0.0022728,
+      "cumulative_wall_seconds": 0.06783420000000001
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\transformer.py",
+      "line": 407,
+      "function": "forward",
+      "primitive_calls": 41,
+      "calls": 41,
+      "self_wall_seconds": 0.00042340000000000005,
+      "cumulative_wall_seconds": 0.056953300000000005
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\transformer.py",
+      "line": 799,
+      "function": "forward",
+      "primitive_calls": 84,
+      "calls": 84,
+      "self_wall_seconds": 0.006945300000000001,
+      "cumulative_wall_seconds": 0.055267500000000004
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch._C._nn.linear>",
+      "primitive_calls": 600,
+      "calls": 600,
+      "self_wall_seconds": 0.0450534,
+      "cumulative_wall_seconds": 0.0450534
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\linear.py",
+      "line": 130,
+      "function": "forward",
+      "primitive_calls": 432,
+      "calls": 432,
+      "self_wall_seconds": 0.000633,
+      "cumulative_wall_seconds": 0.0371335
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\container.py",
+      "line": 248,
+      "function": "forward",
+      "primitive_calls": 131,
+      "calls": 131,
+      "self_wall_seconds": 0.0012661,
+      "cumulative_wall_seconds": 0.033780500000000005
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\shapely\\strtree.py",
+      "line": 108,
+      "function": "query",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.00046770000000000004,
+      "cumulative_wall_seconds": 0.029640600000000003
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'query' of 'shapely.lib.STRtree' objects>",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.029071200000000002,
+      "cumulative_wall_seconds": 0.029071200000000002
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\transformer.py",
+      "line": 961,
+      "function": "_sa_block",
+      "primitive_calls": 84,
+      "calls": 84,
+      "self_wall_seconds": 0.0007479,
+      "cumulative_wall_seconds": 0.025995900000000002
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\shapely\\decorators.py",
+      "line": 182,
+      "function": "wrapper",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.00023070000000000002,
+      "cumulative_wall_seconds": 0.025211200000000003
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\shapely\\creation.py",
+      "line": 457,
+      "function": "box",
+      "primitive_calls": 125,
+      "calls": 125,
+      "self_wall_seconds": 0.0249476,
+      "cumulative_wall_seconds": 0.0249476
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\activation.py",
+      "line": 1255,
+      "function": "forward",
+      "primitive_calls": 84,
+      "calls": 84,
+      "self_wall_seconds": 0.0007407000000000001,
+      "cumulative_wall_seconds": 0.024118800000000003
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\numpy\\lib\\_arraysetops_impl.py",
+      "line": 145,
+      "function": "unique",
+      "primitive_calls": 2004,
+      "calls": 2004,
+      "self_wall_seconds": 0.0012669,
+      "cumulative_wall_seconds": 0.0227175
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\functional.py",
+      "line": 6244,
+      "function": "multi_head_attention_forward",
+      "primitive_calls": 84,
+      "calls": 84,
+      "self_wall_seconds": 0.0013726,
+      "cumulative_wall_seconds": 0.0210867
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\numpy\\lib\\_arraysetops_impl.py",
+      "line": 350,
+      "function": "_unique1d",
+      "primitive_calls": 2004,
+      "calls": 2004,
+      "self_wall_seconds": 0.0033103000000000004,
+      "cumulative_wall_seconds": 0.0206608
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\_jit_internal.py",
+      "line": 626,
+      "function": "fn",
+      "primitive_calls": 124,
+      "calls": 248,
+      "self_wall_seconds": 0.0004847,
+      "cumulative_wall_seconds": 0.0175897
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\functional.py",
+      "line": 1062,
+      "function": "_return_output",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0002766,
+      "cumulative_wall_seconds": 0.017074600000000002
+    },
+    {
+      "file": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\functional.py",
+      "line": 786,
+      "function": "_unique_impl",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.00021020000000000001,
+      "cumulative_wall_seconds": 0.0167858
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method torch._unique2>",
+      "primitive_calls": 124,
+      "calls": 124,
+      "self_wall_seconds": 0.0165677,
+      "cumulative_wall_seconds": 0.0165677
+    }
+  ],
+  "limitations": [
+    "Python wall times include host overhead and possible GPU waits; they are not GPU kernel durations or utilization",
+    "Single complete engineering task with profiler overhead; not whole-experiment throughput",
+    "Named ranges overlap hierarchically and must not be added",
+    "No optimizer, communication, validation or saving in this task"
+  ]
+}

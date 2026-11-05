@@ -1,0 +1,20 @@
+{
+  "status": "TERMINAL_STARTUP_FAILURE_INVESTIGATED",
+  "controller": "pilot_runs/fit_controller_ea4000e284ed.json",
+  "worker_exit_code": 3221225477,
+  "owned_handle_pid": 82956,
+  "lock_pid": 15856,
+  "host_process_query_succeeded": true,
+  "matching_processes_found": 0,
+  "new_fitting_updates": 0,
+  "original_budget_completed": 8,
+  "archived_lock": "pilot_runs/failed_startup_pid15856.lock",
+  "verified_launcher_behavior": {
+    "redirector_handle_pid": 81504,
+    "actual_python_pid": 49420,
+    "direct_base_handle_and_python_pid": 84724,
+    "same_venv_prefix": true
+  },
+  "fix": "Launch actual base executable using original __PYVENV_LAUNCHER__ prefix; enable faulthandler and capture worker logs",
+  "limits": "Launcher PID correction is proven; exact native crash cause is not yet proven. No environment rebuild or unknown-process termination."
+}
