@@ -1,0 +1,36 @@
+{
+  "status": "FROZEN_AB_CPU_READER_IMPLEMENTED_SYNTHETIC_VERIFIED",
+  "tests": 7,
+  "implemented": [
+    "Hash-bound TRAIN release, eligible member versions and explicit bounded0..9999 schedule",
+    "Exactly8 distinct source members, explicit origins/P/rectangles/hidden bands and pair keys; no random draws/cropping/warping",
+    "B1/B2 half slots when admitted pairs exist; admitted pairs must have nonzero full-schedule exposure",
+    "B1 absence checked against single-band inventory; B2 absence checked against the frozen pair table",
+    "B2 frozen S2/Landsat cross-sensor admission and target TRAIN statistics",
+    "Current Participation CPU geometry, absence metadata and deterministic A/B resume signature",
+    "Within-update raw-observation/statistics reuse only; no SRF Encoder/hypernetwork/Z graph cached"
+  ],
+  "source_sha256": {
+    "scheduled_data.py": "60a7eae464535d10f9a58de464a47528d19a3783da4587bd4fe343372aab8ed2",
+    "test_scheduled_data.py": "c6ff812e8b0572f77f6f933950b7c43ad81dbb5b1cc77ae62a9c89abfbbed21d"
+  },
+  "source_report_sha256": "bf1d6a0fff5ab95dcc72593ab00654c65041de8dcd9a74e2feab5a93525b724f",
+  "operational_gate_rejection": "Training blocked: hypernetwork_hidden_structure, frozen_data_manifest, pair_admission, mask_rectangle_distribution, validation_panel, improvement_threshold, stability_window, early_stop, precision_acceptance, resource_limit, execution_equivalence, formal_training_authorization, merge_configuration",
+  "real_image_reads": 0,
+  "optimizer_updates": 0,
+  "total_real_updates": 214,
+  "real_pairs_admitted": 0,
+  "formal_training_started": false,
+  "pending": [
+    "No operational schedule/eligible manifest generated or frozen; candidates remain candidates",
+    "Stochastic schedule generation, formal fixed validation, JEPA paired-data selection, full loop/stop and cost orchestration still unfinished",
+    "Formal TRAIN-statistics population and policy must match approved eligible data; reader does not refit or approve statistics",
+    "Different native CRS is not automatically warped; needs the separately reviewed supported query-frame geometry",
+    "Real loader/graph/update/resume/GPU performance acceptance remains pending"
+  ],
+  "limits": [
+    "Tests use generated observations and temporary synthetic frozen-format files, never operational approval",
+    "This component reads explicit choices; it does not choose seed, members, masks, crop, spectral hiding or scientific thresholds",
+    "No new model structure, loss, QA policy, real offset or training budget"
+  ]
+}

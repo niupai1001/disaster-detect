@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.0",
+  "root": "N:\\Users\\yzh\\Disater\\earth-representation",
+  "datasets": {
+    "s2_patches": {
+      "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\sen12",
+      "role": "observation",
+      "sensor": "S2A/S2B",
+      "files": 13628,
+      "size_gb": 40.42,
+      "storage": "netCDF4/HDF5, one file per patch",
+      "bands": [
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B11",
+        "B12",
+        "B8A",
+        "DEM",
+        "MASK",
+        "SCL"
+      ],
+      "band_names": [
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B8A",
+        "B11",
+        "B12"
+      ],
+      "extras": [
+        "SCL",
+        "MASK",
+        "DEM"
+      ],
+      "time_steps": 15,
+      "native_gsd_m": {
+        "10": [
+          "B02",
+          "B03",
+          "B04",
+          "B08"
+        ],
+        "20": [
+          "B05",
+          "B06",
+          "B07",
+          "B8A",
+          "B11",
+          "B12"
+        ]
+      },
+      "stored_on": "10 m grid for every band (20 m bands are upsampled)",
+      "reflectance": "DN/10000",
+      "georeferenced": true,
+      "physics_in_json": "S2A/S2B/S2C",
+      "status": "usable; 3 bands missing (B01/B09/B10); 20 m bands not native",
+      "y": 128,
+      "x": 128,
+      "times": 15,
+      "crs": "EPSG:32736"
+    },
+    "landsat_native": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\landsat_native",
+      "role": "observation",
+      "sensor": "LANDSAT8_OLI/LANDSAT9_OLI2",
+      "files": 1742,
+      "size_gb": 0.046,
+      "storage": "netCDF3 (scipy)",
+      "variable": "sr",
+      "shape": [
+        7,
+        44,
+        44
+      ],
+      "native_gsd_m": 30,
+      "stored_on_gsd_m": 30,
+      "native": true,
+      "reflectance": "DN/10000",
+      "physics_in_json": "LANDSAT8_OLI/LANDSAT9_OLI2",
+      "status": "native 30 m, no resampling"
+    },
+    "sen12_landsat": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\sen12_landsat",
+      "role": "observation",
+      "sensor": "LANDSAT8_OLI/LANDSAT9_OLI2",
+      "files": 6309,
+      "size_gb": 1.866,
+      "storage": "netCDF3 (scipy)",
+      "variable": "sr",
+      "shape": null,
+      "native_gsd_m": 30,
+      "stored_on_gsd_m": 10,
+      "native": false,
+      "reflectance": "DN/10000",
+      "physics_in_json": "LANDSAT8_OLI/LANDSAT9_OLI2",
+      "status": "resampled to 10 m"
+    },
+    "enmap_pairs": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\enmap_pairs",
+      "role": "observation",
+      "sensor": "ENMAP",
+      "files": 301,
+      "size_gb": 5.022,
+      "storage": "netCDF3 (scipy)",
+      "variable": "spectral",
+      "shape": [
+        512,
+        128,
+        128
+      ],
+      "native_gsd_m": 30,
+      "stored_on_gsd_m": 10,
+      "native": false,
+      "reflectance": "scaled L2A",
+      "physics_in_json": "ENMAP",
+      "status": "224 bands resampled to 10 m"
+    },
+    "enmap_scene": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\enmap",
+      "role": "reference scene",
+      "files": 1,
+      "size_gb": 0.46,
+      "sensor": "ENMAP",
+      "bands": 224,
+      "native_gsd_m": 30,
+      "storage": "COG GeoTIFF, ZSTD, 512x512 tiles, all bands per tile",
+      "note": "one full scene kept as the reference for tile decoding"
+    },
+    "physics": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\physics",
+      "role": "physical descriptors",
+      "files": 12,
+      "entry_point": "physics/sensor_physics.json",
+      "sensors": {
+        "S2A": {
+          "bands": 13,
+          "srf_status": "measured",
+          "psf_status": "not sourced"
+        },
+        "S2B": {
+          "bands": 13,
+          "srf_status": "measured",
+          "psf_status": "not sourced"
+        },
+        "S2C": {
+          "bands": 13,
+          "srf_status": "measured",
+          "psf_status": "not sourced"
+        },
+        "LANDSAT8_OLI": {
+          "bands": 9,
+          "srf_status": "measured",
+          "psf_status": "not sourced"
+        },
+        "LANDSAT9_OLI2": {
+          "bands": 9,
+          "srf_status": "measured",
+          "psf_status": "not sourced"
+        },
+        "ENMAP": {
+          "bands": 224,
+          "srf_status": "derived_gaussian",
+          "psf_status": "not sourced"
+        }
+      }
+    },
+    "cog_patches": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\interim\\patches",
+      "role": "observation",
+      "files": 278,
+      "size_gb": 1.04,
+      "sensor": "S2",
+      "bands": 10,
+      "shape": [
+        10,
+        128,
+        128
+      ],
+      "physics_in_json": "S2A/S2B",
+      "status": "small S2 subset from the COG pipeline"
+    }
+  },
+  "not_used": {
+    "sen12_hls": {
+      "reason": "HLS is a harmonised product, not an independent sensor in the V3 spec"
+    }
+  }
+}

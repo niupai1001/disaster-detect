@@ -1,0 +1,95 @@
+{
+  "status": "NATIVE_RUNTIME_FAILURE_CURRENT_VERIFICATION_INCOMPLETE",
+  "previous_successful_suite": "source_snapshots/preformal_tests_before_native_runtime_fault.json",
+  "previous_successful_tests": 73,
+  "latest_full_run_completed": false,
+  "isolated_exit_code": 3221225477,
+  "windows_owned_fault_events": [
+    {
+      "pid": 77232,
+      "time": "2026-11-05T10:46:07.2859832-05:00",
+      "app": "python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "exception": "c0000005",
+      "offset": "00000000004be12f"
+    },
+    {
+      "pid": 27556,
+      "time": "2026-11-05T10:45:59.7976443-05:00",
+      "app": "python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "exception": "c0000005",
+      "offset": "00000000004be12f"
+    },
+    {
+      "pid": 78644,
+      "time": "2026-11-05T10:44:37.9650364-05:00",
+      "app": "python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "exception": "c0000005",
+      "offset": "00000000004be12f"
+    },
+    {
+      "pid": 71912,
+      "time": "2026-11-05T10:44:30.8668418-05:00",
+      "app": "python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "exception": "c0000005",
+      "offset": "00000000004be12f"
+    },
+    {
+      "pid": 17936,
+      "time": "2026-11-05T10:43:08.0938600-05:00",
+      "app": "python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "exception": "c0000005",
+      "offset": "00000000004be12f"
+    },
+    {
+      "pid": 17936,
+      "time": "2026-11-05T10:42:54.2537177-05:00",
+      "app": "OpenWith.exe",
+      "module": "dwmcorei.dll",
+      "module_path": "C:\\WINDOWS\\SystemApps\\Microsoft.WindowsAppRuntime.CBS.2_8wekyb3d8bbwe\\dwmcorei.dll",
+      "exception": "8898008d",
+      "offset": "0000000000070008"
+    }
+  ],
+  "driver_module_identified": true,
+  "diagnostics": [
+    "preformal_isolated_retry.json",
+    "cpu_backward_backend_diagnostic.json",
+    "cpu_backward_environment_diagnostic.json",
+    "jepa_flow_latest.log",
+    "legacy_streaming_diagnostic.log"
+  ],
+  "findings": [
+    "CPU backward failure also reproduces in unchanged legacy reconstruction and the minimal scalar case",
+    "Disabling MKLDNN, math-only attention, one CPU thread and changing GPU visibility did not fix the isolated check",
+    "Faulting module recorded by Windows is NVIDIA nvcuda64.dll; hardware/root cause not established"
+  ],
+  "not_performed": [
+    "GPU reset",
+    "other job termination",
+    "driver installation",
+    "environment rebuild",
+    "new real optimizer update"
+  ],
+  "real_optimizer_updates_this_turn": 0,
+  "real_pilot_total": 214,
+  "qa_recheck": {
+    "members": 10,
+    "raw": 6,
+    "parent_only": 4
+  },
+  "source_sha256": {
+    "jepa.py": "3f78dc2050ff29419b65d45fd6b92ee2c94c0074b1251f98d4947dab41517cea",
+    "test_jepa_flow.py": "965cd5d75a82b2d0a622de9e13a51969542ffb9cce6976a8aa393892a2994517",
+    "pair_cohort_lineage.py": "e5f7478bd5d2af26921fe9b7ba4b2341cc99d979c67d85300ca12fbc948bad4d"
+  }
+}

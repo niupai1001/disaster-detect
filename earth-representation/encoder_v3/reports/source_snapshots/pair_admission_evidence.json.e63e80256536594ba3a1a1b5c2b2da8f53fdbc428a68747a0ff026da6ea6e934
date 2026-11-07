@@ -1,0 +1,141 @@
+{
+  "status": "B2_EVIDENCE_EXPANDED_NOT_PAIR_ADMISSION",
+  "metadata_catalog_pairs": 349,
+  "full_original_QA_TRAIN_pairs_measured": 159,
+  "unique_members": 315,
+  "reflectance_channels_exactly_reproduced": 2682,
+  "QA_headers": 627,
+  "original_metadata_records": 311,
+  "metadata_acquisition_string_matches": 311,
+  "missing_local_product_metadata_members": [
+    "obs_352f8d294feb3c47e388cdcc",
+    "obs_57c4c169ec25701452c35149",
+    "obs_89dde414bba657df2d0b781c",
+    "obs_9a2beaca65c6abefd9b116cb"
+  ],
+  "descriptive_time_bins_not_acceptance_thresholds": {
+    "within_1h": 2,
+    "1h_to_1d": 6,
+    "2d_to_7d": 4,
+    "over_7d": 147
+  },
+  "variable_support_diagnostics": {
+    "all_four_zero_peak": 39,
+    "any_nonzero_peak": 120,
+    "any_search_boundary_peak": 25,
+    "all_four_agree": 72,
+    "scope": "Measured correlation peaks only; not counts of proven misregistered pairs"
+  },
+  "fixed_support_bidirectional": [
+    {
+      "S2_id": "obs_57c4c169ec25701452c35149",
+      "Landsat_id": "obs_8b41ee13dedf08054ec49578",
+      "time_gap_minutes": 12.919123133333333,
+      "directions": [
+        {
+          "source_id": "obs_57c4c169ec25701452c35149",
+          "best_shift_m": [
+            0.0,
+            10.0
+          ],
+          "correlation_min": 0.9667014817881316,
+          "correlation_max": 0.9823101537400399,
+          "fixed_target_pixels_by_band": {
+            "B03": 1983,
+            "B04": 1983,
+            "B8A": 1983,
+            "B11": 1983
+          }
+        },
+        {
+          "source_id": "obs_8b41ee13dedf08054ec49578",
+          "best_shift_m": [
+            0.0,
+            -10.0
+          ],
+          "correlation_min": 0.8382722046013882,
+          "correlation_max": 0.9506789998152827,
+          "fixed_target_pixels_by_band": {
+            "SR_B3": 19526,
+            "SR_B4": 19526,
+            "SR_B5": 4726,
+            "SR_B6": 4726
+          }
+        }
+      ]
+    },
+    {
+      "S2_id": "obs_973cae81321bcaab1ebaebee",
+      "Landsat_id": "obs_06911cf5e63c9c5455a58ae1",
+      "time_gap_minutes": 20.308953033333335,
+      "directions": [
+        {
+          "source_id": "obs_973cae81321bcaab1ebaebee",
+          "best_shift_m": [
+            0.0,
+            10.0
+          ],
+          "correlation_min": 0.9719217986866691,
+          "correlation_max": 0.9878136643278321,
+          "fixed_target_pixels_by_band": {
+            "B03": 2496,
+            "B04": 2496,
+            "B8A": 2496,
+            "B11": 2496
+          }
+        },
+        {
+          "source_id": "obs_06911cf5e63c9c5455a58ae1",
+          "best_shift_m": [
+            0.0,
+            -10.0
+          ],
+          "correlation_min": 0.8396913128688955,
+          "correlation_max": 0.9843150117320443,
+          "fixed_target_pixels_by_band": {
+            "SR_B3": 23978,
+            "SR_B4": 23978,
+            "SR_B5": 5870,
+            "SR_B6": 5870
+          }
+        }
+      ]
+    }
+  ],
+  "raw_QA_policy_frozen": false,
+  "pair_thresholds_frozen": false,
+  "admitted_pairs": 0,
+  "optimizer_updates": 0,
+  "real_updates_total": 214,
+  "formal_training_started": false,
+  "audit_tests": {
+    "report": "pair_admission_engineering_tests.json",
+    "tests": 8,
+    "skipped": 0,
+    "scope": "targeted tests; 2 overlap prior full suite, do not add totals"
+  },
+  "cost": {
+    "cohort_seconds": 467.85041160000037,
+    "cohort_controller_seconds": 472.6003807999987,
+    "lineage_header_seconds": 23.539649800000916,
+    "fixed_support_seconds": 2.9884735999985423,
+    "note": "CPU read-only data/geometry diagnostics; overlapping jobs not summed as wall time; no GPU model execution"
+  },
+  "source_run_snapshot": "encoder_v3\\reports\\source_snapshots\\pair_registration_cohort.py.3fcb0c94211a02de57eb5dfa1c68ba23e6d18a5ba93e8178457c26393054e752",
+  "artifacts": {
+    "pair_registration_diagnostics/full_QA/index.json": "2ef235ad723e174b71f7db9dabc7e8940282c62f54ac96ac41c11a62fa3476cd",
+    "pair_full_QA_lineage.json": "4be4e172ce1d1b778f77f0bbeb05f047d96bee9324dc5fffb8848f11b15d1af3",
+    "pair_fixed_support_diagnostics.json": "c0d26f96cb24ff68df0460a9a45bc3e65b4e432d213e0a2b1c0fa7fc99909671",
+    "pair_fixed_support_curves.png": "80dfc4e38e6ceba301d99e3b81e74c0d76173cd0ab152f257ed04ff63d498378",
+    "pair_native_review_cases.json": "376953e429ff87f554b95cc35f442311ee9665737f2530aa609884e8c066a96b",
+    "pair_native_review_cases.png": "3ba20dfffcf67e51c4d274b2856171818562b8a2c88277834583013ebcb99075",
+    "pair_admission_engineering_tests.json": "e50702c1d9af56ea267e0a78b1691ab36fc2902aed29a2ca69fa2d33ad75749c"
+  },
+  "unresolved": [
+    "V3 QA policy and temporal/registration/change-risk acceptance decisions",
+    "Observed coherent 10m offset and missing local metadata in four S2 members",
+    "147 full-QA candidates have >7-day gaps; no silent time cutoff adopted",
+    "Other metadata candidates and cross-projection geometry still incomplete",
+    "No admitted B2 dataset or frozen pair manifest produced"
+  ]
+}

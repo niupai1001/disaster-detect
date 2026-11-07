@@ -1,0 +1,27 @@
+"""Plot existing read-only pair diagnostics; no data or policy changes."""
+import json
+from pathlib import Path
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from .data import sha256
+
+
+def main():
+    reports=Path(__file__).resolve().parent/'reports';source=reports/'pair_fixed_support_diagnostics.json';digest=sha256(source);data=json.loads(source.read_text(encoding='utf-8'))
+    fig,axes=plt.subplots(2,len(data['rows']),figsize=(12,7),squeeze=False,sharex=True,constrained_layout=True)
+    for col,pair in enumerate(data['rows']):
+        for row,direction in enumerate(pair['directions']):
+            ax=axes[row,col]
+            for band in direction['bands']:
+                values=[v for v in band['offsets'] if v['dx_m']==0]
+                ax.plot([v['dy_m'] for v in values],[v['correlation'] for v in values],marker='o',label=band['source_band']+' -> '+band['target_band'])
+            ax.axvline(0,color='gray',linestyle='--',linewidth=1);ax.grid(alpha=.25);ax.set_title(f"Pair {col+1}, gap {pair['time_gap_seconds']/60:.2f} min | "+('S2 -> Landsat' if row==0 else 'Landsat -> S2'));ax.set_ylabel('Pearson correlation (fixed support)');ax.legend(fontsize=8);ax.set_xlabel('Translate source northing (m), dx = 0')
+    fig.suptitle('Same fully covered target pixels at all measured offsets | diagnostic, not admission',fontsize=13)
+    output=reports/'pair_fixed_support_curves.png';fig.savefig(output,dpi=150);plt.close(fig)
+    if sha256(source)!=digest:raise ValueError('Input diagnostic changed during rendering')
+    (reports/'pair_fixed_support_figure.json').write_text(json.dumps(dict(source=str(source),source_sha256=digest,output=str(output),output_sha256=sha256(output),source_code_sha256=sha256(Path(__file__))),indent=2)+'\n',encoding='utf-8')
+    print(output)
+
+
+if __name__=='__main__':main()

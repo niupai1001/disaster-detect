@@ -1,0 +1,71 @@
+{
+  "status": "CALIBRATION_DATA_USE_REQUIRES_SCIENTIFIC_REVIEW",
+  "scope_members": [
+    "obs_57c4c169ec25701452c35149",
+    "obs_8b41ee13dedf08054ec49578",
+    "obs_973cae81321bcaab1ebaebee",
+    "obs_06911cf5e63c9c5455a58ae1"
+  ],
+  "original_requirement": "目标反射率只用于监督",
+  "confirmed_mechanism": "Native Encoder and Merge; query-only fixed pair translation shared by Decoder/JEPA",
+  "confirmed_QA": "B2_QA_policy_confirmation.json",
+  "local_evidence": {
+    "native_release_rows": 7778,
+    "active_release_rows": 14270,
+    "same_acquisition_name_candidates": 66,
+    "headers_matching_known_raw_file_hashes": 42,
+    "additional_file_headers": 24,
+    "independent_eligible_calibration_windows_established": 0
+  },
+  "options": [
+    {
+      "id": "strict_separate_calibration",
+      "recommended": true,
+      "decision": "Preserve separation between offset calibration and supervised target pixels",
+      "implementation_if_selected": "Keep two pairs as candidates until independently eligible calibration data or another pair satisfying unchanged geometry is established",
+      "does_not_authorize": [
+        "New downloads",
+        "Discarding targets or inventing a calibration split",
+        "Offset values or pair admission"
+      ]
+    },
+    {
+      "id": "TRAIN_offline_reuse_exception",
+      "recommended": false,
+      "decision": "Allow the four named TRAIN observations to estimate a fixed pair translation offline and remain available for later supervised training",
+      "scientific_change": "Exception to target-reflectance-only-for-supervision during offline geometric preparation; never a learned input or per-prediction operation",
+      "constraints": [
+        "Only four named TRAIN observations; no VAL or protected target fitting/tuning",
+        "Freeze approved estimator, offsets and evidence before training; no parameter-update-dependent or per-batch estimation",
+        "No target reflectance passed to Student Encoder/Decoder through the correction interface; runtime uses only the reviewed static geometry table",
+        "Keep spatial partition evidence as development diagnostics, never an untouched validation result",
+        "Retain native arrays, QA, affine, task targets and original logical update caps",
+        "QA confirmation and translation mechanism remain as already approved"
+      ],
+      "does_not_authorize": [
+        "The candidate estimator or two numeric offsets",
+        "Registration, processing-domain, temporal or change-risk acceptance",
+        "Pair manifest admission",
+        "Any optimizer or formal-training updates"
+      ]
+    }
+  ],
+  "selected_option": null,
+  "offsets_approved": false,
+  "pairs_admitted": 0,
+  "training_targets_changed": false,
+  "optimizer_updates": 0,
+  "source_reports": {
+    "B2_pair_geometry_proposal.json": "b63b8010d6365f2842c020cef72af35f02dcfa48e3441f76387da9fae8167c3e",
+    "B2_QA_policy_confirmation.json": "c09487b1059c68f673f34be3d7627cc1b4e592651a9e06531fbd5705febf29b3",
+    "pair_calibration_inventory.json": "fae73dfb11c1e160ec5a1cb592cd1739c4833e152f73a82b3bdcd85af86680fd",
+    "pair_calibration_filename_candidates.json": "64793d3a428f872caf3d36ba9f225706dabcfd20d45b8e94a8f193c243700d7c",
+    "pair_calibration_filename_headers.json": "3f7fc05ae0c5fbca1f8253742bd94571bf588a47a0e08c4150355e2081e15a83",
+    "pair_spatial_holdout_disjoint.json": "a27429108f0d45a8b9f860cf23f96c93afa90895edb1c9c440ffabaf16f15114"
+  },
+  "limits": [
+    "Readable filename coverage is not whole-machine or archive completeness",
+    "Extra file names/headers do not establish an independent eligible calibration window",
+    "TRAIN data reuse can be scientifically allowed only if the user explicitly accepts the changed data-use boundary; it is not ordinary GPU acceleration"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "status": "FAILED_NO_AUTOMATIC_RETRY",
+  "optimizer_updates": 0,
+  "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+  "candidate_execution": {
+    "local_batch_size": 128,
+    "decoder_chunk_pixels": 16384,
+    "microbatch_observations": 1,
+    "geometry_cache": true
+  },
+  "checkpoint_sha256": "a59f4214397fef6ce0754a94e8e566cbeedfc6fc1b4f49614ecf69be3f2d8098",
+  "rows": [
+    {
+      "cache": false,
+      "seconds": 116.33276819999446,
+      "steps": [
+        {
+          "index": 0,
+          "signature": "05db062f1ba0372aa3f27d32b4071e68eec019d3a5608379f6c72e2d8971f403",
+          "data_wait_seconds": 24.61227010001312,
+          "forward_backward_with_transfer_seconds": 28.452848999993876,
+          "end_to_end_seconds": 53.065119100006996,
+          "supported_pixels": 380739,
+          "losses": {
+            "A_loss": 2.7207757757537405,
+            "B_loss": 4.3791197401622695,
+            "weighted_loss": 3.8155557107943077
+          }
+        },
+        {
+          "index": 1,
+          "signature": "f1d07af179da68267e7a3eabb5a54d90a7a48bdf730df43a53872c8f3a349b1a",
+          "data_wait_seconds": 0.5907154000014998,
+          "forward_backward_with_transfer_seconds": 16.84860279998975,
+          "end_to_end_seconds": 17.43931819999125,
+          "supported_pixels": 357321,
+          "losses": {
+            "A_loss": 1.5117155283987858,
+            "B_loss": 1.6445389723595851,
+            "weighted_loss": 1.9228503461769648
+          }
+        },
+        {
+          "index": 2,
+          "signature": "117b7980b0218dd1ef0b7322c30c739084f5dbf3b8fd097555eee8993e89a913",
+          "data_wait_seconds": 10.180520599999,
+          "forward_backward_with_transfer_seconds": 24.276654000001145,
+          "end_to_end_seconds": 34.457174600000144,
+          "supported_pixels": 516940,
+          "losses": {
+            "A_loss": 2.5037382787064804,
+            "B_loss": 3.831841867636266,
+            "weighted_loss": 3.4617017318564667
+          }
+        },
+        {
+          "index": 3,
+          "signature": "d2844ef5c6fc518a9af662b911b5a126eee040f7a2b4dc7d528619f7665d8dde",
+          "data_wait_seconds": 0.2657531000004383,
+          "forward_backward_with_transfer_seconds": 11.013679900002899,
+          "end_to_end_seconds": 11.279433000003337,
+          "supported_pixels": 377509,
+          "losses": {
+            "A_loss": 1.0513689771118684,
+            "B_loss": 2.2136179370650666,
+            "weighted_loss": 1.6047793393796095
+          }
+        }
+      ],
+      "observations_per_second": 0.275072969509218,
+      "supervised_pixels_per_second": 14033.096824391374,
+      "peak_allocated_bytes": 2356763136
+    }
+  ],
+  "comparisons": [],
+  "source_hashes": {
+    "model.py": "e0ba10b8fc141cc29d0f0e6e28a76b6a3ac7368fbe1fec4b64cb1ab0437bbf7d",
+    "layout.py": "f69cff56b3ce150fe58b1fbe574da84213a4f13fdb95c8a0cb6440d18e678140",
+    "streaming.py": "f5d7dc01bb3995dcd21da554d0e60b003a9d381372418d82063c015d09686053",
+    "geometry_cache.py": "4f52043f4d18b5b1c169e587af9b8f76a8367cba4dd5bfe179f6ffc6886bc969",
+    "geometry_cache_gpu_probe.py": "9bbfdfc293e72ba0ac0335cf8d123ca38bc20a33acb77f47acfbc1dad1877be0"
+  },
+  "limitations": [
+    "Four fixed real schedule entries, one order after warmup; no optimizer/checkpoint/validation time",
+    "Prediction capture adds identical diagnostic overhead to both paths",
+    "Only compared inputs; not long-run cache stability, maximum-window or update/resume acceptance",
+    "No execution default changed"
+  ],
+  "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 4.09 GiB. GPU 0 has a total capacity of 31.84 GiB of which 21.79 GiB is free. 12.00 GiB allowed; Of the allocated memory 5.84 GiB is allocated by PyTorch, and 2.50 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)"
+}

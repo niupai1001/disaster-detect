@@ -1,13 +1,23 @@
 {
-  "status": "DISCOVERY_ONGOING_NOT_INVENTORY_ACCEPTANCE",
+  "status": "FILENAME_PASSES_RECONCILED_WITH_EXPLICIT_FOLLOWUP_GAPS_NOT_ADMISSION",
   "first_pass": "mounted_raster_discovery/summary.json",
-  "first_pass_pattern_case": "case-sensitive lower-case suffixes; uppercase/mixed-case supplemental scan required",
-  "corrected_future_scanner": "discover_rasters.py uses case-insensitive extension globs; tested on hidden ignored uppercase TIFF",
+  "case_insensitive_supplement": "mounted_raster_discovery_casefold/summary.json",
+  "refinement": "mounted_raster_discovery_refinement/summary.json",
+  "reconciled": "filename_discovery_current.json",
+  "unique_candidate_paths": 1589404,
   "remaining": [
-    "Finish mounted-drive filename pass and retain every access/timeout error",
-    "Run supplemental case-insensitive pass and deduplicate by full path before claiming extension coverage",
-    "Associate satellite/UAV source groups with authentic SRF, calibration, QA and native grids",
-    "Review archives and unlisted package formats; resolve split isolation before any pixel admission"
+    "Resolve listed timeout and access-error gaps without claiming whole-machine completeness",
+    "Associate optical candidates with authentic SRF, calibration, QA and native grids",
+    "Review archives and unlisted formats; filename matches do not establish live byte identity or admission"
   ],
-  "admitted_members": 0
+  "admitted_members": 0,
+  "latest_followup": "mounted_raster_discovery_remaining_followup/summary.json",
+  "latest_coverage": "discovery_coverage_current.json",
+  "original_timeout_targets": 10,
+  "pending_followup_chunks": 0,
+  "finished_followup_chunks": 1053,
+  "finished_latest_followup_chunks": 56,
+  "terminal_timeout_leaves": 0,
+  "latest_access_error_chunks": 2,
+  "gap_followup": "mounted_raster_discovery_gap_followup/summary.json"
 }

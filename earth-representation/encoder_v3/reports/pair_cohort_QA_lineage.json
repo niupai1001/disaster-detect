@@ -1,0 +1,1383 @@
+{
+  "status": "PAIR_COHORT_LINEAGE_RECHECK_NOT_ADMISSION",
+  "pairs": 5,
+  "members": 10,
+  "raw_QA_members": 6,
+  "parent_QA_only_members": 4,
+  "canonical_sha256": "50929d37f39458ee425433c040eaa60d1dd1264d644da65c9bb9a84a5c0241b2",
+  "optimizer_updates": 0,
+  "admitted_pairs": 0,
+  "seconds": 0.40284840000003896,
+  "rows": [
+    {
+      "id": "obs_054084b36a2b683481dfd81e",
+      "role": "TRAIN",
+      "product": "S2B_11VPK_20240809_0_L2A",
+      "timestamp": "2024-08-09T19:07:05.479000Z",
+      "release_isolation_group": "expanded_group_146",
+      "processing_domain": "S2_L2_SR_provider_harmonized",
+      "calibration_revision": {
+        "additive_correction": 0.1,
+        "evidence": "provider flag true plus independent Collection1 controls",
+        "source_flag": true,
+        "source_baseline": "05.11",
+        "provider_low_signal_floor": "Pre-C1 provider may have clamped values before delivery; no extra clipping applied by this repair"
+      },
+      "raw_QA_independently_recomputed": true,
+      "bands": [
+        {
+          "band": "B02",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B03",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B04",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B05",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B06",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B07",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B08",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B8A",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B11",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B12",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\scl.tif",
+          "sha256": "8121547df992a828045daf5911fa092c41dd60cd36a2da0272fc77ab9bcee0e5",
+          "shape": [
+            193,
+            193
+          ],
+          "crs": "EPSG:32611",
+          "affine": [
+            20.0,
+            0.0,
+            600600.0,
+            0.0,
+            -20.0,
+            6972440.0
+          ],
+          "dtype": "uint8",
+          "nodata": 0.0,
+          "raw_value_histogram": {
+            "4": 5402,
+            "5": 25185,
+            "6": 6662
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\s2_calibrated_v2\\cache\\obs_054084b36a2b683481dfd81e.npz": {
+          "sha256": "8c52461364c8c7bd6cbdf8c586a12396aa6a96103d97f647ddc67cead83452da",
+          "size": 1534133,
+          "mtime_ns": 1793631647915180900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\scl.tif": {
+          "sha256": "8121547df992a828045daf5911fa092c41dd60cd36a2da0272fc77ab9bcee0e5",
+          "size": 5121,
+          "mtime_ns": 1793279620533373100
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\blue.tif": {
+          "sha256": "b498adb39fcd1179a7f64b54948eef4b93a82fb8e36f36276366017effb89755",
+          "size": 215164,
+          "mtime_ns": 1793279625710805400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\green.tif": {
+          "sha256": "7e4f9fd0101779700da71ed7f61253ad0433bb8aee2263b524e5df29b003868d",
+          "size": 216536,
+          "mtime_ns": 1793279629732208000
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\red.tif": {
+          "sha256": "040f8755c1d24c82be527a47ede82adf2fab2a1b8c4c8b11a35bdafd07244d70",
+          "size": 220912,
+          "mtime_ns": 1793279632464938900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\rededge1.tif": {
+          "sha256": "d3d584eccf1130c2bc4d43774a83a0b65aae42a80c1938c3b834be5ca8dd177a",
+          "size": 58108,
+          "mtime_ns": 1793279635736114900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\rededge2.tif": {
+          "sha256": "34496a23265a7c553299f0b0260a779085b65a55e507497e5693f1df271a6910",
+          "size": 59884,
+          "mtime_ns": 1793279638115434200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\rededge3.tif": {
+          "sha256": "a7658a2afe4950269a2658de70ec6a3131fdd0bb9edf983c7665994f7f347ed5",
+          "size": 60426,
+          "mtime_ns": 1793279640242220400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\nir.tif": {
+          "sha256": "a47270310ff60d36713434763df36283841342a410235d947f7f54dd4bf4ff1b",
+          "size": 227328,
+          "mtime_ns": 1793279642980324500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\nir08.tif": {
+          "sha256": "0ad66c66863318ca6bff568aa76a3ce0b0fcfb30f27c2630a6d9cc2b64f6f68c",
+          "size": 60942,
+          "mtime_ns": 1793279645282164200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\swir16.tif": {
+          "sha256": "4257ce81e2eadb8b54aea8a824b166d117e1ab85e9e7dcc515ac7e966aed694f",
+          "size": 61714,
+          "mtime_ns": 1793279649907106700
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0c9c7e3a6e27d3da012f89cd\\S2B_11VPK_20240809_0_L2A\\swir22.tif": {
+          "sha256": "91486579fcb5947d4a666fe5b4d8239cef5307c961dfb5bf37b5f6535347a8ad",
+          "size": 61136,
+          "mtime_ns": 1793279652239107800
+        }
+      }
+    },
+    {
+      "id": "obs_3a45ff160a308d84be4ff80d",
+      "role": "TRAIN",
+      "product": "S2A_39WWU_20240706_0_L2A",
+      "timestamp": "2024-07-06T08:30:16.164000Z",
+      "release_isolation_group": "expanded_group_1680",
+      "processing_domain": "S2_L2_SR_provider_harmonized",
+      "calibration_revision": {
+        "additive_correction": 0.1,
+        "evidence": "provider flag true plus independent Collection1 controls",
+        "source_flag": true,
+        "source_baseline": "05.10",
+        "provider_low_signal_floor": "Pre-C1 provider may have clamped values before delivery; no extra clipping applied by this repair"
+      },
+      "raw_QA_independently_recomputed": true,
+      "bands": [
+        {
+          "band": "B02",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B03",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B04",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B05",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B06",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B07",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B08",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B8A",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B11",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B12",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\scl.tif",
+          "sha256": "061dd8e2465f0970a229ede3ccab6817bd6e7f018394f0f110db4cca4f0bf9b3",
+          "shape": [
+            193,
+            193
+          ],
+          "crs": "EPSG:32639",
+          "affine": [
+            20.0,
+            0.0,
+            513900.0,
+            0.0,
+            -20.0,
+            7853460.0
+          ],
+          "dtype": "uint8",
+          "nodata": 0.0,
+          "raw_value_histogram": {
+            "6": 37249
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\s2_calibrated_v2\\cache\\obs_3a45ff160a308d84be4ff80d.npz": {
+          "sha256": "0ee72c01df513517212a55b24a866b9e675dfb0cf2d3b1e64254c16f6bf7ae43",
+          "size": 988424,
+          "mtime_ns": 1793631658838256200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\scl.tif": {
+          "sha256": "061dd8e2465f0970a229ede3ccab6817bd6e7f018394f0f110db4cca4f0bf9b3",
+          "size": 1409,
+          "mtime_ns": 1793283323548818500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\blue.tif": {
+          "sha256": "97572618e20f0e6ae40b30d0fd46f8f063fba3975a7fe1bc3b91b57f4f023306",
+          "size": 172388,
+          "mtime_ns": 1793283330466783300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\green.tif": {
+          "sha256": "8030b018733008f2afad52e1c19ab9210124bb80b577a6332aa08dcf64582355",
+          "size": 168300,
+          "mtime_ns": 1793283333344011900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\red.tif": {
+          "sha256": "48af858f7837a9357be9f6d7729965c06d9041516a1598821c2a525216a0b943",
+          "size": 163428,
+          "mtime_ns": 1793283336347486300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\rededge1.tif": {
+          "sha256": "df51e94bf4d5981688c2e69be5ef93a3e9eba245dec5847dd1dfbee3867dda66",
+          "size": 39514,
+          "mtime_ns": 1793283338252186600
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\rededge2.tif": {
+          "sha256": "ff9eab1b90ffc191dc669afe888bec2c736a1f5caef88dba9df614fecbd2c4ff",
+          "size": 39170,
+          "mtime_ns": 1793283340463002400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\rededge3.tif": {
+          "sha256": "de429d9cf0beaf8dc130b7ce1d8e7b43d3499b573d8069dd8ce46be7b239d704",
+          "size": 39462,
+          "mtime_ns": 1793283343350356300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\nir.tif": {
+          "sha256": "d93dcd6972af6a6e28038c5faf2de5ffc51495b9bcddc98f0ff3e04ec8555854",
+          "size": 159154,
+          "mtime_ns": 1793283348964392800
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\nir08.tif": {
+          "sha256": "a2f6b47e47c800a94bc37ece436808244a5fd2cd5ce3bea530f4865ea9997c56",
+          "size": 39586,
+          "mtime_ns": 1793283352023515400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\swir16.tif": {
+          "sha256": "93d40587dc111a9ea1b3b1bab2b110783c4186882a77e5b579bc4404ec7d7ef9",
+          "size": 32598,
+          "mtime_ns": 1793283358579526500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_1a4a11dc4aafe4d66d9f48b1\\S2A_39WWU_20240706_0_L2A\\swir22.tif": {
+          "sha256": "54cda1e41ca9535def548166e3f6388e850039317adfadf697cf650eefae5ec8",
+          "size": 32100,
+          "mtime_ns": 1793283360642402300
+        }
+      }
+    },
+    {
+      "id": "obs_57c4c169ec25701452c35149",
+      "role": "TRAIN",
+      "product": "S2B_31UFT_20200731_0_L2A",
+      "timestamp": "2020-07-31T10:46:43.178000Z",
+      "release_isolation_group": "expanded_group_163",
+      "processing_domain": "S2_L2_SR_provider_harmonized",
+      "calibration_revision": {
+        "additive_correction": 0.0,
+        "evidence": "pre04 no additive offset",
+        "source_flag": false,
+        "source_baseline": "02.14",
+        "provider_low_signal_floor": "Pre-C1 provider may have clamped values before delivery; no extra clipping applied by this repair"
+      },
+      "raw_QA_independently_recomputed": true,
+      "bands": [
+        {
+          "band": "B02",
+          "valid_pixels": 20724,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B03",
+          "valid_pixels": 20724,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B04",
+          "valid_pixels": 20724,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B05",
+          "valid_pixels": 5181,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B06",
+          "valid_pixels": 5181,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B07",
+          "valid_pixels": 5181,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B08",
+          "valid_pixels": 20724,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B8A",
+          "valid_pixels": 5181,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B11",
+          "valid_pixels": 5181,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B12",
+          "valid_pixels": 5181,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\scl.tif",
+          "sha256": "acdb305d2443d1d6cfb1385a74a99279bd0e2e3c7eb2950d0a06519db37ca3ed",
+          "shape": [
+            72,
+            72
+          ],
+          "crs": "EPSG:32631",
+          "affine": [
+            20.0,
+            0.0,
+            653400.0,
+            0.0,
+            -20.0,
+            5775540.0
+          ],
+          "dtype": "uint8",
+          "nodata": 0.0,
+          "raw_value_histogram": {
+            "2": 160,
+            "4": 3722,
+            "5": 1242,
+            "7": 57,
+            "8": 2,
+            "9": 1
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\s2_calibrated_v2\\cache\\obs_57c4c169ec25701452c35149.npz": {
+          "sha256": "01b1b69878ebd9f701514e0ed24f52198b179ed54e32e5fd7969b1bab6593514",
+          "size": 241768,
+          "mtime_ns": 1793631662240109200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\scl.tif": {
+          "sha256": "acdb305d2443d1d6cfb1385a74a99279bd0e2e3c7eb2950d0a06519db37ca3ed",
+          "size": 1787,
+          "mtime_ns": 1793276640797540500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\blue.tif": {
+          "sha256": "962b41b68d6ce9be598e54c72d630b096f3af31aa7c061e9460f3c423f693ed9",
+          "size": 32092,
+          "mtime_ns": 1793276643739290100
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\green.tif": {
+          "sha256": "4c8f44bcc9df4f9d44fe465a6668eea531189df835554a79e79cb531548977ef",
+          "size": 32372,
+          "mtime_ns": 1793276645457505000
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\red.tif": {
+          "sha256": "2427b221f458897f93a92cd222a0a664b1976ec42c584d83380dc04cbf192f7f",
+          "size": 32882,
+          "mtime_ns": 1793276647304834900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\rededge1.tif": {
+          "sha256": "fd2167bb8c05c3c0ca91d4a097b2c4c1c1c864e70e3d468e9fb7cd28806f193f",
+          "size": 9130,
+          "mtime_ns": 1793276648701416300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\rededge2.tif": {
+          "sha256": "69cf5d69bb810ffb6b27687a23d214b0ea647dcd928d6baf80ed6c51a9113c47",
+          "size": 9470,
+          "mtime_ns": 1793276650538564400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\rededge3.tif": {
+          "sha256": "0ba35ad9d9c62d87aa4792258d4047a2a01034ae548c1acbbd2c742d2273d37a",
+          "size": 9780,
+          "mtime_ns": 1793276653221326200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\nir.tif": {
+          "sha256": "20ae9bfeab111ee19c41e0dfeab1ad46746c3b4f3078385199165d071d107ad8",
+          "size": 33818,
+          "mtime_ns": 1793276654918869400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\nir08.tif": {
+          "sha256": "5198a95cf4aea35190f52e33e5d6b4a8158220e33fdd8c33c3ea88fd689c5ff9",
+          "size": 9824,
+          "mtime_ns": 1793276656894429600
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\swir16.tif": {
+          "sha256": "768ed7d7b19438caa4a0f33da1e05860ff3d4de150f5c5f12bff67f769b6d36a",
+          "size": 9360,
+          "mtime_ns": 1793276660064103500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_pilot_Landcover-774179_landsat\\S2B_31UFT_20200731_0_L2A\\swir22.tif": {
+          "sha256": "312bd87282dff4a49eba16bf6cb34c46ff14594c5f460b378dd3f6133721bf08",
+          "size": 9390,
+          "mtime_ns": 1793276661589328600
+        }
+      }
+    },
+    {
+      "id": "obs_8b41ee13dedf08054ec49578",
+      "role": "TRAIN",
+      "product": "LC08_L2SP_198024_20200731_02_T1",
+      "timestamp": "2020-07-31T10:33:48.030612Z",
+      "release_isolation_group": "expanded_group_163",
+      "processing_domain": "original_L2_SR",
+      "calibration_revision": null,
+      "raw_QA_independently_recomputed": true,
+      "bands": [
+        {
+          "band": "SR_B1",
+          "valid_pixels": 2379,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B2",
+          "valid_pixels": 2379,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B3",
+          "valid_pixels": 2379,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B4",
+          "valid_pixels": 2379,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B5",
+          "valid_pixels": 2379,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B6",
+          "valid_pixels": 2379,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B7",
+          "valid_pixels": 2379,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\qa_pixel.tif",
+          "sha256": "b03ed5dd95b019ee86c0192eb311aff565c5a1f2f48514afecfd15f58a83b9ca",
+          "shape": [
+            49,
+            49
+          ],
+          "crs": "EPSG:32631",
+          "affine": [
+            30.0,
+            0.0,
+            653385.0,
+            0.0,
+            -30.0,
+            5775555.0
+          ],
+          "dtype": "uint16",
+          "nodata": null,
+          "raw_value_histogram": {
+            "21824": 2401
+          }
+        },
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\qa_radsat.tif",
+          "sha256": "24417e7aba915018b74ae784c0ab62b637f1ec52983b5e229fb4fdb33cdcf252",
+          "shape": [
+            49,
+            49
+          ],
+          "crs": "EPSG:32631",
+          "affine": [
+            30.0,
+            0.0,
+            653385.0,
+            0.0,
+            -30.0,
+            5775555.0
+          ],
+          "dtype": "uint16",
+          "nodata": null,
+          "raw_value_histogram": {
+            "0": 2401
+          }
+        },
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\qa_aerosol.tif",
+          "sha256": "a64a39435d3e81469403882d4fd5874a659273f91e85f4c7c25931dbb1f7607a",
+          "shape": [
+            49,
+            49
+          ],
+          "crs": "EPSG:32631",
+          "affine": [
+            30.0,
+            0.0,
+            653385.0,
+            0.0,
+            -30.0,
+            5775555.0
+          ],
+          "dtype": "uint8",
+          "nodata": null,
+          "raw_value_histogram": {
+            "64": 7,
+            "66": 233,
+            "96": 2030,
+            "130": 11,
+            "160": 93,
+            "194": 5,
+            "224": 22
+          }
+        }
+      ],
+      "metadata_files": [
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\product.json"
+      ],
+      "processing_metadata": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\product.json",
+          "sha256": "b4b23f157b524695c57d4876e7422cbf016561bb9ba63c466d4c5482099671bd",
+          "item_id": "LC08_L2SP_198024_20200731_02_T1",
+          "acquired": "2020-07-31T10:33:48.030612Z",
+          "acquisition_timestamp_exact_match": true,
+          "platform": "landsat-8",
+          "description": "Landsat Collection 2 Level-2",
+          "collection_number": "02",
+          "collection_category": "T1",
+          "correction": "L2SP",
+          "created": "2022-05-06T16:52:59.042178Z",
+          "note": "Created is catalog metadata; not inferred to be acquisition or processing time"
+        }
+      ],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\cache\\obs_8b41ee13dedf08054ec49578.npz": {
+          "sha256": "78de65347d77170b76294d95cca44a1c9af704cd383911d8a6bfd28a22d9d35b",
+          "size": 54589,
+          "mtime_ns": 1793629373131537400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\qa_pixel.tif": {
+          "sha256": "b03ed5dd95b019ee86c0192eb311aff565c5a1f2f48514afecfd15f58a83b9ca",
+          "size": 967,
+          "mtime_ns": 1793248610713424500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\qa_radsat.tif": {
+          "sha256": "24417e7aba915018b74ae784c0ab62b637f1ec52983b5e229fb4fdb33cdcf252",
+          "size": 963,
+          "mtime_ns": 1793248612806759900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\qa_aerosol.tif": {
+          "sha256": "a64a39435d3e81469403882d4fd5874a659273f91e85f4c7c25931dbb1f7607a",
+          "size": 1119,
+          "mtime_ns": 1793248655927284400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\coastal.tif": {
+          "sha256": "25ffea5c6e7d53a78906d23f061ccc0bca6f64487504a0475b11d42dfa5fc2ac",
+          "size": 4881,
+          "mtime_ns": 1793248653929914900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\blue.tif": {
+          "sha256": "ef2add4af1fcbe5bcab146114be27b93fe094b420cb281bf4d7b06400f67d5b1",
+          "size": 4911,
+          "mtime_ns": 1793248626541413800
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\green.tif": {
+          "sha256": "4a2bd7e1c8225023395caccd9f581caf732d30072e340ac783ddbed6026d9510",
+          "size": 4979,
+          "mtime_ns": 1793248642809482300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\red.tif": {
+          "sha256": "cb17644b79f1b44023ec951b893eb98e2ba82a2f98e9203a8b9822f687be7f69",
+          "size": 5065,
+          "mtime_ns": 1793248624834759600
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\nir08.tif": {
+          "sha256": "e26a9dd25de2f4b64b5506e4ca433d5cc23d21f9cb5d5514334b972585baac26",
+          "size": 5403,
+          "mtime_ns": 1793248644766736700
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\swir16.tif": {
+          "sha256": "6a20957cc32a30e609f7a47d1bd8832d5cd6cfe5b8e7f2af0a2e8ddd12962d50",
+          "size": 5197,
+          "mtime_ns": 1793248649951204400
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\data\\use_multisensor\\four_view_pilot_v1\\sites\\Landcover-774179\\landsat_l2\\LC08_L2SP_198024_20200731_02_T1\\swir22.tif": {
+          "sha256": "7f5fe39aa0d670a6f97abb3b8400f4781e4a5d324c067d12f9e517b654dd6971",
+          "size": 5213,
+          "mtime_ns": 1793248651968203600
+        }
+      }
+    },
+    {
+      "id": "obs_b6507988883e7a18144a6b55",
+      "role": "TRAIN",
+      "product": "LC09_L2SP_178010_20240706_02_T1",
+      "timestamp": "2024-07-06T08:23:58.782326Z",
+      "release_isolation_group": "expanded_group_1680",
+      "processing_domain": "original_L2_SR",
+      "calibration_revision": null,
+      "raw_QA_independently_recomputed": false,
+      "bands": [
+        {
+          "band": "SR_B2",
+          "valid_pixels": 9177,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B3",
+          "valid_pixels": 9177,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B4",
+          "valid_pixels": 9177,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B5",
+          "valid_pixels": 9177,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B6",
+          "valid_pixels": 9177,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B7",
+          "valid_pixels": 9177,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_b6507988883e7a18144a6b55.tif",
+          "sha256": "88a61dde0c17b4dd31c285bfaa9eb3844250e213cedf54cbf6a439d7151bb2f8",
+          "shape": [
+            128,
+            128
+          ],
+          "crs": "EPSG:32639",
+          "affine": [
+            30.0,
+            0.0,
+            513915.0,
+            0.0,
+            -30.0,
+            7853445.0
+          ],
+          "dtype": "uint8",
+          "nodata": null,
+          "raw_value_histogram": {
+            "128": 22,
+            "134": 1328,
+            "164": 7501,
+            "192": 130,
+            "198": 326,
+            "228": 7077
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\cache\\obs_b6507988883e7a18144a6b55.npz": {
+          "sha256": "39188322a0df174e5426075f2b35a393ce90ffdbf5ffcefae3a7b49c2fac02e5",
+          "size": 119859,
+          "mtime_ns": 1793630833104801200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use\\external\\landsat_LC09_L2SP_178010_20240706_02_T1_r1_c1353.npz": {
+          "sha256": "f5e220e3b8832d61d86d10db460982b6e08f56872da4eadad30dd38a65e0af92",
+          "size": 157295,
+          "mtime_ns": 1792837024087815300
+        },
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_b6507988883e7a18144a6b55.tif": {
+          "sha256": "88a61dde0c17b4dd31c285bfaa9eb3844250e213cedf54cbf6a439d7151bb2f8",
+          "size": 2398,
+          "mtime_ns": 1793630833081279600
+        }
+      }
+    },
+    {
+      "id": "obs_c96db82a0234ea160720d2b5",
+      "role": "TRAIN",
+      "product": "S2A_50JNP_20241223_0_L2A",
+      "timestamp": "2024-12-23T02:15:40.066000Z",
+      "release_isolation_group": "expanded_group_6033",
+      "processing_domain": "S2_L2_SR_provider_harmonized",
+      "calibration_revision": {
+        "additive_correction": 0.1,
+        "evidence": "provider flag true plus independent Collection1 controls",
+        "source_flag": true,
+        "source_baseline": "05.11",
+        "provider_low_signal_floor": "Pre-C1 provider may have clamped values before delivery; no extra clipping applied by this repair"
+      },
+      "raw_QA_independently_recomputed": true,
+      "bands": [
+        {
+          "band": "B02",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B03",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B04",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B05",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B06",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B07",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B08",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B8A",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B11",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B12",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\scl.tif",
+          "sha256": "6c8434cd34c9b3774a30f444302ce73cece199aeb7ba236f044bda59d1b36ff6",
+          "shape": [
+            193,
+            193
+          ],
+          "crs": "EPSG:32750",
+          "affine": [
+            20.0,
+            0.0,
+            536100.0,
+            0.0,
+            -20.0,
+            6808140.0
+          ],
+          "dtype": "uint8",
+          "nodata": 0.0,
+          "raw_value_histogram": {
+            "5": 37249
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\s2_calibrated_v2\\cache\\obs_c96db82a0234ea160720d2b5.npz": {
+          "sha256": "ab08c2bb78659b67c6c4e5a027feece58222b70052ae5ceb70c725e6e0fc63dc",
+          "size": 1519587,
+          "mtime_ns": 1793631640756304900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\scl.tif": {
+          "sha256": "6c8434cd34c9b3774a30f444302ce73cece199aeb7ba236f044bda59d1b36ff6",
+          "size": 1409,
+          "mtime_ns": 1793277205587748300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\blue.tif": {
+          "sha256": "60bc03a7bcd18d78863b210cace78f3ba09f1dfebeddf3d1b43772fe6c660f66",
+          "size": 208236,
+          "mtime_ns": 1793277209915282200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\green.tif": {
+          "sha256": "45703669e860f8a691c000b33d2309d9bac7a973ce4d74ae9704953d88801935",
+          "size": 208246,
+          "mtime_ns": 1793277211623156500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\red.tif": {
+          "sha256": "8c7a28b434842be9831274c6b31fc6d26b94e555ffc18caec509634a351f17b1",
+          "size": 217464,
+          "mtime_ns": 1793277213964610700
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\rededge1.tif": {
+          "sha256": "892e25509aa9896dd35e88f8a80c2315895232c883414d3fde2caa683a23e8bf",
+          "size": 60688,
+          "mtime_ns": 1793277215498132600
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\rededge2.tif": {
+          "sha256": "8d8d18c359b1b625b811e96759d90b40087cfcaa55e80273ba226f2dd8a0f1bb",
+          "size": 60614,
+          "mtime_ns": 1793277217151341600
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\rededge3.tif": {
+          "sha256": "1efdc405e32b9ecf9f063d44328bc9883688596870709aa51636b3fb5190db69",
+          "size": 60534,
+          "mtime_ns": 1793277219174827900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\nir.tif": {
+          "sha256": "132ac375d0e6d28eb0b3d6b1862503b79131c4b61f02fbea13184731bbc803b2",
+          "size": 215074,
+          "mtime_ns": 1793277220881829900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\nir08.tif": {
+          "sha256": "c962300b911e08b654a701b10b49eb868bc5588ca13848d016b09438548eee39",
+          "size": 59930,
+          "mtime_ns": 1793277222578712700
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\swir16.tif": {
+          "sha256": "8c183f90af6a20d2a63caf50077a094af304eb0abff83e60f3b58bae502de3ab",
+          "size": 59980,
+          "mtime_ns": 1793277225817050000
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0298bfe03eea86990f7bddf5\\S2A_50JNP_20241223_0_L2A\\swir22.tif": {
+          "sha256": "f6e93847ad527df4260fcf5dfe72c9aabd6e53dba0bf4f6949e67dec31efb707",
+          "size": 59216,
+          "mtime_ns": 1793277227644921300
+        }
+      }
+    },
+    {
+      "id": "obs_d5bf0cf71e2e5ccd6a4c5706",
+      "role": "TRAIN",
+      "product": "LC09_L2SP_099082_20241204_02_T1",
+      "timestamp": "2024-12-04T00:45:19.942502Z",
+      "release_isolation_group": "expanded_group_6434",
+      "processing_domain": "original_L2_SR",
+      "calibration_revision": null,
+      "raw_QA_independently_recomputed": false,
+      "bands": [
+        {
+          "band": "SR_B2",
+          "valid_pixels": 16333,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B3",
+          "valid_pixels": 16333,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B4",
+          "valid_pixels": 16333,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B5",
+          "valid_pixels": 16333,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B6",
+          "valid_pixels": 16333,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B7",
+          "valid_pixels": 16333,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_d5bf0cf71e2e5ccd6a4c5706.tif",
+          "sha256": "7202e3c89522320371ecfa8ef202ad1b880f11980592cccd60b2591251cdfe53",
+          "shape": [
+            128,
+            128
+          ],
+          "crs": "EPSG:32653",
+          "affine": [
+            30.0,
+            0.0,
+            657615.0,
+            0.0,
+            -30.0,
+            -3511515.0
+          ],
+          "dtype": "uint8",
+          "nodata": null,
+          "raw_value_histogram": {
+            "64": 5,
+            "66": 1788,
+            "96": 14212,
+            "128": 2,
+            "130": 46,
+            "160": 272,
+            "194": 8,
+            "224": 51
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\cache\\obs_d5bf0cf71e2e5ccd6a4c5706.npz": {
+          "sha256": "9040d5cf78e3312018f1f1091e35488ab8cb79b4e406812c81acd838d5c5df03",
+          "size": 234515,
+          "mtime_ns": 1793630137349824000
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use\\external\\landsat_LC09_L2SP_099082_20241204_02_T1_r0_c880.npz": {
+          "sha256": "4505c90103fec7f0d00da9dffb877a66a7e599a7ff2d6d63ce30d8809371e710",
+          "size": 228923,
+          "mtime_ns": 1792831187209321300
+        },
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_d5bf0cf71e2e5ccd6a4c5706.tif": {
+          "sha256": "7202e3c89522320371ecfa8ef202ad1b880f11980592cccd60b2591251cdfe53",
+          "size": 1010,
+          "mtime_ns": 1793630137325309700
+        }
+      }
+    },
+    {
+      "id": "obs_d7415e90f05e271642897e13",
+      "role": "TRAIN",
+      "product": "S2B_53HPE_20241204_0_L2A",
+      "timestamp": "2024-12-04T00:56:07.957000Z",
+      "release_isolation_group": "expanded_group_6434",
+      "processing_domain": "S2_L2_SR_provider_harmonized",
+      "calibration_revision": {
+        "additive_correction": 0.1,
+        "evidence": "provider flag true plus independent Collection1 controls",
+        "source_flag": true,
+        "source_baseline": "05.11",
+        "provider_low_signal_floor": "Pre-C1 provider may have clamped values before delivery; no extra clipping applied by this repair"
+      },
+      "raw_QA_independently_recomputed": true,
+      "bands": [
+        {
+          "band": "B02",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B03",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B04",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B05",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B06",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B07",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B08",
+          "valid_pixels": 148225,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B8A",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B11",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "B12",
+          "valid_pixels": 37249,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\scl.tif",
+          "sha256": "bedb6871e04d472d506f73d522410e32991e55cbe8be5fd9bfd8997bde1bca29",
+          "shape": [
+            193,
+            193
+          ],
+          "crs": "EPSG:32753",
+          "affine": [
+            20.0,
+            0.0,
+            657600.0,
+            0.0,
+            -20.0,
+            6488500.0
+          ],
+          "dtype": "uint8",
+          "nodata": 0.0,
+          "raw_value_histogram": {
+            "5": 37249
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\s2_calibrated_v2\\cache\\obs_d7415e90f05e271642897e13.npz": {
+          "sha256": "5cdd17caa91438d8eeaebec54687b232f49df551f41f9ffcb1d697f661cacfca",
+          "size": 1432881,
+          "mtime_ns": 1793631649181983700
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\scl.tif": {
+          "sha256": "bedb6871e04d472d506f73d522410e32991e55cbe8be5fd9bfd8997bde1bca29",
+          "size": 1409,
+          "mtime_ns": 1793279970505687500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\blue.tif": {
+          "sha256": "7365851a2f575e575558866c980d7e13cc137b0f45fc7e9b303fc5da8e324de9",
+          "size": 192728,
+          "mtime_ns": 1793279975515282600
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\green.tif": {
+          "sha256": "f4cdc9baf7b6f49797336c8dfab9e09be938b13d9ccf2bf8f38a944a262701cf",
+          "size": 192576,
+          "mtime_ns": 1793279978616474300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\red.tif": {
+          "sha256": "aa331a2ea9e81d4840561f146d6f126ec2606d3f91d95fbac6aaca1ce2949e34",
+          "size": 209826,
+          "mtime_ns": 1793279981844150900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\rededge1.tif": {
+          "sha256": "51ab8b3e4bbfb6813ca6597510d4110c7ea3921d7e6e343c9bc2960a2565d590",
+          "size": 59050,
+          "mtime_ns": 1793279984800552300
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\rededge2.tif": {
+          "sha256": "ece74bf5bb8eab8bee6c3a7b26eb9bba1221e290dd8a00a73bb22a2ba1adf50b",
+          "size": 59240,
+          "mtime_ns": 1793279986282907700
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\rededge3.tif": {
+          "sha256": "39d64f8c13ad6e01d21a458849e5a3fae5bbfc510c2d8039f6400b00c6b86cb9",
+          "size": 59302,
+          "mtime_ns": 1793279988613427900
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\nir.tif": {
+          "sha256": "7742c67dbca0f9698f6a26d93970718eca5640d359dcfaa73773ddfdd20cb87c",
+          "size": 213084,
+          "mtime_ns": 1793279991299442100
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\nir08.tif": {
+          "sha256": "5b276ba181adb9349de8441c884e9e13c0fd3f82770d49dcfd4273c8ad7fbb62",
+          "size": 59320,
+          "mtime_ns": 1793279993369427200
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\swir16.tif": {
+          "sha256": "4f498330c6b77436e6fd29574928d013d09056ef8efdd885fa47ef11d549775f",
+          "size": 58424,
+          "mtime_ns": 1793279996911252500
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use_data_integration\\raw\\counterpart_old_0e3ed58cc6c540eea8ded9b8\\S2B_53HPE_20241204_0_L2A\\swir22.tif": {
+          "sha256": "5b2a96ba0f7ecd78aa9857b3433c9996cbaf7609cf43214d8c6cb3cff7267c29",
+          "size": 58012,
+          "mtime_ns": 1793279999293732400
+        }
+      }
+    },
+    {
+      "id": "obs_dc58063ef0d6b4253511ffd4",
+      "role": "TRAIN",
+      "product": "LC08_L2SP_112080_20241223_02_T1",
+      "timestamp": "2024-12-23T02:04:43.157227Z",
+      "release_isolation_group": "expanded_group_6033",
+      "processing_domain": "original_L2_SR",
+      "calibration_revision": null,
+      "raw_QA_independently_recomputed": false,
+      "bands": [
+        {
+          "band": "SR_B2",
+          "valid_pixels": 16153,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B3",
+          "valid_pixels": 16153,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B4",
+          "valid_pixels": 16153,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B5",
+          "valid_pixels": 16153,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B6",
+          "valid_pixels": 16153,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B7",
+          "valid_pixels": 16153,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_dc58063ef0d6b4253511ffd4.tif",
+          "sha256": "dc6173613e988c044138a7cdc4082015b3015b5b0e36e25b05b01291f0e1ae46",
+          "shape": [
+            128,
+            128
+          ],
+          "crs": "EPSG:32650",
+          "affine": [
+            30.0,
+            0.0,
+            536115.0,
+            0.0,
+            -30.0,
+            -3191865.0
+          ],
+          "dtype": "uint8",
+          "nodata": null,
+          "raw_value_histogram": {
+            "64": 73,
+            "66": 1388,
+            "96": 12022,
+            "128": 12,
+            "130": 280,
+            "160": 2327,
+            "192": 2,
+            "194": 51,
+            "224": 229
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\cache\\obs_dc58063ef0d6b4253511ffd4.npz": {
+          "sha256": "813c47d373e9706767f087a1f7603c91c2d487d45d787cb6d5a745ecb8e0551c",
+          "size": 246989,
+          "mtime_ns": 1793630277659132600
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use\\external\\landsat_LC08_L2SP_112080_20241223_02_T1_r0_c1530.npz": {
+          "sha256": "7b14d1c44554567ae0d914e12ff2e72fbf0b7c45813d3fc82310094b8f922a13",
+          "size": 245487,
+          "mtime_ns": 1792832802540822600
+        },
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_dc58063ef0d6b4253511ffd4.tif": {
+          "sha256": "dc6173613e988c044138a7cdc4082015b3015b5b0e36e25b05b01291f0e1ae46",
+          "size": 2010,
+          "mtime_ns": 1793630277643114700
+        }
+      }
+    },
+    {
+      "id": "obs_dfdf0b0c6893bee5577b65ea",
+      "role": "TRAIN",
+      "product": "LC08_L2SP_047016_20240809_02_T1",
+      "timestamp": "2024-08-09T18:57:02.173113Z",
+      "release_isolation_group": "expanded_group_146",
+      "processing_domain": "original_L2_SR",
+      "calibration_revision": null,
+      "raw_QA_independently_recomputed": false,
+      "bands": [
+        {
+          "band": "SR_B2",
+          "valid_pixels": 16384,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B3",
+          "valid_pixels": 16384,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B4",
+          "valid_pixels": 16384,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B5",
+          "valid_pixels": 16384,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B6",
+          "valid_pixels": 16384,
+          "max_absolute_difference": 0.0
+        },
+        {
+          "band": "SR_B7",
+          "valid_pixels": 16384,
+          "max_absolute_difference": 0.0
+        }
+      ],
+      "warnings": [],
+      "qa_headers": [
+        {
+          "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_dfdf0b0c6893bee5577b65ea.tif",
+          "sha256": "f39f365b3161ff3ed9053137a7329cf4324c71cb06e17bcefd2320caa27884ae",
+          "shape": [
+            128,
+            128
+          ],
+          "crs": "EPSG:32611",
+          "affine": [
+            30.0,
+            0.0,
+            600615.0,
+            0.0,
+            -30.0,
+            6972435.0
+          ],
+          "dtype": "uint8",
+          "nodata": null,
+          "raw_value_histogram": {
+            "64": 497,
+            "66": 1236,
+            "70": 1,
+            "96": 14180,
+            "100": 122,
+            "128": 3,
+            "130": 63,
+            "134": 5,
+            "160": 212,
+            "164": 64,
+            "194": 1
+          }
+        }
+      ],
+      "metadata_files": [],
+      "processing_metadata": [],
+      "source_files": {
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\cache\\obs_dfdf0b0c6893bee5577b65ea.npz": {
+          "sha256": "09848be73220efa142f0cf577f357258100306676195ba85c558849c6806b4c8",
+          "size": 253225,
+          "mtime_ns": 1793630135900970700
+        },
+        "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\use\\external\\landsat_LC08_L2SP_047016_20240809_02_T1_r0_c868.npz": {
+          "sha256": "bc1b2ebec565501c27f92e16a75cb65e201f969b24ad72adfde219b9408f0e66",
+          "size": 239851,
+          "mtime_ns": 1792831157440950600
+        },
+        "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\raw_QA\\obs_dfdf0b0c6893bee5577b65ea.tif": {
+          "sha256": "f39f365b3161ff3ed9053137a7329cf4324c71cb06e17bcefd2320caa27884ae",
+          "size": 1558,
+          "mtime_ns": 1793630135885466600
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Historical QA rules are reproduced, not newly adopted as V3 scientific policy",
+    "Parent-only original QA_PIXEL/RADSAT still unavailable in this checked cohort",
+    "Original processing metadata read only where locally available; missing fields not inferred from short product IDs",
+    "No registration threshold, temporal threshold or surface-change classification adopted"
+  ]
+}

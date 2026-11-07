@@ -1,0 +1,58 @@
+{
+  "status": "CPU_AUTOGRAD_AND_CUDA_NATIVE_RUNTIME_FAILURE",
+  "minimal_CPU_backward": {
+    "status": "FAILED_NATIVE_OR_PROCESS_EXIT",
+    "owned_worker_pid": 23256,
+    "scope": "CPU tensors and minimal autograd, no CUDA tensor or optimizer update",
+    "maximum_seconds": 35,
+    "exit_code": 3221225477,
+    "timed_out": false,
+    "seconds": 12.187681400006113
+  },
+  "windows_faults": [
+    {
+      "pid": 23256,
+      "record_id": 237532,
+      "time_utc": "2026-11-06T10:17:20.6616992Z",
+      "module": "nvcuda64.dll",
+      "module_version": "32.0.16.2114",
+      "exception": "c0000005",
+      "offset": "00000000004be12f"
+    },
+    {
+      "pid": 102964,
+      "record_id": 237528,
+      "time_utc": "2026-11-06T10:15:09.4461551Z",
+      "module": "nvcuda64.dll",
+      "module_version": "32.0.16.2114",
+      "exception": "c0000005",
+      "offset": "00000000004be12f"
+    }
+  ],
+  "failed_graph_suite": {
+    "status": "NO_FULL_RESULT",
+    "owned_fixture_pid": 102964,
+    "first_test": "baseline_and_JEPA_next_complete_update_restore_exactly",
+    "attempt_status": "PREPARED",
+    "optimizer_may_have_executed": false
+  },
+  "earlier_discovery_incident": "An imported fixture TestCase was inadvertently collected and its legacy CUDA probe ran; corrected import now exposes only intended tests",
+  "preserved_fragment": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\runtime_fault_fragments\\CPU_autograd_102964",
+  "preserved_fragment_sha256": {
+    "continuous\\shared\\.update.lock": "63a04962b1ee88c7517af8615b77b7175f00203bd5db08ea3ef6479a54bce637",
+    "continuous\\shared\\u000001.attempt.json": "4b36a8f016149de0d4533eaadaf9958c9f51635aca927367cda156c133e61ada"
+  },
+  "source_reports": {
+    "route_step_CPU_autograd_diagnostic.json": "567c66b0ce39fe8de3d248f9052afd9fd74ec12271f81664ecb0d5f3361be577",
+    "route_step_CPU_autograd_diagnostic.log": "b870c1889c90f793d4ff24dd913ba149469e293085979688df7f71b7bb5a07e0",
+    "route_step_CPU_windows_events.json": "d0e021105154569ba2228d2a9620c4245439560f1bcd3f42572ce8b8b1562227",
+    "route_transaction_tests.json": "9b444389e48c913702758fc4ee8cf06e03b36c21385f5e2976fb65f582c43e4b"
+  },
+  "real_data_updates": 0,
+  "system_changes": 0,
+  "limits": [
+    "Minimal CPU tensor backward exits in autograd engine with nvcuda64.dll recorded by Windows; precise driver/hardware root cause and remedy unproven",
+    "Control tests explicitly substitute gradient production and cannot pass real model integration",
+    "No further backward/CUDA retry until relevant runtime state changes"
+  ]
+}

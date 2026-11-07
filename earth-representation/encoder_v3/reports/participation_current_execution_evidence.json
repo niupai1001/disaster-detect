@@ -1,0 +1,129 @@
+{
+  "status": "CURRENT_RULE_FULL_BATCH_DIAGNOSTICS_COMPLETE_NOT_FORMAL_ACCEPTANCE",
+  "source_report": "encoder_v3\\reports\\participation_current_rule_sweep.json",
+  "source_report_sha256": "67d0a9e9289d1a93439e8005c45651ab3576a89585f7ca753fc416f93021ee3c",
+  "controller_sha256": "4ade2ac86127dd477a09d89ead13dca4b5a8b64ecf3458be71518211d7e6ac86",
+  "curve_confirmation": "encoder_v3\\reports\\merge_rate_confirmation.json",
+  "curve_exactly_matches_confirmation": true,
+  "raw_curve_frozen_flag_scope": "Historical state when measured; confirmation received later, raw report preserved",
+  "a_retrieval": "represented_boundary_v1",
+  "effective_batch": 8,
+  "global_tokens": 547922,
+  "supervised_pixels": 380739,
+  "padding_fraction": 0,
+  "rows": [
+    {
+      "packed_local_output": false,
+      "microbatch_observations": 1,
+      "repeats": 2,
+      "seconds": [
+        30.206957699998384,
+        29.56205240000054
+      ],
+      "median_seconds": 29.88450504999946,
+      "observations_per_second": 0.26769725604005423,
+      "supervision_pixels_per_second": 12740.348195929277,
+      "peak_allocated_GiB": 7.05449914932251,
+      "gpu_utilization_samples": 12,
+      "gpu_utilization_p10": 0.0,
+      "gpu_utilization_median": 80.5,
+      "gpu_utilization_p90": 100.0,
+      "gpu_utilization_max": 100.0,
+      "speedup_vs_unpacked_micro1": 1.0
+    },
+    {
+      "packed_local_output": true,
+      "microbatch_observations": 1,
+      "repeats": 2,
+      "seconds": [
+        27.961236400000416,
+        28.156056499999977
+      ],
+      "median_seconds": 28.058646450000197,
+      "observations_per_second": 0.285117103359059,
+      "supervision_pixels_per_second": 13569.400101978095,
+      "peak_allocated_GiB": 7.055230617523193,
+      "gpu_utilization_samples": 12,
+      "gpu_utilization_p10": 3.3000000000000003,
+      "gpu_utilization_median": 79.0,
+      "gpu_utilization_p90": 100.0,
+      "gpu_utilization_max": 100.0,
+      "speedup_vs_unpacked_micro1": 1.0650729393968772
+    },
+    {
+      "packed_local_output": true,
+      "microbatch_observations": 2,
+      "repeats": 1,
+      "seconds": [
+        28.567021599999862
+      ],
+      "median_seconds": 28.567021599999862,
+      "observations_per_second": 0.28004319498256824,
+      "supervision_pixels_per_second": 13327.920751808506,
+      "peak_allocated_GiB": 13.748148441314697,
+      "gpu_utilization_samples": 6,
+      "gpu_utilization_p10": 23.0,
+      "gpu_utilization_median": 71.5,
+      "gpu_utilization_p90": 100.0,
+      "gpu_utilization_max": 100.0,
+      "speedup_vs_unpacked_micro1": 1.046119034334318
+    },
+    {
+      "packed_local_output": true,
+      "microbatch_observations": 4,
+      "repeats": 1,
+      "seconds": [
+        30.257697899998675
+      ],
+      "median_seconds": 30.257697899998675,
+      "observations_per_second": 0.264395527592347,
+      "supervision_pixels_per_second": 12583.211097497826,
+      "peak_allocated_GiB": 18.85671377182007,
+      "gpu_utilization_samples": 6,
+      "gpu_utilization_p10": 5.5,
+      "gpu_utilization_median": 31.0,
+      "gpu_utilization_p90": 100.0,
+      "gpu_utilization_max": 100.0,
+      "speedup_vs_unpacked_micro1": 0.9876661849413458
+    },
+    {
+      "packed_local_output": true,
+      "microbatch_observations": 8,
+      "repeats": 1,
+      "seconds": [
+        29.975993000000017
+      ],
+      "median_seconds": 29.975993000000017,
+      "observations_per_second": 0.2668802331252211,
+      "supervision_pixels_per_second": 12701.464134982944,
+      "peak_allocated_GiB": 22.690168857574463,
+      "gpu_utilization_samples": 6,
+      "gpu_utilization_p10": 0.0,
+      "gpu_utilization_median": 100.0,
+      "gpu_utilization_p90": 100.0,
+      "gpu_utilization_max": 100.0,
+      "speedup_vs_unpacked_micro1": 0.9969479593219629
+    }
+  ],
+  "packed_output_speedup": 1.0650729393968772,
+  "max_prediction_abs": 3.8743019104003906e-07,
+  "max_band_nmse_abs": 2.0017224429125235e-06,
+  "max_task_loss_abs": 1.1652621711988331e-07,
+  "max_gradient_relative_l2": 2.4982935743114364e-07,
+  "all_existing_FP32_values_pass_diagnostic_only": true,
+  "parameters_unchanged": true,
+  "optimizer_updates": 0,
+  "default_adopted": false,
+  "recommended_execution_candidate": "microbatch1, local1024, packed output, matrix A and bulk metadata; requires remaining acceptance",
+  "controller_wall_seconds": 426.7848206999988,
+  "CPU_load_seconds": 0.13826040000276407,
+  "CPU_plan_seconds": 7.4352438999976584,
+  "transfer_seconds": 0.04892420000032871,
+  "limitations": [
+    "Timing is full A/B forward/backward including geometry and detached diagnostic predictions; excludes first read/plan/transfer, optimizer, validation and save",
+    "Micro1 two timing samples per output path, micro2/4/8 one sample each; one schedule and one GPU only",
+    "GPU utilization sampled about every5seconds for whole device, not process-specific; sparse samples cannot identify a kernel bottleneck",
+    "No new real optimizer-update/resume evidence; numeric comparison does not extend originally confirmed tolerance scope",
+    "End-to-end training throughput and complete experiment time not measured"
+  ]
+}

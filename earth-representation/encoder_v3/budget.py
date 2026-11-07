@@ -48,6 +48,11 @@ class PilotBudget:
     def reserve(self,candidate,logical_update):
         if candidate not in ('AdamW','CAdamW') or type(logical_update) is not int or not 0<=logical_update<200:raise ValueError('Invalid candidate/update')
         with self.locked():
+            stop_path=self.path.parent/'pilot_stop_decision.json'
+            if stop_path.exists():
+                stop=json.loads(stop_path.read_text(encoding='utf-8'))
+                if stop.get('study_sha256')!=self.study or stop.get('status')!='PRECHECK_UPDATES_STOPPED_BY_USER':raise ValueError('Invalid pilot stop decision; no updates allowed')
+                raise RuntimeError('Pilot updates stopped by user; remaining budget is not authorized')
             record,reservations,_=self.read()
             if len(reservations)>=self.total_limit or sum(x['candidate']==candidate for x in reservations.values())>=self.per_candidate_limit:raise RuntimeError('Pilot budget exhausted; no automatic extension')
             token=len(record['events'])+1

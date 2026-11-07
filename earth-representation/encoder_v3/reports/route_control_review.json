@@ -1,0 +1,54 @@
+{
+  "status": "ROUTE_BUDGET_AND_CHECKPOINT_COMPONENT_VERIFIED_NOT_COMPLETE_TRAINER",
+  "tests": 8,
+  "source_sha256": {
+    "route_control.py": "775007bc4c9be0ddfc8af22b6258bd46b747e98d8bcf9fea6b82671ebb471ecb",
+    "test_route_control.py": "8c9015f5b038c1a48aaec01e76c3d3f5766910f1a0730411c907f800103717e0"
+  },
+  "test_report_sha256": "5cbac3973078e91bcc8766c2e715ca96b846741c7be269254e8a17ab00b4f51a",
+  "preserved_model_and_QA_sources": {
+    "model.py": "e0ba10b8fc141cc29d0f0e6e28a76b6a3ac7368fbe1fec4b64cb1ab0437bbf7d",
+    "layout.py": "f69cff56b3ce150fe58b1fbe574da84213a4f13fdb95c8a0cb6440d18e678140",
+    "streaming.py": "f5d7dc01bb3995dcd21da554d0e60b003a9d381372418d82063c015d09686053",
+    "training.py": "034bc9cfa7baaaa7b06d58fcfc7366874d578d9fe368cd1c509434686e030d0a",
+    "tasks.py": "b2dc2e7206c59aed99e71e757a2f9dde7527ee3bd0399afc85d3fa21df896f55",
+    "pair_geometry.py": "0aaf9c82919ae228348bc182ccb9d2b248ff632c3dafdb5ca83ad23e8e665037",
+    "participation_layout.py": "c8d11902caac1cb4afd68df7377ee3b02e070de23d787e9ae450317aa08d7718",
+    "participation_encoder.py": "f86849b151c86b69f7073873501c6762ab113fdc3229523df200c0bbc3dbe528",
+    "participation_decoder.py": "cbda7c1efcf43492e448b5584c0a10fcbb4b863f114cfde6092d08f33db778df",
+    "adaptive_joint.py": "5c8eee13b871fd1bfad2dd3e72c5879a70f1e330cd03680833c3dfa6b643e1f5",
+    "adaptive_streaming.py": "5b13acdb46e95109c448645d04a6a00c1839a41046e60a3db319ee7141a1bc0b",
+    "joint.py": "3a72575351810019fcaf593a49e4e7eb5a8d7e33bde7bc4055698edf51f78a1e",
+    "jepa.py": "0717153790ff1aa36df7978b3609554055c212fe8977fd488cbac07555d2c7fe",
+    "data.py": "4576ddd96a58b997d561325b637b083431757fa7eb7a2b0f132d64af5d2565ef",
+    "audit_lineage.py": "0c9239a0ec214966fb89b7e17db3cc1f63b203dcaa7ec35e6da2e9464c9f9f5e"
+  },
+  "confirmed_requirements": [
+    "Exactly one shared prefix followed byA+B andA+B+JEPA",
+    "Each route logical cursor includes prefix and never exceeds10000",
+    "Shared committed prefix counted once; no conversion of saved compute into extra experiments",
+    "Branch after2000-update curriculum and explicit stableAB signal; no stability threshold invented",
+    "Exact frozen run and full prefix checkpoint hash",
+    "Full checkpoint model/AdamW/scheduler/RNG/sampler cursor+next-input signature",
+    "Optimizer parameter order and stopped-gradient independent Teacher",
+    "No overwrite of complete/partial checkpoints; exclusive writer lock"
+  ],
+  "optimizer_step_calls": 0,
+  "CUDA_initializations": 0,
+  "real_data_reads": 0,
+  "total_real_updates": 214,
+  "formal_gate_rejection": "Training blocked: hypernetwork_hidden_structure, frozen_data_manifest, pair_admission, mask_rectangle_distribution, validation_panel, improvement_threshold, stability_window, early_stop, precision_acceptance, resource_limit, execution_equivalence, formal_training_authorization, merge_configuration",
+  "formal_training_started": false,
+  "pending": [
+    "Wire to actual Participation task sampler and joint optimizer loop after scientific configuration is frozen",
+    "Bind reviewed stability evidence; schedule validation/LR/JEPA weight and EMA in the driver",
+    "Measure and record actual compilation/validation/diagnostic/failed-recompute/wall-clock costs separately; unique_committed_updates is not total actual compute cost",
+    "Real GPU update/resume, dual-route execution choice and full end-to-end acceptance remain unverified",
+    "B2 calibration decision, offsets and admission remain pending"
+  ],
+  "limits": [
+    "Pure metadata arithmetic and tiny complete-checkpoint fixtures, no2000 or10000 optimizer steps performed",
+    "Helpers cannot authorize training; old pilot fitting and its stopped budget are unchanged",
+    "Current full146 evidence remains historical;8 CPU component checks are not a current full GPU suite"
+  ]
+}

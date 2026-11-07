@@ -2,7 +2,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from .data import Observation,to_device
-from .joint import PlannedView
 from .tasks import Target
 
 
@@ -13,7 +12,7 @@ def move_views(views,device):
         visible=to_device(Observation(task.visible,task.metadata),device).bands
         targets=to_device(Observation([t.band for t in task.targets],task.metadata),device).bands
         moved=replace(task,visible=visible,targets=[Target(b,t.mask.to(device)) for b,t in zip(targets,task.targets,strict=True)])
-        result.append(PlannedView(moved,view.plan,view.train_stds,view.loss_source))
+        result.append(replace(view,task=moved))
     return result
 
 

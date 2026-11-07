@@ -27,7 +27,8 @@ def run(args):
     report=dict(status='RUNNING',optimizer_updates=0,study_sha256=study['candidate_sha256'],candidate_execution=dict(local_batch_size=args.local_batch,decoder_chunk_pixels=args.decoder_chunk,microbatch_observations=1,geometry_cache=True),checkpoint_sha256=sha256(checkpoint),rows=[],comparisons=[],source_hashes={name:sha256(Path(__file__).with_name(name)) for name in ('model.py','layout.py','streaming.py','geometry_cache.py','geometry_cache_gpu_probe.py')},limitations=['Four fixed real schedule entries, one order after warmup; no optimizer/checkpoint/validation time','Prediction capture adds identical diagnostic overhead to both paths','Only compared inputs; not long-run cache stability, maximum-window or update/resume acceptance','No execution default changed'])
     def save():args.output.write_text(json.dumps(report,indent=2),encoding='utf-8')
     try:
-        torch.set_num_threads(2);torch.cuda.set_device(0);torch.cuda.set_per_process_memory_fraction(min(1.,12*1024**3/torch.cuda.get_device_properties(0).total_memory),0);torch.manual_seed(0)
+        torch.set_num_threads(2);torch.cuda.set_device(0);free,total=torch.cuda.mem_get_info();memory_cap=min(args.allocated_limit_gib*1024**3,max(1,free-2*1024**3));torch.cuda.set_per_process_memory_fraction(memory_cap/total,0);torch.manual_seed(0)
+        report['allocated_memory_cap_bytes']=memory_cap
         state=torch.load(checkpoint,map_location='cpu',weights_only=False)
         if state['frozen_ids']['study']!=study['candidate_sha256']:raise ValueError('Different checkpoint study')
         encoder=Encoder(hyper_hidden=64,local_batch_size=64,native_mode='grouped',layout_mode='indexed').cuda().eval();decoder=ReflectanceDecoder(indexed=True,cell_indexed=True).cuda().eval()
@@ -81,7 +82,7 @@ def run(args):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--study',type=Path,required=True);p.add_argument('--run-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--worker',action='store_true');p.add_argument('--local-batch',type=int,default=64);p.add_argument('--decoder-chunk',type=int,default=512);args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--study',type=Path,required=True);p.add_argument('--run-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--worker',action='store_true');p.add_argument('--local-batch',type=int,default=64);p.add_argument('--decoder-chunk',type=int,default=512);p.add_argument('--allocated-limit-gib',type=int,choices=(12,24),default=12);args=p.parse_args()
     if args.local_batch not in (64,128,256,512) or args.decoder_chunk not in (512,2048,8192,16384):raise ValueError('Only measured execution candidates are eligible')
     if args.worker:run(args)
     else:

@@ -1,0 +1,53 @@
+{
+  "status": "EXISTING_OWNED_CUDA_FAILURES_CORRELATED_WITH_WINDOWS_EVENTS",
+  "events": [
+    {
+      "pid": 41528,
+      "record_id": 237490,
+      "time_utc": "2026-11-06T09:02:54.6603232Z",
+      "application": "C:\\Users\\yzh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "module_version": "32.0.16.2114",
+      "exception_code": "c0000005",
+      "faulting_offset": "00000000004be12f"
+    },
+    {
+      "pid": 40432,
+      "record_id": 237488,
+      "time_utc": "2026-11-06T09:02:41.8472603Z",
+      "application": "C:\\Users\\yzh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "module_version": "32.0.16.2114",
+      "exception_code": "c0000005",
+      "faulting_offset": "00000000004be12f"
+    },
+    {
+      "pid": 99520,
+      "record_id": 237482,
+      "time_utc": "2026-11-06T08:58:44.6731077Z",
+      "application": "C:\\Users\\yzh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "module": "nvcuda64.dll",
+      "module_path": "C:\\WINDOWS\\system32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_2c0e5c1db7422cd5\\nvcuda64.dll",
+      "module_version": "32.0.16.2114",
+      "exception_code": "c0000005",
+      "faulting_offset": "00000000004be12f"
+    }
+  ],
+  "raw_events_report": "cuda_fault_windows_events.json",
+  "raw_events_sha256": "7da5cb7c5219645781266a9f0fa5a532c8e0c909ed1b5655a16ba938365c47d4",
+  "diagnostic_reports": {
+    "pair_quality_runtime_diagnostics.json": "bb5cc1697fa71922ea1e4d49146532e41c0a60a38bf9c2f86bf724c274b29988",
+    "pair_quality_final_tests_process.json": "79eb1ff17d4d81de4373bd56aabe455c2340e239d30f1033119b496e2f7f65bf"
+  },
+  "new_CUDA_initializations": 0,
+  "GPU_or_driver_changes": 0,
+  "other_processes_changed": 0,
+  "optimizer_updates": 0,
+  "limits": [
+    "Faulting module identifies where Windows recorded the crash; not proof of precise root cause, damaged hardware or a validated remedy",
+    "Other Python environments also have matching module/code/offset events, but their tasks were not inspected, restarted or claimed as this task evidence",
+    "nvidia-smi responsiveness does not prove CUDA initialization works"
+  ]
+}

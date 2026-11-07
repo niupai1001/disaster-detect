@@ -1,0 +1,35 @@
+{
+  "status": "ABSENT_FAMILY_ACCOUNTING_FIXED_NO_CURRENT_GRAPH_ACCEPTANCE",
+  "requirement": "缺席或无支持单独记录并排除，不将缺席任务记为零损失",
+  "changed_source": "joint.py",
+  "before_sha256": "3a72575351810019fcaf593a49e4e7eb5a8d7e33bde7bc4055698edf51f78a1e",
+  "after_sha256": "5f2dc091cc8b6963d6bee0d57759b180103431c5cbd119b3dace133ed8fac909",
+  "tests": 5,
+  "model_predictions_stubbed": true,
+  "optimizer_updates": 0,
+  "backward_calls": 0,
+  "real_data_reads": 0,
+  "total_real_updates": 214,
+  "formal_training_started": false,
+  "behavior": [
+    "One unsupported family is excluded and its A_loss/B_loss staysNone",
+    "Remaining family keeps its original curriculum coefficient; no rescaling",
+    "Source/observation hierarchy only uses supported tasks; unequal pixel counts do not alter these weights",
+    "No-supported-supervision batch aborts before model/optimizer work",
+    "B2 still requires physical admission and no substitute task is created"
+  ],
+  "source_reports": {
+    "absent_family_tests.json": "ca930c36f4759248cb7f932ce6bff30479ef844467eedadb79a9056f08664793",
+    "physical_patch_role_review.json": "285c2c8e92a0513d7d160e55e7878a4574fb23153be9a4cf49fce7f1ed5d5259",
+    "route_step_runtime_incident.json": "7b69e7b9bd66aa240beb768b57aec79b350596264c073d347130fa3ebe717275"
+  },
+  "historical_full146_source_delta": [
+    "joint.py"
+  ],
+  "original_five_modules_unchanged": true,
+  "limits": [
+    "14 of15 earlier inspected computational/QA sources unchanged; joint.py intentionally differs",
+    "Historical full146 is not current acceptance after this fix",
+    "Missing-pair scheduling, full runner and real gradient/update equivalence still pending"
+  ]
+}

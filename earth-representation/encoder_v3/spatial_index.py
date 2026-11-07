@@ -12,24 +12,33 @@ class SpatialIndex:
         self.a_candidates={}
         self.cell_tree=None
 
+    def a_tokens(self,r,mask_bounds):
+        device=r.bounds.device
+        if mask_bounds is None:raise ValueError('A requires explicit masked region')
+        rule=getattr(r,'a_adjacency_rule',None) or 'legacy_center_outside'
+        if rule not in ('legacy_center_outside','represented_boundary_v1'):raise ValueError('Unknown A adjacency rule')
+        key=(rule,*mask_bounds.detach().cpu().tolist())
+        if key not in self.a_candidates:
+            candidate=self.tree.query(shapely.box(*key[1:]).boundary,predicate='intersects')
+            selected=[]
+            for index in candidate:
+                if not bool(r.valid[index]): continue
+                c=r.cells[index];m=mask_bounds
+                intersects=(c[:,0]<=m[2])&(c[:,2]>=m[0])&(c[:,1]<=m[3])&(c[:,3]>=m[1])
+                inside=(c[:,:2]>m[:2]).all(1)&(c[:,2:]<m[2:]).all(1)
+                if not bool((intersects & ~inside).any()):continue
+                if rule=='legacy_center_outside':
+                    center=r.centers[index]
+                    if bool((center[0]>m[0])&(center[0]<m[2])&(center[1]>m[1])&(center[1]<m[3])):continue
+                selected.append(int(index))
+            self.a_candidates[key]=torch.tensor(selected,dtype=torch.long,device=device)
+        return self.a_candidates[key]
+
     def edges(self, r, targets, kind, mask_bounds, *, cell_indexed=False):
         device=r.bounds.device
         if kind=='A':
             if mask_bounds is None: raise ValueError('A requires explicit masked region')
-            key=tuple(mask_bounds.detach().cpu().tolist())
-            if key not in self.a_candidates:
-                candidate=self.tree.query(shapely.box(*key).boundary,predicate='intersects')
-                selected=[]
-                for index in candidate:
-                    if not bool(r.valid[index]): continue
-                    c=r.cells[index];m=mask_bounds
-                    intersects=(c[:,0]<=m[2])&(c[:,2]>=m[0])&(c[:,1]<=m[3])&(c[:,3]>=m[1])
-                    inside=(c[:,:2]>m[:2]).all(1)&(c[:,2:]<m[2:]).all(1)
-                    center=r.centers[index]
-                    outside=not bool((center[0]>m[0])&(center[0]<m[2])&(center[1]>m[1])&(center[1]<m[3]))
-                    if outside and bool((intersects & ~inside).any()): selected.append(int(index))
-                self.a_candidates[key]=torch.tensor(selected,dtype=torch.long,device=device)
-            token=self.a_candidates[key]
+            token=self.a_tokens(r,mask_bounds)
             q=torch.arange(len(targets),device=device).repeat_interleave(len(token))
             token=token.repeat(len(targets))
             weights=None

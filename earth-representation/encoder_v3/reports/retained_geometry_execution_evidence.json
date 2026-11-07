@@ -1,0 +1,75 @@
+{
+  "status": "RETAINED_GEOMETRY_REAL_BATCH_DIAGNOSTICS_PASS_NOT_FORMAL_ACCEPTANCE",
+  "source_report_sha256": "44b0f39fe40d2166e588e11042ea155012b7a00bd0d97de37c4f12b4530b5fb8",
+  "source_controller_sha256": "8511f72e4836adb91fa0601158f3aa04f7ce94eaa8aa5b93851b60c1f5f74c99",
+  "full_test_report_sha256": "72dda38127cf55060459c559eaeaff0d133f2ae8573864fa4bb126d3e808fe57",
+  "same_initial_parameters_as_previous_current_rule_sweep": true,
+  "rows": [
+    {
+      "retain_layouts": false,
+      "repeats": 2,
+      "forward_backward_seconds": 30.37575844999992,
+      "diagnostic_end_to_end_seconds": 38.84933634999925,
+      "CPU_plan_seconds": 8.161798849998377,
+      "CPU_read_seconds": 0.04625009999926988,
+      "transfer_seconds": 0.04641230000015639,
+      "forward_layout_calls": [
+        94
+      ],
+      "retained_numpy_MiB": 0.0,
+      "peak_allocated_GiB": 7.055151462554932,
+      "gpu_utilization_samples": 16,
+      "gpu_utilization_p10": 0.0,
+      "gpu_utilization_median": 4.0,
+      "gpu_utilization_p90": 100.0,
+      "gpu_utilization_max": 100.0,
+      "observations_per_forward_backward_second": 0.26336790941923033,
+      "supported_pixels_per_forward_backward_second": 12534.304308046043
+    },
+    {
+      "retain_layouts": true,
+      "repeats": 2,
+      "forward_backward_seconds": 24.989784799999143,
+      "diagnostic_end_to_end_seconds": 34.31818920000023,
+      "CPU_plan_seconds": 8.27715999999782,
+      "CPU_read_seconds": 0.05347564999738097,
+      "transfer_seconds": 0.04863854999985051,
+      "forward_layout_calls": [
+        0
+      ],
+      "retained_numpy_MiB": 253.03911590576172,
+      "peak_allocated_GiB": 7.055151462554932,
+      "gpu_utilization_samples": 14,
+      "gpu_utilization_p10": 0.0,
+      "gpu_utilization_median": 39.0,
+      "gpu_utilization_p90": 100.0,
+      "gpu_utilization_max": 100.0,
+      "observations_per_forward_backward_second": 0.32013080800921,
+      "supported_pixels_per_forward_backward_second": 15235.785463827326
+    }
+  ],
+  "forward_backward_speedup": 1.2155270120613828,
+  "diagnostic_end_to_end_speedup": 1.132033398487091,
+  "effective_batch": 8,
+  "global_tokens": 547922,
+  "supported_pixels": 380739,
+  "padding_fraction": 0.0,
+  "max_prediction_abs": 2.980232238769531e-07,
+  "max_gradient_relative_l2": 3.4780564221973896e-08,
+  "max_band_nmse_abs": 9.570708670025851e-08,
+  "max_task_loss_abs": 1.1736925209504534e-08,
+  "parameters_unchanged": true,
+  "optimizer_updates": 0,
+  "engineering_tests": 133,
+  "engineering_test_skips": 0,
+  "default_adopted": false,
+  "controller_seconds": 229.1155493999995,
+  "limitations": [
+    "One fixed approved TRAIN batch, FP32 GPU1, two timing samples per path; not full-source scientific acceptance",
+    "Diagnostic end-to-end includes read, geometry plan, retained-payload accounting, transfer, cache clearing/stat reset and matched prediction collection; excludes optimizer, validation and save",
+    "Forward/backward timing includes CPU metadata/geometry/decoder dispatch, not pure CUDA kernel time",
+    "NumPy payload253MiB excludes Python containers and is not total or necessarily incremental host memory",
+    "New geometry candidate not included in real optimizer-step/resume acceptance; stopped real budget remains214",
+    "No product-data, learned module, curve, mask, task, supervision or hierarchical loss change"
+  ]
+}

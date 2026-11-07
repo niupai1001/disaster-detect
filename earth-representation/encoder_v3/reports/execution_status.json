@@ -1,19 +1,19 @@
 {
   "status": "IN_PROGRESS_NOT_READY_FOR_FORMAL_TRAINING",
-  "engineering_tests": 59,
+  "engineering_tests": 146,
   "engineering_test_skips": [],
   "existing_native_members_reread": 7778,
-  "real_training_updates": 208,
-  "optimizer_pilot_updates": 208,
+  "real_training_updates": 214,
+  "optimizer_pilot_updates": 214,
   "pilot_budget": {
     "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
-    "reserved": 208,
-    "completed": 208,
+    "reserved": 214,
+    "completed": 214,
     "incomplete_reservations": [],
-    "remaining_total": 192,
+    "remaining_total": 186,
     "remaining_by_candidate": {
-      "AdamW": 96,
-      "CAdamW": 96
+      "AdamW": 92,
+      "CAdamW": 94
     }
   },
   "fitting_pilot_updates": 200,
@@ -23,15 +23,15 @@
   },
   "formal_training_started": false,
   "stages": {
-    "M0": "7,778 existing cache lineages exactly reproduced; 1,721 original QA recalculations and 6,057 traced parent masks; all-machine admission incomplete",
+    "M0": "7,778 existing cache lineages exactly reproduced; 1,721 original QA recalculations and 6,057 traced parent masks; all-machine admission incomplete; 159 raw-QA TRAIN pairs /315 members diagnosed, including coherent nonzero offsets in two disjoint-source spatial holdout cases; query-only mechanism confirmed and implemented; exact offsets/calibration/admission remain pending; name inventory1,589,404 with0 scheduled/timeout gaps and2 access-error chunks; existing QA confirmed for4 initial candidate members, zero B2 admissions",
     "M1": "Hypernetwork confirmed for preflight; source GSD/SRF/support metadata exported without additional embeddings",
     "M2": "grouped/tiled synthetic equivalence pass; real broad acceptance incomplete",
-    "M3": "indexed/reference geometry equivalence pass; full-grid acceptance incomplete",
-    "M4": "local receptive regions and shared complete-input union after global attention retained; isolated observation batches tested",
-    "M5": "cell-indexed readout faster on matched P60/P120; reviewed FP32 limits passed on first two warmup inputs only",
-    "M6": "budgeted checks complete; bounded matched fitting in progress; actual progress and remaining budget reported separately; no DDP acceptance",
+    "M3": "User-selected single-round B and native/merged two scales confirmed; exact participation curve and sqrt(gx*gy) confirmed for preflight; Eligible native-window manifest, formal masking and execution configuration pending; no new crop policy selected",
+    "M4": "Actual FP32 efficient-attention backend verified; complete eight-observation execution micro1/2/4/8 measured without padding or cross-observation interaction; query chunks not adopted; final acceptance pending",
+    "M5": "B1 diagnostic502 combinations/1796 band reports executed; query-only B2 Decoder integration tested with target-native indices and target TRAIN statistics; real pair offsets/admission not frozen",
+    "M6": "AdamW selected; real updates stopped at214; Historical full146 plus9 new CPU audit checks pass; current CUDA initialization access violation prevents fresh full GPU verification; current A-rule full-eight FP32 diagnostics complete: packed micro1 28.06s, micro2/4/8 no observed throughput benefit; parameters unchanged; optional per-task geometry reuse measured30.38->24.99s forward/backward and38.85->34.32s diagnostic end-to-end, no default adoption or real update/resume acceptance",
     "M7": "not started",
-    "M8": "predictor/EMA helpers tested; cross-source training not started",
+    "M8": "A+B2+JEPA query-frame integration passes synthetic CPU/GPU, micro1/2/4/8 and exact update/EMA/next-step restore; Teacher/native Encoder unchanged; reviewed real offsets/loss/admission pending",
     "M9": "task-head budget unset; training not started"
   },
   "confirmed_preflight": {
@@ -61,6 +61,24 @@
     "numerical_equivalence": {
       "review": "reports/fp32_equivalence_tolerance_review.json",
       "scope": "FP32_single_GPU_native_cell_readout_preflight_only"
+    },
+    "optimizer_decision": {
+      "optimizer": "AdamW",
+      "review": "reports/pilot_runs/pilot_stop_decision.json",
+      "remaining_pilot_updates": "stopped_by_user"
+    },
+    "adaptive_merge_decisions": {
+      "review": "reports/merge_B_confirmation.json",
+      "configuration": "adaptive_config.json",
+      "scope": "geometry_B_single_round_two_scales_confirmed; participation_curve_preflight_only",
+      "implementation_review": "reports/participation_merge_implementation_review.md",
+      "levels_review": "reports/merge_levels_confirmation.json",
+      "rate_review": "reports/merge_rate_confirmation.json"
+    },
+    "fixed_validation_metric": {
+      "review": "reports/validation_metric_confirmation.json",
+      "status": "USER_CONFIRMED_IMPLEMENTATION_PENDING",
+      "scope": "Fixed validation/model selection/plateau monitoring only; training losses unchanged; formal support set pending"
     }
   },
   "required_before_training": {
@@ -75,234 +93,798 @@
     "precision_acceptance": null,
     "resource_limit": null,
     "execution_equivalence": null,
-    "optimizer_choice": null,
-    "formal_training_authorization": null
+    "optimizer_choice": "AdamW",
+    "formal_training_authorization": null,
+    "merge_configuration": null
   },
   "evidence": {
     "engineering_tests.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\engineering_tests.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\engineering_tests.json",
       "sha256": "cb5d46094465138f9b2dfaf5e9eb7ac9310d1276c58b2f58231ea95f42270d87"
     },
     "native_cache_audit.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\native_cache_audit.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\native_cache_audit.json",
       "sha256": "ae08bda45b610242418597c4d8c5589cd676aebc2f5bd2f3036a61ca72760d86"
     },
     "inventory_metadata.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\inventory_metadata.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\inventory_metadata.json",
       "sha256": "abd9d08716b48f73cbce5debeee2b0e4323c793d227b2b54a4f509ba5a5ae49b"
     },
     "inventory_scope_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\inventory_scope_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\inventory_scope_review.json",
       "sha256": "9c7fdec5ee068e9ee588afc8c456a03bacd18d47ef07715ff2b6c507faae4f11"
     },
     "real_s2_probe.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_s2_probe.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_s2_probe.json",
       "sha256": "ce6511af58dfc264866c472c94eb83002535a19a4253f1719d2b84f5172b2626"
     },
     "real_landsat_indexed_layout_probe.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_landsat_indexed_layout_probe.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_landsat_indexed_layout_probe.json",
       "sha256": "4020796874ca153e612bf44449c5c08354241dc7f0b494f5fd8f45ea727e0728"
     },
     "real_full_s2_indexed_probe.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_full_s2_indexed_probe.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_full_s2_indexed_probe.json",
       "sha256": "56914e7956d073430f83d6dd9c1bfffb41779c6a074143c07d73da33e11a0e2d"
     },
     "real_decoder_index_probe.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_decoder_index_probe.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_decoder_index_probe.json",
       "sha256": "b4504c0acd7ee244d1f384354ac2edfc83d279d852a2f5eb551abc71bb5e16d4"
     },
     "real_precision_probe.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_precision_probe.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_precision_probe.json",
       "sha256": "58802ca726182e3086ac9c82def016dabeef3783951a1eee4700d75ae0f8c4d2"
     },
     "real_full_target_streaming.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_full_target_streaming.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_full_target_streaming.json",
       "sha256": "8963f07c0c67dd8d11c0312df4f6b5816a6ea829a946271eae035e6ed14bff85"
     },
     "real_prefetch_probe.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_prefetch_probe.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_prefetch_probe.json",
       "sha256": "98bcac9b1004efe3f73390c4f71db4df488f26329eccd3b91227db2095af1b90"
     },
     "dual_gpu_communication_unrestricted.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\dual_gpu_communication_unrestricted.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\dual_gpu_communication_unrestricted.json",
       "sha256": "7d9f3586ac4f76d73a03c47073977b4e7312471dc30e0aa64a07033fe6999543"
     },
     "hypernetwork_preflight_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\hypernetwork_preflight_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\hypernetwork_preflight_review.json",
       "sha256": "6932ffc10ccfa5267e47347f2abf8fca11a5a327a2fea625c0e0b84e41ffa93e"
     },
     "spatial_mask_preflight_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\spatial_mask_preflight_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\spatial_mask_preflight_review.json",
       "sha256": "64d9f351ee82d262aae652c752e3e4b008a23c89aca4d1f765f0cd16327ae706"
     },
     "real_joint_batch8.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_joint_batch8.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_joint_batch8.json",
       "sha256": "e0234b12437a351aa4fce4ae3d0fa5d40eb3251dc618c6d6720756964e457a2c"
     },
     "independent_gpu_batch8_unrestricted.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\independent_gpu_batch8_unrestricted.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\independent_gpu_batch8_unrestricted.json",
       "sha256": "2ec413b691ac67c0904b4a061c7cd0edeed1a8eb0715b8e99b5302f7f2a02bbe"
     },
     "pilot_study_candidate.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_study_candidate.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_study_candidate.json",
       "sha256": "268af75006bca1d06bc5ed4918236da9c8a03453d6ceab6921b30fe68fbaa3cf"
     },
     "pilot_study_review.md": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_study_review.md",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_study_review.md",
       "sha256": "bd7dc9c3a5d5dd52dfc6b522400177c7e19413320b6f3e19fa5d42117ab82158"
     },
     "mounted_root_discovery.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\mounted_root_discovery.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\mounted_root_discovery.json",
       "sha256": "1b7df603f2fbccda660de41d0f4a29e12194425e6c9b53f2c8ee01de935e254b"
     },
     "real_microbatch_p120.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_microbatch_p120.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_microbatch_p120.json",
       "sha256": "6980b9c882783adf4db9dc400b3771d7741cfe89e2f51792b6abf4c7b636aea8"
     },
     "real_cell_index_comparison.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_cell_index_comparison.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_cell_index_comparison.json",
       "sha256": "9d8684d8c34bad4a416a9ec18a9a51d9c5f97f2a3666d47987491a7354eb4e05"
     },
     "real_cell_index_p60_comparison.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_cell_index_p60_comparison.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_cell_index_p60_comparison.json",
       "sha256": "442b590a176f2cecc5986ca0e50d3d80b7ab96352a53b9bd497933dc6f19964b"
     },
     "real_task_python_profile.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_task_python_profile.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_task_python_profile.json",
       "sha256": "c2348f8d82a33c482d3dd764dfd04aeadd32404e2edf3d1fd8c946242fe35b41"
     },
     "real_task_cuda_profiler_aborted.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_task_cuda_profiler_aborted.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_task_cuda_profiler_aborted.json",
       "sha256": "15d945828f9dc89a7561aa387d7ead212293bdbe4c0c6970286fd50ac7e3f64d"
     },
     "real_task_cpu_operator_profile.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\real_task_cpu_operator_profile.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\real_task_cpu_operator_profile.json",
       "sha256": "231134b57287a8b542e1d574048883e09bd08891673c7d7a6365591ec6b6c07e"
     },
     "p60_gpu_sampling_summary.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\p60_gpu_sampling_summary.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\p60_gpu_sampling_summary.json",
       "sha256": "afdb3e9970f4adb19f74df8af6ee0476373d44d363f29f4e7422a42925dd29c1"
     },
     "gpu_efficiency_review.md": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_efficiency_review.md",
-      "sha256": "1107c2ea5d0dc76d4cd8638e337d1feeafcd3c09dcd8d179c4b17389f3873423"
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\gpu_efficiency_review.md",
+      "sha256": "91842dee01d7e7138cf0fd6945b3206ceaba8ade148285f8521df28f4d8a9ec6"
     },
     "native_lineage_audit.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\native_lineage_audit.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\native_lineage_audit.json",
       "sha256": "5ce2bb8ca8280bc14c1b901e814d57c01dbb5ea848a5722c000c35cd454325b7"
     },
     "native_lineage_audit_source_files.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\native_lineage_audit_source_files.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\native_lineage_audit_source_files.json",
       "sha256": "3bbf7751130202e9e1578dd5f63c34c8d6ee356485a65e3bf7d30885d19b191b"
     },
     "lineage_qa_header_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\lineage_qa_header_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\lineage_qa_header_review.json",
       "sha256": "4a31175857dcca97c7dd1a74822af8091f203e8eaff6bdf33edd46eaf9957e02"
     },
     "inventory_release_reconciliation.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\inventory_release_reconciliation.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\inventory_release_reconciliation.json",
       "sha256": "925246fcf48764a962364407260909b80d345967e233d02d8c49cbb3776ea980"
     },
     "pilot_members_panels_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_members_panels_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_members_panels_review.json",
       "sha256": "fef2b190bfa4b650209eeb270b36e6166fc16b775c97d4faa09eb69f005978bb"
     },
     "gpu_update_execution_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_update_execution_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\gpu_update_execution_review.json",
       "sha256": "4b9342c281b4238a345bc1f2955c6dfee896d03a37301997dbad931013797dd1"
     },
     "pilot_first_inputs_check.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_first_inputs_check.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_first_inputs_check.json",
       "sha256": "60fb1fac6dd877707095889cf22eae4bcc8a9bc6b8733316dfa046af2c6c2d1c"
     },
     "gpu_update_checkpoint_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_update_checkpoint_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\gpu_update_checkpoint_review.json",
       "sha256": "d007167494cea41feb7f9c2507bd12dabe2fd25deda0ad643cd9842f45b49355"
     },
     "fp32_equivalence_tolerance_proposal.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_tolerance_proposal.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\fp32_equivalence_tolerance_proposal.json",
       "sha256": "d7f643a1c05bf4d5d19a8672b08fd09c609151e2e85bb8ba03447b419ae28ed7"
     },
     "fp32_equivalence_tolerance_review.md": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_tolerance_review.md",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\fp32_equivalence_tolerance_review.md",
       "sha256": "ceb53b10eb30148455510964424cfc3cf88e3765cc398149bdfd312019c10513"
     },
     "pilot_runs/update_check_completed.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_runs\\update_check_completed.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_runs\\update_check_completed.json",
       "sha256": "11e4429298281191d5a375b262389ae13e6ca376a6ac1e4dc046dcecc874cb0e"
     },
     "pilot_runs/update_check_a624c7d0c860/report.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_runs\\update_check_a624c7d0c860\\report.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_runs\\update_check_a624c7d0c860\\report.json",
       "sha256": "c8377e33a378f42b17fc4a05ff3581e066826726de1d35288a8ff1ea43209966"
     },
     "pilot_runs/budget.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\pilot_runs\\budget.json",
-      "sha256": "dac990b9a5ff913f1fb0c7a5e7db9ab71d638b4b85272449c4812db974ff7b92"
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_runs\\budget.json",
+      "sha256": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd"
     },
     "fp32_equivalence_tolerance_review.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_tolerance_review.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\fp32_equivalence_tolerance_review.json",
       "sha256": "59f798ac5f57fa72f1cb9c5b4f299c5c2cb66018790cd144f94b719789aae41a"
     },
     "fp32_equivalence_acceptance.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fp32_equivalence_acceptance.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\fp32_equivalence_acceptance.json",
       "sha256": "5bba89caea96946b7ff47819bf8d45fb0021c5361311a9b7c0fa6bb1cb745b76"
     },
     "cuda_runtime_recovery.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cuda_runtime_recovery.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\cuda_runtime_recovery.json",
       "sha256": "c4f9a0a8e7a62aa94f79651be7ec93ac2d0dd7aa0a267dbb5f8f396a310641b3"
     },
     "gpu_restart_checkpoint_comparison.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\gpu_restart_checkpoint_comparison.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\gpu_restart_checkpoint_comparison.json",
       "sha256": "0c74e332c36ad1042e9ec87e04a05ac0c39e4e7e48c8dddc17f7cc4bc81386aa"
     },
     "fast_geometry_pipeline_probe.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\fast_geometry_pipeline_probe.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\fast_geometry_pipeline_probe.json",
       "sha256": "6e3d5a0e2f18d87dbe7065de160f559a245ab62c90befcd9bd6899e5c68d970e"
     },
     "cpu_support_index_comparison.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cpu_support_index_comparison.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\cpu_support_index_comparison.json",
       "sha256": "4b3342c4eb2b899741b4c061ec54c0f15346d76bae51c9eda80a42f18fbbd873"
     },
     "cross_source_pair_candidates.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cross_source_pair_candidates.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\cross_source_pair_candidates.json",
       "sha256": "b3a88d18041dcf6250f63e4288174b41d95017605b26e4fd74c3e10341739ada"
     },
     "cross_source_pair_QA_support.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\cross_source_pair_QA_support.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\cross_source_pair_QA_support.json",
       "sha256": "41d004f4d0bd9f24beda407a7e9eca5ad6c1015385eb22ebac6f202dd9c88464"
     },
     "local_QA_candidate_inventory.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\local_QA_candidate_inventory.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\local_QA_candidate_inventory.json",
       "sha256": "91cc1606756df766a36b926aebfc57b67bd2faa91e44edb8b3db136a7904e31a"
     },
     "failed_prefetch_reproduction.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\failed_prefetch_reproduction.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\failed_prefetch_reproduction.json",
       "sha256": "43d799e30f84e1ac3cbb90a53cc1a041b8af6d14b280fb0ae499c61f4bc5bd71"
     },
     "prefetch_concurrency_reproduction.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\prefetch_concurrency_reproduction.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\prefetch_concurrency_reproduction.json",
       "sha256": "d347bd81306777541eebe2f50d4abc67aeaef6e3ec8ff46205303f20e8d974d6"
     },
     "prefetch_failure_incident.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\prefetch_failure_incident.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\prefetch_failure_incident.json",
       "sha256": "8c9c8e1d5811e30c5f0b7e9d08feaf74e7e42944bb85be65853065a23e69aa61"
     },
     "local_uav_hyperspectral_header_audit.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\local_uav_hyperspectral_header_audit.json",
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\local_uav_hyperspectral_header_audit.json",
       "sha256": "186f5cf9de6b950650e4af0d4e98c0b93731e40af3e8bb8308b463e98886bbe0"
     },
     "discovery_scope_notes.json": {
-      "path": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\discovery_scope_notes.json",
-      "sha256": "d3cd969cddac8f0a74031ac67f7114e4fbdcaa0f601451fc5ec0911b6ef43d6e"
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\discovery_scope_notes.json",
+      "sha256": "b3890d7b600cd48f7c9d2a23293c8fbd4b85ac41a62c1ecfa91f76e9e9ab5e09"
+    },
+    "preformal_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\preformal_tests.json",
+      "sha256": "b3794e05331c9e4620cadc80caeca5f9f87f347e6ff106549a2ad947c57c72f3"
+    },
+    "adaptive_window_audit.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\adaptive_window_audit.json",
+      "sha256": "243bf4889d5b8b3512b000a69c193fc6461e2866d8b793244f94a80e30605920"
+    },
+    "adaptive_window_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\adaptive_window_review.md",
+      "sha256": "c86a8d82b7d98722e4e520fd1b78ffb0e5a4c220f3ae701ad021d3b0faf1df42"
+    },
+    "adaptive_member_census.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\adaptive_member_census.json",
+      "sha256": "80eeaad090c13745878914e2e0b06ea183d0ebc4558bf70e4adfe748be7072fa"
+    },
+    "pair_registration_diagnostics/index.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_registration_diagnostics\\index.json",
+      "sha256": "58a09aa51463e3afbbb7a283a5a077d500aee56b46cea133365abac5467086c1"
+    },
+    "pilot_runs/pilot_stop_decision.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_runs\\pilot_stop_decision.json",
+      "sha256": "704fbbf6415159fdb455402d4cd41fb155c034864168d31af95928d517254911"
+    },
+    "merge_participation_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\merge_participation_review.md",
+      "sha256": "e3513f72b3f6016b0bff573b608a6c255224b69870951717989c084aab4abfe4"
+    },
+    "merge_participation_proposal.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\merge_participation_proposal.json",
+      "sha256": "6f64c89a13524fb12efb9eabad6612fcd674dbc56991cc756bd73dc6239fdf30"
+    },
+    "jepa_flow_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\jepa_flow_tests.json",
+      "sha256": "bdfb9a5b09925f3691fcacdba406166e8c73070c7ce257c2a90b78c389db1b51"
+    },
+    "cross_role_split_audit.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\cross_role_split_audit.json",
+      "sha256": "0fccac27b0c97ead6b092d6ab3975359298d170864134c2dc8f6f64bdc6b42df"
+    },
+    "train_statistics_recomputed.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\train_statistics_recomputed.json",
+      "sha256": "5f8cba42a461f79b8dbda84d9f2b7ec0c99b339d80fd70310053d75faefb1e49"
+    },
+    "merge_B_confirmation.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\merge_B_confirmation.json",
+      "sha256": "247f0432c01db1096bf8527ce256a8b2ce95d3fc12608c442a377d0357462a76"
+    },
+    "participation_merge_implementation_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_merge_implementation_evidence.json",
+      "sha256": "51bcca79529faebf3a4a5de5a1a063f436fb3754c7bd49c874a3d64354acfe02"
+    },
+    "participation_merge_implementation_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_merge_implementation_review.md",
+      "sha256": "e4f0392c9e348118829ac7be571c3a959a31dc1bf1bd122bb2335224648889c0"
+    },
+    "participation_engineering_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_engineering_tests.json",
+      "sha256": "e16e9d1ebe659b16ca05b4eb2ddaff7c9356ee3898c5192df6fb37465d9229d1"
+    },
+    "filename_discovery_reconciled.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\filename_discovery_reconciled.json",
+      "sha256": "88f8db3848703da81b7de2a2eb226ca911fa5fb86b7b6972b4337839befd2e57"
+    },
+    "filename_inventory_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\filename_inventory_review.md",
+      "sha256": "e46af0f73903c524595da05b998dfc46f2133e5a41e761227c0b6b10c1f0216f"
+    },
+    "discovery_coverage_post_refinement.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\discovery_coverage_post_refinement.json",
+      "sha256": "b09f6e2dce52267756c13c2db7c337f615f53e0dc862dcad74dffa196e79169f"
+    },
+    "pair_admission_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_admission_evidence.json",
+      "sha256": "8e2c837bd60c132400e742a74cd50ccc482392e9071dd823b814db2fde468acc"
+    },
+    "pair_admission_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_admission_review.md",
+      "sha256": "e7d503f0357d2d599e9820d27f6662589f97aad2ec09410b6f8bca24f35f4b43"
+    },
+    "pair_registration_diagnostics/full_QA/index.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_registration_diagnostics\\full_QA\\index.json",
+      "sha256": "2ef235ad723e174b71f7db9dabc7e8940282c62f54ac96ac41c11a62fa3476cd"
+    },
+    "pair_full_QA_lineage.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_full_QA_lineage.json",
+      "sha256": "4be4e172ce1d1b778f77f0bbeb05f047d96bee9324dc5fffb8848f11b15d1af3"
+    },
+    "pair_fixed_support_diagnostics.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_fixed_support_diagnostics.json",
+      "sha256": "c0d26f96cb24ff68df0460a9a45bc3e65b4e432d213e0a2b1c0fa7fc99909671"
+    },
+    "pair_admission_engineering_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_admission_engineering_tests.json",
+      "sha256": "e50702c1d9af56ea267e0a78b1691ab36fc2902aed29a2ca69fa2d33ad75749c"
+    },
+    "pair_metadata_recovery.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_metadata_recovery.json",
+      "sha256": "167e0174640efdc6563716888da76de2f69d1e1522e392c1543b0fe289a7c91f"
+    },
+    "metadata_recovery_test_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\metadata_recovery_test_evidence.json",
+      "sha256": "3c4a865aa7a7f5a25b57949ceffa1afec72f37aa3d8b0281427fbee05d077575"
+    },
+    "pair_fixed_support_short_gap_supplement.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_fixed_support_short_gap_supplement.json",
+      "sha256": "d09a61dec24b4d65bc21964a716d0fa99b8622c9c5fdf95d21b28fc68d44de4c"
+    },
+    "pair_fixed_support_fine_grid.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_fixed_support_fine_grid.json",
+      "sha256": "0a8c0a919e39a37ee035d0b71583010ddc0d1e04bb0df2ea582678534005b604"
+    },
+    "participation_batch_execution_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_batch_execution_evidence.json",
+      "sha256": "d77dd9d306cd2bda616428ae24fa576e3b3a67e8eec8a446022ee04fe3c6cdf9"
+    },
+    "participation_batch_execution_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_batch_execution_review.md",
+      "sha256": "e1647e2641754683e4b791e608232b1dda781ce6ed11c12c3289acbd69f103ab"
+    },
+    "participation_batch_engineering_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_batch_engineering_tests.json",
+      "sha256": "26c4041466a8bd09fe9cb246dda0e87cbe0bb1fcefd0de8b4f9cf1d27a4d7335"
+    },
+    "participation_profile.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_profile.json",
+      "sha256": "148ce6d301e1c81404eef6a59937efabd92c0e31285fcb2e282b63dc6ac56b60"
+    },
+    "packed_local_execution_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\packed_local_execution_review.md",
+      "sha256": "e03eb59d94b5d97c7c17bed55d318f4853b694fb7974f1784974ad54c58f53db"
+    },
+    "participation_packed_comparison.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_packed_comparison.json",
+      "sha256": "915c158e90b1f57fbc3125871111e310f109c830c50d0ec1d97445d5f8a920b8"
+    },
+    "packed_local_engineering_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\packed_local_engineering_tests.json",
+      "sha256": "d626bde76b09210e9b2132dfab80c497e02a022ebe2a8c2e37d669f762f1c0fb"
+    },
+    "packed_batch_execution_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\packed_batch_execution_evidence.json",
+      "sha256": "7c53621f98dfcb5c477c056efac39e5fb9ae9c31dd13e63b862588c535b60743"
+    },
+    "A_boundary_center_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\A_boundary_center_review.md",
+      "sha256": "4eaaeec375700fe3ed9b26e0c65a1d60345de8035b805bf523fa0d329ca0e983"
+    },
+    "A_boundary_center_reproduction.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\A_boundary_center_reproduction.json",
+      "sha256": "5586c172c0b850c0370e603c2d45bd8cacffa79093085fce298ef41b8c8e7d96"
+    },
+    "A_boundary_engineering_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\A_boundary_engineering_tests.json",
+      "sha256": "7688bfe6e9a475f348285895058904791690d22c9cc25dfb7c1ad53e3d702d37"
+    },
+    "merge_levels_confirmation.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\merge_levels_confirmation.json",
+      "sha256": "b613e7e5c9894428c3a4f3753dd255eb2b8cf303c5b65b992a8eadf313b42b5e"
+    },
+    "merge_rate_confirmation.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\merge_rate_confirmation.json",
+      "sha256": "b0c54c7c60d7a30a3c16b565bb08b04dac2b3a2e55390dfc99355b26674db887"
+    },
+    "participation_current_execution_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_current_execution_evidence.json",
+      "sha256": "71d3ded824af82204442da21fc09a323503203587a1b8ea2001e1b78a69d5276"
+    },
+    "participation_current_rule_controller.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_current_rule_controller.json",
+      "sha256": "4ade2ac86127dd477a09d89ead13dca4b5a8b64ecf3458be71518211d7e6ac86"
+    },
+    "B1_expanded_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B1_expanded_evidence.json",
+      "sha256": "c3e35f96356074ec4630344062991af0c4ae4fc5d86973067118e6622cfdae26"
+    },
+    "B1_expanded_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B1_expanded_review.md",
+      "sha256": "4192b22842243622d75c487dc72624009c53c4cca89d7563b237db096d588132"
+    },
+    "B1_pair_engineering_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B1_pair_engineering_tests.json",
+      "sha256": "9bef4c08a58293df942e50342cc1e65c1755ac121e8cdac331c3ef3195323d71"
+    },
+    "pair_spatial_holdout_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_spatial_holdout_evidence.json",
+      "sha256": "2ea7f533e4b1f2ef7381cbb25f2a6bc87cffe9a4252d3fb06ec238f308e3f23e"
+    },
+    "pair_spatial_holdout_disjoint.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_spatial_holdout_disjoint.json",
+      "sha256": "a27429108f0d45a8b9f860cf23f96c93afa90895edb1c9c440ffabaf16f15114"
+    },
+    "retained_geometry_execution_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\retained_geometry_execution_evidence.json",
+      "sha256": "05661fd50770eebbf57023bb18cf947c265e98fbfc76ff540b93d5b0e75c63e3"
+    },
+    "retained_geometry_execution_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\retained_geometry_execution_review.md",
+      "sha256": "8269bc381970477781bc570cba5d5a6bfb25b61e0dae799416f4157433e0cc52"
+    },
+    "retained_geometry_engineering_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\retained_geometry_engineering_tests.json",
+      "sha256": "72dda38127cf55060459c559eaeaff0d133f2ae8573864fa4bb126d3e808fe57"
+    },
+    "participation_geometry_reuse_controller.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\participation_geometry_reuse_controller.json",
+      "sha256": "8511f72e4836adb91fa0601158f3aa04f7ce94eaa8aa5b93851b60c1f5f74c99"
+    },
+    "B2_geometry_proposal_confirmation.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_geometry_proposal_confirmation.json",
+      "sha256": "1a96ae2929c08b5b4d48d55a4c45a9ee9510f200129890153d151d5f693f0b00"
+    },
+    "B2_pair_geometry_proposal.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_pair_geometry_proposal.md",
+      "sha256": "d75a4497f6a40a3fb4deade89f4dc0114e1e8ddec4efa3ee1d268de3fc1f6dd6"
+    },
+    "B2_pair_geometry_proposal.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_pair_geometry_proposal.json",
+      "sha256": "b63b8010d6365f2842c020cef72af35f02dcfa48e3441f76387da9fae8167c3e"
+    },
+    "B2_query_geometry_identity.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_query_geometry_identity.json",
+      "sha256": "2f0082c3b1f0b1d0587cb21de14fc00ff8722825ee51fe2725dcf4e8d85d89e9"
+    },
+    "B2_geometry_mechanism_confirmation.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_geometry_mechanism_confirmation.json",
+      "sha256": "30c0f7577d663c5a24d00531cc6a9fc422fd7550eaa78b3d0e4041749402795a"
+    },
+    "B2_query_geometry_implementation_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_query_geometry_implementation_review.md",
+      "sha256": "fec737cbf1f68011dc9271fae0b79e83f94592fe36f8f6a803a431c2562f6f71"
+    },
+    "B2_query_geometry_final_integrity.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_query_geometry_final_integrity.json",
+      "sha256": "70c5e886addd5f657f77ddd582e740d29a19f3fb21327a2f01eb5f8c4d3ed52f"
+    },
+    "pair_geometry_final_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_geometry_final_tests.json",
+      "sha256": "b3794e05331c9e4620cadc80caeca5f9f87f347e6ff106549a2ad947c57c72f3"
+    },
+    "filename_discovery_after_leaf_followup.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\filename_discovery_after_leaf_followup.json",
+      "sha256": "46f1a5aeccbed36ca0338a31a47d477275d59ef39575a0224e9886007181e0e8"
+    },
+    "discovery_coverage_after_leaf_followup.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\discovery_coverage_after_leaf_followup.json",
+      "sha256": "0be2c13b5ffd367005d47f7dc4ae90c5af0573c11486c25a521002b0ec74b5d5"
+    },
+    "pair_quality_risk.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_quality_risk.json",
+      "sha256": "6d96acf92b70bae5fec809957bfa34644d8c60697078cb46a185a45755aa8eee"
+    },
+    "pair_quality_risk_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_quality_risk_review.md",
+      "sha256": "0c8e7e3eb4fd577eb610a57b6445e71d41e11d8da00573ffa44e8f25b854cf51"
+    },
+    "pair_QA_rule_sensitivity.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_QA_rule_sensitivity.json",
+      "sha256": "1991c7b7a17383df61eb79b975c3295a3ee96b34471ffeaf2881848e1095b557"
+    },
+    "B2_QA_policy_confirmation.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_QA_policy_confirmation.json",
+      "sha256": "c09487b1059c68f673f34be3d7627cc1b4e592651a9e06531fbd5705febf29b3"
+    },
+    "pair_quality_CPU_targeted.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_quality_CPU_targeted.json",
+      "sha256": "7d9cc23da91d53067bae6079d6e0286aab248abe9d15f3b9383cf0417ba33ee8"
+    },
+    "pair_quality_runtime_diagnostics.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_quality_runtime_diagnostics.json",
+      "sha256": "bb5cc1697fa71922ea1e4d49146532e41c0a60a38bf9c2f86bf724c274b29988"
+    },
+    "discovery_coverage_after_pending_followup.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\discovery_coverage_after_pending_followup.json",
+      "sha256": "c6fd1cff65fc9f3d3027bd279b19d3cf5e51a91e2f49d05c1bb221ddb0a4967c"
+    },
+    "pair_calibration_inventory.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_calibration_inventory.json",
+      "sha256": "fae73dfb11c1e160ec5a1cb592cd1739c4833e152f73a82b3bdcd85af86680fd"
+    },
+    "B2_QA_consistency_check.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_QA_consistency_check.json",
+      "sha256": "a70185afe8f813ed104149cc6e5fafe5ed39e154b22a121737b77e1be1dc643b"
+    },
+    "filename_discovery_current.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\filename_discovery_current.json",
+      "sha256": "47fa2621855346ae96093ae462f1a7b2a8d5f8bed9848e92649b90941507403c"
+    },
+    "discovery_coverage_current.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\discovery_coverage_current.json",
+      "sha256": "ec6526f0a008b7d76e9e8900ab866850d55de86ac777bb83351f780d8077a58f"
+    },
+    "cuda_fault_event_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\cuda_fault_event_evidence.json",
+      "sha256": "6e591d43382312b9fd9e277b2197588fa31ee97a29e4db03c800a71592b0d98b"
+    },
+    "non_observation_sample_evidence.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\non_observation_sample_evidence.json",
+      "sha256": "a1a0bcd766230589388f09eb1af4fb8f5210a363c8b0f364b1110792243c3bb9"
+    },
+    "B2_calibration_use_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_calibration_use_review.json",
+      "sha256": "cf3d10f04cf991ce757c151a3f8b87a34177b86bd29db67374859de1a737763c"
+    },
+    "B2_calibration_use_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B2_calibration_use_review.md",
+      "sha256": "5316f5a2fa246973660dd9a6f5dd5922f44452df4255451e6cb8cedf8cdf26e9"
+    },
+    "pair_calibration_filename_candidates.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_calibration_filename_candidates.json",
+      "sha256": "64793d3a428f872caf3d36ba9f225706dabcfd20d45b8e94a8f193c243700d7c"
+    },
+    "pair_calibration_filename_headers.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pair_calibration_filename_headers.json",
+      "sha256": "3f7fc05ae0c5fbca1f8253742bd94571bf588a47a0e08c4150355e2081e15a83"
+    },
+    "preformal_requirement_audit.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\preformal_requirement_audit.json",
+      "sha256": "fbf041573015ac151241ab217dae399040c67215069379b9b91f67b94a1aee42"
+    },
+    "preformal_requirement_audit.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\preformal_requirement_audit.md",
+      "sha256": "ed27b16f7c5b29b087abe508b813b194ca8b5c6e1471f196a084cad8331e9272"
+    },
+    "route_control_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_control_tests.json",
+      "sha256": "5cbac3973078e91bcc8766c2e715ca96b846741c7be269254e8a17ab00b4f51a"
+    },
+    "route_control_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_control_review.json",
+      "sha256": "a7d19167044c89aa4f390e3e7865f598095c35f2769fc8113f3e65c74c9bad38"
+    },
+    "route_control_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_control_review.md",
+      "sha256": "a3e84f979ab86020316b6c2d995f2458f64d281ea908b9f1d2f74e259dfdd433"
+    },
+    "route_step_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_step_review.json",
+      "sha256": "b1ea59f71af8f8a07c76cb0d0c46ea38f72d046f8a07317f4d1c10c858ad9dd3"
+    },
+    "route_step_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_step_review.md",
+      "sha256": "dec9036c8a1e3fc6c6a6d389940d6620ce0e99d74342073fa1cc4deac735b306"
+    },
+    "route_step_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_step_tests.json",
+      "sha256": "1a06f41274ee8866bfb35a8fb6e43bbe57fdbb4c2cd820759817119ec0b47941"
+    },
+    "route_transaction_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_transaction_tests.json",
+      "sha256": "ea07471440515d8cb74456fc3b9901cb1d43bc4349b56e2ddf28af2750ee2768"
+    },
+    "route_step_runtime_incident.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_step_runtime_incident.json",
+      "sha256": "7b69e7b9bd66aa240beb768b57aec79b350596264c073d347130fa3ebe717275"
+    },
+    "route_branch_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_branch_review.json",
+      "sha256": "5c0233f1eb9afeb9101abcf03f08dea25ccbb6da762819d82c0e39f8ce8777e8"
+    },
+    "route_branch_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_branch_review.md",
+      "sha256": "eb14ff55cf4b75b49d8e5e5be60acc8fcfb96c08cbe531d41c50dff1f72f20f8"
+    },
+    "route_branch_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\route_branch_tests.json",
+      "sha256": "b8dfe674c493be7d87a295e7f77777428602126a7621eb4932719fa8ec77f8d1"
+    },
+    "physical_patch_role_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\physical_patch_role_review.json",
+      "sha256": "285c2c8e92a0513d7d160e55e7878a4574fb23153be9a4cf49fce7f1ed5d5259"
+    },
+    "physical_patch_role_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\physical_patch_role_review.md",
+      "sha256": "6bca9a3bceacf357d29897f7ff3b2bd3ad2aa985e4653ae82d736b428accc8b0"
+    },
+    "physical_patch_role_audit.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\physical_patch_role_audit.json",
+      "sha256": "a811064fd12c2c4b7e41f681f072fd7105232c07bb56841a6646a02eb140bcbf"
+    },
+    "physical_patch_metadata_inventory.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\physical_patch_metadata_inventory.json",
+      "sha256": "7f190a1037d465622acf7b814a6af53db4f0df7482ef1ad4ad6db2dca8f4d92e"
+    },
+    "absent_family_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\absent_family_review.json",
+      "sha256": "2fb151160a58a51b84621c8c84c82274db352e198ff391c2ec10a9865f9272fc"
+    },
+    "absent_family_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\absent_family_review.md",
+      "sha256": "c295c637bfadfbcf8ff0dad268ed071ddee1bde62fc93d957d007fb66498d38f"
+    },
+    "absent_family_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\absent_family_tests.json",
+      "sha256": "ca930c36f4759248cb7f932ce6bff30479ef844467eedadb79a9056f08664793"
+    },
+    "frozen_pair_source_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\frozen_pair_source_review.json",
+      "sha256": "52569e188adef347bf40cfc2b202a0cd6c15780f2646bf04c4d1e71220e793d3"
+    },
+    "frozen_pair_source_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\frozen_pair_source_review.md",
+      "sha256": "e8d92ce2169c808750e1ddd203102272d90ccefa616b93ec0482526024e6c814"
+    },
+    "frozen_pair_source_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\frozen_pair_source_tests.json",
+      "sha256": "31e7d9436bdce1cb294af98f7b8bec2e4b9ae7316f35a37b76681e4f40f06edc"
+    },
+    "absent_slot_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\absent_slot_review.json",
+      "sha256": "671ab25226de8f3e01d9acd67415a9e8bba5e9e1749fd597a9d5e35bb63ddab0"
+    },
+    "absent_slot_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\absent_slot_review.md",
+      "sha256": "3a82b03912d16895dc10bee18d0cac1c10dc1bcff51d69d8917117d0c09bb018"
+    },
+    "absent_slot_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\absent_slot_tests.json",
+      "sha256": "232cba6531407b1929f163f6c22f565c1fdf27317895912c7612d81851fa203a"
+    },
+    "scheduled_data_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\scheduled_data_review.json",
+      "sha256": "953f4fda2db50852710968e4eef42a64556892aa7ea4eadd25b0b275a0b8eb53"
+    },
+    "scheduled_data_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\scheduled_data_review.md",
+      "sha256": "9a26907e6e393246e8c086a5259bb9684c561771d0ac4cdb0b1f64e472870931"
+    },
+    "scheduled_data_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\scheduled_data_tests.json",
+      "sha256": "bf1d6a0fff5ab95dcc72593ab00654c65041de8dcd9a74e2feab5a93525b724f"
+    },
+    "validation_panels_review.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\validation_panels_review.json",
+      "sha256": "02b870e9f4bbbaa6ce1a85ecdece087c3b7f595a13f439ac7cd7706b254f1b90"
+    },
+    "validation_panels_review.md": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\validation_panels_review.md",
+      "sha256": "7c04ea50b4b866693612d8d2ed2f4e4aff88d86f04e98a995cf9209d15e385b1"
+    },
+    "validation_panels_tests.json": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\validation_panels_tests.json",
+      "sha256": "4ed364a0663e3197271521c3dc0b830e522b7307dfda95c0caf90d68d161d239"
     }
   },
   "next_work": [
-    "Continue same fitting checkpoints to warmup endpoint; reserve budget for peak-LR/update/resume diagnostics",
-    "Continue full optical inventory/source association and V3 pair geometry/QA/change-risk audit",
-    "Track parent-only QA limitations and categorical QA alignment warning; do not equate reproduction with admission",
-    "Current recovered runtime exposes one GPU; multi-GPU checks require two available devices",
-    "Measure full end-to-end data preparation/wait/utilization and complete precision/validation/stability report before formal training"
+    "Use confirmed preflight participation curve and single-round B; resolve physical FOV/mask relation and final merge configuration",
+    "Freeze exact translations, calibration/validation isolation and B2 admission; query-only mechanism already user-confirmed and implemented, no real correction applied",
+    "Review formal adoption of the fully executed502-case B1 diagnostic panel; old scheduler metric unchanged",
+    "Complete remaining execution acceptance and end-to-end cost evidence; current microbatch sweep complete, real pilot update budget remains stopped",
+    "Complete remaining data, resource, precision and stability gates before formal training"
   ],
+  "pilot_stop_decision": {
+    "status": "PRECHECK_UPDATES_STOPPED_BY_USER",
+    "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+    "user_instruction": "不用继续预算，使用AdamW",
+    "selected_optimizer": "AdamW",
+    "budget_at_stop": {
+      "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+      "reserved": 214,
+      "completed": 214,
+      "incomplete_reservations": [],
+      "remaining_total": 186,
+      "remaining_by_candidate": {
+        "AdamW": 92,
+        "CAdamW": 94
+      }
+    },
+    "unused_updates_not_authorized": 186,
+    "formal_training_started": false,
+    "formal_training_authorized": false
+  },
+  "remaining_pilot_updates_authorized": 0,
+  "optimizer_selected": "AdamW",
+  "legacy_performance_scope": "Historical fixed-physical-window model; not adaptive-model acceptance",
+  "latest_verification_attempt": {
+    "status": "CURRENT_GPU_RUNTIME_FAILURE",
+    "scope": "Prior full146 model proof retained;9 CPU audit checks pass, new full GPU verification did not execute",
+    "runtime_status": "CUDA_AND_CPU_AUTOGRAD_NATIVE_FAILURE",
+    "engineering_tests": 146,
+    "skipped": 0,
+    "full_report": "pair_geometry_final_tests.json",
+    "historical_fault": "source_snapshots/native_driver_fault_before_restart.json",
+    "recovery_proof": [
+      "gpu_restart_runtime_recheck.json",
+      "preformal_tests_after_restart_process.json",
+      "complete_attention_backend_after_restart.json",
+      "complete_attention_gpu_comparison.json",
+      "complete_attention_large_capacity_after_restart.json"
+    ],
+    "manual_query_chunk_default_adopted": false,
+    "reason": "Slower on matched GPU workload without material allocated-memory improvement",
+    "real_optimizer_updates_this_turn": 0,
+    "real_pilot_total": 214,
+    "formal_training_started": false,
+    "limitations": [
+      "Real offset values, calibration/validation isolation, residual/temporal/QA/change-risk acceptance and pair manifest are not frozen",
+      "Listed pending/timeout blocks now closed; two access-error chunks, links/formats/archives and physical-admission gaps remain",
+      "Formal FOV/mask and remaining stability/resource/execution configuration not frozen",
+      "No real new-architecture optimizer-update/resume acceptance; stopped real budget remains214"
+    ],
+    "post_logging_targeted_tests": {
+      "count": 4,
+      "log": "adaptive_joint_targeted.log"
+    },
+    "joint_engineering_evidence": "jepa_joint_integration_evidence.json",
+    "participation_B_evidence": "participation_merge_implementation_evidence.json",
+    "post_B_pair_audit_tests": {
+      "report": "pair_admission_engineering_tests.json",
+      "tests": 8,
+      "skipped": 0,
+      "scope": "Targeted audit tests; 2 overlap prior full suite; do not add totals"
+    },
+    "B2_evidence": "pair_admission_evidence.json",
+    "current_change": "Approved native-Encoder query-frame geometry; real offset values and admission remain pending",
+    "targeted_compute_tests": {
+      "existing": 12,
+      "new": 3,
+      "skips": 0
+    },
+    "full_regression_pending_after_GPU_measurement": false,
+    "model_parameter_architecture_changed": false,
+    "batch_execution_evidence": "participation_batch_execution_evidence.json",
+    "packed_output_review": "packed_local_execution_review.md",
+    "A_boundary_review": "A_boundary_center_review.md",
+    "current_rule_real_batch_acceptance": false,
+    "B1_panel_execution": "B1_expanded_evidence.json",
+    "B2_spatial_holdout": "pair_spatial_holdout_evidence.json",
+    "new_targeted_checks": 13,
+    "new_targeted_skips": 0,
+    "retained_geometry_evidence": "retained_geometry_execution_evidence.json",
+    "B2_mechanism_review": "B2_geometry_mechanism_confirmation.json",
+    "B2_offsets_approved": false,
+    "B2_admitted_pairs": 0,
+    "B2_implementation_review": "B2_query_geometry_implementation_review.md",
+    "runtime_incident_report": "route_step_runtime_incident.json",
+    "historical_full_report": "pair_geometry_final_tests.json",
+    "CPU_audit_report": "pair_quality_CPU_targeted.json",
+    "full_GPU_rerun_passed": false,
+    "B2_QA_policy_review": "B2_QA_policy_confirmation.json",
+    "windows_fault_evidence_report": "cuda_fault_event_evidence.json",
+    "metadata_coverage_report": "discovery_coverage_current.json",
+    "route_control_checks": {
+      "report": "route_control_tests.json",
+      "tests": 8
+    },
+    "route_step_control_checks": {
+      "report": "route_transaction_tests.json",
+      "tests": 5,
+      "scope": "Manual gradients only"
+    },
+    "route_step_graph_checks": "BLOCKED_NO_PASS_RESULT",
+    "computational_sources_changed_since_full146": [
+      "adaptive_joint.py",
+      "joint.py",
+      "plan_prefetch.py"
+    ],
+    "absent_family_accounting": {
+      "report": "absent_family_tests.json",
+      "tests": 5,
+      "scope": "Stubbed loss arithmetic, no model backward"
+    },
+    "full146_scope": "Historical source version; not current graph acceptance",
+    "absent_slot_checks": {
+      "report": "absent_slot_tests.json",
+      "tests": 10,
+      "scope": "Control/prediction stubs only"
+    }
+  },
+  "engineering_tests_currently_verified": false,
+  "engineering_test_evidence_scope": "Previous successful full suite; latest status: CURRENT_GPU_RUNTIME_FAILURE",
   "cell_index_performance_candidates": [
     {
       "patch_m": 120.0,
@@ -321,7 +903,7 @@
       "default_adopted": false
     }
   ],
-  "unresolved_runtime_incident": {
+  "historical_runtime_incident": {
     "status": "ONE_CONTROLLED_PREUPDATE_REPLAY_ELIGIBLE_ROOT_CAUSE_UNRESOLVED",
     "failure_controller": "pilot_runs/fit_controller_864b7e3a31e8.json",
     "failed_log": "pilot_runs/fit_controller_864b7e3a31e8.log",
@@ -350,5 +932,63 @@
       "The original corrupt index is not explained or fixed; successful repeats are limited negative evidence"
     ]
   },
-  "mounted_filename_scan_summary": "C:\\Users\\yzh\\.codex\\.chatgpt-projects\\g-p-6ae461d2c7ac8191900c4cba8900cc0e\\encoder_v3\\reports\\mounted_raster_discovery\\summary.json"
+  "unresolved_runtime_incident": {
+    "status": "CPU_AUTOGRAD_AND_CUDA_NATIVE_RUNTIME_FAILURE",
+    "minimal_CPU_backward": {
+      "status": "FAILED_NATIVE_OR_PROCESS_EXIT",
+      "owned_worker_pid": 23256,
+      "scope": "CPU tensors and minimal autograd, no CUDA tensor or optimizer update",
+      "maximum_seconds": 35,
+      "exit_code": 3221225477,
+      "timed_out": false,
+      "seconds": 12.187681400006113
+    },
+    "windows_faults": [
+      {
+        "pid": 23256,
+        "record_id": 237532,
+        "time_utc": "2026-11-06T10:17:20.6616992Z",
+        "module": "nvcuda64.dll",
+        "module_version": "32.0.16.2114",
+        "exception": "c0000005",
+        "offset": "00000000004be12f"
+      },
+      {
+        "pid": 102964,
+        "record_id": 237528,
+        "time_utc": "2026-11-06T10:15:09.4461551Z",
+        "module": "nvcuda64.dll",
+        "module_version": "32.0.16.2114",
+        "exception": "c0000005",
+        "offset": "00000000004be12f"
+      }
+    ],
+    "failed_graph_suite": {
+      "status": "NO_FULL_RESULT",
+      "owned_fixture_pid": 102964,
+      "first_test": "baseline_and_JEPA_next_complete_update_restore_exactly",
+      "attempt_status": "PREPARED",
+      "optimizer_may_have_executed": false
+    },
+    "earlier_discovery_incident": "An imported fixture TestCase was inadvertently collected and its legacy CUDA probe ran; corrected import now exposes only intended tests",
+    "preserved_fragment": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\runtime_fault_fragments\\CPU_autograd_102964",
+    "preserved_fragment_sha256": {
+      "continuous\\shared\\.update.lock": "63a04962b1ee88c7517af8615b77b7175f00203bd5db08ea3ef6479a54bce637",
+      "continuous\\shared\\u000001.attempt.json": "4b36a8f016149de0d4533eaadaf9958c9f51635aca927367cda156c133e61ada"
+    },
+    "source_reports": {
+      "route_step_CPU_autograd_diagnostic.json": "567c66b0ce39fe8de3d248f9052afd9fd74ec12271f81664ecb0d5f3361be577",
+      "route_step_CPU_autograd_diagnostic.log": "b870c1889c90f793d4ff24dd913ba149469e293085979688df7f71b7bb5a07e0",
+      "route_step_CPU_windows_events.json": "d0e021105154569ba2228d2a9620c4245439560f1bcd3f42572ce8b8b1562227",
+      "route_transaction_tests.json": "9b444389e48c913702758fc4ee8cf06e03b36c21385f5e2976fb65f582c43e4b"
+    },
+    "real_data_updates": 0,
+    "system_changes": 0,
+    "limits": [
+      "Minimal CPU tensor backward exits in autograd engine with nvcuda64.dll recorded by Windows; precise driver/hardware root cause and remedy unproven",
+      "Control tests explicitly substitute gradient production and cannot pass real model integration",
+      "No further backward/CUDA retry until relevant runtime state changes"
+    ]
+  },
+  "mounted_filename_scan_summary": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\mounted_raster_discovery\\summary.json"
 }

@@ -1,0 +1,21 @@
+{
+  "status": "USER_CONFIRMED_FIXED_HIERARCHICAL_VALIDATION_METRIC",
+  "question_id": "call_f57b532ca9da4686abf6fa2df86684b6",
+  "answer": "确认固定分层等权方案（建议）",
+  "proposal": "reports/validation_metric_review.json",
+  "proposal_sha256": "b79c948c6d4d81f807a73623556d912e141cc4aee8befafa621435cfd685a8da",
+  "confirmed_formula": {
+    "case_loss": "Existing valid-target per-band TRAIN-normalized pixel NMSE, then mean across available target bands",
+    "B1_within_observation": "Single-hidden mean and multi-hidden mean at1/2 each; within multi-hidden equal mean over hidden counts2..C-1, then cases within each count",
+    "task_hierarchy": "Mean cases within each observation, mean observations within each source, then equal mean over sources; frozen physical P repeats are cases",
+    "B_family": "Fixed equal B1/B2 means where both exist in frozen validation support set",
+    "score": "S=(A+B)/2 with fixed weights throughout curriculum and across both routes",
+    "missing": "Freeze support/availability identities and effective weights before training; no zero placeholders; unexpected support changes/nonfinite predictions abort score rather than silently redefine weights",
+    "JEPA": "Report separately; do not include changing JEPA latent objective in common reflection validation scalar"
+  },
+  "implementation_status": "PENDING_IMPLEMENTATION_AND_RUNNER_CONNECTION",
+  "formal_panels_and_support_set_frozen": false,
+  "pair_admission_approved": false,
+  "new_real_updates_authorized": false,
+  "formal_training_authorized": false
+}

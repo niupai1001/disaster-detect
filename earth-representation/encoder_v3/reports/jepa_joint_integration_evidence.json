@@ -1,0 +1,39 @@
+{
+  "status": "SYNTHETIC_BATCH8_JOINT_ENGINEERING_PASS_NOT_FORMAL_ACCEPTANCE",
+  "effective_batch": 8,
+  "full_suite_tests": 83,
+  "full_suite_skipped": 0,
+  "post_logging_targeted_tests": 4,
+  "training_observations_in_fixture": 8,
+  "active_latent_pairs": 7,
+  "active_pairs_by_source": [
+    3,
+    4
+  ],
+  "missing_pair_loss": null,
+  "CPU_checks": [
+    "A/B+JEPA gradients equal independently source-balanced sum",
+    "Decoder gradients bitwise equal A/B-only route",
+    "One shared AdamW step and EMA after global accumulation",
+    "Next full step after checkpoint restore bitwise equal for modules/moments/RNG"
+  ],
+  "CUDA_checks": [
+    "CPU supervision plans with GPU source/target tensors",
+    "All Student/Decoder/Predictor gradients finite; Teacher gradients absent",
+    "GPU gradient accumulation only; zero optimizer steps"
+  ],
+  "real_optimizer_updates": 0,
+  "real_pilot_total": 214,
+  "synthetic_joint_optimizer_steps_per_full_fixture_run": 3,
+  "limitations": [
+    "Generated tensors only; admissions are explicit synthetic fixtures, not real pair review",
+    "MSE/EMA/lr are fixture choices, not new frozen scientific parameters",
+    "Historical window Encoder is a fixture; new participation-based Merge needs reintegration and acceptance",
+    "No formal training launcher, optimizer execution or automatic EMA in accumulation API",
+    "Real-data admission, latent-loss choice and full observation efficiency remain pending"
+  ],
+  "source_sha256": {
+    "adaptive_joint.py": "501a7c590c932e2ac8ffff440f29f31491194a257d12c881bfa68704de03fb21",
+    "test_adaptive_joint.py": "1c66b2f95d70ae4cbc65bbf7f97ce3629ee2539ff8e4257c081f35e0858ad531"
+  }
+}

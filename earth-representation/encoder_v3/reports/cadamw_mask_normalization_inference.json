@@ -1,0 +1,86 @@
+{
+  "status": "SAVED_STATE_MASK_NORMALIZATION_INFERENCE_NO_UPDATES",
+  "rows": [
+    {
+      "parameter": "encoder.local.layers.0.self_attn.in_proj_bias",
+      "inferred_reference": {
+        "inferred_nonzero_mask_scale": 1.6991152362523498,
+        "inferred_positive_mask_count": 225.99997446139605,
+        "rounded_positive_mask_count": 226,
+        "coordinates_used": 156
+      },
+      "inferred_accelerated": {
+        "inferred_nonzero_mask_scale": 1.7066669360981557,
+        "inferred_positive_mask_count": 224.99996447925267,
+        "rounded_positive_mask_count": 225,
+        "coordinates_used": 156
+      }
+    },
+    {
+      "parameter": "encoder.local.layers.1.self_attn.in_proj_bias",
+      "inferred_reference": {
+        "inferred_nonzero_mask_scale": 1.7066669788482811,
+        "inferred_positive_mask_count": 224.9999588432517,
+        "rounded_positive_mask_count": 225,
+        "coordinates_used": 143
+      },
+      "inferred_accelerated": {
+        "inferred_nonzero_mask_scale": 1.6991153405806885,
+        "inferred_positive_mask_count": 225.99996058464427,
+        "rounded_positive_mask_count": 226,
+        "coordinates_used": 143
+      }
+    },
+    {
+      "parameter": "encoder.global_net.layers.0.self_attn.in_proj_bias",
+      "inferred_reference": {
+        "inferred_nonzero_mask_scale": 1.3061225463605997,
+        "inferred_positive_mask_count": 293.9999780801454,
+        "rounded_positive_mask_count": 294,
+        "coordinates_used": 179
+      },
+      "inferred_accelerated": {
+        "inferred_nonzero_mask_scale": 1.2972973673404335,
+        "inferred_positive_mask_count": 295.99998401849194,
+        "rounded_positive_mask_count": 296,
+        "coordinates_used": 179
+      }
+    },
+    {
+      "parameter": "encoder.global_net.layers.1.self_attn.in_proj_bias",
+      "inferred_reference": {
+        "inferred_nonzero_mask_scale": 1.3061225384288695,
+        "inferred_positive_mask_count": 293.999979865528,
+        "rounded_positive_mask_count": 294,
+        "coordinates_used": 169
+      },
+      "inferred_accelerated": {
+        "inferred_nonzero_mask_scale": 1.3105802743461803,
+        "inferred_positive_mask_count": 292.99998444701845,
+        "rounded_positive_mask_count": 293,
+        "coordinates_used": 169
+      }
+    },
+    {
+      "parameter": "encoder.global_net.layers.2.self_attn.in_proj_bias",
+      "inferred_reference": {
+        "inferred_nonzero_mask_scale": 1.2631579626729301,
+        "inferred_positive_mask_count": 303.99998365004905,
+        "rounded_positive_mask_count": 304,
+        "coordinates_used": 175
+      },
+      "inferred_accelerated": {
+        "inferred_nonzero_mask_scale": 1.2631579070280423,
+        "inferred_positive_mask_count": 303.9999970419178,
+        "rounded_positive_mask_count": 304,
+        "coordinates_used": 175
+      }
+    }
+  ],
+  "optimizer_updates": 0,
+  "limitations": [
+    "Mask counts are inferred from saved weights/moments and FP32 rounding, not directly captured masks",
+    "Attention key-bias near-zero gradients and their mask signs are a suspected contributor, not a proven cause",
+    "No tolerance, optimizer formula or gradient filtering changed"
+  ]
+}

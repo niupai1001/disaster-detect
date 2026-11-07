@@ -1,0 +1,119 @@
+{
+  "status": "B_GEOMETRY_IMPLEMENTED_ENGINEERING_CHECKS_PASS_NOT_FORMAL_ACCEPTANCE",
+  "confirmation": "merge_B_confirmation.json",
+  "curve_frozen": false,
+  "tests": 98,
+  "skips": 0,
+  "verification": "participation_engineering_tests.json",
+  "high_resolution_capacity": [
+    {
+      "gsd_m": 0.5,
+      "requested_fov_m": 60.0,
+      "actual_fov_m": 60.0,
+      "native_shape": [
+        120,
+        120
+      ],
+      "tokens": 4275,
+      "target_rate": 0.75,
+      "actual_rate": 0.75,
+      "group_size_min": 16,
+      "group_size_max": 16,
+      "median_seconds": 0.6391021999997974,
+      "peak_GiB": 0.48747777938842773
+    },
+    {
+      "gsd_m": 1.21,
+      "requested_fov_m": 60.0,
+      "actual_fov_m": 60.5,
+      "native_shape": [
+        50,
+        50
+      ],
+      "tokens": 1052,
+      "target_rate": 0.6568586219503006,
+      "actual_rate": 0.6556,
+      "group_size_min": 4,
+      "group_size_max": 9,
+      "median_seconds": 0.1496441499998582,
+      "peak_GiB": 0.119415283203125
+    },
+    {
+      "gsd_m": 0.5,
+      "requested_fov_m": 120.0,
+      "actual_fov_m": 120.0,
+      "native_shape": [
+        240,
+        240
+      ],
+      "tokens": 17100,
+      "target_rate": 0.75,
+      "actual_rate": 0.75,
+      "group_size_min": 16,
+      "group_size_max": 16,
+      "median_seconds": 2.6596543500004373,
+      "peak_GiB": 1.8960685729980469
+    },
+    {
+      "gsd_m": 1.21,
+      "requested_fov_m": 120.0,
+      "actual_fov_m": 121.0,
+      "native_shape": [
+        100,
+        100
+      ],
+      "tokens": 4238,
+      "target_rate": 0.6568586219503006,
+      "actual_rate": 0.6567,
+      "group_size_min": 2,
+      "group_size_max": 9,
+      "median_seconds": 0.5354392000003827,
+      "peak_GiB": 0.41016101837158203
+    }
+  ],
+  "real_B1_local_batch_comparison": {
+    "report": "participation_real_B1_batch_comparison.json",
+    "same_pixels": true,
+    "same_tokens": true,
+    "speed_ratio": 2.36715600026173,
+    "measured_differences": {
+      "prediction_max_abs": 4.172325134277344e-07,
+      "task_loss_abs": 1.360890378165891e-08,
+      "max_band_nmse_abs": 1.5758208959937292e-08,
+      "gradient_relative_l2": 3.512702835738998e-07
+    },
+    "existing_FP32_limits": {
+      "prediction_max_abs": 2e-06,
+      "task_loss_abs": 1e-06,
+      "max_band_nmse_abs": 1e-05,
+      "gradient_relative_l2": 2e-06
+    },
+    "passed_measured_quantities": {
+      "prediction_max_abs": true,
+      "task_loss_abs": true,
+      "max_band_nmse_abs": true,
+      "gradient_relative_l2": true
+    },
+    "update_and_restore_verified_on_real_GPU": false,
+    "default_adopted": false
+  },
+  "original_modules_preserved": {
+    "model.py": true,
+    "layout.py": true,
+    "streaming.py": true,
+    "training.py": true,
+    "tasks.py": true
+  },
+  "capacity_source_snapshot": "source_snapshots/participation_encoder.py.capacity_run",
+  "real_optimizer_updates": 0,
+  "pilot_total": 214,
+  "remaining_updates_authorized": 0,
+  "formal_training_started": false,
+  "unresolved": [
+    "participation curve and anisotropic GSD rule",
+    "recursive spatial hierarchy",
+    "physical FOV and task mask relationship",
+    "real cross-source pair admission",
+    "full efficiency and update/restore equivalence gates"
+  ]
+}

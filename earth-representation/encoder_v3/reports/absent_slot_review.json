@@ -1,0 +1,44 @@
+{
+  "status": "ABSENT_TASK_SLOTS_PRESERVED_WITHOUT_COMPUTE_NOT_LOADER_COMPLETION",
+  "slot_tests": 10,
+  "transaction_tests": 7,
+  "implemented": [
+    "Explicit NO_ADMITTED_PAIR/B2 or NO_HIDEABLE_BAND/B1 record with no targets, plan or physical admission",
+    "Real B2 targets still require all physical admission checks",
+    "Inactive result separates TASK_ABSENT from NO_VALID_SUPPORTED_TARGET and never fills zero loss",
+    "CPU/device move uses dataclass replacement to retain absence metadata",
+    "Resume exposure signature includes actual absence reasons only when present"
+  ],
+  "source_sha256": {
+    "joint.py": "3898845522efeec25a9443484a988feb9de1d053df773cb86c60a3d5cf2b4a77",
+    "adaptive_joint.py": "dbfeebe5e84b85bed1c13bfb2357c62200566f232269626d48a532d756b8e893",
+    "plan_prefetch.py": "c6eb2fe693c14bdef37c7691f3c7c67b0a8d45ac43c9479946b53f17234a89f9",
+    "route_step.py": "c2b91ba88c28efa0fe685c5c6818e5cca2a9b85b678e6b01e5df97039c934102",
+    "test_absent_slot.py": "e60cf7949a630239efbd2289c7eb2bf2d105522a72c350910ba92861d58136eb"
+  },
+  "source_reports": {
+    "absent_slot_tests.json": "232cba6531407b1929f163f6c22f565c1fdf27317895912c7612d81851fa203a",
+    "route_transaction_tests.json": "ea07471440515d8cb74456fc3b9901cb1d43bc4349b56e2ddf28af2750ee2768",
+    "route_step_runtime_incident.json": "7b69e7b9bd66aa240beb768b57aec79b350596264c073d347130fa3ebe717275"
+  },
+  "original_five_modules_unchanged": true,
+  "historical_15_source_changes": [
+    "adaptive_joint.py",
+    "joint.py"
+  ],
+  "additional_changed_helper": "plan_prefetch.py",
+  "real_pairs_admitted": 0,
+  "real_updates_this_turn": 0,
+  "total_real_updates": 214,
+  "formal_training_started": false,
+  "pending": [
+    "Frozen schedule reader/builder must verify absence eligibility against frozen bands/pair manifest, not simply trust a supplied reason",
+    "Full dataset sampler, validation/stop and cost orchestration unfinished",
+    "Current graph/new-Merge update/GPU acceptance and formal scientific configuration pending"
+  ],
+  "limits": [
+    "Tests use generated plans/prediction values and supplied gradients; not current graph acceptance",
+    "No additional task, fallback B1/B2, sensor, loss or learned parameter introduced",
+    "Existing original five modules untouched, but joint/adaptive control source changed and old146 cannot serve current acceptance"
+  ]
+}

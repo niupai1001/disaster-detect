@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "model": "circular Gaussian, sigma in pixels of the native grid",
+  "derivation": "sigma = sqrt(-2*ln(MTF_nyquist)) / pi",
+  "why": "an official MTF number is citable; a guessed FWHM is not",
+  "sensors": {
+    "ENMAP": {
+      "status": "derived_from_mtf_spec",
+      "source": "psf/sources/EnMAP_Specs.pdf (DLR specification sheet)",
+      "mtf_nyquist": {
+        "across_track": 0.25,
+        "along_track": 0.16
+      },
+      "sigma_px": {
+        "across_track": 0.53,
+        "along_track": 0.609
+      },
+      "note": "Nyquist = 60 m for the 30 m sampling; the spec quotes a lower bound, so sigma is an upper bound"
+    },
+    "S2A": {
+      "status": "not_sourced",
+      "needed": "ESA MSI MTF/PSF requirement or in-flight MTF at Nyquist",
+      "candidate": "CNES in-flight MTF measurements (CEOS IVOS-27, 2015) report per-band values only in figures"
+    },
+    "S2B": {
+      "status": "not_sourced",
+      "needed": "same as S2A"
+    },
+    "S2C": {
+      "status": "not_sourced",
+      "needed": "same as S2A"
+    },
+    "LANDSAT8_OLI": {
+      "status": "not_sourced",
+      "needed": "USGS OLI MTF at Nyquist or measured PSF/FWHM"
+    },
+    "LANDSAT9_OLI2": {
+      "status": "not_sourced",
+      "needed": "same as Landsat 8"
+    }
+  }
+}

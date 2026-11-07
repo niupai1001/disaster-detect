@@ -1,0 +1,145 @@
+{
+  "schema": "encoder_v3_admission_review",
+  "review_date": "2026-11-07",
+  "reviewer_scope": "read-only; config.json and existing reports untouched",
+  "rule_sources": [
+    "references/original_encoder_v3_plan.md §13 配置冻结清单",
+    "encoder_v3/config.json required_before_training",
+    "encoder_v3/gates.py (fail-closed)"
+  ],
+  "gate_count": 14,
+  "satisfied": 1,
+  "partially_satisfied_preflight_only": 6,
+  "not_satisfied": 7,
+  "formal_training_started": false,
+  "total_real_updates": 214,
+  "gates": [
+    {
+      "gate": "optimizer_choice",
+      "config_value": "AdamW",
+      "verdict": "SATISFIED",
+      "evidence": ["reports/pilot_runs/pilot_stop_decision.json"],
+      "note": "用户指示「不用继续预算，使用AdamW」；未用预算 186 次不得使用。"
+    },
+    {
+      "gate": "merge_configuration",
+      "config_value": null,
+      "verdict": "PARTIAL_PREFLIGHT",
+      "evidence": [
+        "reports/merge_B_confirmation.json (USER_CONFIRMED_GEOMETRY_B_ONLY)",
+        "reports/merge_levels_confirmation.json (scope=formal_merge_architecture, single_round_B)",
+        "reports/merge_rate_confirmation.json (preflight curve)"
+      ],
+      "gap": "架构（单轮B、原生/合并两尺度）已按正式范围确认；GSD→r 曲线仍标注为预检；60/120m 与任务遮盖的关系未审。"
+    },
+    {
+      "gate": "hypernetwork_hidden_structure",
+      "config_value": null,
+      "verdict": "PARTIAL_PREFLIGHT",
+      "evidence": ["reports/hypernetwork_preflight_review.json"],
+      "gap": "34→64→320、GELU、log(gsd) 已冻结，但 review 明确写 scope=preflight_only。"
+    },
+    {
+      "gate": "frozen_data_manifest",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": [
+        "reports/physical_patch_role_review.json (NO_NEW_CROP_POLICY)",
+        "reports/frozen_pair_source_review.json (real_pairs_admitted=0)",
+        "reports/discovery_coverage_after_leaf_followup.json (PARTIAL_NOT_DATA_ADMISSION)",
+        "reports/preformal_requirement_audit.json item M0 INCOMPLETE"
+      ],
+      "gap": "合格清单与划分未冻结；名称发现仍有 430 块待查、10 个目标未全覆盖。"
+    },
+    {
+      "gate": "pair_admission",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": [
+        "reports/B2_QA_policy_confirmation.json (4 named observations only)",
+        "reports/B2_geometry_mechanism_confirmation.json (mechanism only)",
+        "reports/pair_spatial_holdout_disjoint.json (admitted_pairs=0)",
+        "reports/B2_calibration_use_review.json (REQUIRES_SCIENTIFIC_REVIEW)"
+      ],
+      "gap": "真实配对准入为 0；偏移数值、校准隔离、残差/处理域准入未确认。"
+    },
+    {
+      "gate": "mask_rectangle_distribution",
+      "config_value": null,
+      "verdict": "PARTIAL_PREFLIGHT",
+      "evidence": ["reports/spatial_mask_preflight_review.json"],
+      "gap": "遮盖规则已确认但 scope=preflight_mask_rule_only。"
+    },
+    {
+      "gate": "validation_panel",
+      "config_value": null,
+      "verdict": "PARTIAL_PREFLIGHT",
+      "evidence": [
+        "reports/pilot_members_panels_review.json (members + panel sha256)",
+        "reports/validation_metric_confirmation.json (USER_CONFIRMED_FIXED_HIERARCHICAL_VALIDATION_METRIC)",
+        "reports/validation_panels_review.json (reader verified, real_image_reads=0)"
+      ],
+      "gap": "面板与指标公式已确认，但成员/面板批文写的是用于预检；尚无真实图像读取验收。"
+    },
+    {
+      "gate": "improvement_threshold",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": ["reports/validation_metric_confirmation.json"],
+      "gap": "指标公式已定，但「多大改进才算改进」没有数值；只能由用户定。"
+    },
+    {
+      "gate": "stability_window",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": [],
+      "gap": "计划 §10.3/§13 要求固定验证间隔、稳定观察窗口、验证不确定性阈值；仓库内无对应批文。"
+    },
+    {
+      "gate": "early_stop",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": ["reports/pilot_runs/pilot_stop_decision.json"],
+      "gap": "现有只是预检被用户叫停的记录，不是正式训练的早停规则。"
+    },
+    {
+      "gate": "precision_acceptance",
+      "config_value": null,
+      "verdict": "PARTIAL_PREFLIGHT",
+      "evidence": ["reports/fp32_equivalence_tolerance_review.json"],
+      "gap": "容差（2e-6 / 1e-5 / 1e-6 / 2e-6）已确认，但 scope=preflight_only。"
+    },
+    {
+      "gate": "resource_limit",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": ["reports/gpu_update_execution_review.json (bounded check only)"],
+      "gap": "缺正式的计算资源上限与总预算；budget.json 不存在。"
+    },
+    {
+      "gate": "execution_equivalence",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": [
+        "reports/fp32_equivalence_tolerance_review.json (preflight)",
+        "reports/route_step_runtime_incident.json (CPU_AUTOGRAD_AND_CUDA_NATIVE_RUNTIME_FAILURE)",
+        "reports/cuda_fault_event_evidence.json (EXISTING_OWNED_CUDA_FAILURES)"
+      ],
+      "gap": "当前运行时存在原生访问冲突，真实更新/恢复与端到端等价未通过；历史 146 项不能替代当前验收。"
+    },
+    {
+      "gate": "formal_training_authorization",
+      "config_value": null,
+      "verdict": "NOT_SATISFIED",
+      "evidence": [],
+      "gap": "必须为 true 才放行；只能由用户明确授权。"
+    }
+  ],
+  "confirmation_needed_from_user": [
+    "四项策略数值：improvement_threshold / stability_window / early_stop / resource_limit",
+    "五至六项预检批文是否升级为正式冻结：merge / hypernetwork / mask / precision / validation_panel",
+    "execution_equivalence 如何处理：先修运行时，或明确以预检容差放行",
+    "数据与配对准入范围：frozen_data_manifest 与 pair_admission 是否缩到已复核的四观测",
+    "formal_training_authorization 是否签发"
+  ]
+}

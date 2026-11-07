@@ -1,0 +1,31 @@
+{
+  "status": "CURRENT_VERIFICATION_PASS",
+  "scope": "Engineering unit suite and bounded runtime/component checks; not formal training acceptance",
+  "runtime_status": "MINIMAL_RUNTIME_RECOVERED",
+  "engineering_tests": 83,
+  "skipped": 0,
+  "full_report": "joint_integration_tests.json",
+  "historical_fault": "source_snapshots/native_driver_fault_before_restart.json",
+  "recovery_proof": [
+    "gpu_restart_runtime_recheck.json",
+    "preformal_tests_after_restart_process.json",
+    "complete_attention_backend_after_restart.json",
+    "complete_attention_gpu_comparison.json",
+    "complete_attention_large_capacity_after_restart.json"
+  ],
+  "manual_query_chunk_default_adopted": false,
+  "reason": "Slower on matched GPU workload without material allocated-memory improvement",
+  "real_optimizer_updates_this_turn": 0,
+  "real_pilot_total": 214,
+  "formal_training_started": false,
+  "limitations": [
+    "Both-device minimal CUDA success is not DDP or parallel-route throughput acceptance",
+    "Large attention capacity uses synthetic latent tokens, not a full native observation",
+    "Merge participation curve/grouping, full-source admission and JEPA production integration remain incomplete"
+  ],
+  "post_logging_targeted_tests": {
+    "count": 4,
+    "log": "adaptive_joint_targeted.log"
+  },
+  "joint_engineering_evidence": "jepa_joint_integration_evidence.json"
+}

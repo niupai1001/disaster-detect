@@ -1,0 +1,91 @@
+"""Matched reviewed eight-observation A/B execution sweep, no optimizer updates."""
+import contextlib,gc,hashlib,json,time
+from dataclasses import replace
+from pathlib import Path
+import torch
+from .data import NativeOpticalDataset,sha256
+from .pilot_protocol import load_study
+from .prepare_pilot import member,bounds
+from .tasks import spatial_task,spectral_task
+from .participation_encoder import ParticipationEncoder,prepare_participation_task
+from .participation_layout import AreaEquivalentHillRate
+from .plan_prefetch import move_views
+from .model import ReflectanceDecoder
+from . import joint,streaming
+
+
+def parameter_hash(modules):
+    digest=hashlib.sha256()
+    for module in modules:
+        for name,value in module.named_parameters():digest.update(name.encode());digest.update(value.detach().cpu().contiguous().numpy().tobytes())
+    return digest.hexdigest()
+
+
+def main():
+    root=Path(__file__).resolve().parent;r=root/'reports';output=r/'participation_observation_batch_comparison.json'
+    if output.exists():raise ValueError('Preserve previous measurement')
+    started=time.perf_counter();torch.set_num_threads(2);study=load_study(r/'pilot_study_candidate.json');ds=NativeOpticalDataset(study['release'],study['contracts'],role='TRAIN')
+    if ds.identities!=study['source_identities']:raise ValueError('Reviewed source identities differ')
+    free,total=torch.cuda.mem_get_info();cap=min(24*1024**3,free-2*1024**3)
+    if cap<=0:raise ValueError('No unoccupied diagnostic GPU memory')
+    torch.cuda.set_per_process_memory_fraction(cap/total);curve=AreaEquivalentHillRate(.8092248954506467,4.010953026221307,1.219268281571556)
+    names=('participation_observation_batch_probe.py','participation_encoder.py','participation_layout.py','adaptive_window.py','adaptive_streaming.py','joint.py','streaming.py','model.py')
+    sources={name:sha256(root/name) for name in names};report=dict(status='RUNNING',optimizer_updates=0,effective_batch=8,curve_frozen=False,source_identities=ds.identities,study_sha256=study['candidate_sha256'],device_uuid=str(torch.cuda.get_device_properties(0).uuid),memory_cap_bytes=cap,source_sha256=sources,rows=[],scope='reviewed schedule0 full-native TRAIN A/B1 views, random shared initialization, FP32 complete forward/backward, unchanged approved mask/hidden bands',limits=['Not formal training or a scientific curve freeze','Single timed pass after one warmup per configuration; speed estimates require repetition before adoption','Time includes consistent detached prediction collection, geometry and loss reporting; excludes initial read/plan/transfer and optimizer/save','No real parameter-update or resume comparison; defaults unchanged'])
+    def save():output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    save();lookup={row['id']:i for i,row in enumerate(ds.rows)};frozen={row['id']:row for row in study['training_members']};views=[];entry=study['schedule'][0];load_seconds=planning_seconds=0.
+    for spec in entry['tasks']:
+        start=time.perf_counter();row=ds.rows[lookup[spec['observation']]]
+        if member(row)!=frozen[row['id']]:raise ValueError('Reviewed member changed')
+        obs=ds[lookup[row['id']]];stds=ds.engineering_train_stds(obs);left,bottom,_,_=bounds(row);origin=(left,bottom);load_seconds+=time.perf_counter()-start
+        tasks=(spatial_task(obs,spec['A_rectangle']),spectral_task(obs,seed=study['seed'],update=0))
+        if tasks[1].metadata['hidden_band_ids']!=spec['B1_hidden']:raise ValueError('Hidden bands differ')
+        for task in tasks:
+            start=time.perf_counter();plan=prepare_participation_task(task,rate_curve=curve,selection_seed=study['seed'],origin_xy=origin,chunk_pixels=16384,cell_indexed=True);planning_seconds+=time.perf_counter()-start
+            views.append(joint.PlannedView(task,plan,stds,obs.metadata['sensor']))
+    joint.layout(views);report.update(CPU_load_seconds=load_seconds,CPU_planning_seconds=planning_seconds,members=[x['observation'] for x in entry['tasks']],mask_reference_patch_m=entry['patch_m'],view_signatures=[streaming.task_signature(x.task) for x in views]);save()
+    start=time.perf_counter();views=move_views(views,'cuda:0');torch.cuda.synchronize();report['transfer_seconds']=time.perf_counter()-start
+    if report['view_signatures']!=[streaming.task_signature(x.task) for x in views]:raise ValueError('Transfer changed tasks')
+    torch.manual_seed(study['seed']);encoder=ParticipationEncoder(rate_curve=curve,selection_seed=study['seed'],hyper_hidden=64).cuda().train();decoder=ReflectanceDecoder(indexed=True,cell_indexed=True).cuda().train();modules=(encoder,decoder);initial=parameter_hash(modules);report['merge_recipe']=encoder.merge_recipe;report['initial_parameter_sha256']=initial;save();reference=None
+    original=streaming.stream_task_roots;original_joint=joint.stream_task_roots;context={};predictions={}
+    def tracked(*args,**kwargs):
+        task=args[2];context.update(observation=task.metadata['id'],kind=task.kind,ordinal=0)
+        return original(*args,**kwargs)
+    def collect(module,inputs,output):
+        key=(context['observation'],context['kind'],context['ordinal']);context['ordinal']+=1
+        if key in predictions:raise ValueError('Duplicate prediction chunk identity')
+        predictions[key]=(output[0].detach().clone(),output[1].detach().clone())
+    try:
+        for local,micro in ((64,1),(1024,1),(1024,2),(1024,4),(1024,8)):
+            encoder.local_batch_size=local;kwargs=dict(logical_update=0,chunk_pixels=16384,precision='fp32',clip_norm=3.,microbatch_observations=micro)
+            try:
+                report['phase']=dict(local=local,micro=micro,status='warmup',time=time.time());save();joint.accumulate_joint(encoder,decoder,views,**kwargs);torch.cuda.synchronize()
+                gc.collect();torch.cuda.empty_cache();torch.cuda.reset_peak_memory_stats();predictions={};streaming.stream_task_roots=tracked;joint.stream_task_roots=tracked;handle=decoder.register_forward_hook(collect);begin_unix=time.time();start=time.perf_counter()
+                try:result=joint.accumulate_joint(encoder,decoder,views,**kwargs);torch.cuda.synchronize();elapsed=time.perf_counter()-start
+                finally:handle.remove();streaming.stream_task_roots=original;joint.stream_task_roots=original_joint
+                end_unix=time.time();peak=torch.cuda.max_memory_allocated();cpu_predictions={key:(p.cpu(),mask.cpu()) for key,(p,mask) in predictions.items()};predictions.clear()
+                gradients=torch.cat([torch.zeros_like(p).detach().cpu().double().flatten() if p.grad is None else p.grad.detach().cpu().double().flatten() for module in modules for p in module.parameters()]);gradient_presence=[p.grad is not None for module in modules for p in module.parameters()]
+                losses={(row['observation'],row['kind'],band['band']):(band.get('count'),band.get('unsupported'),band.get('nmse')) for row in result['rows'] for band in row['result']['bands']};exposure={(row['observation'],row['kind']):dict(coefficient=row['coefficient'],exposure=row['exposure']) for row in result['rows']}
+                if reference is None:reference=(cpu_predictions,gradients,gradient_presence,losses,exposure,result)
+                old_pred,old_grad,old_presence,old_loss,old_exp,old_result=reference
+                if old_presence!=gradient_presence or old_exp!=exposure or old_loss.keys()!=losses.keys() or any(old_loss[k][:2]!=v[:2] for k,v in losses.items()) or old_pred.keys()!=cpu_predictions.keys() or result['global_tokens']!=old_result['global_tokens']:raise ValueError('Batching changed task exposure, support, tokens or gradient presence')
+                maximum=0.;pixels=0
+                for key,(p,mask) in cpu_predictions.items():
+                    q,old_mask=old_pred[key]
+                    if not torch.equal(mask,old_mask):raise ValueError('Prediction support changed')
+                    if not bool(torch.isfinite(p[mask]).all()):raise FloatingPointError('Nonfinite pixel prediction')
+                    pixels+=int(mask.sum())
+                    if mask.any():maximum=max(maximum,float((p[mask]-q[mask]).abs().max()))
+                if not bool(torch.isfinite(gradients).all()):raise FloatingPointError('Nonfinite gradients')
+                row=dict(status='MEASURED_NOT_UPDATE_ACCEPTANCE',local_batch_size=local,microbatch_observations=micro,seconds=elapsed,timed_pass_start_unix=begin_unix,timed_pass_end_unix=end_unix,peak_allocated_bytes=peak,global_tokens=result['global_tokens'],padding_fraction=result['global_padding_fraction'],supported_supervision_pixels=pixels,observations_per_second=8/elapsed,supervision_pixels_per_second=pixels/elapsed,prediction_max_abs=maximum,gradient_relative_l2=float((gradients-old_grad).norm()/old_grad.norm().clamp_min(1e-24)),max_band_nmse_abs=max(abs(v[2]-old_loss[k][2]) for k,v in losses.items() if v[2] is not None),max_task_loss_abs=max(abs(result[k]-old_result[k]) for k in ('A_loss','B_loss')),family_losses={k:result[k] for k in ('A_loss','B_loss','weighted_loss')},gradient_norm_before_clip=result['gradient_norm_before_clip'],speedup_vs_default=report['rows'][0]['seconds']/elapsed if report['rows'] else 1.,default_adopted=False)
+                row['within_existing_FP32_values_diagnostic_only']=row['prediction_max_abs']<=2e-6 and row['gradient_relative_l2']<=2e-6 and row['max_band_nmse_abs']<=1e-5 and row['max_task_loss_abs']<=1e-6
+                report['rows'].append(row);save();print(json.dumps(row),flush=True)
+                if reference[0] is not cpu_predictions:del cpu_predictions
+            except torch.OutOfMemoryError as exc:
+                streaming.stream_task_roots=original;joint.stream_task_roots=original_joint;encoder.zero_grad(set_to_none=True);decoder.zero_grad(set_to_none=True);predictions.clear();gc.collect();torch.cuda.empty_cache();report['rows'].append(dict(status='ALLOCATOR_CAP_REACHED',local_batch_size=local,microbatch_observations=micro,error=str(exc)));save();print('CAP_REACHED',local,micro,flush=True)
+    finally:streaming.stream_task_roots=original;joint.stream_task_roots=original_joint
+    report['final_parameter_sha256']=parameter_hash(modules)
+    if report['final_parameter_sha256']!=initial or any(sha256(root/name)!=digest for name,digest in sources.items()):raise ValueError('Parameters or source changed during measurement')
+    report.update(status='OBSERVATION_BATCH_MEASUREMENTS_COMPLETE_NOT_FORMAL_ACCEPTANCE',seconds=time.perf_counter()-started,parameters_unchanged=True,phase=dict(status='complete',time=time.time()));save()
+
+
+if __name__=='__main__':main()

@@ -1,0 +1,97 @@
+"""Formula-sized native windows. No fixed spatial reduction kernel or new training loss."""
+from dataclasses import dataclass
+import math
+import numpy as np
+import torch
+from .layout import native_layout
+from .model import Encoder,Representation,positional
+
+
+def window_scale(gsd,exponent):
+    if not math.isfinite(exponent) or not 0<exponent<1:raise ValueError('Explicit exponent in (0,1) required')
+    if not math.isfinite(gsd) or gsd<=0:raise ValueError('Positive continuous GSD required')
+    return max(1.,(10./gsd)**exponent)
+
+
+def adaptive_layout(band,*,exponent,origin_xy):
+    band.validate()
+    if len(origin_xy)!=2 or not all(math.isfinite(v) for v in origin_xy):raise ValueError('Finite physical origin required')
+    gx,gy=band.affine[0],-band.affine[4]
+    scale=(window_scale(gx,exponent),window_scale(gy,exponent));physical=(gx*scale[0],gy*scale[1])
+    result=native_layout(band,np.asarray(physical),origin_xy)
+    if result is None:return None
+    h,w=band.reflectance.shape;a,_,left,_,e,top=band.affine
+    yy,xx=np.meshgrid(np.arange(h),np.arange(w),indexing='ij');yy=yy.ravel();xx=xx.ravel()
+    cells=np.stack((left+xx*a,top+(yy+1)*e,left+(xx+1)*a,top+yy*e),-1).astype(np.float64)
+    centers=(cells[:,:2]+cells[:,2:])/2
+    ids=np.floor((centers-np.asarray(origin_xy))/np.asarray(physical)).astype(np.int64)
+    _,inverse=np.unique(ids,axis=0,return_inverse=True);order=np.argsort(inverse,kind='stable');cuts=np.flatnonzero(np.diff(inverse[order]))+1
+    membership={tuple(ids[group[0]]):group for group in np.split(order,cuts)}
+    groups=np.split(result['indices'],np.cumsum(result['lengths'])[:-1]);coverage=[];visible=[];keys=[]
+    for chosen in groups:
+        key=tuple(ids[chosen[0]]);keys.append(key);coverage.append(cells[membership[key]]);visible.append(cells[chosen])
+    result.update(coverage=coverage,visible=visible,group_ids=keys,window_pixels=scale,window_m=physical)
+    return result
+
+
+@dataclass
+class AdaptiveRepresentation(Representation):
+    coverage_cells:list|None=None
+    visible_cells:list|None=None
+    group_ids:tuple|None=None
+    window_xy_m:torch.Tensor|None=None
+
+
+class AdaptiveWindowEncoder(Encoder):
+    """Whole-window shared two-layer aggregation; not a claim of spatial hierarchy."""
+    def __init__(self,*,exponent,hyper_hidden,local_batch_size=64,global_query_chunk_size=None):
+        window_scale(1.,exponent)
+        super().__init__(hyper_hidden=hyper_hidden,local_batch_size=local_batch_size,native_mode='grouped',layout_mode='indexed')
+        self.exponent=float(exponent)
+        if global_query_chunk_size is not None and (type(global_query_chunk_size) is not int or global_query_chunk_size<1):raise ValueError("Positive explicit query chunk required")
+        self.global_query_chunk_size=global_query_chunk_size
+
+    def get_extra_state(self):
+        return dict(architecture='continuous_gsd_whole_window_v1',exponent=self.exponent,cutoff_gsd_m=10.,window_learning=False)
+
+    def set_extra_state(self,state):
+        if state!=self.get_extra_state():raise ValueError('Adaptive architecture/config mismatch; no legacy checkpoint substitution')
+
+    def forward(self,bands,*,origin_xy):
+        return self._forward_with_layouts(bands,origin_xy=origin_xy,layout_fn=lambda band:adaptive_layout(band,exponent=self.exponent,origin_xy=origin_xy))
+
+    def _prepare_with_layouts(self,bands,*,origin_xy,layout_fn,native=None):
+        if not bands or len({b.crs for b in bands})!=1:raise ValueError('Visible bands in a common metric CRS required')
+        groups=[];cells=[];receptive=[];coverage=[];visible=[];centers=[];bounds=[];gsd=[];conditions=[];sources=[];keys=[];windows=[]
+        if native is None:native=self.native_grouped(bands)
+        for band,(features,keep,condition) in zip(bands,native,strict=True):
+            layout=layout_fn(band)
+            if layout is None:continue
+            device=features.device;index=torch.as_tensor(layout['indices'],device=device)
+            xy=torch.as_tensor(layout['xy'],device=device,dtype=features.dtype)
+            projected=self.project(features[index])+positional(xy)
+            groups.extend(projected.split(layout['lengths']))
+            cells.extend(torch.as_tensor(layout['represented'],device=device).split(layout['represented_lengths']))
+            receptive.extend(torch.as_tensor(layout['receptive'],device=device).split(layout['receptive_lengths']))
+            for source,destination in ((layout['coverage'],coverage),(layout['visible'],visible)):
+                packed=torch.as_tensor(np.concatenate(source),device=device)
+                destination.extend(packed.split([len(x) for x in source]))
+            centers.append(torch.as_tensor(layout['centers'],device=device));bounds.append(torch.as_tensor(layout['bounds'],device=device));n=len(layout['lengths'])
+            gsd.append(condition.new_tensor([band.affine[0],-band.affine[4]]).expand(n,-1));conditions.append(condition.expand(n,-1));sources.extend([band.record_id]*n);keys.extend(layout['group_ids']);windows.append(condition.new_tensor(layout['token_window_m']) if 'token_window_m' in layout else condition.new_tensor(layout['window_m']).expand(n,-1))
+        if not groups:raise ValueError('No valid visible token; observation must be excluded')
+        center=torch.cat(centers);box=torch.cat(bounds)
+        metadata=dict(cells=cells,centers=center,bounds=box,valid=torch.ones(len(groups),dtype=torch.bool,device=groups[0].device),crs=bands[0].crs,receptive_cells=receptive,gsd_xy=torch.cat(gsd),support_xy=box[:,2:]-box[:,:2],srf_condition=torch.cat(conditions),source_bands=tuple(sources),origin_xy=tuple(origin_xy),full_input_cells=tuple(receptive),coverage_cells=coverage,visible_cells=visible,group_ids=tuple(keys),window_xy_m=torch.cat(windows))
+        return groups,metadata
+
+    def _forward_with_layouts(self,bands,*,origin_xy,layout_fn):
+        groups,metadata=self._prepare_with_layouts(bands,origin_xy=origin_xy,layout_fn=layout_fn)
+        z=self._local_tokens(groups);center=metadata['centers']
+        z=z+positional((center-center.new_tensor(origin_xy)).to(z.dtype))
+        if self.global_query_chunk_size is None:z=self.global_net(z[None])[0]
+        else:
+            from .complete_attention import query_chunked_transformer
+            z=query_chunked_transformer(self.global_net,z,query_chunk_size=self.global_query_chunk_size)
+        return AdaptiveRepresentation(tokens=z,**metadata)
+
+    def forward_batch(self,observations):
+        raise NotImplementedError('Adaptive observation batching requires separate isolation acceptance')

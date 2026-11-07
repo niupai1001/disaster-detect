@@ -1,0 +1,1850 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Physical descriptors needed to put an observation into Encoder V3",
+  "generated_from": {
+    "S2": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\physics\\srf\\sentinel2_msi_srf_v4_2024.xlsx",
+    "LANDSAT8_OLI": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\physics\\srf\\landsat8_oli_srf_eumetsat.tar.gz",
+    "LANDSAT9_OLI2": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\physics\\srf\\landsat9_oli2_srf_eumetsat.tar.gz",
+    "ENMAP": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\enmap\\ENMAP01-____L2A-DT0000017720_20230505T103652Z_027_V010502_20251209T203038Z-METADATA.XML"
+  },
+  "sensors": {
+    "S2A": {
+      "instrument": "MSI",
+      "bands": [
+        {
+          "band": "B1",
+          "centre_nm": 442.7,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 60
+        },
+        {
+          "band": "B10",
+          "centre_nm": 1373.46,
+          "fwhm_nm": 29.0,
+          "native_gsd_m": 60
+        },
+        {
+          "band": "B11",
+          "centre_nm": 1613.68,
+          "fwhm_nm": 89.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B12",
+          "centre_nm": 2202.37,
+          "fwhm_nm": 173.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B2",
+          "centre_nm": 492.71,
+          "fwhm_nm": 64.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B3",
+          "centre_nm": 559.85,
+          "fwhm_nm": 34.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B4",
+          "centre_nm": 664.62,
+          "fwhm_nm": 29.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B5",
+          "centre_nm": 704.11,
+          "fwhm_nm": 13.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B6",
+          "centre_nm": 740.49,
+          "fwhm_nm": 13.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B7",
+          "centre_nm": 782.75,
+          "fwhm_nm": 18.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B8",
+          "centre_nm": 832.79,
+          "fwhm_nm": 104.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B8A",
+          "centre_nm": 864.71,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B9",
+          "centre_nm": 945.05,
+          "fwhm_nm": 18.0,
+          "native_gsd_m": 60
+        }
+      ],
+      "srf": {
+        "csv": "srf/s2a_srf.csv",
+        "status": "measured",
+        "source": "sentinel2_msi_srf_v4_2024.xlsx",
+        "grid_nm": [
+          412.0,
+          456.0
+        ]
+      },
+      "radiometry": {
+        "product": "L2A BOA reflectance",
+        "scale": 0.0001,
+        "offset": 0,
+        "nodata": 0
+      },
+      "psf": {
+        "status": "not_sourced",
+        "model": "gaussian",
+        "detail": "psf/psf_model.json"
+      }
+    },
+    "S2B": {
+      "instrument": "MSI",
+      "bands": [
+        {
+          "band": "B1",
+          "centre_nm": 442.25,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 60
+        },
+        {
+          "band": "B10",
+          "centre_nm": 1376.88,
+          "fwhm_nm": 28.0,
+          "native_gsd_m": 60
+        },
+        {
+          "band": "B11",
+          "centre_nm": 1610.41,
+          "fwhm_nm": 92.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B12",
+          "centre_nm": 2185.71,
+          "fwhm_nm": 183.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B2",
+          "centre_nm": 492.34,
+          "fwhm_nm": 64.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B3",
+          "centre_nm": 558.95,
+          "fwhm_nm": 34.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B4",
+          "centre_nm": 664.95,
+          "fwhm_nm": 29.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B5",
+          "centre_nm": 703.82,
+          "fwhm_nm": 14.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B6",
+          "centre_nm": 739.13,
+          "fwhm_nm": 12.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B7",
+          "centre_nm": 779.71,
+          "fwhm_nm": 18.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B8",
+          "centre_nm": 832.95,
+          "fwhm_nm": 104.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B8A",
+          "centre_nm": 863.97,
+          "fwhm_nm": 20.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B9",
+          "centre_nm": 943.17,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 60
+        }
+      ],
+      "srf": {
+        "csv": "srf/s2b_srf.csv",
+        "status": "measured",
+        "source": "sentinel2_msi_srf_v4_2024.xlsx",
+        "grid_nm": [
+          411.0,
+          456.0
+        ]
+      },
+      "radiometry": {
+        "product": "L2A BOA reflectance",
+        "scale": 0.0001,
+        "offset": 0,
+        "nodata": 0
+      },
+      "psf": {
+        "status": "not_sourced",
+        "model": "gaussian",
+        "detail": "psf/psf_model.json"
+      }
+    },
+    "S2C": {
+      "instrument": "MSI",
+      "bands": [
+        {
+          "band": "B1",
+          "centre_nm": 444.21,
+          "fwhm_nm": 20.0,
+          "native_gsd_m": 60
+        },
+        {
+          "band": "B10",
+          "centre_nm": 1372.18,
+          "fwhm_nm": 32.0,
+          "native_gsd_m": 60
+        },
+        {
+          "band": "B11",
+          "centre_nm": 1612.0,
+          "fwhm_nm": 89.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B12",
+          "centre_nm": 2191.27,
+          "fwhm_nm": 182.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B2",
+          "centre_nm": 489.03,
+          "fwhm_nm": 64.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B3",
+          "centre_nm": 560.63,
+          "fwhm_nm": 35.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B4",
+          "centre_nm": 666.53,
+          "fwhm_nm": 29.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B5",
+          "centre_nm": 707.06,
+          "fwhm_nm": 14.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B6",
+          "centre_nm": 741.07,
+          "fwhm_nm": 14.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B7",
+          "centre_nm": 784.66,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B8",
+          "centre_nm": 834.61,
+          "fwhm_nm": 95.0,
+          "native_gsd_m": 10
+        },
+        {
+          "band": "B8A",
+          "centre_nm": 865.57,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 20
+        },
+        {
+          "band": "B9",
+          "centre_nm": 947.2,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 60
+        }
+      ],
+      "srf": {
+        "csv": "srf/s2c_srf.csv",
+        "status": "measured",
+        "source": "sentinel2_msi_srf_v4_2024.xlsx",
+        "grid_nm": [
+          414.0,
+          459.0
+        ]
+      },
+      "radiometry": {
+        "product": "L2A BOA reflectance",
+        "scale": 0.0001,
+        "offset": 0,
+        "nodata": 0
+      },
+      "psf": {
+        "status": "not_sourced",
+        "model": "gaussian",
+        "detail": "psf/psf_model.json"
+      }
+    },
+    "LANDSAT8_OLI": {
+      "instrument": "OLI",
+      "bands": [
+        {
+          "band": "B1",
+          "centre_nm": 442.98,
+          "fwhm_nm": 15.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B2",
+          "centre_nm": 482.59,
+          "fwhm_nm": 59.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B3",
+          "centre_nm": 561.33,
+          "fwhm_nm": 57.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B4",
+          "centre_nm": 654.61,
+          "fwhm_nm": 37.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B5",
+          "centre_nm": 864.57,
+          "fwhm_nm": 27.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B6",
+          "centre_nm": 1609.09,
+          "fwhm_nm": 84.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B7",
+          "centre_nm": 2201.25,
+          "fwhm_nm": 186.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B8",
+          "centre_nm": 591.67,
+          "fwhm_nm": 171.0,
+          "native_gsd_m": 15
+        },
+        {
+          "band": "B9",
+          "centre_nm": 1373.48,
+          "fwhm_nm": 19.0,
+          "native_gsd_m": 30
+        }
+      ],
+      "srf": {
+        "csv": "srf/landsat8_oli_srf.csv",
+        "status": "measured",
+        "source": "landsat8_oli_srf_eumetsat.tar.gz",
+        "grid_nm": [
+          427.0000000013237,
+          2355.0000000013238
+        ]
+      },
+      "radiometry": {
+        "product": "C2 L2 SR",
+        "scale": 2.75e-05,
+        "offset": -0.2,
+        "nodata": null
+      },
+      "psf": {
+        "status": "not_sourced",
+        "model": "gaussian",
+        "detail": "psf/psf_model.json"
+      }
+    },
+    "LANDSAT9_OLI2": {
+      "instrument": "OLI-2",
+      "bands": [
+        {
+          "band": "B1",
+          "centre_nm": 442.76,
+          "fwhm_nm": 14.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B2",
+          "centre_nm": 482.3,
+          "fwhm_nm": 59.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B3",
+          "centre_nm": 560.92,
+          "fwhm_nm": 56.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B4",
+          "centre_nm": 654.3,
+          "fwhm_nm": 36.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B5",
+          "centre_nm": 864.61,
+          "fwhm_nm": 27.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B6",
+          "centre_nm": 1608.38,
+          "fwhm_nm": 85.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B7",
+          "centre_nm": 2201.05,
+          "fwhm_nm": 188.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B8",
+          "centre_nm": 593.95,
+          "fwhm_nm": 172.0,
+          "native_gsd_m": 15
+        },
+        {
+          "band": "B9",
+          "centre_nm": 1374.02,
+          "fwhm_nm": 20.0,
+          "native_gsd_m": 30
+        }
+      ],
+      "srf": {
+        "csv": "srf/landsat9_oli2_srf.csv",
+        "status": "measured",
+        "source": "landsat9_oli2_srf_eumetsat.tar.gz",
+        "grid_nm": [
+          427.00000085827,
+          2354.50000085827
+        ]
+      },
+      "radiometry": {
+        "product": "C2 L2 SR",
+        "scale": 2.75e-05,
+        "offset": -0.2,
+        "nodata": null
+      },
+      "psf": {
+        "status": "not_sourced",
+        "model": "gaussian",
+        "detail": "psf/psf_model.json"
+      }
+    },
+    "ENMAP": {
+      "instrument": "HSI",
+      "n_bands": 224,
+      "bands": [
+        {
+          "band": "B001",
+          "centre_nm": 418.42,
+          "fwhm_nm": 7.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B002",
+          "centre_nm": 424.04,
+          "fwhm_nm": 6.67,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B003",
+          "centre_nm": 429.46,
+          "fwhm_nm": 6.42,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B004",
+          "centre_nm": 434.69,
+          "fwhm_nm": 6.25,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B005",
+          "centre_nm": 439.76,
+          "fwhm_nm": 6.13,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B006",
+          "centre_nm": 444.7,
+          "fwhm_nm": 6.06,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B007",
+          "centre_nm": 449.54,
+          "fwhm_nm": 6.01,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B008",
+          "centre_nm": 454.31,
+          "fwhm_nm": 5.98,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B009",
+          "centre_nm": 459.03,
+          "fwhm_nm": 5.95,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B010",
+          "centre_nm": 463.73,
+          "fwhm_nm": 5.92,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B011",
+          "centre_nm": 468.41,
+          "fwhm_nm": 5.89,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B012",
+          "centre_nm": 473.08,
+          "fwhm_nm": 5.86,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B013",
+          "centre_nm": 477.74,
+          "fwhm_nm": 5.83,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B014",
+          "centre_nm": 482.41,
+          "fwhm_nm": 5.81,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B015",
+          "centre_nm": 487.09,
+          "fwhm_nm": 5.8,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B016",
+          "centre_nm": 491.78,
+          "fwhm_nm": 5.8,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B017",
+          "centre_nm": 496.5,
+          "fwhm_nm": 5.81,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B018",
+          "centre_nm": 501.24,
+          "fwhm_nm": 5.84,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B019",
+          "centre_nm": 506.02,
+          "fwhm_nm": 5.87,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B020",
+          "centre_nm": 510.83,
+          "fwhm_nm": 5.91,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B021",
+          "centre_nm": 515.67,
+          "fwhm_nm": 5.96,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B022",
+          "centre_nm": 520.55,
+          "fwhm_nm": 6.01,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B023",
+          "centre_nm": 525.47,
+          "fwhm_nm": 6.07,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B024",
+          "centre_nm": 530.42,
+          "fwhm_nm": 6.12,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B025",
+          "centre_nm": 535.42,
+          "fwhm_nm": 6.18,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B026",
+          "centre_nm": 540.46,
+          "fwhm_nm": 6.24,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B027",
+          "centre_nm": 545.55,
+          "fwhm_nm": 6.29,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B028",
+          "centre_nm": 550.69,
+          "fwhm_nm": 6.35,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B029",
+          "centre_nm": 555.87,
+          "fwhm_nm": 6.41,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B030",
+          "centre_nm": 561.11,
+          "fwhm_nm": 6.47,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B031",
+          "centre_nm": 566.4,
+          "fwhm_nm": 6.53,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B032",
+          "centre_nm": 571.76,
+          "fwhm_nm": 6.58,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B033",
+          "centre_nm": 577.17,
+          "fwhm_nm": 6.64,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B034",
+          "centre_nm": 582.64,
+          "fwhm_nm": 6.7,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B035",
+          "centre_nm": 588.17,
+          "fwhm_nm": 6.76,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B036",
+          "centre_nm": 593.77,
+          "fwhm_nm": 6.82,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B037",
+          "centre_nm": 599.45,
+          "fwhm_nm": 6.88,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B038",
+          "centre_nm": 605.19,
+          "fwhm_nm": 6.95,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B039",
+          "centre_nm": 611.02,
+          "fwhm_nm": 7.02,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B040",
+          "centre_nm": 616.92,
+          "fwhm_nm": 7.1,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B041",
+          "centre_nm": 622.92,
+          "fwhm_nm": 7.18,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B042",
+          "centre_nm": 628.99,
+          "fwhm_nm": 7.25,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B043",
+          "centre_nm": 635.11,
+          "fwhm_nm": 7.33,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B044",
+          "centre_nm": 641.29,
+          "fwhm_nm": 7.41,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B045",
+          "centre_nm": 647.54,
+          "fwhm_nm": 7.48,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B046",
+          "centre_nm": 653.84,
+          "fwhm_nm": 7.55,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B047",
+          "centre_nm": 660.21,
+          "fwhm_nm": 7.62,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B048",
+          "centre_nm": 666.64,
+          "fwhm_nm": 7.69,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B049",
+          "centre_nm": 673.13,
+          "fwhm_nm": 7.76,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B050",
+          "centre_nm": 679.69,
+          "fwhm_nm": 7.83,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B051",
+          "centre_nm": 686.32,
+          "fwhm_nm": 7.9,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B052",
+          "centre_nm": 693.01,
+          "fwhm_nm": 7.97,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B053",
+          "centre_nm": 699.78,
+          "fwhm_nm": 8.05,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B054",
+          "centre_nm": 706.62,
+          "fwhm_nm": 8.13,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B055",
+          "centre_nm": 713.52,
+          "fwhm_nm": 8.21,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B056",
+          "centre_nm": 720.5,
+          "fwhm_nm": 8.29,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B057",
+          "centre_nm": 727.54,
+          "fwhm_nm": 8.38,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B058",
+          "centre_nm": 734.65,
+          "fwhm_nm": 8.47,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B059",
+          "centre_nm": 741.83,
+          "fwhm_nm": 8.55,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B060",
+          "centre_nm": 749.06,
+          "fwhm_nm": 8.64,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B061",
+          "centre_nm": 756.35,
+          "fwhm_nm": 8.72,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B062",
+          "centre_nm": 763.7,
+          "fwhm_nm": 8.8,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B063",
+          "centre_nm": 771.11,
+          "fwhm_nm": 8.88,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B064",
+          "centre_nm": 778.57,
+          "fwhm_nm": 8.96,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B065",
+          "centre_nm": 786.08,
+          "fwhm_nm": 9.03,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B066",
+          "centre_nm": 793.64,
+          "fwhm_nm": 9.1,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B067",
+          "centre_nm": 801.25,
+          "fwhm_nm": 9.17,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B068",
+          "centre_nm": 808.9,
+          "fwhm_nm": 9.24,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B069",
+          "centre_nm": 816.61,
+          "fwhm_nm": 9.3,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B070",
+          "centre_nm": 824.36,
+          "fwhm_nm": 9.37,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B071",
+          "centre_nm": 832.14,
+          "fwhm_nm": 9.44,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B072",
+          "centre_nm": 839.98,
+          "fwhm_nm": 9.51,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B073",
+          "centre_nm": 847.85,
+          "fwhm_nm": 9.58,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B074",
+          "centre_nm": 855.76,
+          "fwhm_nm": 9.66,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B075",
+          "centre_nm": 863.7,
+          "fwhm_nm": 9.74,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B076",
+          "centre_nm": 871.68,
+          "fwhm_nm": 9.82,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B077",
+          "centre_nm": 879.69,
+          "fwhm_nm": 9.91,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B078",
+          "centre_nm": 887.73,
+          "fwhm_nm": 9.99,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B079",
+          "centre_nm": 895.79,
+          "fwhm_nm": 10.08,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B080",
+          "centre_nm": 901.96,
+          "fwhm_nm": 9.18,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B081",
+          "centre_nm": 903.87,
+          "fwhm_nm": 10.16,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B082",
+          "centre_nm": 911.57,
+          "fwhm_nm": 9.32,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B083",
+          "centre_nm": 911.97,
+          "fwhm_nm": 10.25,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B084",
+          "centre_nm": 920.08,
+          "fwhm_nm": 10.34,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B085",
+          "centre_nm": 921.32,
+          "fwhm_nm": 9.45,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B086",
+          "centre_nm": 928.2,
+          "fwhm_nm": 10.42,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B087",
+          "centre_nm": 931.2,
+          "fwhm_nm": 9.58,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B088",
+          "centre_nm": 936.34,
+          "fwhm_nm": 10.51,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B089",
+          "centre_nm": 941.22,
+          "fwhm_nm": 9.71,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B090",
+          "centre_nm": 944.47,
+          "fwhm_nm": 10.59,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B091",
+          "centre_nm": 951.36,
+          "fwhm_nm": 9.83,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B092",
+          "centre_nm": 952.61,
+          "fwhm_nm": 10.66,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B093",
+          "centre_nm": 960.75,
+          "fwhm_nm": 10.72,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B094",
+          "centre_nm": 961.63,
+          "fwhm_nm": 9.94,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B095",
+          "centre_nm": 968.89,
+          "fwhm_nm": 10.75,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B096",
+          "centre_nm": 972.02,
+          "fwhm_nm": 10.06,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B097",
+          "centre_nm": 977.04,
+          "fwhm_nm": 10.75,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B098",
+          "centre_nm": 982.52,
+          "fwhm_nm": 10.16,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B099",
+          "centre_nm": 985.19,
+          "fwhm_nm": 10.72,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B100",
+          "centre_nm": 993.14,
+          "fwhm_nm": 10.27,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B101",
+          "centre_nm": 993.34,
+          "fwhm_nm": 10.64,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B102",
+          "centre_nm": 1003.88,
+          "fwhm_nm": 10.37,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B103",
+          "centre_nm": 1014.72,
+          "fwhm_nm": 10.48,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B104",
+          "centre_nm": 1025.66,
+          "fwhm_nm": 10.58,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B105",
+          "centre_nm": 1036.7,
+          "fwhm_nm": 10.68,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B106",
+          "centre_nm": 1047.84,
+          "fwhm_nm": 10.77,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B107",
+          "centre_nm": 1059.07,
+          "fwhm_nm": 10.86,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B108",
+          "centre_nm": 1070.39,
+          "fwhm_nm": 10.94,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B109",
+          "centre_nm": 1081.79,
+          "fwhm_nm": 11.02,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B110",
+          "centre_nm": 1093.26,
+          "fwhm_nm": 11.08,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B111",
+          "centre_nm": 1104.81,
+          "fwhm_nm": 11.14,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B112",
+          "centre_nm": 1116.43,
+          "fwhm_nm": 11.2,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B113",
+          "centre_nm": 1128.11,
+          "fwhm_nm": 11.24,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B114",
+          "centre_nm": 1139.84,
+          "fwhm_nm": 11.28,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B115",
+          "centre_nm": 1151.62,
+          "fwhm_nm": 11.31,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B116",
+          "centre_nm": 1163.44,
+          "fwhm_nm": 11.34,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B117",
+          "centre_nm": 1175.31,
+          "fwhm_nm": 11.37,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B118",
+          "centre_nm": 1187.2,
+          "fwhm_nm": 11.38,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B119",
+          "centre_nm": 1199.11,
+          "fwhm_nm": 11.4,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B120",
+          "centre_nm": 1211.05,
+          "fwhm_nm": 11.41,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B121",
+          "centre_nm": 1223.0,
+          "fwhm_nm": 11.42,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B122",
+          "centre_nm": 1234.97,
+          "fwhm_nm": 11.43,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B123",
+          "centre_nm": 1246.95,
+          "fwhm_nm": 11.43,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B124",
+          "centre_nm": 1258.93,
+          "fwhm_nm": 11.43,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B125",
+          "centre_nm": 1270.92,
+          "fwhm_nm": 11.43,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B126",
+          "centre_nm": 1282.92,
+          "fwhm_nm": 11.43,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B127",
+          "centre_nm": 1294.91,
+          "fwhm_nm": 11.42,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B128",
+          "centre_nm": 1306.9,
+          "fwhm_nm": 11.41,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B129",
+          "centre_nm": 1318.88,
+          "fwhm_nm": 11.39,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B130",
+          "centre_nm": 1330.86,
+          "fwhm_nm": 11.38,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B131",
+          "centre_nm": 1342.82,
+          "fwhm_nm": 11.36,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B132",
+          "centre_nm": 1354.76,
+          "fwhm_nm": 11.34,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B133",
+          "centre_nm": 1366.69,
+          "fwhm_nm": 11.32,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B134",
+          "centre_nm": 1378.6,
+          "fwhm_nm": 11.3,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B135",
+          "centre_nm": 1390.48,
+          "fwhm_nm": 11.27,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B136",
+          "centre_nm": 1461.11,
+          "fwhm_nm": 11.09,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B137",
+          "centre_nm": 1472.74,
+          "fwhm_nm": 11.05,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B138",
+          "centre_nm": 1484.34,
+          "fwhm_nm": 11.02,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B139",
+          "centre_nm": 1495.89,
+          "fwhm_nm": 10.98,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B140",
+          "centre_nm": 1507.4,
+          "fwhm_nm": 10.94,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B141",
+          "centre_nm": 1518.87,
+          "fwhm_nm": 10.9,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B142",
+          "centre_nm": 1530.29,
+          "fwhm_nm": 10.86,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B143",
+          "centre_nm": 1541.68,
+          "fwhm_nm": 10.82,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B144",
+          "centre_nm": 1553.01,
+          "fwhm_nm": 10.77,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B145",
+          "centre_nm": 1564.31,
+          "fwhm_nm": 10.73,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B146",
+          "centre_nm": 1575.55,
+          "fwhm_nm": 10.69,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B147",
+          "centre_nm": 1586.76,
+          "fwhm_nm": 10.64,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B148",
+          "centre_nm": 1597.91,
+          "fwhm_nm": 10.6,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B149",
+          "centre_nm": 1609.02,
+          "fwhm_nm": 10.55,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B150",
+          "centre_nm": 1620.09,
+          "fwhm_nm": 10.51,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B151",
+          "centre_nm": 1631.11,
+          "fwhm_nm": 10.46,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B152",
+          "centre_nm": 1642.08,
+          "fwhm_nm": 10.42,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B153",
+          "centre_nm": 1653.0,
+          "fwhm_nm": 10.37,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B154",
+          "centre_nm": 1663.87,
+          "fwhm_nm": 10.33,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B155",
+          "centre_nm": 1674.7,
+          "fwhm_nm": 10.28,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B156",
+          "centre_nm": 1685.47,
+          "fwhm_nm": 10.23,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B157",
+          "centre_nm": 1696.2,
+          "fwhm_nm": 10.19,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B158",
+          "centre_nm": 1706.87,
+          "fwhm_nm": 10.14,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B159",
+          "centre_nm": 1717.5,
+          "fwhm_nm": 10.1,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B160",
+          "centre_nm": 1728.08,
+          "fwhm_nm": 10.05,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B161",
+          "centre_nm": 1738.6,
+          "fwhm_nm": 10.01,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B162",
+          "centre_nm": 1749.08,
+          "fwhm_nm": 9.96,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B163",
+          "centre_nm": 1759.51,
+          "fwhm_nm": 9.92,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B164",
+          "centre_nm": 1939.14,
+          "fwhm_nm": 9.17,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B165",
+          "centre_nm": 1948.69,
+          "fwhm_nm": 9.13,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B166",
+          "centre_nm": 1958.2,
+          "fwhm_nm": 9.09,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B167",
+          "centre_nm": 1967.66,
+          "fwhm_nm": 9.05,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B168",
+          "centre_nm": 1977.08,
+          "fwhm_nm": 9.01,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B169",
+          "centre_nm": 1986.45,
+          "fwhm_nm": 8.97,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B170",
+          "centre_nm": 1995.79,
+          "fwhm_nm": 8.93,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B171",
+          "centre_nm": 2005.08,
+          "fwhm_nm": 8.89,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B172",
+          "centre_nm": 2014.33,
+          "fwhm_nm": 8.85,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B173",
+          "centre_nm": 2023.54,
+          "fwhm_nm": 8.81,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B174",
+          "centre_nm": 2032.71,
+          "fwhm_nm": 8.78,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B175",
+          "centre_nm": 2041.83,
+          "fwhm_nm": 8.74,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B176",
+          "centre_nm": 2050.92,
+          "fwhm_nm": 8.7,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B177",
+          "centre_nm": 2059.96,
+          "fwhm_nm": 8.66,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B178",
+          "centre_nm": 2068.97,
+          "fwhm_nm": 8.63,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B179",
+          "centre_nm": 2077.93,
+          "fwhm_nm": 8.59,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B180",
+          "centre_nm": 2086.86,
+          "fwhm_nm": 8.55,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B181",
+          "centre_nm": 2095.74,
+          "fwhm_nm": 8.52,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B182",
+          "centre_nm": 2104.59,
+          "fwhm_nm": 8.48,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B183",
+          "centre_nm": 2113.4,
+          "fwhm_nm": 8.44,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B184",
+          "centre_nm": 2122.17,
+          "fwhm_nm": 8.41,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B185",
+          "centre_nm": 2130.9,
+          "fwhm_nm": 8.37,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B186",
+          "centre_nm": 2139.6,
+          "fwhm_nm": 8.34,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B187",
+          "centre_nm": 2148.26,
+          "fwhm_nm": 8.3,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B188",
+          "centre_nm": 2156.88,
+          "fwhm_nm": 8.27,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B189",
+          "centre_nm": 2165.47,
+          "fwhm_nm": 8.23,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B190",
+          "centre_nm": 2174.02,
+          "fwhm_nm": 8.2,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B191",
+          "centre_nm": 2182.53,
+          "fwhm_nm": 8.16,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B192",
+          "centre_nm": 2191.01,
+          "fwhm_nm": 8.13,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B193",
+          "centre_nm": 2199.46,
+          "fwhm_nm": 8.1,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B194",
+          "centre_nm": 2207.86,
+          "fwhm_nm": 8.06,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B195",
+          "centre_nm": 2216.24,
+          "fwhm_nm": 8.03,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B196",
+          "centre_nm": 2224.58,
+          "fwhm_nm": 8.0,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B197",
+          "centre_nm": 2232.89,
+          "fwhm_nm": 7.97,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B198",
+          "centre_nm": 2241.16,
+          "fwhm_nm": 7.94,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B199",
+          "centre_nm": 2249.4,
+          "fwhm_nm": 7.91,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B200",
+          "centre_nm": 2257.61,
+          "fwhm_nm": 7.88,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B201",
+          "centre_nm": 2265.79,
+          "fwhm_nm": 7.85,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B202",
+          "centre_nm": 2273.93,
+          "fwhm_nm": 7.82,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B203",
+          "centre_nm": 2282.04,
+          "fwhm_nm": 7.79,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B204",
+          "centre_nm": 2290.12,
+          "fwhm_nm": 7.76,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B205",
+          "centre_nm": 2298.17,
+          "fwhm_nm": 7.73,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B206",
+          "centre_nm": 2306.19,
+          "fwhm_nm": 7.7,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B207",
+          "centre_nm": 2314.18,
+          "fwhm_nm": 7.67,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B208",
+          "centre_nm": 2322.13,
+          "fwhm_nm": 7.64,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B209",
+          "centre_nm": 2330.05,
+          "fwhm_nm": 7.61,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B210",
+          "centre_nm": 2337.94,
+          "fwhm_nm": 7.59,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B211",
+          "centre_nm": 2345.81,
+          "fwhm_nm": 7.56,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B212",
+          "centre_nm": 2353.64,
+          "fwhm_nm": 7.53,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B213",
+          "centre_nm": 2361.44,
+          "fwhm_nm": 7.5,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B214",
+          "centre_nm": 2369.21,
+          "fwhm_nm": 7.47,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B215",
+          "centre_nm": 2376.95,
+          "fwhm_nm": 7.44,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B216",
+          "centre_nm": 2384.66,
+          "fwhm_nm": 7.41,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B217",
+          "centre_nm": 2392.34,
+          "fwhm_nm": 7.38,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B218",
+          "centre_nm": 2400.0,
+          "fwhm_nm": 7.35,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B219",
+          "centre_nm": 2407.62,
+          "fwhm_nm": 7.32,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B220",
+          "centre_nm": 2415.21,
+          "fwhm_nm": 7.29,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B221",
+          "centre_nm": 2422.78,
+          "fwhm_nm": 7.26,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B222",
+          "centre_nm": 2430.32,
+          "fwhm_nm": 7.22,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B223",
+          "centre_nm": 2437.83,
+          "fwhm_nm": 7.19,
+          "native_gsd_m": 30
+        },
+        {
+          "band": "B224",
+          "centre_nm": 2445.3,
+          "fwhm_nm": 7.16,
+          "native_gsd_m": 30
+        }
+      ],
+      "srf": {
+        "csv": "srf/enmap_srf_derived.csv",
+        "status": "derived_gaussian",
+        "source": "ENMAP01-____L2A-DT0000017720_20230505T103652Z_027_V010502_20251209T203038Z-METADATA.XML",
+        "note": "product metadata gives centre and FWHM only; official measured SRF file not yet obtained"
+      },
+      "radiometry": {
+        "product": "L2A",
+        "scale": 1.0,
+        "offset": 0,
+        "nodata": -32768
+      },
+      "psf": {
+        "status": "derived_from_mtf_spec",
+        "model": "gaussian",
+        "detail": "psf/psf_model.json",
+        "sigma_px": {
+          "across_track": 0.53,
+          "along_track": 0.609
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "status": "VALIDATION_METRIC_WEIGHT_PROPOSAL_NOT_ADOPTED",
+  "selected": null,
+  "scope": "Fixed reflection validation score/model selection/plateau monitoring only; not training losses or curriculum",
+  "candidate": {
+    "case_loss": "Existing valid-target per-band TRAIN-normalized pixel NMSE, then mean across available target bands",
+    "B1_within_observation": "Single-hidden mean and multi-hidden mean at1/2 each; within multi-hidden equal mean over hidden counts2..C-1, then cases within each count",
+    "task_hierarchy": "Mean cases within each observation, mean observations within each source, then equal mean over sources; frozen physical P repeats are cases",
+    "B_family": "Fixed equal B1/B2 means where both exist in frozen validation support set",
+    "score": "S=(A+B)/2 with fixed weights throughout curriculum and across both routes",
+    "missing": "Freeze support/availability identities and effective weights before training; no zero placeholders; unexpected support changes/nonfinite predictions abort score rather than silently redefine weights",
+    "JEPA": "Report separately; do not include changing JEPA latent objective in common reflection validation scalar"
+  },
+  "empirical_panel_counts": {
+    "cases": 502,
+    "single": 56,
+    "multi": 446,
+    "multi_fraction": 0.8884462151394422,
+    "counts_by_member": [
+      {
+        "observation": "obs_00a79e0c48ec5e50c5284af8",
+        "cases": 14,
+        "counts_by_hidden_number": {
+          "1": 4,
+          "2": 6,
+          "3": 4
+        }
+      },
+      {
+        "observation": "obs_0147deb1bbf2b210e09161c3",
+        "cases": 14,
+        "counts_by_hidden_number": {
+          "1": 4,
+          "2": 6,
+          "3": 4
+        }
+      },
+      {
+        "observation": "obs_029d955ec8de6ebe98e72e5f",
+        "cases": 125,
+        "counts_by_hidden_number": {
+          "1": 10,
+          "2": 45,
+          "3": 10,
+          "4": 10,
+          "5": 10,
+          "6": 10,
+          "7": 10,
+          "8": 10,
+          "9": 10
+        }
+      },
+      {
+        "observation": "obs_07ca0ebc3d6f0867de03c76e",
+        "cases": 125,
+        "counts_by_hidden_number": {
+          "1": 10,
+          "2": 45,
+          "3": 10,
+          "4": 10,
+          "5": 10,
+          "6": 10,
+          "7": 10,
+          "8": 10,
+          "9": 10
+        }
+      },
+      {
+        "observation": "obs_01d43ebf236ce16c602ccfae",
+        "cases": 56,
+        "counts_by_hidden_number": {
+          "1": 7,
+          "2": 21,
+          "3": 7,
+          "4": 7,
+          "5": 7,
+          "6": 7
+        }
+      },
+      {
+        "observation": "obs_0341756c8995070316b45a78",
+        "cases": 56,
+        "counts_by_hidden_number": {
+          "1": 7,
+          "2": 21,
+          "3": 7,
+          "4": 7,
+          "5": 7,
+          "6": 7
+        }
+      },
+      {
+        "observation": "obs_0c185ba6b3da65608b331184",
+        "cases": 56,
+        "counts_by_hidden_number": {
+          "1": 7,
+          "2": 21,
+          "3": 7,
+          "4": 7,
+          "5": 7,
+          "6": 7
+        }
+      },
+      {
+        "observation": "obs_180fec0c6b6036ea1773d396",
+        "cases": 56,
+        "counts_by_hidden_number": {
+          "1": 7,
+          "2": 21,
+          "3": 7,
+          "4": 7,
+          "5": 7,
+          "6": 7
+        }
+      }
+    ],
+    "ten_band_vs_four_band_case_ratio": 8.928571428571429
+  },
+  "arithmetic_example": {
+    "scope": "Purely hypothetical fixed observation errors1 and4, not model quality",
+    "flat_case_mean": 3.697841726618705,
+    "flat_case_mean_after_duplicating_only_second_observation": 3.840909090909091,
+    "equal_observation_mean": 2.5,
+    "equal_observation_mean_after_duplication": 2.5
+  },
+  "unchanged": [
+    "Training A/B curriculum and its unsupported-family handling",
+    "Existing per-band loss computation/normalization",
+    "Formal validation members/panels and B2 admission are not approved by this proposal",
+    "Improvement/stability/early-stop thresholds and windows remain unselected",
+    "No real optimizer budget or formal start approval"
+  ],
+  "source_reports": {
+    "B1_expanded_gpu.json": "8bd3bb50453e924294fb498ae24ac0ef4bc7b6c586d2db92153d876677be92da",
+    "B1_expanded_evidence.json": "c3e35f96356074ec4630344062991af0c4ae4fc5d86973067118e6622cfdae26",
+    "validation_panels_review.json": "02b870e9f4bbbaa6ce1a85ecdece087c3b7f595a13f439ac7cd7706b254f1b90"
+  },
+  "real_optimizer_updates": 0,
+  "formal_training_started": false,
+  "limits": [
+    "Panel counts are from historical random-initialization diagnostics, not learned quality",
+    "Metric formula approval does not establish an operational support map or qualified VAL B2 pairs",
+    "Aggregate score alone cannot prove AB stability or authorize JEPA; component deterioration must still be reviewed"
+  ]
+}

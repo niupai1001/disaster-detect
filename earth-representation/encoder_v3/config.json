@@ -17,7 +17,18 @@
       "AB",
       "AB_JEPA"
     ],
-    "seeds": 1
+    "seeds": 1,
+    "optimizer": "AdamW",
+    "B2_query_geometry_mechanism": {
+      "mechanism": "query_offset_native_encoder_v1",
+      "review": "reports/B2_geometry_mechanism_confirmation.json",
+      "implementation": "reports/B2_query_geometry_implementation_review.md",
+      "scope": "Mechanism only; exact offsets, calibration and admission unapproved"
+    },
+    "B2_initial_candidate_QA": {
+      "review": "reports/B2_QA_policy_confirmation.json",
+      "scope": "four named candidate observations only; other admission conditions unapproved"
+    }
   },
   "candidate": {
     "optimizers": [
@@ -48,7 +59,8 @@
     ],
     "ema": 0.996,
     "jepa_ramp_updates": 1000,
-    "jepa_weight": 0.05
+    "jepa_weight": 0.05,
+    "B2_pair_geometry_review": "reports/B2_pair_geometry_proposal.md"
   },
   "required_before_training": {
     "hypernetwork_hidden_structure": null,
@@ -62,8 +74,9 @@
     "precision_acceptance": null,
     "resource_limit": null,
     "execution_equivalence": null,
-    "optimizer_choice": null,
-    "formal_training_authorization": null
+    "optimizer_choice": "AdamW",
+    "formal_training_authorization": null,
+    "merge_configuration": null
   },
   "confirmed_preflight": {
     "hypernetwork": {
@@ -92,10 +105,34 @@
     "numerical_equivalence": {
       "review": "reports/fp32_equivalence_tolerance_review.json",
       "scope": "FP32_single_GPU_native_cell_readout_preflight_only"
+    },
+    "optimizer_decision": {
+      "optimizer": "AdamW",
+      "review": "reports/pilot_runs/pilot_stop_decision.json",
+      "remaining_pilot_updates": "stopped_by_user"
+    },
+    "adaptive_merge_decisions": {
+      "review": "reports/merge_B_confirmation.json",
+      "configuration": "adaptive_config.json",
+      "scope": "geometry_B_single_round_two_scales_confirmed; participation_curve_preflight_only",
+      "implementation_review": "reports/participation_merge_implementation_review.md",
+      "levels_review": "reports/merge_levels_confirmation.json",
+      "rate_review": "reports/merge_rate_confirmation.json"
     }
   },
   "m9_task_head_training_authorized": false,
   "required_before_pilot": {
     "execution_review": "reports/gpu_update_execution_review.json"
+  },
+  "required_before_jepa": {
+    "latent_loss_and_normalization": null,
+    "admitted_cross_source_pairs": null,
+    "AB_stability_evidence": null,
+    "joint_effective_batch_integration": null,
+    "query_projection_review": null
+  },
+  "engineering_evidence": {
+    "jepa_batch8_joint": "reports/jepa_joint_integration_evidence.json",
+    "B2_read_only_diagnostics": "reports/pair_admission_evidence.json"
   }
 }

@@ -1,0 +1,96 @@
+{
+  "status": "C_ADAMW_FAILED_PARAMETER_LOCATIONS_AUDITED_NO_NEW_UPDATES",
+  "rows": [
+    {
+      "parameter": "encoder.local.layers.0.self_attn.in_proj_bias",
+      "shape": [
+        384
+      ],
+      "values_above_limit": 4,
+      "max_difference": 5.932524800300598e-07,
+      "index": 118,
+      "value_before": 0.001867840182967484,
+      "value_reference": 0.0020013409666717052,
+      "value_accelerated": 0.0020019342191517353,
+      "moment_before": -2.9689503207919188e-05,
+      "moment_reference": -3.507394649204798e-05,
+      "moment_accelerated": -3.507394285406917e-05,
+      "second_moment_reference": 1.7235610716426208e-09,
+      "second_moment_accelerated": 1.7235610716426208e-09
+    },
+    {
+      "parameter": "encoder.local.layers.1.self_attn.in_proj_bias",
+      "shape": [
+        384
+      ],
+      "values_above_limit": 4,
+      "max_difference": 6.316622602753341e-07,
+      "index": 219,
+      "value_before": 2.875632344512269e-05,
+      "value_reference": 2.875632344512269e-05,
+      "value_accelerated": 2.9387985705398023e-05,
+      "moment_before": -1.3818768178353036e-11,
+      "moment_reference": -1.2197414953063479e-11,
+      "moment_accelerated": -1.2475141579482152e-11,
+      "second_moment_reference": 4.358705150303416e-22,
+      "second_moment_accelerated": 4.358649109624709e-22
+    },
+    {
+      "parameter": "encoder.global_net.layers.0.self_attn.in_proj_bias",
+      "shape": [
+        384
+      ],
+      "values_above_limit": 21,
+      "max_difference": 1.0095536708831787e-06,
+      "index": 121,
+      "value_before": -0.0030762183014303446,
+      "value_reference": -0.00322564784437418,
+      "value_accelerated": -0.0032246382907032967,
+      "moment_before": 3.733017001650296e-05,
+      "moment_reference": 5.6752116506686434e-05,
+      "moment_accelerated": 5.6752116506686434e-05,
+      "second_moment_reference": 2.128353937536076e-09,
+      "second_moment_accelerated": 2.128353937536076e-09
+    },
+    {
+      "parameter": "encoder.global_net.layers.1.self_attn.in_proj_bias",
+      "shape": [
+        384
+      ],
+      "values_above_limit": 1,
+      "max_difference": 6.544760253746063e-07,
+      "index": 205,
+      "value_before": 1.9970108041889034e-05,
+      "value_reference": 2.062458406726364e-05,
+      "value_accelerated": 1.9970108041889034e-05,
+      "moment_before": -1.8664562950743147e-11,
+      "moment_reference": -1.6838020561182887e-11,
+      "moment_accelerated": -1.6630145177609634e-11,
+      "second_moment_reference": 6.338622329018217e-22,
+      "second_moment_accelerated": 6.338649087180122e-22
+    },
+    {
+      "parameter": "encoder.global_net.layers.2.self_attn.in_proj_bias",
+      "shape": [
+        384
+      ],
+      "values_above_limit": 1,
+      "max_difference": 5.51035554963164e-07,
+      "index": 205,
+      "value_before": 2.1806001313962042e-05,
+      "value_reference": 2.1806001313962042e-05,
+      "value_accelerated": 2.2357036868925206e-05,
+      "moment_before": -1.6127685992239904e-11,
+      "moment_reference": -1.446264462356961e-11,
+      "moment_accelerated": -1.4682574600577425e-11,
+      "second_moment_reference": 9.13137219192414e-22,
+      "second_moment_accelerated": 9.131397435473108e-22
+    }
+  ],
+  "optimizer_updates": 0,
+  "limits_unchanged": true,
+  "limitations": [
+    "Moment inversion does not recover exact near-zero input gradients; no unproven sign-flip cause asserted",
+    "This identifies parameter differences, not permission to relax bounds"
+  ]
+}

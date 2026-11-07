@@ -1,0 +1,77 @@
+{
+  "status": "DISCUSSION_ONLY_NOT_MODEL_CONFIGURATION",
+  "rate_definition": "visible valid native input positions belonging to a group of size >=2, divided by all visible valid native input positions",
+  "example_anchors_not_frozen": [
+    [
+      0.5,
+      0.75
+    ],
+    [
+      10.0,
+      0.2
+    ],
+    [
+      20.0,
+      0.1
+    ]
+  ],
+  "conditional_geometry_formula": "For a complete regular isotropic lattice, the existing center-based unique square-window assignment and 1<=s<=2 give participation r=1-(2/s-1)^2; inverse s=2/(1+sqrt(1-r))",
+  "rows": [
+    {
+      "gsd_m": 0.5,
+      "target_participation_example": 0.75,
+      "derived_axis_span": 1.3333333333333333,
+      "native_positions": 1000000,
+      "singleton_positions": 250000,
+      "merged_participants": 750000,
+      "actual_participation": 0.75,
+      "output_tokens": 562500,
+      "token_reduction": 0.4375,
+      "mean_size_of_merged_groups": 2.4
+    },
+    {
+      "gsd_m": 10.0,
+      "target_participation_example": 0.2,
+      "derived_axis_span": 1.0557280900008412,
+      "native_positions": 1000000,
+      "singleton_positions": 799236,
+      "merged_participants": 200764,
+      "actual_participation": 0.200764,
+      "output_tokens": 896809,
+      "token_reduction": 0.10319100000000003,
+      "mean_size_of_merged_groups": 2.0575774035850083
+    },
+    {
+      "gsd_m": 20.0,
+      "target_participation_example": 0.1,
+      "derived_axis_span": 1.026334038989724,
+      "native_positions": 1000000,
+      "singleton_positions": 898704,
+      "merged_participants": 101296,
+      "actual_participation": 0.101296,
+      "output_tokens": 948676,
+      "token_reduction": 0.051324000000000036,
+      "mean_size_of_merged_groups": 2.0270551508844954
+    }
+  ],
+  "example_curve": {
+    "formula": "r(g)=r_max/(1+(g/g0)^p)",
+    "r_max": 0.8092248954506467,
+    "g0_m": 4.010953026221307,
+    "p": 1.219268281571556,
+    "status": "illustrative interpolation of the three example anchors; not approved or selected"
+  },
+  "not_added": [
+    "content gate",
+    "top-k selection",
+    "learned window scale",
+    "fixed 2x2 hierarchy",
+    "new training loss"
+  ],
+  "limits": [
+    "Participation is not token-reduction rate",
+    "Finite borders, phase, QA holes and task visibility change realized participation",
+    "A rate alone does not uniquely specify group composition; the inverse above is conditional on the already-discussed continuous center-assignment geometry",
+    "Example anchors, curve family and coefficients remain candidates; no active Merge formula changed"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "status": "CURRENT_VERIFICATION_PASS",
+  "scope": "Full engineering suite; partial real performance diagnostics; not formal training acceptance",
+  "runtime_status": "MINIMAL_RUNTIME_RECOVERED",
+  "engineering_tests": 125,
+  "skipped": 0,
+  "full_report": "B1_pair_engineering_tests.json",
+  "historical_fault": "source_snapshots/native_driver_fault_before_restart.json",
+  "recovery_proof": [
+    "gpu_restart_runtime_recheck.json",
+    "preformal_tests_after_restart_process.json",
+    "complete_attention_backend_after_restart.json",
+    "complete_attention_gpu_comparison.json",
+    "complete_attention_large_capacity_after_restart.json"
+  ],
+  "manual_query_chunk_default_adopted": false,
+  "reason": "Slower on matched GPU workload without material allocated-memory improvement",
+  "real_optimizer_updates_this_turn": 0,
+  "real_pilot_total": 214,
+  "formal_training_started": false,
+  "limitations": [
+    "Single-round native/merged B architecture and preflight participation curve confirmed; physical FOV/mask relation and formal merge configuration pending",
+    "Real cross-source pair admission incomplete; coordinate-correction mechanism submitted for user decision, not applied",
+    "GPU real parameter-update/recovery equivalence of acceleration candidates not performed; stopped budget remains stopped",
+    "Expanded502 B1 cases executed at random initialization; not trained quality or formal validation adoption"
+  ],
+  "post_logging_targeted_tests": {
+    "count": 4,
+    "log": "adaptive_joint_targeted.log"
+  },
+  "joint_engineering_evidence": "jepa_joint_integration_evidence.json",
+  "participation_B_evidence": "participation_merge_implementation_evidence.json",
+  "post_B_pair_audit_tests": {
+    "report": "pair_admission_engineering_tests.json",
+    "tests": 8,
+    "skipped": 0,
+    "scope": "Targeted audit tests; 2 overlap prior full suite; do not add totals"
+  },
+  "B2_evidence": "pair_admission_evidence.json",
+  "current_change": "Existing B1 panel full-GPU execution and disjoint-source spatial registration diagnostics; learned computation unchanged",
+  "targeted_compute_tests": {
+    "existing": 12,
+    "new": 3,
+    "skips": 0
+  },
+  "full_regression_pending_after_GPU_measurement": false,
+  "model_parameter_architecture_changed": false,
+  "batch_execution_evidence": "participation_batch_execution_evidence.json",
+  "packed_output_review": "packed_local_execution_review.md",
+  "A_boundary_review": "A_boundary_center_review.md",
+  "current_rule_real_batch_acceptance": false,
+  "B1_panel_execution": "B1_expanded_evidence.json",
+  "B2_spatial_holdout": "pair_spatial_holdout_evidence.json"
+}

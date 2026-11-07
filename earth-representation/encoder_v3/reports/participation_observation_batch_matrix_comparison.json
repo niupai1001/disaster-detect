@@ -1,0 +1,299 @@
+{
+  "status": "RUNNING",
+  "optimizer_updates": 0,
+  "effective_batch": 8,
+  "curve_frozen": false,
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "study_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+  "device_uuid": "dacfd62c-4462-feac-01f7-88f876c209ec",
+  "memory_cap_bytes": 25769803776,
+  "source_sha256": {
+    "participation_observation_batch_probe.py": "016c9b44e3a78847e43142f286792c41b776e442d8bd1e581e8a86f36c81f918",
+    "participation_encoder.py": "3193b5cab866f5c551ef619df8694fb8ab77594765aee90ea617105a9f2ef7a2",
+    "participation_layout.py": "c8d11902caac1cb4afd68df7377ee3b02e070de23d787e9ae450317aa08d7718",
+    "adaptive_window.py": "cc455fbcf9a757d48b270fcd7395fc2f7b31884dfc516515e22aeecd52483eca",
+    "adaptive_streaming.py": "a5961ec66a25d8985e562bcb6903a57ddf97604a4f43c7433d283a8b0f429bca",
+    "joint.py": "047e9828cf7814bf9c85c9440ce8ac41b4b13913afa6b4ff95645da1b4e5ba31",
+    "streaming.py": "f5d7dc01bb3995dcd21da554d0e60b003a9d381372418d82063c015d09686053",
+    "model.py": "e0ba10b8fc141cc29d0f0e6e28a76b6a3ac7368fbe1fec4b64cb1ab0437bbf7d",
+    "spatial_index.py": "0524fd49e07b79ba7dc28a26e6809417689c7f48e1887399571d63b6ebd7f9d4",
+    "participation_decoder.py": "598b9e0c8314aa2b7e44d0fd689f32fc5b1daad44563de6382c840b3b1c6711d"
+  },
+  "rows": [
+    {
+      "status": "ALLOCATOR_CAP_REACHED",
+      "decoder_path": "reference",
+      "decoder_chunk_pixels": 16384,
+      "local_batch_size": 64,
+      "microbatch_observations": 1,
+      "last_task": {
+        "observation": "obs_01ef02ab37643eb26fca2ccd",
+        "kind": "A",
+        "ordinal": 0
+      },
+      "error": "CUDA out of memory. Tried to allocate 10.58 GiB. GPU 0 has a total capacity of 31.82 GiB of which 13.41 GiB is free. 24.00 GiB allowed; Of the allocated memory 15.11 GiB is allocated by PyTorch, and 1.60 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)",
+      "traceback": "Traceback (most recent call last):\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\participation_observation_batch_probe.py\", line 64, in main\n    report['phase']=dict(path=path,local=local,micro=micro,chunk=chunk,status='warmup',time=time.time());save();streaming.stream_task_roots=tracked;joint.stream_task_roots=tracked;joint.accumulate_joint(encoder,decoder,views,**kwargs);torch.cuda.synchronize()\n                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\joint.py\", line 81, in accumulate_joint\n    result=single_stream(encoder,decoder,view.task,view.plan,train_stds=view.train_stds,chunk_pixels=chunk_pixels,loss_weight=multiplier(view),backward=backward,precision=precision) if active(view) else dict(status='NO_VALID_SUPPORTED_TARGET',loss=None,bands=[])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\adaptive_streaming.py\", line 70, in stream_adaptive_task\n    return stream_task(encoder,decoder,task,plan,representation=representation,**kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\streaming.py\", line 148, in stream_task\n    report,roots,gradients=stream_task_roots(encoder,decoder,task,plan,**kwargs)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\participation_observation_batch_probe.py\", line 53, in tracked\n    return original(*args,**kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\streaming.py\", line 122, in stream_task_roots\n    prediction,supported=decoder(readout,bounds[ids],condition_leaf,kind=task.kind,mask_bounds=mask)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Lib\\site-packages\\torch\\nn\\modules\\module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\model.py\", line 276, in forward\n    feature,position,supported=aggregate(representation,targets,kind=kind,mask_bounds=mask_bounds,cell_indexed=self.cell_indexed)\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\spatial_index.py\", line 78, in aggregate\n    features=r.tokens.new_zeros(len(targets),128).index_add(0,q,r.tokens[token]*weights[:,None].to(r.tokens.dtype))\n                                                                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 10.58 GiB. GPU 0 has a total capacity of 31.82 GiB of which 13.41 GiB is free. 24.00 GiB allowed; Of the allocated memory 15.11 GiB is allocated by PyTorch, and 1.60 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)\n",
+      "frames": [
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\participation_observation_batch_probe.py",
+          "function": "main",
+          "line": 64,
+          "tensor_shapes": {}
+        },
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\joint.py",
+          "function": "accumulate_joint",
+          "line": 81,
+          "tensor_shapes": {}
+        },
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\adaptive_streaming.py",
+          "function": "stream_adaptive_task",
+          "line": 70,
+          "tensor_shapes": {}
+        },
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\streaming.py",
+          "function": "stream_task",
+          "line": 148,
+          "tensor_shapes": {}
+        },
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\participation_observation_batch_probe.py",
+          "function": "tracked",
+          "line": 53,
+          "tensor_shapes": {}
+        },
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\streaming.py",
+          "function": "stream_task_roots",
+          "line": 122,
+          "tensor_shapes": {
+            "latent": [
+              52922,
+              128
+            ]
+          }
+        },
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\model.py",
+          "function": "forward",
+          "line": 276,
+          "tensor_shapes": {
+            "targets": [
+              10080,
+              4
+            ]
+          }
+        },
+        {
+          "file": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\spatial_index.py",
+          "function": "aggregate",
+          "line": 78,
+          "tensor_shapes": {
+            "targets": [
+              10080,
+              4
+            ],
+            "q": [
+              22196160
+            ],
+            "token": [
+              22196160
+            ],
+            "weights": [
+              22196160
+            ],
+            "relative": [
+              22196160,
+              2
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "status": "MEASURED_NOT_UPDATE_ACCEPTANCE",
+      "decoder_path": "reference",
+      "decoder_chunk_pixels": 512,
+      "local_batch_size": 64,
+      "microbatch_observations": 1,
+      "seconds": 109.7513310000013,
+      "timed_pass_start_unix": 1793904737.768801,
+      "timed_pass_end_unix": 1793904847.5203247,
+      "peak_allocated_bytes": 12276432384,
+      "global_tokens": 547922,
+      "padding_fraction": 0.0,
+      "supported_supervision_pixels": 380739,
+      "observations_per_second": 0.07289205449362528,
+      "supervision_pixels_per_second": 3469.105991981049,
+      "prediction_max_abs": 0.0,
+      "gradient_relative_l2": 0.0,
+      "max_band_nmse_abs": 0.0,
+      "max_task_loss_abs": 0.0,
+      "family_losses": {
+        "A_loss": 4.954813970238582,
+        "B_loss": 6.381860184558713,
+        "weighted_loss": 6.55027901637826
+      },
+      "gradient_norm_before_clip": 1602.137451171875,
+      "speedup_vs_fitting_reference": 1.0,
+      "default_adopted": false,
+      "within_existing_FP32_values_diagnostic_only": true
+    },
+    {
+      "status": "MEASURED_NOT_UPDATE_ACCEPTANCE",
+      "decoder_path": "matrix_A",
+      "decoder_chunk_pixels": 16384,
+      "local_batch_size": 64,
+      "microbatch_observations": 1,
+      "seconds": 107.66768330000014,
+      "timed_pass_start_unix": 1793904951.1505558,
+      "timed_pass_end_unix": 1793905058.8183172,
+      "peak_allocated_bytes": 12276020224,
+      "global_tokens": 547922,
+      "padding_fraction": 0.0,
+      "supported_supervision_pixels": 380739,
+      "observations_per_second": 0.07430270397579912,
+      "supervision_pixels_per_second": 3536.2421511302223,
+      "prediction_max_abs": 1.2814998626708984e-06,
+      "gradient_relative_l2": 1.1092949114259446e-07,
+      "max_band_nmse_abs": 3.5544064926895658e-06,
+      "max_task_loss_abs": 9.703549697093194e-08,
+      "family_losses": {
+        "A_loss": 4.9548139295594265,
+        "B_loss": 6.38186028159421,
+        "weighted_loss": 6.550278999957979
+      },
+      "gradient_norm_before_clip": 1602.1375732421875,
+      "speedup_vs_fitting_reference": 1.0193525822803802,
+      "default_adopted": false,
+      "within_existing_FP32_values_diagnostic_only": true
+    },
+    {
+      "status": "MEASURED_NOT_UPDATE_ACCEPTANCE",
+      "decoder_path": "matrix_A",
+      "decoder_chunk_pixels": 16384,
+      "local_batch_size": 1024,
+      "microbatch_observations": 1,
+      "seconds": 66.76580990000002,
+      "timed_pass_start_unix": 1793905125.871233,
+      "timed_pass_end_unix": 1793905192.6368325,
+      "peak_allocated_bytes": 12286983680,
+      "global_tokens": 547922,
+      "padding_fraction": 0.0,
+      "supported_supervision_pixels": 380739,
+      "observations_per_second": 0.11982180717918614,
+      "supervision_pixels_per_second": 5702.604380449519,
+      "prediction_max_abs": 1.2814998626708984e-06,
+      "gradient_relative_l2": 1.560235703298298e-07,
+      "max_band_nmse_abs": 3.5315447775019493e-06,
+      "max_task_loss_abs": 1.0101937242268377e-07,
+      "family_losses": {
+        "A_loss": 4.954813977757063,
+        "B_loss": 6.381860285578085,
+        "weighted_loss": 6.550279049151584
+      },
+      "gradient_norm_before_clip": 1602.1375732421875,
+      "speedup_vs_fitting_reference": 1.643825352592649,
+      "default_adopted": false,
+      "within_existing_FP32_values_diagnostic_only": true
+    },
+    {
+      "status": "MEASURED_NOT_UPDATE_ACCEPTANCE",
+      "decoder_path": "matrix_A",
+      "decoder_chunk_pixels": 16384,
+      "local_batch_size": 1024,
+      "microbatch_observations": 2,
+      "seconds": 65.83490119999988,
+      "timed_pass_start_unix": 1793905262.4759705,
+      "timed_pass_end_unix": 1793905328.3105454,
+      "peak_allocated_bytes": 19459316736,
+      "global_tokens": 547922,
+      "padding_fraction": 0.0,
+      "supported_supervision_pixels": 380739,
+      "observations_per_second": 0.12151609335140941,
+      "supervision_pixels_per_second": 5783.239483315283,
+      "prediction_max_abs": 1.1771917343139648e-06,
+      "gradient_relative_l2": 1.4445360052825433e-07,
+      "max_band_nmse_abs": 3.566298657275979e-06,
+      "max_task_loss_abs": 8.082572477974281e-08,
+      "family_losses": {
+        "A_loss": 4.954813967171748,
+        "B_loss": 6.381860265384438,
+        "weighted_loss": 6.550279033517857
+      },
+      "gradient_norm_before_clip": 1602.1375732421875,
+      "speedup_vs_fitting_reference": 1.6670691229046988,
+      "default_adopted": false,
+      "within_existing_FP32_values_diagnostic_only": true
+    }
+  ],
+  "scope": "reviewed schedule0 full-native TRAIN A/B1 views, random shared initialization, FP32 complete forward/backward, unchanged approved mask/hidden bands",
+  "limits": [
+    "Not formal training or a scientific curve freeze",
+    "Single timed pass after one warmup per configuration; speed estimates require repetition before adoption",
+    "Time includes consistent detached prediction collection, geometry and loss reporting; excludes initial read/plan/transfer and optimizer/save",
+    "No real parameter-update or resume comparison; defaults unchanged"
+  ],
+  "CPU_load_seconds": 0.2767665000010311,
+  "CPU_planning_seconds": 73.18612189999476,
+  "members": [
+    "obs_0002e58c12d2c4a9e4c91a8c",
+    "obs_00218d14b4b83cc6315ee7d4",
+    "obs_01ef02ab37643eb26fca2ccd",
+    "obs_023656914628c0f7f9d45bb8",
+    "obs_008dbe74c0d7a99de352e5e6",
+    "obs_00cb3b76301992b5ece4a9f8_L8",
+    "obs_00bac1a5957f7b4db0ef1f95",
+    "obs_00fbb39ce16c263504831a11"
+  ],
+  "mask_reference_patch_m": 60.0,
+  "view_signatures": [
+    "fe053fe09026dcbb776a5dc483ea278ff572151012e9653976bd72a27338ca9d",
+    "6aa12f487784cc54ecb21213ec3d7249eb3e658bb314ffc0be2934430f623060",
+    "4c25badb6d37f104269ee5fd14138f400c696848abc1c56511d78d9bb066c073",
+    "542dd591e5744f9bd8fcca4628082baeb143cff8567d7ec481d67167213b9fdf",
+    "4995a047fba64fe85a4a7d45f1e41cabc35ef7dd83d258e841e65b9760593760",
+    "5955ca4d05bea57a369642307c1593b86569f55c80fb8f96d1f594000d41802c",
+    "7d2c3e4028111d405d4258fb18b83cfced52b1493b14c4816e6017c97467d5b2",
+    "2cfe1b664d39a588daa622eff737014cb78038f123c0533a3731fd92f0290b36",
+    "356f5fdf37947795673261fef276df9f1ce345b7ab7151a9f03b4adb4839a6f7",
+    "c086107a36d88d1357335a39fa193d3389016e8f38d185364ac02320b17c4f5d",
+    "fe62cf90409d015ec225c201e7b8ce162971dfb1f34e76ccb8c83311fc331292",
+    "19b4ef64d822afaaa8e4111ad23e00bf84cfec49c58b8585e78b050f491aa704",
+    "2f889cb3a08ffe87200ae31487f6f3a23b49068ed9d8e4f2651df21894a0c8ed",
+    "d5013a7532028585ed7d2abd88906d0976572475a822b58a606ed5ad43de5a33",
+    "4ce881c69ec90f272eedaaaaa2522b31e8513313176fb49fe0ff45c40e233a4b",
+    "bcd6eb886b638844811849556c365db39a78f99d695acb23af9518a6d9160336"
+  ],
+  "transfer_seconds": 0.08015760000125738,
+  "merge_recipe": {
+    "architecture": "participation_selected_windows_v1",
+    "rate_curve": {
+      "family": "candidate_area_equivalent_hill",
+      "effective_gsd": "sqrt(gx*gy)",
+      "amplitude": 0.8092248954506467,
+      "scale_m": 4.010953026221307,
+      "power": 1.219268281571556
+    },
+    "selection_seed": 0,
+    "span_rule": "1/(1-r)",
+    "selection": "nearest_complete_group_prefix_physical_sha256",
+    "window_learning": false
+  },
+  "initial_parameter_sha256": "9ea7e1704f2d92f80949613db311fba7ad38eb6a28c0a75f43a1dcb8523ce18a",
+  "phase": {
+    "path": "matrix_A",
+    "local": 1024,
+    "micro": 4,
+    "chunk": 16384,
+    "status": "warmup",
+    "time": 1793905328.3911152
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "status": "CPU_TRANSACTIONS_PASS_GRAPH_INTEGRATION_BLOCKED",
+  "tests": 5,
+  "skips": [],
+  "failures": [],
+  "errors": [],
+  "synthetic_manual_gradient_optimizer_calls": 8,
+  "real_optimizer_updates": 0,
+  "real_data_reads": 0,
+  "autograd_engine_calls": 0,
+  "CUDA_initializations_this_run": 0,
+  "seconds": 4.1438698999991175,
+  "source_sha256": {
+    "route_step.py": "12a9f62c8e81738dc74277b10ba459df42259f1bbdb9d93656778706ea31c91d",
+    "test_route_step.py": "7327c228b81adca963205472b2cb3ebacd45fcef41d5cd8f90007666fa1cd093",
+    "test_route_transaction.py": "f2e2760cba5555c5333e963c8a9180e78272db8e68e4d2759bdba59e8d995ed4",
+    "route_control.py": "775007bc4c9be0ddfc8af22b6258bd46b747e98d8bcf9fea6b82671ebb471ecb"
+  },
+  "scope": "Only control/AdamW/EMA/checkpoint behavior with explicitly supplied synthetic gradients; actual joint gradient producer replaced in tests only",
+  "limits": [
+    "No forward/backward equivalence claim for current system",
+    "Real graph integration remains unverified after minimal CPU backward native failure",
+    "Synthetic in-memory configuration is not operational approval"
+  ]
+}

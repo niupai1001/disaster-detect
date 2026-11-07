@@ -1,0 +1,59 @@
+"""Participation B Encoder and supervision planning. Curve/seed must be explicit."""
+from dataclasses import dataclass
+import torch
+from .model import Encoder
+from .adaptive_window import AdaptiveWindowEncoder,AdaptiveRepresentation
+from .participation_layout import participation_layout
+from .adaptive_streaming import prepare_geometry_task
+from .streaming import task_signature
+
+
+def merge_recipe(rate_curve,selection_seed):
+    if type(selection_seed) is not int:raise ValueError('Explicit integer selection seed required')
+    return dict(architecture='participation_selected_windows_v1',rate_curve=rate_curve.get_config(),selection_seed=selection_seed,span_rule='1/(1-r)',selection='nearest_complete_group_prefix_physical_sha256',window_learning=False)
+
+
+@dataclass
+class ParticipationRepresentation(AdaptiveRepresentation):
+    participation_audit: tuple|None=None
+
+
+class ParticipationEncoder(AdaptiveWindowEncoder):
+    def __init__(self,*,rate_curve,selection_seed,hyper_hidden,local_batch_size=64):
+        # Keep the existing learned networks; do not instantiate a legacy exponent.
+        Encoder.__init__(self,hyper_hidden=hyper_hidden,local_batch_size=local_batch_size,native_mode='grouped',layout_mode='indexed')
+        self.rate_curve=rate_curve;self.selection_seed=selection_seed;self.global_query_chunk_size=None
+        merge_recipe(rate_curve,selection_seed)
+
+    @property
+    def merge_recipe(self):return merge_recipe(self.rate_curve,self.selection_seed)
+
+    def get_extra_state(self):return dict(self.merge_recipe,hyper_hidden=self.hyper[0].out_features)
+
+    def forward(self,bands,*,origin_xy):
+        audit=[]
+        def layout_fn(band):
+            layout=participation_layout(band,rate_curve=self.rate_curve,selection_seed=self.selection_seed,origin_xy=origin_xy)
+            audit.append(dict(band=band.record_id,status='NO_VISIBLE_INPUT',visible_positions=0) if layout is None else dict(band=band.record_id,status='OK',**layout['participation_audit']))
+            return layout
+        representation=self._forward_with_layouts(bands,origin_xy=origin_xy,layout_fn=layout_fn)
+        return ParticipationRepresentation(**vars(representation),participation_audit=tuple(audit))
+
+
+@dataclass
+class ParticipationTaskPlan:
+    geometry: object
+    bands: list
+    origin_xy: tuple
+    kind: str
+    observation_id: str
+    signature: str
+    merge_recipe: dict
+
+
+def prepare_participation_task(task,*,rate_curve,selection_seed,origin_xy,chunk_pixels,cell_indexed=False):
+    recipe=merge_recipe(rate_curve,selection_seed)
+    result=prepare_geometry_task(task,layout_fn=lambda band:participation_layout(band,rate_curve=rate_curve,selection_seed=selection_seed,origin_xy=origin_xy),origin_xy=origin_xy,chunk_pixels=chunk_pixels,cell_indexed=cell_indexed)
+    if result is None:return None
+    geometry,bands=result
+    return ParticipationTaskPlan(geometry,bands,tuple(origin_xy),task.kind,task.metadata['id'],task_signature(task),recipe)

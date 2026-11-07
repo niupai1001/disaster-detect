@@ -1,0 +1,38 @@
+cache False input 0 seconds 53.065119100006996
+cache False input 1 seconds 17.43931819999125
+cache False input 2 seconds 34.457174600000144
+cache False input 3 seconds 11.279433000003337
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\geometry_cache_gpu_probe.py", line 86, in <module>
+    if args.worker:run(args)
+                   ^^^^^^^^^
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\geometry_cache_gpu_probe.py", line 54, in run
+    try:result=accumulate_joint(encoder,decoder,move_views(cpu_views,'cuda:0'),logical_update=index,chunk_pixels=chunk,precision='fp32',clip_norm=3)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\joint.py", line 73, in accumulate_joint
+    result=stream_task(encoder,decoder,view.task,view.plan,train_stds=view.train_stds,chunk_pixels=chunk_pixels,loss_weight=multiplier(view),backward=backward,precision=precision) if active(view) else dict(status='NO_VALID_SUPPORTED_TARGET',loss=None,bands=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\streaming.py", line 148, in stream_task
+    report,roots,gradients=stream_task_roots(encoder,decoder,task,plan,**kwargs)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\streaming.py", line 122, in stream_task_roots
+    prediction,supported=decoder(readout,bounds[ids],condition_leaf,kind=task.kind,mask_bounds=mask)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\landslide-seg\.venv-use-independent\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\landslide-seg\.venv-use-independent\Lib\site-packages\torch\nn\modules\module.py", line 1885, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "N:\Users\yzh\Disater\landslide-seg\.venv-use-independent\Lib\site-packages\torch\nn\modules\module.py", line 1833, in inner
+    result = forward_call(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\model.py", line 276, in forward
+    feature,position,supported=aggregate(representation,targets,kind=kind,mask_bounds=mask_bounds,cell_indexed=self.cell_indexed)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\spatial_index.py", line 73, in aggregate
+    features=r.tokens.new_zeros(len(targets),128).index_add(0,q,r.tokens[token]*weights[:,None].to(r.tokens.dtype))
+                                                                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 4.09 GiB. GPU 0 has a total capacity of 31.84 GiB of which 21.79 GiB is free. 12.00 GiB allowed; Of the allocated memory 5.84 GiB is allocated by PyTorch, and 2.50 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

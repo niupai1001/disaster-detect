@@ -1,3 +1,7 @@
+> 当前状态：工作目录为 N:/Users/yzh/Disater/earth-representation。用户已选择 AdamW 并停止剩余预检更新，累计214次；下文历史推进状态不构成继续训练授权。
+>
+> 连续GSD公式窗口的当前实现、未确认参数和严格审阅见 [adaptive_window_review](reports/adaptive_window_review.md) 与 [adaptive_config](adaptive_config.json)。新路径不使用固定60/120m作为Merge尺寸，不加入固定2×2分组；p无正式默认值。旧模型及检查点保留，不能把旧速度报告作为新架构验收。
+
 # Encoder V3 — isolated implementation
 
 This directory is independent of the read-only synced sources and the historical N: project. Importing it never starts training.

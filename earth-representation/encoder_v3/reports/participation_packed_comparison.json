@@ -1,0 +1,104 @@
+{
+  "status": "PACKED_LOCAL_REAL_MATCHED_MEASUREMENT_NOT_FORMAL_ACCEPTANCE",
+  "observation_id": "obs_01ef02ab37643eb26fca2ccd",
+  "kind": "A",
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "curve_frozen": false,
+  "optimizer_updates": 0,
+  "parameters_unchanged": true,
+  "device_uuid": "dacfd62c-4462-feac-01f7-88f876c209ec",
+  "rows": [
+    {
+      "packed_local_output": false,
+      "seconds": [
+        2.9984755000004952,
+        2.7925778000007995
+      ],
+      "median_seconds": 2.8955266500006474,
+      "peak_allocated_bytes": 4975429120,
+      "prediction_max_abs": 0.0,
+      "gradient_relative_l2": 0.0,
+      "task_loss_abs": 0.0,
+      "tokens": 52922,
+      "supported_pixels": 55440,
+      "operators": {
+        "cudaLaunchKernel": {
+          "count": 11485,
+          "self_cpu_seconds": 0.9349623999999841
+        },
+        "aten::stack": {
+          "count": 133,
+          "self_cpu_seconds": 0.03728300000000059
+        },
+        "aten::as_strided": {
+          "count": 431677,
+          "self_cpu_seconds": 0.08753900000007002
+        },
+        "aten::select": {
+          "count": 159641,
+          "self_cpu_seconds": 0.14455929999989742
+        },
+        "aten::unbind": {
+          "count": 53,
+          "self_cpu_seconds": 0.04832039999998081
+        }
+      },
+      "default_adopted": false
+    },
+    {
+      "packed_local_output": true,
+      "seconds": [
+        2.486840100000336,
+        2.4378598000002967
+      ],
+      "median_seconds": 2.4623499500003163,
+      "peak_allocated_bytes": 4975852544,
+      "prediction_max_abs": 0.0,
+      "gradient_relative_l2": 5.5940598501362245e-08,
+      "task_loss_abs": 0.0,
+      "tokens": 52922,
+      "supported_pixels": 55440,
+      "operators": {
+        "cudaLaunchKernel": {
+          "count": 10660,
+          "self_cpu_seconds": 0.7774642000000198
+        },
+        "aten::stack": {
+          "count": 79,
+          "self_cpu_seconds": 0.014340999999999347
+        },
+        "aten::as_strided": {
+          "count": 325889,
+          "self_cpu_seconds": 0.06216370000021688
+        },
+        "aten::select": {
+          "count": 53797,
+          "self_cpu_seconds": 0.04645089999978662
+        },
+        "aten::index_select": {
+          "count": 1,
+          "self_cpu_seconds": 4.4e-05
+        }
+      },
+      "default_adopted": false
+    }
+  ],
+  "speedup": 1.1759200393105276,
+  "source_sha256": {
+    "participation_packed_probe.py": "dc141223f27646f23868dac5ffe007ae744f9c87750dbc58ab4ac7c141cb4b3d",
+    "participation_encoder.py": "b266d6cc04f05dead4ec87e218a6c921a46fcc423c1e558aa3bd18c27609bd1d",
+    "adaptive_window.py": "cc455fbcf9a757d48b270fcd7395fc2f7b31884dfc516515e22aeecd52483eca",
+    "participation_decoder.py": "cbda7c1efcf43492e448b5584c0a10fcbb4b863f114cfde6092d08f33db778df",
+    "participation_geometry.py": "e4f8c571b636ea43dd5edfa57d6ac422229ef95688c7b5e480601385703a6e2a"
+  },
+  "limits": [
+    "One reviewed full-native A view only, not effective batch8 throughput",
+    "Two timing samples after warmup; profiled passes excluded",
+    "No real optimizer-step/resume comparison; default remains off"
+  ]
+}

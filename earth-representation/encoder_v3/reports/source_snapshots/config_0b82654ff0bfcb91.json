@@ -1,0 +1,128 @@
+{
+  "confirmed": {
+    "width": 128,
+    "patch_scales_m": [
+      60,
+      120
+    ],
+    "patch_probability": [
+      0.5,
+      0.5
+    ],
+    "global_effective_batch": 8,
+    "optimizer_pilot_total_updates": 400,
+    "optimizer_pilot_per_candidate": 200,
+    "formal_route_max_updates": 10000,
+    "formal_routes": [
+      "AB",
+      "AB_JEPA"
+    ],
+    "seeds": 1,
+    "optimizer": "AdamW"
+  },
+  "candidate": {
+    "optimizers": [
+      "AdamW",
+      "CAdamW"
+    ],
+    "peak_lr": 0.0003,
+    "warmup_updates": 100,
+    "weight_decay": 0.04,
+    "clip_norm": 3,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "validation_interval": 250,
+    "plateau_patience": 4,
+    "lr_factor": 0.5,
+    "min_lr": 1e-05,
+    "curriculum_updates": 2000,
+    "A_weights": [
+      1,
+      0.25
+    ],
+    "B_weights": [
+      0.25,
+      1
+    ],
+    "ema": 0.996,
+    "jepa_ramp_updates": 1000,
+    "jepa_weight": 0.05,
+    "B2_pair_geometry_review": "reports/B2_pair_geometry_proposal.md"
+  },
+  "required_before_training": {
+    "hypernetwork_hidden_structure": null,
+    "frozen_data_manifest": null,
+    "pair_admission": null,
+    "mask_rectangle_distribution": null,
+    "validation_panel": null,
+    "improvement_threshold": null,
+    "stability_window": null,
+    "early_stop": null,
+    "precision_acceptance": null,
+    "resource_limit": null,
+    "execution_equivalence": null,
+    "optimizer_choice": "AdamW",
+    "formal_training_authorization": null,
+    "merge_configuration": null
+  },
+  "confirmed_preflight": {
+    "hypernetwork": {
+      "input": 34,
+      "hidden": 64,
+      "output": 320,
+      "activation": "GELU",
+      "gsd_transform": "natural_log_of_gsd_in_meters",
+      "review": "reports/hypernetwork_preflight_review.json",
+      "scope": "preflight_only"
+    },
+    "spatial_mask": {
+      "count": 1,
+      "target_patch_fraction": 0.5,
+      "aspect_ratio": "log-uniform [0.5,2.0]",
+      "position": "uniform feasible patch-aligned rectangle",
+      "size_rounding": "nearest integer patch count, clipped to observation patch layout",
+      "review": "reports/spatial_mask_preflight_review.json",
+      "scope": "preflight_only"
+    },
+    "members_and_panels": {
+      "review": "reports/pilot_members_panels_review.json",
+      "candidate_sha256": "72b48a37444b1cf852a2919f3252b13acc01f0ea3f2100c3578e2034d237ba3d",
+      "scope": "optimizer_preflight_only"
+    },
+    "numerical_equivalence": {
+      "review": "reports/fp32_equivalence_tolerance_review.json",
+      "scope": "FP32_single_GPU_native_cell_readout_preflight_only"
+    },
+    "optimizer_decision": {
+      "optimizer": "AdamW",
+      "review": "reports/pilot_runs/pilot_stop_decision.json",
+      "remaining_pilot_updates": "stopped_by_user"
+    },
+    "adaptive_merge_decisions": {
+      "review": "reports/merge_B_confirmation.json",
+      "configuration": "adaptive_config.json",
+      "scope": "geometry_B_single_round_two_scales_confirmed; participation_curve_preflight_only",
+      "implementation_review": "reports/participation_merge_implementation_review.md",
+      "levels_review": "reports/merge_levels_confirmation.json",
+      "rate_review": "reports/merge_rate_confirmation.json"
+    }
+  },
+  "m9_task_head_training_authorized": false,
+  "required_before_pilot": {
+    "execution_review": "reports/gpu_update_execution_review.json"
+  },
+  "required_before_jepa": {
+    "latent_loss_and_normalization": null,
+    "admitted_cross_source_pairs": null,
+    "AB_stability_evidence": null,
+    "joint_effective_batch_integration": null,
+    "query_projection_review": null
+  },
+  "engineering_evidence": {
+    "jepa_batch8_joint": "reports/jepa_joint_integration_evidence.json",
+    "B2_read_only_diagnostics": "reports/pair_admission_evidence.json"
+  }
+}

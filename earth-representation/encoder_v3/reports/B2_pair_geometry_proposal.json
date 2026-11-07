@@ -1,0 +1,250 @@
+{
+  "status": "QUERY_MECHANISM_CONFIRMED_IMPLEMENTED_OFFSETS_PENDING",
+  "confirmed": {
+    "proposal_only_review": "B2_geometry_proposal_confirmation.json",
+    "preserve_native_reflectance_QA_affine": true,
+    "no_interpolation": true,
+    "mechanism_review": "B2_geometry_mechanism_confirmation.json",
+    "mechanism": "query_offset_native_encoder_v1",
+    "initial_two_pair_QA_policy_review": "B2_QA_policy_confirmation.json",
+    "initial_QA_scope": "Four named observations, existing masks unchanged; processing-domain admission remains pending"
+  },
+  "candidate": {
+    "reference_frame": "Common native projected metric frame; Landsat anchor only for defining the relative translation sign, not a teacher preference",
+    "translation_estimator": "Equal mean of green/red/NIR/SWIR bidirectional correlations; inverse direction evaluated at negative translation; proposal only",
+    "search_grid_m": [
+      -15.0,
+      -12.5,
+      -10.0,
+      -7.5,
+      -5.0,
+      -2.5,
+      0.0,
+      2.5,
+      5.0,
+      7.5,
+      10.0,
+      12.5,
+      15.0
+    ],
+    "native_encoder_unchanged": true,
+    "correction_location": "Translate target/query supports into source-native frame during B2/JEPA geometry only; do not move Encoder bands or Merge origin",
+    "cases": [
+      {
+        "S2_id": "obs_57c4c169ec25701452c35149",
+        "Landsat_id": "obs_8b41ee13dedf08054ec49578",
+        "time_gap_seconds": 775.147388,
+        "candidate_only": true,
+        "initial_proposal_case": true,
+        "selection_note": "Explicit named cases for review based on existing spatial-consistency evidence; no general time cutoff adopted",
+        "candidate": {
+          "S2_relative_to_Landsat_translation_m": [
+            0.0,
+            10.0
+          ],
+          "mean_bidirectional_band_correlation": 0.9362653808732542,
+          "directional_band_correlations": [
+            0.9663922328423846,
+            0.9751030400451094,
+            0.9819819169144886,
+            0.9716925870928553,
+            0.8378736058989736,
+            0.865197416163513,
+            0.9419555875319949,
+            0.9499266604967143
+          ]
+        },
+        "second_best": {
+          "S2_relative_to_Landsat_translation_m": [
+            -2.5,
+            10.0
+          ],
+          "mean_bidirectional_band_correlation": 0.9352669876970628,
+          "directional_band_correlations": [
+            0.9666565426297973,
+            0.9745024458117018,
+            0.9807489515295459,
+            0.9710782108301247,
+            0.8367854738944036,
+            0.8636851689988724,
+            0.9405953885964033,
+            0.948083719285654
+          ]
+        },
+        "score_separation_from_second": 0.0009983931761913256,
+        "proposed_query_offsets": {
+          "S2_to_Landsat": [
+            -0.0,
+            -10.0
+          ],
+          "Landsat_to_S2": [
+            0.0,
+            10.0
+          ]
+        },
+        "correction_applied": false,
+        "admitted": false,
+        "S2_cache_sha256": "01b1b69878ebd9f701514e0ed24f52198b179ed54e32e5fd7969b1bab6593514",
+        "Landsat_cache_sha256": "78de65347d77170b76294d95cca44a1c9af704cd383911d8a6bfd28a22d9d35b",
+        "role": "TRAIN",
+        "S2_crs": "EPSG:32631",
+        "Landsat_crs": "EPSG:32631",
+        "original_geometry_status": "same_CRS"
+      },
+      {
+        "S2_id": "obs_973cae81321bcaab1ebaebee",
+        "Landsat_id": "obs_06911cf5e63c9c5455a58ae1",
+        "time_gap_seconds": 1218.537182,
+        "candidate_only": true,
+        "initial_proposal_case": true,
+        "selection_note": "Explicit named cases for review based on existing spatial-consistency evidence; no general time cutoff adopted",
+        "candidate": {
+          "S2_relative_to_Landsat_translation_m": [
+            2.5,
+            10.0
+          ],
+          "mean_bidirectional_band_correlation": 0.9480968176018034,
+          "directional_band_correlations": [
+            0.9741415890679433,
+            0.9848514045109064,
+            0.9781914117098031,
+            0.9895543750995806,
+            0.8406054956205194,
+            0.898281673194066,
+            0.9334116024185035,
+            0.9857369891931049
+          ]
+        },
+        "second_best": {
+          "S2_relative_to_Landsat_translation_m": [
+            2.5,
+            7.5
+          ],
+          "mean_bidirectional_band_correlation": 0.947694527553042,
+          "directional_band_correlations": [
+            0.9739527811019089,
+            0.9849732385685759,
+            0.9777812757329003,
+            0.9888870031191652,
+            0.8403580355719913,
+            0.8981041001196666,
+            0.9326892710484905,
+            0.9848105151616373
+          ]
+        },
+        "score_separation_from_second": 0.0004022900487614667,
+        "proposed_query_offsets": {
+          "S2_to_Landsat": [
+            -2.5,
+            -10.0
+          ],
+          "Landsat_to_S2": [
+            2.5,
+            10.0
+          ]
+        },
+        "correction_applied": false,
+        "admitted": false,
+        "S2_cache_sha256": "a81bde629ac4cd173bb6b4e2a6eff81f3db3108b881e745acf5d5aa78262e5be",
+        "Landsat_cache_sha256": "e0018f4fb547f4ea61a60c1fc92abba63d7f405237d8a7d3683388d48b519470",
+        "role": "TRAIN",
+        "S2_crs": "EPSG:32635",
+        "Landsat_crs": "EPSG:32635",
+        "original_geometry_status": "same_CRS"
+      },
+      {
+        "S2_id": "obs_89dde414bba657df2d0b781c",
+        "Landsat_id": "obs_a11a4b1912c82ef60ee3181a",
+        "time_gap_seconds": 85364.306782,
+        "candidate_only": true,
+        "initial_proposal_case": false,
+        "selection_note": "Explicit named cases for review based on existing spatial-consistency evidence; no general time cutoff adopted",
+        "candidate": {
+          "S2_relative_to_Landsat_translation_m": [
+            -2.5,
+            2.5
+          ],
+          "mean_bidirectional_band_correlation": 0.9321451013905638,
+          "directional_band_correlations": [
+            0.9630674438161003,
+            0.9569403411606507,
+            0.9912945129991023,
+            0.9812680253724011,
+            0.8167291537209391,
+            0.8095653293223397,
+            0.9719496675041156,
+            0.9663463372288617
+          ]
+        },
+        "second_best": {
+          "S2_relative_to_Landsat_translation_m": [
+            0.0,
+            2.5
+          ],
+          "mean_bidirectional_band_correlation": 0.9312952729087225,
+          "directional_band_correlations": [
+            0.9605463310910081,
+            0.9546466315359411,
+            0.9901259697397882,
+            0.9813235422826644,
+            0.8165666702862424,
+            0.8097096223686873,
+            0.9708049736338847,
+            0.9666384423315635
+          ]
+        },
+        "score_separation_from_second": 0.0008498284818413415,
+        "proposed_query_offsets": {
+          "S2_to_Landsat": [
+            2.5,
+            -2.5
+          ],
+          "Landsat_to_S2": [
+            -2.5,
+            2.5
+          ]
+        },
+        "correction_applied": false,
+        "admitted": false,
+        "S2_cache_sha256": "e10cce0abf1ed8efb775d39b28b7fc966875ffbf0fc84422bdcf6411d785f630",
+        "Landsat_cache_sha256": "dde73aa42fd96b83ae8ecf8ea1b8c83028962fa34966400f1c17a326a82848fe",
+        "role": "TRAIN",
+        "S2_crs": "EPSG:32651",
+        "Landsat_crs": "EPSG:32651",
+        "original_geometry_status": "same_CRS"
+      }
+    ]
+  },
+  "required_before_applying": {
+    "shared_translation_estimator_review": null,
+    "exact_pair_offsets_review": null,
+    "independent_calibration_and_target_isolation_review": null,
+    "registration_residual_acceptance": null,
+    "QA_and_processing_domain_acceptance": null,
+    "temporal_and_change_risk_acceptance": null,
+    "pair_manifest_freeze": null,
+    "validation_calibration_protocol": null
+  },
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "source_reports": {
+    "pair_fixed_support_fine_grid.json": "0a8c0a919e39a37ee035d0b71583010ddc0d1e04bb0df2ea582678534005b604",
+    "pair_spatial_holdout_disjoint.json": "a27429108f0d45a8b9f860cf23f96c93afa90895edb1c9c440ffabaf16f15114",
+    "cross_source_pair_candidates.json": "b3a88d18041dcf6250f63e4288174b41d95017605b26e4fd74c3e10341739ada"
+  },
+  "optimizer_updates": 0,
+  "imagery_or_header_reads": 0,
+  "coordinate_correction_applied": false,
+  "pairs_admitted": 0,
+  "limits": [
+    "Aggregation reuses frozen full-window diagnostic scores; these candidates are not independent heldout results or precise geodetic offsets",
+    "2.5m search spacing is not an uncertainty bound or model GSD discretization",
+    "Do not use validation target values to fit or tune a new correction protocol",
+    "No pair-specific or universal admission threshold inferred from correlation; current accepted pair count remains0"
+  ],
+  "implementation_review": "B2_query_geometry_implementation_review.md"
+}

@@ -1,0 +1,143 @@
+{
+  "status": "REAL_REVIEWED_TRAIN_B1_FULL_TARGET_MATCHED_MEASUREMENT",
+  "optimizer_updates": 0,
+  "observation_id": "obs_0002e58c12d2c4a9e4c91a8c",
+  "member_cache_sha256": "a712ee638422acafc15830292df7575de40947b25cfed15f38144b755d32b1af",
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "hidden_bands": [
+    "B02",
+    "B08"
+  ],
+  "task_signature": "6aa12f487784cc54ecb21213ec3d7249eb3e658bb314ffc0be2934430f623060",
+  "merge_recipe": {
+    "architecture": "participation_selected_windows_v1",
+    "rate_curve": {
+      "family": "candidate_area_equivalent_hill",
+      "effective_gsd": "sqrt(gx*gy)",
+      "amplitude": 0.8092248954506467,
+      "scale_m": 4.010953026221307,
+      "power": 1.219268281571556
+    },
+    "selection_seed": 0,
+    "span_rule": "1/(1-r)",
+    "selection": "nearest_complete_group_prefix_physical_sha256",
+    "window_learning": false
+  },
+  "curve_frozen": false,
+  "CPU_load_seconds": 0.03807539999979781,
+  "CPU_planning_seconds": 0.9049331999995047,
+  "transfer_seconds": 0.1269509999992806,
+  "rows": [
+    {
+      "local_group_batch": 64,
+      "seconds": [
+        5.975619099999676,
+        5.91151280000031
+      ],
+      "median_seconds": 5.943565949999993,
+      "peak_allocated_bytes": 2254780416,
+      "pixels": 32768,
+      "tokens": 29116,
+      "task_loss": 2.8765968066514715,
+      "prediction_max_abs": 0.0,
+      "task_loss_abs": 0.0,
+      "max_band_nmse_abs": 0.0,
+      "gradient_relative_l2": 0.0,
+      "gradient_max_abs": 0.0,
+      "per_band": [
+        {
+          "band": "B02",
+          "status": "OK",
+          "count": 16384,
+          "unsupported": 0,
+          "nmse": 1.0928944903919866,
+          "mae": 0.16205585502382291,
+          "rmse": 0.19961085316632587,
+          "bias": -0.07842336275996331,
+          "prediction_variance": 0.033473232663971494,
+          "target_variance": 0.00015291594030269963,
+          "target_mean": 0.039040129630393494
+        },
+        {
+          "band": "B08",
+          "status": "OK",
+          "count": 16384,
+          "unsupported": 0,
+          "nmse": 4.660299122910956,
+          "mae": 0.39053314183729526,
+          "rmse": 0.42877139762387745,
+          "bias": -0.38802839409618173,
+          "prediction_variance": 0.033290336448045424,
+          "target_variance": 0.004619538688608968,
+          "target_mean": 0.3487226533238754
+        }
+      ],
+      "default_adopted": false
+    },
+    {
+      "local_group_batch": 1024,
+      "seconds": [
+        2.65353099999993,
+        2.368162499999926
+      ],
+      "median_seconds": 2.510846749999928,
+      "peak_allocated_bytes": 2275735040,
+      "pixels": 32768,
+      "tokens": 29116,
+      "task_loss": 2.8765967930425678,
+      "prediction_max_abs": 4.172325134277344e-07,
+      "task_loss_abs": 1.360890378165891e-08,
+      "max_band_nmse_abs": 1.5758208959937292e-08,
+      "gradient_relative_l2": 3.512702835738998e-07,
+      "gradient_max_abs": 6.866455078125e-05,
+      "per_band": [
+        {
+          "band": "B02",
+          "status": "OK",
+          "count": 16384,
+          "unsupported": 0,
+          "nmse": 1.0928944789323884,
+          "mae": 0.16205585447573867,
+          "rmse": 0.19961085211981122,
+          "bias": -0.07842336239878023,
+          "prediction_variance": 0.03347323233678877,
+          "target_variance": 0.00015291594030269963,
+          "target_mean": 0.039040129630393494
+        },
+        {
+          "band": "B08",
+          "status": "OK",
+          "count": 16384,
+          "unsupported": 0,
+          "nmse": 4.660299107152747,
+          "mae": 0.3905331410110193,
+          "rmse": 0.4287713968989595,
+          "bias": -0.3880283934427098,
+          "prediction_variance": 0.033290336268205885,
+          "target_variance": 0.004619538688608968,
+          "target_mean": 0.3487226533238754
+        }
+      ],
+      "default_adopted": false
+    }
+  ],
+  "speed_ratio": 2.36715600026173,
+  "scope": "single reviewed TRAIN B1 observation; all supported target pixels; full Encoder/Decoder gradients; no parameter update",
+  "limits": [
+    "Explicit candidate curve is not scientific freezing or formal admission",
+    "No optimizer-step/resume or effective batch8 throughput acceptance",
+    "Timing excludes initial load/planning/transfer, collected separately",
+    "Existing FP32 limits can be compared descriptively; no tolerance changed"
+  ],
+  "source_sha256": {
+    "participation_real_batch_probe.py": "dd953e07f9ee3c69b5cd8476f90f1c3cc19a2be687fe5fe36575e62b736be7c6",
+    "participation_encoder.py": "8899f6ab9273c98a50defa4ff66d7e6a1b413f1c60a1ab8baa555124ebd3364f",
+    "participation_layout.py": "c8d11902caac1cb4afd68df7377ee3b02e070de23d787e9ae450317aa08d7718",
+    "adaptive_window.py": "2fc52794c72e90f6e1570bfc38f58ae57bf479527f9ccde2bcb9b9077603fe2d"
+  }
+}

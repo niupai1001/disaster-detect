@@ -1,0 +1,4811 @@
+{
+  "status": "SPATIAL_HOLDOUT_DIAGNOSTIC_COMPLETE_NOT_ADMISSION",
+  "optimizer_updates": 0,
+  "admitted_pairs": 0,
+  "correction_applied": false,
+  "source_identities": {
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "reference_sha256": "0a8c0a919e39a37ee035d0b71583010ddc0d1e04bb0df2ea582678534005b604",
+  "source_sha256": {
+    "pair_spatial_holdout.py": "7144056c6a53712df7eb414d4583dc9ae18dfcbf3e8ea544155253f7beeea2ae",
+    "pair_registration.py": "7073a9d510f04ea6569bfae3f63931c9f1b01e049c5326aa446bdcd9914ee63d",
+    "geometry_views.py": "a84c5268b595244e25bf567cfe0a5d1950f51ac150b160258d6cfa61929ec23e"
+  },
+  "rows": [
+    {
+      "S2_id": "obs_57c4c169ec25701452c35149",
+      "Landsat_id": "obs_8b41ee13dedf08054ec49578",
+      "time_gap_seconds": 775.147388,
+      "directions": [
+        {
+          "source_id": "obs_57c4c169ec25701452c35149",
+          "target_id": "obs_8b41ee13dedf08054ec49578",
+          "bands": [
+            {
+              "source_band": "B03",
+              "target_band": "SR_B3",
+              "fixed_target_pixels_before_buffer": 2175,
+              "fixed_target_pixels": 1904,
+              "internal_boundary_margin_m": [
+                25.0,
+                25.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.9573421500964897,
+                    "rmse": 0.011273868487306061,
+                    "bias": 0.009102540208680796,
+                    "source_std": 0.022122742200939842,
+                    "target_std": 0.019340661067993793
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9437647578931482,
+                    "rmse": 0.008019091034067252,
+                    "bias": 0.004852741174528099,
+                    "source_std": 0.01929529557561671,
+                    "target_std": 0.017964448412822534
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9765824862743334,
+                    "rmse": 0.0070866166008129285,
+                    "bias": 0.00543275066146827,
+                    "source_std": 0.019945361644138952,
+                    "target_std": 0.017964448412822534
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.03281772838118524,
+                  "heldout_rmse_gain": 0.000932474433254323
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.9654181235749313,
+                    "rmse": 0.009112299612873243,
+                    "bias": 0.007214508985750194,
+                    "source_std": 0.02042791683445012,
+                    "target_std": 0.018102254025547968
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9291015354789816,
+                    "rmse": 0.015552461537303587,
+                    "bias": 0.011030884692445397,
+                    "source_std": 0.029078533293541136,
+                    "target_std": 0.024883610476538805
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9685530613764661,
+                    "rmse": 0.01357680354286676,
+                    "bias": 0.011063508746284527,
+                    "source_std": 0.028958789971759682,
+                    "target_std": 0.024883610476538805
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.039451525897484574,
+                  "heldout_rmse_gain": 0.0019756579944368267
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9663108484637675,
+                    "rmse": 0.010483579751375705,
+                    "bias": 0.008006783847001864,
+                    "source_std": 0.02433687180451092,
+                    "target_std": 0.02095533759482332
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8996947863970349,
+                    "rmse": 0.011027348847881055,
+                    "bias": 0.008730926398911381,
+                    "source_std": 0.015385245832239318,
+                    "target_std": 0.0133231551308074
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9447237502680003,
+                    "rmse": 0.010106596040538927,
+                    "bias": 0.008611826310032607,
+                    "source_std": 0.015569705033769057,
+                    "target_std": 0.0133231551308074
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.04502896387096533,
+                  "heldout_rmse_gain": 0.0009207528073421276
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9726994881295016,
+                    "rmse": 0.010501192939542528,
+                    "bias": 0.008378207944158654,
+                    "source_std": 0.024777308784893974,
+                    "target_std": 0.021451751655391607
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8727301828028288,
+                    "rmse": 0.011525143452350124,
+                    "bias": 0.007874707965465917,
+                    "source_std": 0.017220356398562852,
+                    "target_std": 0.01540262357770459
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.922846646574829,
+                    "rmse": 0.010105661467750774,
+                    "bias": 0.0076791730754700045,
+                    "source_std": 0.017035439256517036,
+                    "target_std": 0.01540262357770459
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.050116463772000186,
+                  "heldout_rmse_gain": 0.0014194819845993502
+                }
+              ]
+            },
+            {
+              "source_band": "B04",
+              "target_band": "SR_B4",
+              "fixed_target_pixels_before_buffer": 2175,
+              "fixed_target_pixels": 1904,
+              "internal_boundary_margin_m": [
+                25.0,
+                25.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.9664792492242567,
+                    "rmse": 0.010122193663385773,
+                    "bias": 0.0065896343297676165,
+                    "source_std": 0.028443228137430013,
+                    "target_std": 0.025100890657440422
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9483501444785263,
+                    "rmse": 0.008767594526635725,
+                    "bias": 0.0014922360731297638,
+                    "source_std": 0.027105008757982198,
+                    "target_std": 0.024861549758332532
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9844369927685265,
+                    "rmse": 0.005968184891542298,
+                    "bias": 0.0023613777834721305,
+                    "source_std": 0.027784304166108994,
+                    "target_std": 0.024861549758332532
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.036086848290000195,
+                  "heldout_rmse_gain": 0.0027994096350934267
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.9736385436355163,
+                    "rmse": 0.008658297964968344,
+                    "bias": 0.004967791473534631,
+                    "source_std": 0.02874172002702035,
+                    "target_std": 0.02528079728423485
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9319967175818106,
+                    "rmse": 0.014700676953306029,
+                    "bias": 0.007309632079546666,
+                    "source_std": 0.034789481529837324,
+                    "target_std": 0.030508911203539678
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9760900793710146,
+                    "rmse": 0.010953406550294727,
+                    "bias": 0.007337801590204108,
+                    "source_std": 0.03448640825257304,
+                    "target_std": 0.030508911203539678
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.04409336178920398,
+                  "heldout_rmse_gain": 0.003747270403011302
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.973508395386748,
+                    "rmse": 0.009156276885478655,
+                    "bias": 0.004993915999146448,
+                    "source_std": 0.03096228079322647,
+                    "target_std": 0.027179276300106147
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9125031543181841,
+                    "rmse": 0.011274455065170044,
+                    "bias": 0.007259638618491419,
+                    "source_std": 0.02097107046877537,
+                    "target_std": 0.01823167282594658
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9573722352156586,
+                    "rmse": 0.009615707526178154,
+                    "bias": 0.007182807812858048,
+                    "source_std": 0.02107867829164665,
+                    "target_std": 0.01823167282594658
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.044869080897474545,
+                  "heldout_rmse_gain": 0.0016587475389918897
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9804169831635491,
+                    "rmse": 0.00909924219960685,
+                    "bias": 0.005644855583312518,
+                    "source_std": 0.03219760863387932,
+                    "target_std": 0.028291948946251047
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8994706258993721,
+                    "rmse": 0.011996250842900118,
+                    "bias": 0.005527933409541872,
+                    "source_std": 0.024329786386986373,
+                    "target_std": 0.021318424986780354
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9426529076085828,
+                    "rmse": 0.009773258673267643,
+                    "bias": 0.005273026388238593,
+                    "source_std": 0.024228760240546564,
+                    "target_std": 0.021318424986780354
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.04318228170921068,
+                  "heldout_rmse_gain": 0.0022229921696324748
+                }
+              ]
+            },
+            {
+              "source_band": "B8A",
+              "target_band": "SR_B5",
+              "fixed_target_pixels_before_buffer": 2175,
+              "fixed_target_pixels": 1904,
+              "internal_boundary_margin_m": [
+                35.0,
+                35.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.9782639102781279,
+                    "rmse": 0.015896519742917486,
+                    "bias": 0.009905411803611234,
+                    "source_std": 0.059830055434676344,
+                    "target_std": 0.05934126414674711
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9245228265994379,
+                    "rmse": 0.029414804257724726,
+                    "bias": 0.015401142985000147,
+                    "source_std": 0.06467757420893153,
+                    "target_std": 0.06431206523700923
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9773015159326982,
+                    "rmse": 0.01939497289852656,
+                    "bias": 0.013570551874146138,
+                    "source_std": 0.06537662371740645,
+                    "target_std": 0.06431206523700923
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.052778689333260354,
+                  "heldout_rmse_gain": 0.010019831359198168
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.9784162302172597,
+                    "rmse": 0.01729044711398339,
+                    "bias": 0.011509398093429218,
+                    "source_std": 0.062436657473756096,
+                    "target_std": 0.060922274561277565
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9474383258877914,
+                    "rmse": 0.027445916841052374,
+                    "bias": 0.009673503206305188,
+                    "source_std": 0.0794755560040556,
+                    "target_std": 0.07892513688192297
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9872493294682037,
+                    "rmse": 0.015304287545493848,
+                    "bias": 0.008648918728465314,
+                    "source_std": 0.07917488802525238,
+                    "target_std": 0.07892513688192297
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.03981100358041223,
+                  "heldout_rmse_gain": 0.012141629295558527
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9810984545457953,
+                    "rmse": 0.018045898787403838,
+                    "bias": 0.011721053713836442,
+                    "source_std": 0.07088540097813947,
+                    "target_std": 0.06988590732406712
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.920619204507002,
+                    "rmse": 0.017063693090480725,
+                    "bias": 0.0075604086955607325,
+                    "source_std": 0.038244385165304776,
+                    "target_std": 0.03852761255447649
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.968918345737275,
+                    "rmse": 0.0125714587486211,
+                    "bias": 0.008122506928591688,
+                    "source_std": 0.038437669255645,
+                    "target_std": 0.03852761255447649
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.04829914123027301,
+                  "heldout_rmse_gain": 0.004492234341859625
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9850661089140945,
+                    "rmse": 0.01596988494507325,
+                    "bias": 0.010091553236239812,
+                    "source_std": 0.07184186598737069,
+                    "target_std": 0.07032893575943082
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9262539441606794,
+                    "rmse": 0.02303141545758456,
+                    "bias": 0.012262903227444307,
+                    "source_std": 0.051038155518552904,
+                    "target_std": 0.05044174424219064
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9612384048881889,
+                    "rmse": 0.019110844576766192,
+                    "bias": 0.012903272792614853,
+                    "source_std": 0.050789822651333166,
+                    "target_std": 0.05044174424219064
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.03498446072750949,
+                  "heldout_rmse_gain": 0.003920570880818368
+                }
+              ]
+            },
+            {
+              "source_band": "B11",
+              "target_band": "SR_B6",
+              "fixed_target_pixels_before_buffer": 2175,
+              "fixed_target_pixels": 1904,
+              "internal_boundary_margin_m": [
+                35.0,
+                35.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    0.0,
+                    12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.9698700157804516,
+                    "rmse": 0.02065431291674234,
+                    "bias": 0.018622770338154654,
+                    "source_std": 0.03536767859321654,
+                    "target_std": 0.03665812408577933
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9461901552629214,
+                    "rmse": 0.021863723436454756,
+                    "bias": 0.016595484540290986,
+                    "source_std": 0.04311160695320714,
+                    "target_std": 0.04361503859403068
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9816936700061147,
+                    "rmse": 0.018946941471708584,
+                    "bias": 0.017016199173747165,
+                    "source_std": 0.043469161018445876,
+                    "target_std": 0.04361503859403068
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    12.5
+                  ],
+                  "heldout_correlation_gain": 0.035503514743193354,
+                  "heldout_rmse_gain": 0.002916781964746172
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 468,
+                  "fit_pixels": 1436,
+                  "selected_source_shift_m": [
+                    0.0,
+                    12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1436,
+                    "support_m2": 1292400.0,
+                    "correlation": 0.970083287918601,
+                    "rmse": 0.020688353318661732,
+                    "bias": 0.01858192419904797,
+                    "source_std": 0.036452212023421,
+                    "target_std": 0.037460449605206184
+                  },
+                  "heldout_zero": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9345945248192628,
+                    "rmse": 0.023256066246571235,
+                    "bias": 0.017387123401245815,
+                    "source_std": 0.04237080387843566,
+                    "target_std": 0.04297140867031443
+                  },
+                  "heldout_selected": {
+                    "pixels": 468,
+                    "support_m2": 421200.0,
+                    "correlation": 0.9834119365760721,
+                    "rmse": 0.018832641905264246,
+                    "bias": 0.017141530489467673,
+                    "source_std": 0.04254725658033024,
+                    "target_std": 0.04297140867031443
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    12.5
+                  ],
+                  "heldout_correlation_gain": 0.048817411756809315,
+                  "heldout_rmse_gain": 0.004423424341306988
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    0.0,
+                    12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9721631384494541,
+                    "rmse": 0.02015738109948098,
+                    "bias": 0.0178985882210159,
+                    "source_std": 0.0385901618005043,
+                    "target_std": 0.03956658617911118
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9160801415902351,
+                    "rmse": 0.022597163772178967,
+                    "bias": 0.019036089818449165,
+                    "source_std": 0.02881009326405923,
+                    "target_std": 0.03023864960658969
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9711029510613794,
+                    "rmse": 0.020511528127801687,
+                    "bias": 0.019193975506324745,
+                    "source_std": 0.028883075986507675,
+                    "target_std": 0.03023864960658969
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    12.5
+                  ],
+                  "heldout_correlation_gain": 0.05502280947114435,
+                  "heldout_rmse_gain": 0.0020856356443772796
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1420,
+                  "selected_source_shift_m": [
+                    0.0,
+                    12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1420,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.981538208489448,
+                    "rmse": 0.019457797685085394,
+                    "bias": 0.01779978987848289,
+                    "source_std": 0.040757890756751604,
+                    "target_std": 0.041006380403107646
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.837949720373206,
+                    "rmse": 0.025582475488795574,
+                    "bias": 0.0195268394162107,
+                    "source_std": 0.02708411997009413,
+                    "target_std": 0.030090061451782446
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9303584320142938,
+                    "rmse": 0.02240608876173143,
+                    "bias": 0.019483838412103386,
+                    "source_std": 0.027160600027330613,
+                    "target_std": 0.030090061451782446
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    15.0
+                  ],
+                  "heldout_correlation_gain": 0.09240871164108777,
+                  "heldout_rmse_gain": 0.003176386727064145
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "obs_8b41ee13dedf08054ec49578",
+          "target_id": "obs_57c4c169ec25701452c35149",
+          "bands": [
+            {
+              "source_band": "SR_B3",
+              "target_band": "B03",
+              "fixed_target_pixels_before_buffer": 20278,
+              "fixed_target_pixels": 17561,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 4341,
+                  "fit_pixels": 13220,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13220,
+                    "support_m2": 1322000.0,
+                    "correlation": 0.8105518327614278,
+                    "rmse": 0.018857855277445955,
+                    "bias": -0.009031025232513307,
+                    "source_std": 0.018483462390350494,
+                    "target_std": 0.027506794038845126
+                  },
+                  "heldout_zero": {
+                    "pixels": 4341,
+                    "support_m2": 434100.0,
+                    "correlation": 0.8413148208166314,
+                    "rmse": 0.013929948152182623,
+                    "bias": -0.004738140662034051,
+                    "source_std": 0.018477932851752595,
+                    "target_std": 0.02402102228622784
+                  },
+                  "heldout_selected": {
+                    "pixels": 4341,
+                    "support_m2": 434100.0,
+                    "correlation": 0.8594772478747569,
+                    "rmse": 0.013571050662936731,
+                    "bias": -0.005208071719008062,
+                    "source_std": 0.018140032705812128,
+                    "target_std": 0.02402102228622784
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.01816242705812543,
+                  "heldout_rmse_gain": 0.00035889748924589245
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 4242,
+                  "fit_pixels": 13319,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13319,
+                    "support_m2": 1331900.0,
+                    "correlation": 0.8237659735763079,
+                    "rmse": 0.016118533475378137,
+                    "bias": -0.007148548158653299,
+                    "source_std": 0.0178087209887789,
+                    "target_std": 0.025003182371737886
+                  },
+                  "heldout_zero": {
+                    "pixels": 4242,
+                    "support_m2": 424200.0,
+                    "correlation": 0.8162958548518449,
+                    "rmse": 0.023244692922949655,
+                    "bias": -0.010938485344465277,
+                    "source_std": 0.02360452241297608,
+                    "target_std": 0.03459009433281869
+                  },
+                  "heldout_selected": {
+                    "pixels": 4242,
+                    "support_m2": 424200.0,
+                    "correlation": 0.8502102652744781,
+                    "rmse": 0.021876771918613633,
+                    "bias": -0.010853247219088055,
+                    "source_std": 0.024004577231974956,
+                    "target_std": 0.03459009433281869
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03391441042263321,
+                  "heldout_rmse_gain": 0.0013679210043360222
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 13072,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13072,
+                    "support_m2": 1307200.0,
+                    "correlation": 0.8491331221476378,
+                    "rmse": 0.017658481904524303,
+                    "bias": -0.007889847162566084,
+                    "source_std": 0.02024282323478255,
+                    "target_std": 0.02881885706770595
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.6731908646049226,
+                    "rmse": 0.018347789492444075,
+                    "bias": -0.008609634520986823,
+                    "source_std": 0.012516819043355032,
+                    "target_std": 0.021724546435006254
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7107138389952183,
+                    "rmse": 0.01781466380289643,
+                    "bias": -0.00865723118667322,
+                    "source_std": 0.012464991393188126,
+                    "target_std": 0.021724546435006254
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03752297439029573,
+                  "heldout_rmse_gain": 0.0005331256895476436
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 13072,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13072,
+                    "support_m2": 1307200.0,
+                    "correlation": 0.8517708138331143,
+                    "rmse": 0.018010617607990106,
+                    "bias": -0.008216099020474417,
+                    "source_std": 0.020889147788017422,
+                    "target_std": 0.029501912613601203
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7078226573453668,
+                    "rmse": 0.01770970036929486,
+                    "bias": -0.007930131607947678,
+                    "source_std": 0.01427524539107213,
+                    "target_std": 0.022313420662804815
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7529416635603128,
+                    "rmse": 0.016756681607950425,
+                    "bias": -0.00770718345074591,
+                    "source_std": 0.01440057543967242,
+                    "target_std": 0.022313420662804815
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.04511900621494602,
+                  "heldout_rmse_gain": 0.0009530187613444353
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B4",
+              "target_band": "B04",
+              "fixed_target_pixels_before_buffer": 20278,
+              "fixed_target_pixels": 17561,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 4341,
+                  "fit_pixels": 13220,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13220,
+                    "support_m2": 1322000.0,
+                    "correlation": 0.8331771781864349,
+                    "rmse": 0.020846879917043253,
+                    "bias": -0.006541162044860975,
+                    "source_std": 0.02411518201364291,
+                    "target_std": 0.034719620789544214
+                  },
+                  "heldout_zero": {
+                    "pixels": 4341,
+                    "support_m2": 434100.0,
+                    "correlation": 0.8737351544890055,
+                    "rmse": 0.0158552302713082,
+                    "bias": -0.0013130208503337357,
+                    "source_std": 0.025297722336797383,
+                    "target_std": 0.032015858836598944
+                  },
+                  "heldout_selected": {
+                    "pixels": 4341,
+                    "support_m2": 434100.0,
+                    "correlation": 0.8972221984304699,
+                    "rmse": 0.014832779690097699,
+                    "bias": -0.002048609419465168,
+                    "source_std": 0.024732288941695567,
+                    "target_std": 0.032015858836598944
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.02348704394146439,
+                  "heldout_rmse_gain": 0.001022450581210501
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 4242,
+                  "fit_pixels": 13319,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13319,
+                    "support_m2": 1331900.0,
+                    "correlation": 0.8584393597367526,
+                    "rmse": 0.018725088969289084,
+                    "bias": -0.00486071295220226,
+                    "source_std": 0.02477846515657365,
+                    "target_std": 0.03413461320711742
+                  },
+                  "heldout_zero": {
+                    "pixels": 4242,
+                    "support_m2": 424200.0,
+                    "correlation": 0.8332967370372428,
+                    "rmse": 0.023992254746728003,
+                    "bias": -0.007263656006138008,
+                    "source_std": 0.0289158466428098,
+                    "target_std": 0.04044581980353729
+                  },
+                  "heldout_selected": {
+                    "pixels": 4242,
+                    "support_m2": 424200.0,
+                    "correlation": 0.8727519665985288,
+                    "rmse": 0.02187764271559272,
+                    "bias": -0.007220023553177384,
+                    "source_std": 0.02924363516819045,
+                    "target_std": 0.04044581980353729
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.039455229561286,
+                  "heldout_rmse_gain": 0.0021146120311352837
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 13072,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13072,
+                    "support_m2": 1307200.0,
+                    "correlation": 0.8723861705898008,
+                    "rmse": 0.01894957561742386,
+                    "bias": -0.00483221843693493,
+                    "source_std": 0.026194026350923254,
+                    "target_std": 0.03595822306643731
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7052498894973955,
+                    "rmse": 0.022024487462779404,
+                    "bias": -0.007117366253513089,
+                    "source_std": 0.017363811313450283,
+                    "target_std": 0.029064846699484705
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7446822620736905,
+                    "rmse": 0.02114142732145731,
+                    "bias": -0.007173182516227882,
+                    "source_std": 0.017261598772102565,
+                    "target_std": 0.029064846699484705
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03943237257629495,
+                  "heldout_rmse_gain": 0.0008830601413220944
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 13072,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13072,
+                    "support_m2": 1307200.0,
+                    "correlation": 0.8775998681781149,
+                    "rmse": 0.019541536636480485,
+                    "bias": -0.005486594990653588,
+                    "source_std": 0.0276435432411909,
+                    "target_std": 0.037532105616546546
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7547623470362316,
+                    "rmse": 0.02083651376681501,
+                    "bias": -0.00557861185001322,
+                    "source_std": 0.019937888137765616,
+                    "target_std": 0.030279039232036432
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7956364731326194,
+                    "rmse": 0.01950920740590864,
+                    "bias": -0.005267633327052053,
+                    "source_std": 0.020038642088160974,
+                    "target_std": 0.030279039232036432
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.04087412609638785,
+                  "heldout_rmse_gain": 0.0013273063609063676
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B5",
+              "target_band": "B8A",
+              "fixed_target_pixels_before_buffer": 5039,
+              "fixed_target_pixels": 4232,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 1047,
+                  "fit_pixels": 3185,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3185,
+                    "support_m2": 1274000.0,
+                    "correlation": 0.9311485410418969,
+                    "rmse": 0.027368202718616213,
+                    "bias": -0.010013539149912785,
+                    "source_std": 0.05470900744263219,
+                    "target_std": 0.06677828106862224
+                  },
+                  "heldout_zero": {
+                    "pixels": 1047,
+                    "support_m2": 418800.0,
+                    "correlation": 0.8738389868788272,
+                    "rmse": 0.03932799268806236,
+                    "bias": -0.015716614278163243,
+                    "source_std": 0.05844287111355559,
+                    "target_std": 0.07325569002217479
+                  },
+                  "heldout_selected": {
+                    "pixels": 1047,
+                    "support_m2": 418800.0,
+                    "correlation": 0.9306068276015496,
+                    "rmse": 0.03191819870980912,
+                    "bias": -0.014193277864751639,
+                    "source_std": 0.05825351653047121,
+                    "target_std": 0.07325569002217479
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.05676784072272234,
+                  "heldout_rmse_gain": 0.00740979397825324
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 1007,
+                  "fit_pixels": 3225,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3225,
+                    "support_m2": 1290000.0,
+                    "correlation": 0.9371993502900489,
+                    "rmse": 0.028093916149750417,
+                    "bias": -0.011687643903112693,
+                    "source_std": 0.05792027361069127,
+                    "target_std": 0.06992049068753729
+                  },
+                  "heldout_zero": {
+                    "pixels": 1007,
+                    "support_m2": 402800.0,
+                    "correlation": 0.9090762824168502,
+                    "rmse": 0.03771465512316307,
+                    "bias": -0.010030545021454472,
+                    "source_std": 0.07207425926930919,
+                    "target_std": 0.0860169974974049
+                  },
+                  "heldout_selected": {
+                    "pixels": 1007,
+                    "support_m2": 402800.0,
+                    "correlation": 0.9491502933147492,
+                    "rmse": 0.03000972946362851,
+                    "bias": -0.008997847596155671,
+                    "source_std": 0.07235393959161965,
+                    "target_std": 0.0860169974974049
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.04007401089789897,
+                  "heldout_rmse_gain": 0.00770492565953456
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3143,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3143,
+                    "support_m2": 1257200.0,
+                    "correlation": 0.9390339829547711,
+                    "rmse": 0.030690031277791605,
+                    "bias": -0.012074607895877455,
+                    "source_std": 0.06456419942722585,
+                    "target_std": 0.07804342029577062
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8539570624815446,
+                    "rmse": 0.02468459722800673,
+                    "bias": -0.007976320275439921,
+                    "source_std": 0.035146189499315576,
+                    "target_std": 0.044547895602252696
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9045993138299178,
+                    "rmse": 0.0212543958639199,
+                    "bias": -0.008083555096532906,
+                    "source_std": 0.03521676139759118,
+                    "target_std": 0.044547895602252696
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.05064225134837319,
+                  "heldout_rmse_gain": 0.003430201364086831
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3143,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3143,
+                    "support_m2": 1257200.0,
+                    "correlation": 0.9496005853306414,
+                    "rmse": 0.02800786586556179,
+                    "bias": -0.010411767723146061,
+                    "source_std": 0.0660388743748592,
+                    "target_std": 0.07844320349098674
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8650176821434692,
+                    "rmse": 0.03284183309806233,
+                    "bias": -0.011942422334737633,
+                    "source_std": 0.046056134397575506,
+                    "target_std": 0.05988862213665908
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8994298565516546,
+                    "rmse": 0.03010207613775574,
+                    "bias": -0.012882734768612599,
+                    "source_std": 0.04644756042837181,
+                    "target_std": 0.05988862213665908
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03441217440818545,
+                  "heldout_rmse_gain": 0.0027397569603065906
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B6",
+              "target_band": "B11",
+              "fixed_target_pixels_before_buffer": 5039,
+              "fixed_target_pixels": 4232,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 1047,
+                  "fit_pixels": 3185,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3185,
+                    "support_m2": 1274000.0,
+                    "correlation": 0.9428131704201155,
+                    "rmse": 0.022898668906035622,
+                    "bias": -0.01868425867691332,
+                    "source_std": 0.034043970207934066,
+                    "target_std": 0.03891470276950013
+                  },
+                  "heldout_zero": {
+                    "pixels": 1047,
+                    "support_m2": 418800.0,
+                    "correlation": 0.9315401220806145,
+                    "rmse": 0.02388131825861472,
+                    "bias": -0.016809146278453306,
+                    "source_std": 0.04150470729374481,
+                    "target_std": 0.04640797634761219
+                  },
+                  "heldout_selected": {
+                    "pixels": 1047,
+                    "support_m2": 418800.0,
+                    "correlation": 0.966556189977311,
+                    "rmse": 0.02137754829265401,
+                    "bias": -0.01737568775812785,
+                    "source_std": 0.041190122277580864,
+                    "target_std": 0.04640797634761219
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "heldout_correlation_gain": 0.03501606789669642,
+                  "heldout_rmse_gain": 0.00250376996596071
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 1007,
+                  "fit_pixels": 3225,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3225,
+                    "support_m2": 1290000.0,
+                    "correlation": 0.9457783288835793,
+                    "rmse": 0.022828400439206947,
+                    "bias": -0.01864139204426098,
+                    "source_std": 0.03519003245214479,
+                    "target_std": 0.03983830428151139
+                  },
+                  "heldout_zero": {
+                    "pixels": 1007,
+                    "support_m2": 402800.0,
+                    "correlation": 0.9199647247888095,
+                    "rmse": 0.025411034713550704,
+                    "bias": -0.017792888092988762,
+                    "source_std": 0.03999812303010801,
+                    "target_std": 0.04592336451651478
+                  },
+                  "heldout_selected": {
+                    "pixels": 1007,
+                    "support_m2": 402800.0,
+                    "correlation": 0.9661306593402559,
+                    "rmse": 0.021554924324862484,
+                    "bias": -0.017460992677246382,
+                    "source_std": 0.0399759447364307,
+                    "target_std": 0.04592336451651478
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "heldout_correlation_gain": 0.04616593455144635,
+                  "heldout_rmse_gain": 0.00385611038868822
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3143,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3143,
+                    "support_m2": 1257200.0,
+                    "correlation": 0.9511870242091466,
+                    "rmse": 0.022486933567806868,
+                    "bias": -0.018128962671153676,
+                    "source_std": 0.036613889527313544,
+                    "target_std": 0.04184961889471968
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8753603757706414,
+                    "rmse": 0.02474758027773382,
+                    "bias": -0.01896777071393992,
+                    "source_std": 0.028058592981429965,
+                    "target_std": 0.03284649820827165
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9299504590868798,
+                    "rmse": 0.022661196877767863,
+                    "bias": -0.01902881477804661,
+                    "source_std": 0.028184203431281658,
+                    "target_std": 0.03284649820827165
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "heldout_correlation_gain": 0.05459008331623838,
+                  "heldout_rmse_gain": 0.002086383399965957
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3143,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3143,
+                    "support_m2": 1257200.0,
+                    "correlation": 0.9622073742559034,
+                    "rmse": 0.021886669138824796,
+                    "bias": -0.017975801464218812,
+                    "source_std": 0.038692021612166706,
+                    "target_std": 0.043928889222048344
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.7959437828181828,
+                    "rmse": 0.02721569100704963,
+                    "bias": -0.019541762926580712,
+                    "source_std": 0.02614044535740966,
+                    "target_std": 0.031217550330498223
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.8860989199607922,
+                    "rmse": 0.024298242915105798,
+                    "bias": -0.019470858555270018,
+                    "source_std": 0.026271841802120346,
+                    "target_std": 0.031217550330498223
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -12.5
+                  ],
+                  "heldout_correlation_gain": 0.09015513714260937,
+                  "heldout_rmse_gain": 0.0029174480919438306
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "S2_id": "obs_973cae81321bcaab1ebaebee",
+      "Landsat_id": "obs_06911cf5e63c9c5455a58ae1",
+      "time_gap_seconds": 1218.537182,
+      "directions": [
+        {
+          "source_id": "obs_973cae81321bcaab1ebaebee",
+          "target_id": "obs_06911cf5e63c9c5455a58ae1",
+          "bands": [
+            {
+              "source_band": "B03",
+              "target_band": "SR_B3",
+              "fixed_target_pixels_before_buffer": 2546,
+              "fixed_target_pixels": 2300,
+              "internal_boundary_margin_m": [
+                25.0,
+                25.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 572,
+                  "fit_pixels": 1728,
+                  "selected_source_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1728,
+                    "support_m2": 1555200.0,
+                    "correlation": 0.9777148357650693,
+                    "rmse": 0.004625941299112632,
+                    "bias": 0.001840625496817381,
+                    "source_std": 0.019932733723813257,
+                    "target_std": 0.018781183568232503
+                  },
+                  "heldout_zero": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9434960747680156,
+                    "rmse": 0.0063733842904258745,
+                    "bias": 0.0004478434788927192,
+                    "source_std": 0.01910616716545049,
+                    "target_std": 0.01745046779672784
+                  },
+                  "heldout_selected": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9726770681724006,
+                    "rmse": 0.004640763934379166,
+                    "bias": 0.0005156028048455911,
+                    "source_std": 0.019177640284677545,
+                    "target_std": 0.01745046779672784
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "heldout_correlation_gain": 0.02918099340438507,
+                  "heldout_rmse_gain": 0.0017326203560467084
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1724,
+                  "selected_source_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1724,
+                    "support_m2": 1551600.0,
+                    "correlation": 0.9572823009296676,
+                    "rmse": 0.00478895149855773,
+                    "bias": 0.001425308337478103,
+                    "source_std": 0.01565167842326012,
+                    "target_std": 0.014334967003406298
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9798068351571745,
+                    "rmse": 0.00521085402171831,
+                    "bias": 0.0019835786537172407,
+                    "source_std": 0.023206401364181325,
+                    "target_std": 0.0214383769961466
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9889060299544213,
+                    "rmse": 0.004116093192698352,
+                    "bias": 0.0017678716823955952,
+                    "source_std": 0.02311776561940459,
+                    "target_std": 0.0214383769961466
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.009099194797246857,
+                  "heldout_rmse_gain": 0.001094760829019958
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1724,
+                  "selected_source_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1724,
+                    "support_m2": 1551600.0,
+                    "correlation": 0.9813554800610728,
+                    "rmse": 0.004410994574849126,
+                    "bias": 0.001176387148799548,
+                    "source_std": 0.021314868144965998,
+                    "target_std": 0.01978184540758098
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.886604543920471,
+                    "rmse": 0.006102139405759416,
+                    "bias": 0.002468088438754533,
+                    "source_std": 0.012058440121075082,
+                    "target_std": 0.010884968347145925
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9294014396482735,
+                    "rmse": 0.005229686989981812,
+                    "bias": 0.0025129066290654365,
+                    "source_std": 0.01232921148896811,
+                    "target_std": 0.010884968347145925
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "heldout_correlation_gain": 0.04279689572780243,
+                  "heldout_rmse_gain": 0.0008724524157776043
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1724,
+                  "selected_source_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1724,
+                    "support_m2": 1551600.0,
+                    "correlation": 0.9789265879099645,
+                    "rmse": 0.004705473694669812,
+                    "bias": 0.001610412428344735,
+                    "source_std": 0.021071422950140913,
+                    "target_std": 0.01961158236433901
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9080520978556339,
+                    "rmse": 0.006352468663949543,
+                    "bias": 0.0015712944479202163,
+                    "source_std": 0.014694761003149447,
+                    "target_std": 0.013371541530922657
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9524019263807136,
+                    "rmse": 0.004695706219514819,
+                    "bias": 0.0013327057677537438,
+                    "source_std": 0.014647603977270133,
+                    "target_std": 0.013371541530922657
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.04434982852507974,
+                  "heldout_rmse_gain": 0.0016567624444347243
+                }
+              ]
+            },
+            {
+              "source_band": "B04",
+              "target_band": "SR_B4",
+              "fixed_target_pixels_before_buffer": 2546,
+              "fixed_target_pixels": 2300,
+              "internal_boundary_margin_m": [
+                25.0,
+                25.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 572,
+                  "fit_pixels": 1728,
+                  "selected_source_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1728,
+                    "support_m2": 1555200.0,
+                    "correlation": 0.9877243082632651,
+                    "rmse": 0.006222949041220462,
+                    "bias": 0.0018482842898553708,
+                    "source_std": 0.033591907398080545,
+                    "target_std": 0.030391209936761004
+                  },
+                  "heldout_zero": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9541630346856722,
+                    "rmse": 0.007865190684929989,
+                    "bias": -0.0010893097952031406,
+                    "source_std": 0.025918274440481892,
+                    "target_std": 0.024020746603282087
+                  },
+                  "heldout_selected": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9783677984107025,
+                    "rmse": 0.0056942721747544325,
+                    "bias": -0.0010111775179502134,
+                    "source_std": 0.02609127228753145,
+                    "target_std": 0.024020746603282087
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "heldout_correlation_gain": 0.02420476372503033,
+                  "heldout_rmse_gain": 0.0021709185101755563
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1724,
+                  "selected_source_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1724,
+                    "support_m2": 1551600.0,
+                    "correlation": 0.9657771255247309,
+                    "rmse": 0.005703074248917119,
+                    "bias": 0.0001507601933613839,
+                    "source_std": 0.021600322985537764,
+                    "target_std": 0.019805741313945528
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9871912939804138,
+                    "rmse": 0.008426306014831072,
+                    "bias": 0.004433606808213229,
+                    "source_std": 0.038938902770737464,
+                    "target_std": 0.034869092071990265
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9936759806427113,
+                    "rmse": 0.007143216986186819,
+                    "bias": 0.004089463783415856,
+                    "source_std": 0.03900429936009787,
+                    "target_std": 0.034869092071990265
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "heldout_correlation_gain": 0.006484686662297512,
+                  "heldout_rmse_gain": 0.001283089028644253
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1724,
+                  "selected_source_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1724,
+                    "support_m2": 1551600.0,
+                    "correlation": 0.9888006329501245,
+                    "rmse": 0.006178213322729641,
+                    "bias": 0.001144841261411897,
+                    "source_std": 0.034928257893491604,
+                    "target_std": 0.03142475376623764
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.8988201007597031,
+                    "rmse": 0.007263221692609275,
+                    "bias": 0.001098173400451843,
+                    "source_std": 0.01636462620346292,
+                    "target_std": 0.015021630258082109
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9415182951267073,
+                    "rmse": 0.005841999676164122,
+                    "bias": 0.0011141239200146685,
+                    "source_std": 0.016838823922561974,
+                    "target_std": 0.015021630258082109
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "heldout_correlation_gain": 0.04269819436700417,
+                  "heldout_rmse_gain": 0.0014212220164451532
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1724,
+                  "selected_source_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1724,
+                    "support_m2": 1551600.0,
+                    "correlation": 0.9879230979701148,
+                    "rmse": 0.006261691895569997,
+                    "bias": 0.0014030585712926102,
+                    "source_std": 0.03452798426583534,
+                    "target_std": 0.031175287052867307
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9264573989214894,
+                    "rmse": 0.007811759212153259,
+                    "bias": 0.0006698386567245226,
+                    "source_std": 0.020652876850983083,
+                    "target_std": 0.018754621134351748
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9646196431933098,
+                    "rmse": 0.005569629716671512,
+                    "bias": 0.00034126516613558824,
+                    "source_std": 0.02063184911433079,
+                    "target_std": 0.018754621134351748
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.03816224427182047,
+                  "heldout_rmse_gain": 0.0022421294954817475
+                }
+              ]
+            },
+            {
+              "source_band": "B8A",
+              "target_band": "SR_B5",
+              "fixed_target_pixels_before_buffer": 2597,
+              "fixed_target_pixels": 2252,
+              "internal_boundary_margin_m": [
+                35.0,
+                35.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 572,
+                  "fit_pixels": 1680,
+                  "selected_source_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1680,
+                    "support_m2": 1512000.0,
+                    "correlation": 0.9819369189806894,
+                    "rmse": 0.009095235529275094,
+                    "bias": -0.0018420889968712815,
+                    "source_std": 0.04619648292154926,
+                    "target_std": 0.04707344675133349
+                  },
+                  "heldout_zero": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9255353206040033,
+                    "rmse": 0.01289492429139299,
+                    "bias": -0.004511535794726735,
+                    "source_std": 0.028673220691604457,
+                    "target_std": 0.031833467366734626
+                  },
+                  "heldout_selected": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9660354896294808,
+                    "rmse": 0.009793020290556322,
+                    "bias": -0.005038347162006722,
+                    "source_std": 0.029064033032996196,
+                    "target_std": 0.031833467366734626
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.040500169025477484,
+                  "heldout_rmse_gain": 0.0031019040008366684
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 552,
+                  "fit_pixels": 1700,
+                  "selected_source_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1700,
+                    "support_m2": 1530000.0,
+                    "correlation": 0.9693886930336438,
+                    "rmse": 0.009882388864486936,
+                    "bias": -0.0030572245791676183,
+                    "source_std": 0.036073403283078995,
+                    "target_std": 0.03811016234938781
+                  },
+                  "heldout_zero": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.9839812342227017,
+                    "rmse": 0.008775502980121839,
+                    "bias": -0.0007030794070058784,
+                    "source_std": 0.04873504847336002,
+                    "target_std": 0.0489702895289481
+                  },
+                  "heldout_selected": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.9898628537101173,
+                    "rmse": 0.007097545017170863,
+                    "bias": -0.001411888237004791,
+                    "source_std": 0.048566528350175185,
+                    "target_std": 0.0489702895289481
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    7.5
+                  ],
+                  "heldout_correlation_gain": 0.0058816194874156125,
+                  "heldout_rmse_gain": 0.0016779579629509758
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1676,
+                  "selected_source_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1676,
+                    "support_m2": 1508400.0,
+                    "correlation": 0.9805634901447192,
+                    "rmse": 0.008837817938535655,
+                    "bias": -0.0027257829290960175,
+                    "source_std": 0.041941209234811934,
+                    "target_std": 0.042846919317289664
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9252933459296359,
+                    "rmse": 0.014343513828748603,
+                    "bias": -0.0028274111847830133,
+                    "source_std": 0.034471131186613095,
+                    "target_std": 0.03707589063167489
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9619718423784375,
+                    "rmse": 0.010451976919065954,
+                    "bias": -0.002444847052511587,
+                    "source_std": 0.03482585445389097,
+                    "target_std": 0.03707589063167489
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.03667849644880161,
+                  "heldout_rmse_gain": 0.0038915369096826496
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 552,
+                  "fit_pixels": 1700,
+                  "selected_source_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1700,
+                    "support_m2": 1530000.0,
+                    "correlation": 0.9806619779448418,
+                    "rmse": 0.009254193908719538,
+                    "bias": -0.0029820757563183316,
+                    "source_std": 0.04356039601062211,
+                    "target_std": 0.04473515387986141
+                  },
+                  "heldout_zero": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.9316216349120454,
+                    "rmse": 0.014772300007290939,
+                    "bias": -0.0012215731265068344,
+                    "source_std": 0.038926940726307424,
+                    "target_std": 0.04033767134552918
+                  },
+                  "heldout_selected": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.9736292264700203,
+                    "rmse": 0.009348684156842193,
+                    "bias": -0.0016433248291131048,
+                    "source_std": 0.03916586787322352,
+                    "target_std": 0.04033767134552918
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.042007591557974844,
+                  "heldout_rmse_gain": 0.005423615850448746
+                }
+              ]
+            },
+            {
+              "source_band": "B11",
+              "target_band": "SR_B6",
+              "fixed_target_pixels_before_buffer": 2597,
+              "fixed_target_pixels": 2252,
+              "internal_boundary_margin_m": [
+                35.0,
+                35.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 572,
+                  "fit_pixels": 1680,
+                  "selected_source_shift_m": [
+                    5.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1680,
+                    "support_m2": 1512000.0,
+                    "correlation": 0.9934754454443429,
+                    "rmse": 0.009144034835050706,
+                    "bias": 0.004869591786462084,
+                    "source_std": 0.06753746233427724,
+                    "target_std": 0.06633944234055035
+                  },
+                  "heldout_zero": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9319805454875265,
+                    "rmse": 0.011990525680158836,
+                    "bias": 0.0011355998815871663,
+                    "source_std": 0.030151816902183434,
+                    "target_std": 0.032897991029214146
+                  },
+                  "heldout_selected": {
+                    "pixels": 572,
+                    "support_m2": 514800.0,
+                    "correlation": 0.9643754838787026,
+                    "rmse": 0.008874420036843318,
+                    "bias": 0.0009208125704154085,
+                    "source_std": 0.030253021183494305,
+                    "target_std": 0.032897991029214146
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.03239493839117613,
+                  "heldout_rmse_gain": 0.003116105643315518
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 552,
+                  "fit_pixels": 1700,
+                  "selected_source_shift_m": [
+                    5.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1700,
+                    "support_m2": 1530000.0,
+                    "correlation": 0.9688269562757615,
+                    "rmse": 0.008389450338225985,
+                    "bias": 0.0026189964525158106,
+                    "source_std": 0.030111821535228397,
+                    "target_std": 0.03197926145922336
+                  },
+                  "heldout_zero": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.9881413037458541,
+                    "rmse": 0.01460544441730014,
+                    "bias": 0.009046135237815394,
+                    "source_std": 0.07448425458809893,
+                    "target_std": 0.07442850528730123
+                  },
+                  "heldout_selected": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.994656876414772,
+                    "rmse": 0.010923616983164797,
+                    "bias": 0.007708922141769993,
+                    "source_std": 0.07495738644656673,
+                    "target_std": 0.07442850528730123
+                  },
+                  "heldout_own_best_shift_m": [
+                    5.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.0065155726689178906,
+                  "heldout_rmse_gain": 0.0036818274341353426
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 576,
+                  "fit_pixels": 1676,
+                  "selected_source_shift_m": [
+                    5.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1676,
+                    "support_m2": 1508400.0,
+                    "correlation": 0.9907569330925373,
+                    "rmse": 0.009678910740745388,
+                    "bias": 0.0041739401251702,
+                    "source_std": 0.06428461612776423,
+                    "target_std": 0.06322306659896679
+                  },
+                  "heldout_zero": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.919851594070907,
+                    "rmse": 0.009904361889604744,
+                    "bias": 0.002867078164989059,
+                    "source_std": 0.022145547187717968,
+                    "target_std": 0.02416706511097622
+                  },
+                  "heldout_selected": {
+                    "pixels": 576,
+                    "support_m2": 518400.0,
+                    "correlation": 0.9650557557968944,
+                    "rmse": 0.007035208487400561,
+                    "bias": 0.0029723877460914256,
+                    "source_std": 0.022578196430778925,
+                    "target_std": 0.02416706511097622
+                  },
+                  "heldout_own_best_shift_m": [
+                    5.0,
+                    10.0
+                  ],
+                  "heldout_correlation_gain": 0.0452041617259874,
+                  "heldout_rmse_gain": 0.0028691534022041833
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 552,
+                  "fit_pixels": 1700,
+                  "selected_source_shift_m": [
+                    5.0,
+                    10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1700,
+                    "support_m2": 1530000.0,
+                    "correlation": 0.9925750358561171,
+                    "rmse": 0.0090561746830641,
+                    "bias": 0.0038200736201666535,
+                    "source_std": 0.0672103262988618,
+                    "target_std": 0.06594326772720221
+                  },
+                  "heldout_zero": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.911729930029637,
+                    "rmse": 0.014023673663755667,
+                    "bias": 0.004665593681901982,
+                    "source_std": 0.03056260235928364,
+                    "target_std": 0.03202083082331857
+                  },
+                  "heldout_selected": {
+                    "pixels": 552,
+                    "support_m2": 496800.0,
+                    "correlation": 0.9666024030174375,
+                    "rmse": 0.009138052136586633,
+                    "bias": 0.004009952603714861,
+                    "source_std": 0.03066755217817331,
+                    "target_std": 0.03202083082331857
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    12.5
+                  ],
+                  "heldout_correlation_gain": 0.054872472987800514,
+                  "heldout_rmse_gain": 0.004885621527169034
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "obs_06911cf5e63c9c5455a58ae1",
+          "target_id": "obs_973cae81321bcaab1ebaebee",
+          "bands": [
+            {
+              "source_band": "SR_B3",
+              "target_band": "B03",
+              "fixed_target_pixels_before_buffer": 24366,
+              "fixed_target_pixels": 21642,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 5288,
+                  "fit_pixels": 16354,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 16354,
+                    "support_m2": 1635400.0,
+                    "correlation": 0.8588735299604728,
+                    "rmse": 0.012037298963529643,
+                    "bias": -0.001861927653285297,
+                    "source_std": 0.018240382680645095,
+                    "target_std": 0.023024679364268785
+                  },
+                  "heldout_zero": {
+                    "pixels": 5288,
+                    "support_m2": 528800.0,
+                    "correlation": 0.8012526452341571,
+                    "rmse": 0.01393340803211185,
+                    "bias": -0.0003747627735786063,
+                    "source_std": 0.016269616072168796,
+                    "target_std": 0.022997910202954237
+                  },
+                  "heldout_selected": {
+                    "pixels": 5288,
+                    "support_m2": 528800.0,
+                    "correlation": 0.819280495324736,
+                    "rmse": 0.013405182401524815,
+                    "bias": -0.00037842134151850086,
+                    "source_std": 0.016462038180503527,
+                    "target_std": 0.022997910202954237
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.018027850090578945,
+                  "heldout_rmse_gain": 0.0005282256305870342
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 5402,
+                  "fit_pixels": 16240,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 16240,
+                    "support_m2": 1624000.0,
+                    "correlation": 0.7622739159536034,
+                    "rmse": 0.0132922181131895,
+                    "bias": -0.0013571748850646937,
+                    "source_std": 0.013417938479294225,
+                    "target_std": 0.02019885189353978
+                  },
+                  "heldout_zero": {
+                    "pixels": 5402,
+                    "support_m2": 540200.0,
+                    "correlation": 0.9316598101185367,
+                    "rmse": 0.009381705812353144,
+                    "bias": -0.001992249699990117,
+                    "source_std": 0.020720535504693695,
+                    "target_std": 0.024536133735273927
+                  },
+                  "heldout_selected": {
+                    "pixels": 5402,
+                    "support_m2": 540200.0,
+                    "correlation": 0.9349101692515216,
+                    "rmse": 0.009135882529035223,
+                    "bias": -0.0017955218583499896,
+                    "source_std": 0.02083669499268878,
+                    "target_std": 0.024536133735273927
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.0032503591329848813,
+                  "heldout_rmse_gain": 0.0002458232833179204
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 5476,
+                  "fit_pixels": 16166,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 16166,
+                    "support_m2": 1616600.0,
+                    "correlation": 0.8748172175650941,
+                    "rmse": 0.011936081639149925,
+                    "bias": -0.0011042604249624738,
+                    "source_std": 0.019081858387007683,
+                    "target_std": 0.024162689737865232
+                  },
+                  "heldout_zero": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.6510985647498889,
+                    "rmse": 0.014076858839811688,
+                    "bias": -0.0025350570024268047,
+                    "source_std": 0.00987149751021305,
+                    "target_std": 0.018071861328931228
+                  },
+                  "heldout_selected": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.6838758604783827,
+                    "rmse": 0.013628139551731146,
+                    "bias": -0.0025362409025408914,
+                    "source_std": 0.010025640075072718,
+                    "target_std": 0.018071861328931228
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03277729572849375,
+                  "heldout_rmse_gain": 0.00044871928808054226
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 5476,
+                  "fit_pixels": 16166,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 16166,
+                    "support_m2": 1616600.0,
+                    "correlation": 0.8666220648640404,
+                    "rmse": 0.012221586341231964,
+                    "bias": -0.0015799252767556896,
+                    "source_std": 0.018923570828482447,
+                    "target_std": 0.02399667769005054
+                  },
+                  "heldout_zero": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.7284024575342335,
+                    "rmse": 0.013265484499892333,
+                    "bias": -0.0014558283018915646,
+                    "source_std": 0.012673599388038723,
+                    "target_std": 0.01915386784393426
+                  },
+                  "heldout_selected": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.7487510182680659,
+                    "rmse": 0.012859424493508841,
+                    "bias": -0.0011320045997488667,
+                    "source_std": 0.01264127123475051,
+                    "target_std": 0.01915386784393426
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.0203485607338324,
+                  "heldout_rmse_gain": 0.00040606000638349245
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B4",
+              "target_band": "B04",
+              "fixed_target_pixels_before_buffer": 24366,
+              "fixed_target_pixels": 21642,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 5288,
+                  "fit_pixels": 16354,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 16354,
+                    "support_m2": 1635400.0,
+                    "correlation": 0.9180829977609458,
+                    "rmse": 0.015037494613276157,
+                    "bias": -0.0018502848274788055,
+                    "source_std": 0.02968523316949991,
+                    "target_std": 0.036431923434919154
+                  },
+                  "heldout_zero": {
+                    "pixels": 5288,
+                    "support_m2": 528800.0,
+                    "correlation": 0.8268724216919731,
+                    "rmse": 0.0175098256811217,
+                    "bias": 0.0010608971730415651,
+                    "source_std": 0.022548392913327962,
+                    "target_std": 0.030672163903768604
+                  },
+                  "heldout_selected": {
+                    "pixels": 5288,
+                    "support_m2": 528800.0,
+                    "correlation": 0.8422662893813007,
+                    "rmse": 0.01684881850420102,
+                    "bias": 0.001034529866480216,
+                    "source_std": 0.022762802497981818,
+                    "target_std": 0.030672163903768604
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.0153938676893276,
+                  "heldout_rmse_gain": 0.0006610071769206811
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 5402,
+                  "fit_pixels": 16240,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 16240,
+                    "support_m2": 1624000.0,
+                    "correlation": 0.8014881445605633,
+                    "rmse": 0.016226283933238005,
+                    "bias": -8.635592550553123e-05,
+                    "source_std": 0.01863688781711273,
+                    "target_std": 0.026730146009007978
+                  },
+                  "heldout_zero": {
+                    "pixels": 5402,
+                    "support_m2": 540200.0,
+                    "correlation": 0.9549904643982046,
+                    "rmse": 0.013644837024155154,
+                    "bias": -0.004488362450054711,
+                    "source_std": 0.03375006173313115,
+                    "target_std": 0.040343079594626935
+                  },
+                  "heldout_selected": {
+                    "pixels": 5402,
+                    "support_m2": 540200.0,
+                    "correlation": 0.9588978438026824,
+                    "rmse": 0.013077972521484816,
+                    "bias": -0.004116357061756799,
+                    "source_std": 0.03388429098534616,
+                    "target_std": 0.040343079594626935
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.003907379404477829,
+                  "heldout_rmse_gain": 0.0005668645026703379
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 5476,
+                  "fit_pixels": 16166,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 16166,
+                    "support_m2": 1616600.0,
+                    "correlation": 0.9234023347703401,
+                    "rmse": 0.015122482334035767,
+                    "bias": -0.0010619439758691297,
+                    "source_std": 0.030587510086349114,
+                    "target_std": 0.03771675712050601
+                  },
+                  "heldout_zero": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.6880568118206035,
+                    "rmse": 0.017258191522696215,
+                    "bias": -0.0012183406552159718,
+                    "source_std": 0.013729489266321749,
+                    "target_std": 0.023485952534508095
+                  },
+                  "heldout_selected": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.7223536334930921,
+                    "rmse": 0.0165660190071976,
+                    "bias": -0.00118181058508395,
+                    "source_std": 0.013921628408516249,
+                    "target_std": 0.023485952534508095
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.0342968216724886,
+                  "heldout_rmse_gain": 0.0006921725154986139
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 5476,
+                  "fit_pixels": 16166,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 16166,
+                    "support_m2": 1616600.0,
+                    "correlation": 0.9167840100073759,
+                    "rmse": 0.015581534930290207,
+                    "bias": -0.001436299485983227,
+                    "source_std": 0.030331584255437076,
+                    "target_std": 0.03750152835146118
+                  },
+                  "heldout_zero": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.7873701378040369,
+                    "rmse": 0.01587033813206137,
+                    "bias": -0.0005498964647667919,
+                    "source_std": 0.01785262787419488,
+                    "target_std": 0.02547755688733121
+                  },
+                  "heldout_selected": {
+                    "pixels": 5476,
+                    "support_m2": 547600.0,
+                    "correlation": 0.8078215731613454,
+                    "rmse": 0.01525854104982931,
+                    "bias": -7.66551474461683e-05,
+                    "source_std": 0.0178790931417453,
+                    "target_std": 0.02547755688733121
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.020451435357308534,
+                  "heldout_rmse_gain": 0.0006117970822320604
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B5",
+              "target_band": "B8A",
+              "fixed_target_pixels_before_buffer": 6119,
+              "fixed_target_pixels": 5365,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 1295,
+                  "fit_pixels": 4070,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 4070,
+                    "support_m2": 1628000.0,
+                    "correlation": 0.9429229019234577,
+                    "rmse": 0.01723871681159285,
+                    "bias": 0.0018705964530074473,
+                    "source_std": 0.04444618574957654,
+                    "target_std": 0.05054659694855217
+                  },
+                  "heldout_zero": {
+                    "pixels": 1295,
+                    "support_m2": 518000.0,
+                    "correlation": 0.8501708220528914,
+                    "rmse": 0.018828618681286727,
+                    "bias": 0.0043574137160101445,
+                    "source_std": 0.028603047395947007,
+                    "target_std": 0.03474509163899832
+                  },
+                  "heldout_selected": {
+                    "pixels": 1295,
+                    "support_m2": 518000.0,
+                    "correlation": 0.8863874686258011,
+                    "rmse": 0.016931744710335962,
+                    "bias": 0.004883390374510443,
+                    "source_std": 0.028770768566672014,
+                    "target_std": 0.03474509163899832
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03621664657290968,
+                  "heldout_rmse_gain": 0.0018968739709507645
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 1332,
+                  "fit_pixels": 4033,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 4033,
+                    "support_m2": 1613200.0,
+                    "correlation": 0.9039756156416668,
+                    "rmse": 0.018386274021828616,
+                    "bias": 0.003077750252303454,
+                    "source_std": 0.03508294346239315,
+                    "target_std": 0.04189034055806517
+                  },
+                  "heldout_zero": {
+                    "pixels": 1332,
+                    "support_m2": 532800.0,
+                    "correlation": 0.9655384402180343,
+                    "rmse": 0.013938742128275778,
+                    "bias": 0.000547005750893338,
+                    "source_std": 0.047497191309833875,
+                    "target_std": 0.05227746007025401
+                  },
+                  "heldout_selected": {
+                    "pixels": 1332,
+                    "support_m2": 532800.0,
+                    "correlation": 0.9716910339829019,
+                    "rmse": 0.01277476426686513,
+                    "bias": 0.0011447082066002327,
+                    "source_std": 0.04774116791909654,
+                    "target_std": 0.05227746007025401
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.006152593764867653,
+                  "heldout_rmse_gain": 0.0011639778614106477
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 1369,
+                  "fit_pixels": 3996,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3996,
+                    "support_m2": 1598400.0,
+                    "correlation": 0.9421542065763564,
+                    "rmse": 0.01596474525275889,
+                    "bias": 0.002592704574660481,
+                    "source_std": 0.04059317332672229,
+                    "target_std": 0.04618401490473163
+                  },
+                  "heldout_zero": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.8449660302479969,
+                    "rmse": 0.022641316498847167,
+                    "bias": 0.0028175415214045023,
+                    "source_std": 0.032755081208708736,
+                    "target_std": 0.04174134823302156
+                  },
+                  "heldout_selected": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.8816304339682896,
+                    "rmse": 0.0202662779022793,
+                    "bias": 0.0026127615912257536,
+                    "source_std": 0.032822007786301365,
+                    "target_std": 0.04174134823302156
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03666440372029267,
+                  "heldout_rmse_gain": 0.0023750385965678675
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 1369,
+                  "fit_pixels": 3996,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3996,
+                    "support_m2": 1598400.0,
+                    "correlation": 0.9399985878207545,
+                    "rmse": 0.016971015508442527,
+                    "bias": 0.002859262383526174,
+                    "source_std": 0.04246621493207927,
+                    "target_std": 0.04828010976423959
+                  },
+                  "heldout_zero": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.8773324950116108,
+                    "rmse": 0.021192467037072723,
+                    "bias": 0.0013528520532545595,
+                    "source_std": 0.03729925675570316,
+                    "target_std": 0.04398911759520127
+                  },
+                  "heldout_selected": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.9189967166077974,
+                    "rmse": 0.01771954859486195,
+                    "bias": 0.001834700959942108,
+                    "source_std": 0.03729160335787241,
+                    "target_std": 0.04398911759520127
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.041664221596186546,
+                  "heldout_rmse_gain": 0.0034729184422107734
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B6",
+              "target_band": "B11",
+              "fixed_target_pixels_before_buffer": 6119,
+              "fixed_target_pixels": 5365,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 1295,
+                  "fit_pixels": 4070,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 4070,
+                    "support_m2": 1628000.0,
+                    "correlation": 0.9891051805507656,
+                    "rmse": 0.011720027101065037,
+                    "bias": -0.004969066309259807,
+                    "source_std": 0.06421156895074694,
+                    "target_std": 0.06834059784482972
+                  },
+                  "heldout_zero": {
+                    "pixels": 1295,
+                    "support_m2": 518000.0,
+                    "correlation": 0.9281188268634374,
+                    "rmse": 0.012520700185005644,
+                    "bias": -0.0014565329020663116,
+                    "source_std": 0.030649067866610175,
+                    "target_std": 0.03339114490393527
+                  },
+                  "heldout_selected": {
+                    "pixels": 1295,
+                    "support_m2": 518000.0,
+                    "correlation": 0.9595849300564852,
+                    "rmse": 0.009550516540930332,
+                    "bias": -0.001271536316305514,
+                    "source_std": 0.03090424678831312,
+                    "target_std": 0.03339114490393527
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.03146610319304777,
+                  "heldout_rmse_gain": 0.0029701836440753117
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 1332,
+                  "fit_pixels": 4033,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 4033,
+                    "support_m2": 1613200.0,
+                    "correlation": 0.9538387076859186,
+                    "rmse": 0.010371485306762641,
+                    "bias": -0.0027149199505128517,
+                    "source_std": 0.029877292651149998,
+                    "target_std": 0.032935126501625146
+                  },
+                  "heldout_zero": {
+                    "pixels": 1332,
+                    "support_m2": 532800.0,
+                    "correlation": 0.9848881517520175,
+                    "rmse": 0.016370370186040355,
+                    "bias": -0.00920997780339384,
+                    "source_std": 0.07217444736763745,
+                    "target_std": 0.07627173818454633
+                  },
+                  "heldout_selected": {
+                    "pixels": 1332,
+                    "support_m2": 532800.0,
+                    "correlation": 0.9909998291169411,
+                    "rmse": 0.01351649874573299,
+                    "bias": -0.00819929973564919,
+                    "source_std": 0.07223510716867601,
+                    "target_std": 0.07627173818454633
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.006111677364923573,
+                  "heldout_rmse_gain": 0.002853871440307366
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 1369,
+                  "fit_pixels": 3996,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3996,
+                    "support_m2": 1598400.0,
+                    "correlation": 0.9879354972919401,
+                    "rmse": 0.01163726380250789,
+                    "bias": -0.004518855511009492,
+                    "source_std": 0.061403402394011056,
+                    "target_std": 0.06562033963726858
+                  },
+                  "heldout_zero": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.8862359456858296,
+                    "rmse": 0.0121404982072204,
+                    "bias": -0.002820623548765353,
+                    "source_std": 0.021416880194421627,
+                    "target_std": 0.02538423221381633
+                  },
+                  "heldout_selected": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.929773905818267,
+                    "rmse": 0.00996741792450974,
+                    "bias": -0.002785531618925583,
+                    "source_std": 0.02153608060250366,
+                    "target_std": 0.02538423221381633
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.04353796013243738,
+                  "heldout_rmse_gain": 0.0021730802827106595
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 1369,
+                  "fit_pixels": 3996,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "fit_score": {
+                    "pixels": 3996,
+                    "support_m2": 1598400.0,
+                    "correlation": 0.9898627981995614,
+                    "rmse": 0.011157711143694276,
+                    "bias": -0.00409947436531769,
+                    "source_std": 0.06458734303520794,
+                    "target_std": 0.06878465166093352
+                  },
+                  "heldout_zero": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.8946621150409266,
+                    "rmse": 0.01570158215707387,
+                    "bias": -0.004641131645543372,
+                    "source_std": 0.02967652036310527,
+                    "target_std": 0.03356690798044212
+                  },
+                  "heldout_selected": {
+                    "pixels": 1369,
+                    "support_m2": 547600.0,
+                    "correlation": 0.9495547900596116,
+                    "rmse": 0.011456756243531027,
+                    "bias": -0.004009671179323279,
+                    "source_std": 0.02978315651839091,
+                    "target_std": 0.03356690798044212
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    -10.0
+                  ],
+                  "heldout_correlation_gain": 0.054892675018685,
+                  "heldout_rmse_gain": 0.004244825913542843
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "S2_id": "obs_89dde414bba657df2d0b781c",
+      "Landsat_id": "obs_a11a4b1912c82ef60ee3181a",
+      "time_gap_seconds": 85364.306782,
+      "directions": [
+        {
+          "source_id": "obs_89dde414bba657df2d0b781c",
+          "target_id": "obs_a11a4b1912c82ef60ee3181a",
+          "bands": [
+            {
+              "source_band": "B03",
+              "target_band": "SR_B3",
+              "fixed_target_pixels_before_buffer": 2139,
+              "fixed_target_pixels": 1871,
+              "internal_boundary_margin_m": [
+                25.0,
+                25.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9644651792413075,
+                    "rmse": 0.009331695629150852,
+                    "bias": 0.006220035727666966,
+                    "source_std": 0.022120569375238406,
+                    "target_std": 0.0175617471958527
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9682608699728101,
+                    "rmse": 0.0048893366736516035,
+                    "bias": 0.0024417598904568024,
+                    "source_std": 0.013653822290321948,
+                    "target_std": 0.01071104555893005
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9738296754707193,
+                    "rmse": 0.00480727151828809,
+                    "bias": 0.0025538179695886744,
+                    "source_std": 0.013695942815135543,
+                    "target_std": 0.01071104555893005
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.005568805497909168,
+                  "heldout_rmse_gain": 8.206515536351381e-05
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 465,
+                  "fit_pixels": 1406,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1406,
+                    "support_m2": 1265400.0,
+                    "correlation": 0.960853661585025,
+                    "rmse": 0.008424644149846443,
+                    "bias": 0.005627410897207305,
+                    "source_std": 0.01943711184461183,
+                    "target_std": 0.015465806482929606
+                  },
+                  "heldout_zero": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.9648439055664608,
+                    "rmse": 0.00847117950113775,
+                    "bias": 0.00415097032734855,
+                    "source_std": 0.022573136377111173,
+                    "target_std": 0.017382648105473936
+                  },
+                  "heldout_selected": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.9702451902784872,
+                    "rmse": 0.008318337962825209,
+                    "bias": 0.004195909096949523,
+                    "source_std": 0.022685687713000623,
+                    "target_std": 0.017382648105473936
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.0054012847120263885,
+                  "heldout_rmse_gain": 0.00015284153831254116
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9633958349046615,
+                    "rmse": 0.009066659578094494,
+                    "bias": 0.005147336633625436,
+                    "source_std": 0.02321127589889323,
+                    "target_std": 0.018239857120320717
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9755262397976666,
+                    "rmse": 0.006047923216908217,
+                    "bias": 0.0055775473752085565,
+                    "source_std": 0.00815090161773204,
+                    "target_std": 0.006449353826286907
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9787880780920781,
+                    "rmse": 0.006089636806031562,
+                    "bias": 0.0056278544229680216,
+                    "source_std": 0.008226985745375061,
+                    "target_std": 0.006449353826286907
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.003261838294411512,
+                  "heldout_rmse_gain": -4.171358912334437e-05
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 438,
+                  "fit_pixels": 1433,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1433,
+                    "support_m2": 1289700.0,
+                    "correlation": 0.9721124165344228,
+                    "rmse": 0.006540934952810643,
+                    "bias": 0.004124931729294464,
+                    "source_std": 0.016421488472599857,
+                    "target_std": 0.012656288455462713
+                  },
+                  "heldout_zero": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.9593236661530743,
+                    "rmse": 0.012385550365586672,
+                    "bias": 0.008808822949657444,
+                    "source_std": 0.028405407434864503,
+                    "target_std": 0.02385870952649543
+                  },
+                  "heldout_selected": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.9611403601747154,
+                    "rmse": 0.012701045967838255,
+                    "bias": 0.009023311149488653,
+                    "source_std": 0.028974353279333953,
+                    "target_std": 0.02385870952649543
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    0.0
+                  ],
+                  "heldout_correlation_gain": 0.0018166940216410854,
+                  "heldout_rmse_gain": -0.00031549560225158264
+                }
+              ]
+            },
+            {
+              "source_band": "B04",
+              "target_band": "SR_B4",
+              "fixed_target_pixels_before_buffer": 2139,
+              "fixed_target_pixels": 1871,
+              "internal_boundary_margin_m": [
+                25.0,
+                25.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9590381325844083,
+                    "rmse": 0.008501233500592223,
+                    "bias": -5.730061455656839e-05,
+                    "source_std": 0.027017158155174307,
+                    "target_std": 0.022209933473633873
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9493218455149673,
+                    "rmse": 0.006086773181765513,
+                    "bias": -0.0039665828556458655,
+                    "source_std": 0.014579372319772797,
+                    "target_std": 0.013277638535121462
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.961668819964742,
+                    "rmse": 0.005612229739869267,
+                    "bias": -0.0038627160670743747,
+                    "source_std": 0.0145908686798036,
+                    "target_std": 0.013277638535121462
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    7.5
+                  ],
+                  "heldout_correlation_gain": 0.012346974449774617,
+                  "heldout_rmse_gain": 0.00047454344189624617
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 465,
+                  "fit_pixels": 1406,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1406,
+                    "support_m2": 1265400.0,
+                    "correlation": 0.9468558112767225,
+                    "rmse": 0.00805300184735097,
+                    "bias": -0.0009420974074598087,
+                    "source_std": 0.02301477778789817,
+                    "target_std": 0.01876505395421526
+                  },
+                  "heldout_zero": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.9718076269398314,
+                    "rmse": 0.007771608872529198,
+                    "bias": -0.0014005628253111846,
+                    "source_std": 0.028761195610353903,
+                    "target_std": 0.024421613116807735
+                  },
+                  "heldout_selected": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.9780539558328921,
+                    "rmse": 0.007229593438437498,
+                    "bias": -0.0013428851053020787,
+                    "source_std": 0.028842773790273304,
+                    "target_std": 0.024421613116807735
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.00624632889306076,
+                  "heldout_rmse_gain": 0.0005420154340916999
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9602555967184476,
+                    "rmse": 0.008702529237984341,
+                    "bias": 9.217495702655938e-05,
+                    "source_std": 0.028165820111112898,
+                    "target_std": 0.023315553573127853
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9517157496234747,
+                    "rmse": 0.004670941896322662,
+                    "bias": -0.004288494548887781,
+                    "source_std": 0.005894404205678359,
+                    "target_std": 0.006000101945687831
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9560222094619687,
+                    "rmse": 0.004644681751353667,
+                    "bias": -0.004291068583160734,
+                    "source_std": 0.005987066303159414,
+                    "target_std": 0.006000101945687831
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.004306459838493981,
+                  "heldout_rmse_gain": 2.6260144968995314e-05
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 438,
+                  "fit_pixels": 1433,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1433,
+                    "support_m2": 1289700.0,
+                    "correlation": 0.9708541999874611,
+                    "rmse": 0.005906348521825208,
+                    "bias": -0.0031897231993574734,
+                    "source_std": 0.01889629109385182,
+                    "target_std": 0.016296209377058977
+                  },
+                  "heldout_zero": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.9574766008523453,
+                    "rmse": 0.01195102161969712,
+                    "bias": 0.005679497496711155,
+                    "source_std": 0.034339958891147666,
+                    "target_std": 0.029356556661879918
+                  },
+                  "heldout_selected": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.9601905872725954,
+                    "rmse": 0.01222826155562812,
+                    "bias": 0.00598594250188425,
+                    "source_std": 0.035003207552834495,
+                    "target_std": 0.029356556661879918
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.002713986420250114,
+                  "heldout_rmse_gain": -0.0002772399359310014
+                }
+              ]
+            },
+            {
+              "source_band": "B8A",
+              "target_band": "SR_B5",
+              "fixed_target_pixels_before_buffer": 2139,
+              "fixed_target_pixels": 1871,
+              "internal_boundary_margin_m": [
+                35.0,
+                35.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9929868334116637,
+                    "rmse": 0.013192428967186717,
+                    "bias": 0.010215094842065642,
+                    "source_std": 0.060482728692618615,
+                    "target_std": 0.055750262782804885
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9769395078357128,
+                    "rmse": 0.012043100668058568,
+                    "bias": 0.008668834458150592,
+                    "source_std": 0.03727342515276294,
+                    "target_std": 0.033854558441509496
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9802938711733399,
+                    "rmse": 0.01187773255327092,
+                    "bias": 0.00895082623389087,
+                    "source_std": 0.03721689550748943,
+                    "target_std": 0.033854558441509496
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.0033543633376270643,
+                  "heldout_rmse_gain": 0.0001653681147876472
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 465,
+                  "fit_pixels": 1406,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1406,
+                    "support_m2": 1265400.0,
+                    "correlation": 0.9924553117666312,
+                    "rmse": 0.0131751923967852,
+                    "bias": 0.010611337767385496,
+                    "source_std": 0.05656725183515999,
+                    "target_std": 0.05255110369999557
+                  },
+                  "heldout_zero": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.9797102851373898,
+                    "rmse": 0.012551161449210809,
+                    "bias": 0.00788601341622847,
+                    "source_std": 0.044212519167330946,
+                    "target_std": 0.03921367365792994
+                  },
+                  "heldout_selected": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.984008133733895,
+                    "rmse": 0.011878889070978877,
+                    "bias": 0.007701065682159601,
+                    "source_std": 0.04433227408081124,
+                    "target_std": 0.03921367365792994
+                  },
+                  "heldout_own_best_shift_m": [
+                    -5.0,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.004297848596505172,
+                  "heldout_rmse_gain": 0.0006722723782319317
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9858324113891056,
+                    "rmse": 0.01150109645763822,
+                    "bias": 0.008012224857722336,
+                    "source_std": 0.04637865981355804,
+                    "target_std": 0.04297152848531485
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9750821746907828,
+                    "rmse": 0.016192838659457653,
+                    "bias": 0.015088544553017487,
+                    "source_std": 0.026065201139977186,
+                    "target_std": 0.024363285090165984
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9806094312761833,
+                    "rmse": 0.01614826574884127,
+                    "bias": 0.015263596209684595,
+                    "source_std": 0.026125366986796218,
+                    "target_std": 0.024363285090165984
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.005527256585400431,
+                  "heldout_rmse_gain": 4.457291061638405e-05
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 438,
+                  "fit_pixels": 1433,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 1433,
+                    "support_m2": 1289700.0,
+                    "correlation": 0.990589967863198,
+                    "rmse": 0.013472703243989548,
+                    "bias": 0.010677443129724172,
+                    "source_std": 0.05079574695926151,
+                    "target_std": 0.045938860650028904
+                  },
+                  "heldout_zero": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.9809198255194216,
+                    "rmse": 0.011464013992345678,
+                    "bias": 0.007535835294282599,
+                    "source_std": 0.044269860675311946,
+                    "target_std": 0.04267628797353979
+                  },
+                  "heldout_selected": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.985188057306953,
+                    "rmse": 0.010638039177467369,
+                    "bias": 0.007305389128432608,
+                    "source_std": 0.04454332494910231,
+                    "target_std": 0.04267628797353979
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    2.5
+                  ],
+                  "heldout_correlation_gain": 0.00426823178753144,
+                  "heldout_rmse_gain": 0.0008259748148783091
+                }
+              ]
+            },
+            {
+              "source_band": "B11",
+              "target_band": "SR_B6",
+              "fixed_target_pixels_before_buffer": 2139,
+              "fixed_target_pixels": 1871,
+              "internal_boundary_margin_m": [
+                35.0,
+                35.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    5.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9828133621007946,
+                    "rmse": 0.01282608252616153,
+                    "bias": 0.009950264038382731,
+                    "source_std": 0.04383147933053573,
+                    "target_std": 0.042904282831282343
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9694110668351261,
+                    "rmse": 0.011047444308603022,
+                    "bias": 0.009140351909504395,
+                    "source_std": 0.024367136337626324,
+                    "target_std": 0.02527427110225297
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9778996931873252,
+                    "rmse": 0.01019612700059106,
+                    "bias": 0.008696412539350759,
+                    "source_std": 0.024074953795033743,
+                    "target_std": 0.02527427110225297
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    5.0
+                  ],
+                  "heldout_correlation_gain": 0.008488626352199047,
+                  "heldout_rmse_gain": 0.0008513173080119622
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 465,
+                  "fit_pixels": 1406,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    5.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1406,
+                    "support_m2": 1265400.0,
+                    "correlation": 0.9869279519381576,
+                    "rmse": 0.012488466953889985,
+                    "bias": 0.01058389474252883,
+                    "source_std": 0.04085090641842,
+                    "target_std": 0.03954297457505419
+                  },
+                  "heldout_zero": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.9651264264582191,
+                    "rmse": 0.011827466654587707,
+                    "bias": 0.006115511337488783,
+                    "source_std": 0.03666108585060224,
+                    "target_std": 0.038604606485454426
+                  },
+                  "heldout_selected": {
+                    "pixels": 465,
+                    "support_m2": 418500.0,
+                    "correlation": 0.9720848392115093,
+                    "rmse": 0.011284013567272225,
+                    "bias": 0.0067292986715851155,
+                    "source_std": 0.03748181131761673,
+                    "target_std": 0.038604606485454426
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    5.0
+                  ],
+                  "heldout_correlation_gain": 0.006958412753290233,
+                  "heldout_rmse_gain": 0.0005434530873154823
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 484,
+                  "fit_pixels": 1387,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    5.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1387,
+                    "support_m2": 1248300.0,
+                    "correlation": 0.9794556552495031,
+                    "rmse": 0.013102656105885766,
+                    "bias": 0.009944418411805472,
+                    "source_std": 0.04227308906552332,
+                    "target_std": 0.04174567168062121
+                  },
+                  "heldout_zero": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9644075292605538,
+                    "rmse": 0.00910429739850029,
+                    "bias": 0.008530806717561186,
+                    "source_std": 0.011833070740167243,
+                    "target_std": 0.011980694009426814
+                  },
+                  "heldout_selected": {
+                    "pixels": 484,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9742290187430015,
+                    "rmse": 0.00913293318458852,
+                    "bias": 0.008713164365926502,
+                    "source_std": 0.012105972373790002,
+                    "target_std": 0.011980694009426814
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    5.0
+                  ],
+                  "heldout_correlation_gain": 0.009821489482447654,
+                  "heldout_rmse_gain": -2.863578608822831e-05
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 438,
+                  "fit_pixels": 1433,
+                  "selected_source_shift_m": [
+                    -2.5,
+                    5.0
+                  ],
+                  "fit_score": {
+                    "pixels": 1433,
+                    "support_m2": 1289700.0,
+                    "correlation": 0.9780385288032095,
+                    "rmse": 0.010227549273318398,
+                    "bias": 0.008063753736525662,
+                    "source_std": 0.029003290658215455,
+                    "target_std": 0.030108969743450117
+                  },
+                  "heldout_zero": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.9784585421305207,
+                    "rmse": 0.017403653834669092,
+                    "bias": 0.01422492064817235,
+                    "source_std": 0.04741084462455183,
+                    "target_std": 0.048566833515518916
+                  },
+                  "heldout_selected": {
+                    "pixels": 438,
+                    "support_m2": 394200.0,
+                    "correlation": 0.9837163525982335,
+                    "rmse": 0.017134607217465323,
+                    "bias": 0.014736805447126359,
+                    "source_std": 0.04825460323960128,
+                    "target_std": 0.048566833515518916
+                  },
+                  "heldout_own_best_shift_m": [
+                    -2.5,
+                    5.0
+                  ],
+                  "heldout_correlation_gain": 0.005257810467712787,
+                  "heldout_rmse_gain": 0.0002690466172037692
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "obs_a11a4b1912c82ef60ee3181a",
+          "target_id": "obs_89dde414bba657df2d0b781c",
+          "bands": [
+            {
+              "source_band": "SR_B3",
+              "target_band": "B03",
+              "fixed_target_pixels_before_buffer": 19785,
+              "fixed_target_pixels": 17064,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 12575,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 12575,
+                    "support_m2": 1257500.0,
+                    "correlation": 0.8235180940330337,
+                    "rmse": 0.016803102433996128,
+                    "bias": -0.005753650608255897,
+                    "source_std": 0.017591443412142655,
+                    "target_std": 0.02672003726653379
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.8505577141905634,
+                    "rmse": 0.009512733549713678,
+                    "bias": -0.00229582489184134,
+                    "source_std": 0.010380777423719368,
+                    "target_std": 0.016273907357960967
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.8466674538578732,
+                    "rmse": 0.00956470752541637,
+                    "bias": -0.002422422395948977,
+                    "source_std": 0.01051899903845333,
+                    "target_std": 0.016273907357960967
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": -0.003890260332690132,
+                  "heldout_rmse_gain": -5.197397570269255e-05
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 4235,
+                  "fit_pixels": 12829,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 12829,
+                    "support_m2": 1282900.0,
+                    "correlation": 0.8075482717943838,
+                    "rmse": 0.015724893396366842,
+                    "bias": -0.005216674970808325,
+                    "source_std": 0.01580385026370389,
+                    "target_std": 0.02430252056649802
+                  },
+                  "heldout_zero": {
+                    "pixels": 4235,
+                    "support_m2": 423500.0,
+                    "correlation": 0.8772927204250925,
+                    "rmse": 0.013420919822278485,
+                    "bias": -0.003582759000528098,
+                    "source_std": 0.01623558754862172,
+                    "target_std": 0.024566347158347428
+                  },
+                  "heldout_selected": {
+                    "pixels": 4235,
+                    "support_m2": 423500.0,
+                    "correlation": 0.8744570542224325,
+                    "rmse": 0.01364841887078953,
+                    "bias": -0.003849276820243882,
+                    "source_std": 0.016056113958707326,
+                    "target_std": 0.024566347158347428
+                  },
+                  "heldout_own_best_shift_m": [
+                    7.5,
+                    0.0
+                  ],
+                  "heldout_correlation_gain": -0.00283566620266007,
+                  "heldout_rmse_gain": -0.00022749904851104494
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 12575,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 12575,
+                    "support_m2": 1257500.0,
+                    "correlation": 0.8244701193202082,
+                    "rmse": 0.017143021005290325,
+                    "bias": -0.004546753326893801,
+                    "source_std": 0.018278169941771706,
+                    "target_std": 0.02796235040627868
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.8812550755279448,
+                    "rmse": 0.007560574923013612,
+                    "bias": -0.005696037522394531,
+                    "source_std": 0.006280295513149387,
+                    "target_std": 0.00952283722222189
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.8745309114875919,
+                    "rmse": 0.0076915376508703516,
+                    "bias": -0.005803294152047963,
+                    "source_std": 0.006290138657090982,
+                    "target_std": 0.00952283722222189
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": -0.00672416404035292,
+                  "heldout_rmse_gain": -0.00013096272785673938
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 3851,
+                  "fit_pixels": 13213,
+                  "selected_source_shift_m": [
+                    2.5,
+                    0.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13213,
+                    "support_m2": 1321300.0,
+                    "correlation": 0.8790895352924364,
+                    "rmse": 0.010353429202936611,
+                    "bias": -0.003858331521110415,
+                    "source_std": 0.012089457688466433,
+                    "target_std": 0.01831537655651367
+                  },
+                  "heldout_zero": {
+                    "pixels": 3851,
+                    "support_m2": 385100.0,
+                    "correlation": 0.7716936815550477,
+                    "rmse": 0.02584857311820878,
+                    "bias": -0.007719548005572977,
+                    "source_std": 0.02460093662489544,
+                    "target_std": 0.03805683321718104
+                  },
+                  "heldout_selected": {
+                    "pixels": 3851,
+                    "support_m2": 385100.0,
+                    "correlation": 0.7723069189248774,
+                    "rmse": 0.025862116319253232,
+                    "bias": -0.007838190384006011,
+                    "source_std": 0.024600645626166633,
+                    "target_std": 0.03805683321718104
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.0006132373698296556,
+                  "heldout_rmse_gain": -1.3543201044453196e-05
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B4",
+              "target_band": "B04",
+              "fixed_target_pixels_before_buffer": 19785,
+              "fixed_target_pixels": 17064,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 12575,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 12575,
+                    "support_m2": 1257500.0,
+                    "correlation": 0.8194610369064342,
+                    "rmse": 0.019147605796841258,
+                    "bias": 0.0007360473453672694,
+                    "source_std": 0.021874667666750544,
+                    "target_std": 0.03237913213631019
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7963411385039513,
+                    "rmse": 0.011919115800371152,
+                    "bias": 0.003983550515597634,
+                    "source_std": 0.012842282454625919,
+                    "target_std": 0.018342294695901408
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.799427004651547,
+                    "rmse": 0.011809144092427164,
+                    "bias": 0.003911250841646797,
+                    "source_std": 0.01301064693228496,
+                    "target_std": 0.018342294695901408
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.0030858661475957616,
+                  "heldout_rmse_gain": 0.00010997170794398853
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 4235,
+                  "fit_pixels": 12829,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -7.5
+                  ],
+                  "fit_score": {
+                    "pixels": 12829,
+                    "support_m2": 1282900.0,
+                    "correlation": 0.794091277457134,
+                    "rmse": 0.01804543188951399,
+                    "bias": 0.0014294074956170584,
+                    "source_std": 0.018905706364616668,
+                    "target_std": 0.028853179274109384
+                  },
+                  "heldout_zero": {
+                    "pixels": 4235,
+                    "support_m2": 423500.0,
+                    "correlation": 0.8825391717384913,
+                    "rmse": 0.015538730929704236,
+                    "bias": 0.001976130487575442,
+                    "source_std": 0.022922176732300473,
+                    "target_std": 0.03124617957545081
+                  },
+                  "heldout_selected": {
+                    "pixels": 4235,
+                    "support_m2": 423500.0,
+                    "correlation": 0.8744301870009406,
+                    "rmse": 0.015914278362454858,
+                    "bias": 0.001594671483867425,
+                    "source_std": 0.022748528303259356,
+                    "target_std": 0.03124617957545081
+                  },
+                  "heldout_own_best_shift_m": [
+                    7.5,
+                    0.0
+                  ],
+                  "heldout_correlation_gain": -0.008108984737550728,
+                  "heldout_rmse_gain": -0.0003755474327506222
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 4489,
+                  "fit_pixels": 12575,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 12575,
+                    "support_m2": 1257500.0,
+                    "correlation": 0.8189654213768941,
+                    "rmse": 0.02007423987878643,
+                    "bias": 0.0006025599958615792,
+                    "source_std": 0.023006786371680254,
+                    "target_std": 0.033951753327433755
+                  },
+                  "heldout_zero": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.7994673946823915,
+                    "rmse": 0.006179997960153873,
+                    "bias": 0.004302870842370299,
+                    "source_std": 0.005732138923145833,
+                    "target_std": 0.007379266219527085
+                  },
+                  "heldout_selected": {
+                    "pixels": 4489,
+                    "support_m2": 448900.0,
+                    "correlation": 0.8039390737718917,
+                    "rmse": 0.006135543053186863,
+                    "bias": 0.004285187892222436,
+                    "source_std": 0.005781458488986698,
+                    "target_std": 0.007379266219527085
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.004471679089500191,
+                  "heldout_rmse_gain": 4.44549069670095e-05
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 3851,
+                  "fit_pixels": 13213,
+                  "selected_source_shift_m": [
+                    2.5,
+                    0.0
+                  ],
+                  "fit_score": {
+                    "pixels": 13213,
+                    "support_m2": 1321300.0,
+                    "correlation": 0.8579883747908512,
+                    "rmse": 0.011728708955826662,
+                    "bias": 0.0034521166118202883,
+                    "source_std": 0.015367222032276657,
+                    "target_std": 0.021143259695906
+                  },
+                  "heldout_zero": {
+                    "pixels": 3851,
+                    "support_m2": 385100.0,
+                    "correlation": 0.7697519088343471,
+                    "rmse": 0.03014160679713913,
+                    "bias": -0.004457760137904621,
+                    "source_std": 0.029809527459486927,
+                    "target_std": 0.04589268554008564
+                  },
+                  "heldout_selected": {
+                    "pixels": 3851,
+                    "support_m2": 385100.0,
+                    "correlation": 0.7707622194329895,
+                    "rmse": 0.03011689477648027,
+                    "bias": -0.004631764954137386,
+                    "source_std": 0.029837139689271274,
+                    "target_std": 0.04589268554008564
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.0010103105986424277,
+                  "heldout_rmse_gain": 2.471202065885969e-05
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B5",
+              "target_band": "B8A",
+              "fixed_target_pixels_before_buffer": 4906,
+              "fixed_target_pixels": 4100,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3011,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3011,
+                    "support_m2": 1204400.0,
+                    "correlation": 0.978640127694967,
+                    "rmse": 0.018062584444099312,
+                    "bias": -0.010611622344686399,
+                    "source_std": 0.05521658786311505,
+                    "target_std": 0.06324555840085462
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9437936329597367,
+                    "rmse": 0.017907609892481077,
+                    "bias": -0.008266763034711966,
+                    "source_std": 0.032595241343726156,
+                    "target_std": 0.042436513376217816
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9464796843755064,
+                    "rmse": 0.01769694022067487,
+                    "bias": -0.008481151078843929,
+                    "source_std": 0.03284100612870648,
+                    "target_std": 0.042436513376217816
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    0.0
+                  ],
+                  "heldout_correlation_gain": 0.002686051415769719,
+                  "heldout_rmse_gain": 0.00021066967180620802
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 1017,
+                  "fit_pixels": 3083,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3083,
+                    "support_m2": 1233200.0,
+                    "correlation": 0.9733267614152582,
+                    "rmse": 0.01843292172041264,
+                    "bias": -0.010732236625961995,
+                    "source_std": 0.051338167012740826,
+                    "target_std": 0.05923522776505665
+                  },
+                  "heldout_zero": {
+                    "pixels": 1017,
+                    "support_m2": 406800.0,
+                    "correlation": 0.9639317922521852,
+                    "rmse": 0.01693539148522264,
+                    "bias": -0.008171769844380918,
+                    "source_std": 0.03848948537025308,
+                    "target_std": 0.04782928993600715
+                  },
+                  "heldout_selected": {
+                    "pixels": 1017,
+                    "support_m2": 406800.0,
+                    "correlation": 0.9673508266291471,
+                    "rmse": 0.016470695208966157,
+                    "bias": -0.00796468327125954,
+                    "source_std": 0.03846340942391153,
+                    "target_std": 0.04782928993600715
+                  },
+                  "heldout_own_best_shift_m": [
+                    5.0,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.0034190343769618936,
+                  "heldout_rmse_gain": 0.0004646962762564835
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3011,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3011,
+                    "support_m2": 1204400.0,
+                    "correlation": 0.9589017313830627,
+                    "rmse": 0.017582900885130953,
+                    "bias": -0.008124840674394194,
+                    "source_std": 0.041410694621199874,
+                    "target_std": 0.049960005492253656
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9335322952425693,
+                    "rmse": 0.01908104621473164,
+                    "bias": -0.015182606660383792,
+                    "source_std": 0.022353695437388733,
+                    "target_std": 0.029195932920796242
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9390232778323567,
+                    "rmse": 0.018985727754051083,
+                    "bias": -0.015356908295785923,
+                    "source_std": 0.022533122904677665,
+                    "target_std": 0.029195932920796242
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.005490982589787419,
+                  "heldout_rmse_gain": 9.531846068055669e-05
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 905,
+                  "fit_pixels": 3195,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3195,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9738578786336903,
+                    "rmse": 0.01777523639111985,
+                    "bias": -0.010660322236570537,
+                    "source_std": 0.04588683179265702,
+                    "target_std": 0.054365360824567534
+                  },
+                  "heldout_zero": {
+                    "pixels": 905,
+                    "support_m2": 362000.0,
+                    "correlation": 0.946285769766632,
+                    "rmse": 0.019157231283514153,
+                    "bias": -0.008116574153221773,
+                    "source_std": 0.04114274972973885,
+                    "target_std": 0.05007540537765618
+                  },
+                  "heldout_selected": {
+                    "pixels": 905,
+                    "support_m2": 362000.0,
+                    "correlation": 0.9493681183219456,
+                    "rmse": 0.01862468699438968,
+                    "bias": -0.00787606503742423,
+                    "source_std": 0.04142842142184127,
+                    "target_std": 0.05007540537765618
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.00308234855531353,
+                  "heldout_rmse_gain": 0.0005325442891244737
+                }
+              ]
+            },
+            {
+              "source_band": "SR_B6",
+              "target_band": "B11",
+              "fixed_target_pixels_before_buffer": 4906,
+              "fixed_target_pixels": 4100,
+              "internal_boundary_margin_m": [
+                45.0,
+                45.0
+              ],
+              "source_pixel_separation": "Each contributing original source cell stays wholly inside its target quadrant for every candidate shift",
+              "quadrant_definition": "Native window midpoint quadrants with geometry-derived internal buffer; no training mask or resampling",
+              "offsets_m": [
+                -15.0,
+                -12.5,
+                -10.0,
+                -7.5,
+                -5.0,
+                -2.5,
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0,
+                12.5,
+                15.0
+              ],
+              "rows": [
+                {
+                  "heldout_quadrant": 0,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3011,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3011,
+                    "support_m2": 1204400.0,
+                    "correlation": 0.969760578682937,
+                    "rmse": 0.01499528539789562,
+                    "bias": -0.009411628972194601,
+                    "source_std": 0.042298923982278656,
+                    "target_std": 0.046470262493382646
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.942590374010058,
+                    "rmse": 0.01294108267894692,
+                    "bias": -0.008982974462915825,
+                    "source_std": 0.025372955241631866,
+                    "target_std": 0.027786768451455977
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9463990389033152,
+                    "rmse": 0.012575186697557675,
+                    "bias": -0.00878463874770289,
+                    "source_std": 0.02565498414988059,
+                    "target_std": 0.027786768451455977
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.003808664893257263,
+                  "heldout_rmse_gain": 0.00036589598138924567
+                },
+                {
+                  "heldout_quadrant": 1,
+                  "heldout_pixels": 1017,
+                  "fit_pixels": 3083,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3083,
+                    "support_m2": 1233200.0,
+                    "correlation": 0.9751204242715047,
+                    "rmse": 0.014581657499560623,
+                    "bias": -0.010333182022248597,
+                    "source_std": 0.04053785053068721,
+                    "target_std": 0.04453899771941343
+                  },
+                  "heldout_zero": {
+                    "pixels": 1017,
+                    "support_m2": 406800.0,
+                    "correlation": 0.9343804460235351,
+                    "rmse": 0.01402639828185358,
+                    "bias": -0.005756493971931256,
+                    "source_std": 0.03296999298416578,
+                    "target_std": 0.03586849885189656
+                  },
+                  "heldout_selected": {
+                    "pixels": 1017,
+                    "support_m2": 406800.0,
+                    "correlation": 0.9380734794919264,
+                    "rmse": 0.013802102556517721,
+                    "bias": -0.005946594156277246,
+                    "source_std": 0.032794761492671146,
+                    "target_std": 0.03586849885189656
+                  },
+                  "heldout_own_best_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.003693033468391338,
+                  "heldout_rmse_gain": 0.00022429572533585844
+                },
+                {
+                  "heldout_quadrant": 2,
+                  "heldout_pixels": 1089,
+                  "fit_pixels": 3011,
+                  "selected_source_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3011,
+                    "support_m2": 1204400.0,
+                    "correlation": 0.9631073325127472,
+                    "rmse": 0.01569646379184116,
+                    "bias": -0.009470680034315762,
+                    "source_std": 0.041084131532300575,
+                    "target_std": 0.04543697601055316
+                  },
+                  "heldout_zero": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9294884359370725,
+                    "rmse": 0.010020809575481328,
+                    "bias": -0.008545060350437356,
+                    "source_std": 0.010932744604460181,
+                    "target_std": 0.013499082448016873
+                  },
+                  "heldout_selected": {
+                    "pixels": 1089,
+                    "support_m2": 435600.0,
+                    "correlation": 0.9394003529121424,
+                    "rmse": 0.009931420743398882,
+                    "bias": -0.008621367170065779,
+                    "source_std": 0.010981405779258376,
+                    "target_std": 0.013499082448016873
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -7.5
+                  ],
+                  "heldout_correlation_gain": 0.009911916975069879,
+                  "heldout_rmse_gain": 8.938883208244562e-05
+                },
+                {
+                  "heldout_quadrant": 3,
+                  "heldout_pixels": 905,
+                  "fit_pixels": 3195,
+                  "selected_source_shift_m": [
+                    2.5,
+                    -2.5
+                  ],
+                  "fit_score": {
+                    "pixels": 3195,
+                    "support_m2": 1278000.0,
+                    "correlation": 0.9487008901397818,
+                    "rmse": 0.012146023527503417,
+                    "bias": -0.007864816529757937,
+                    "source_std": 0.027390516260784006,
+                    "target_std": 0.029252141401602216
+                  },
+                  "heldout_zero": {
+                    "pixels": 905,
+                    "support_m2": 362000.0,
+                    "correlation": 0.9638222327226307,
+                    "rmse": 0.020839336339126453,
+                    "bias": -0.0143284085993938,
+                    "source_std": 0.050838016312031456,
+                    "target_std": 0.05573336034164087
+                  },
+                  "heldout_selected": {
+                    "pixels": 905,
+                    "support_m2": 362000.0,
+                    "correlation": 0.9662985936770638,
+                    "rmse": 0.020762774318745434,
+                    "bias": -0.014714581844041856,
+                    "source_std": 0.050899607921346735,
+                    "target_std": 0.05573336034164087
+                  },
+                  "heldout_own_best_shift_m": [
+                    0.0,
+                    -2.5
+                  ],
+                  "heldout_correlation_gain": 0.0024763609544331544,
+                  "heldout_rmse_gain": 7.656202038101856e-05
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Fit offsets use three buffered native quadrants; fourth uses disjoint target and original source pixels",
+    "Not a temporal-change detector, alignment uncertainty bound or pair-admission policy",
+    "No native affine, value, QA, task, split, model or threshold changed"
+  ],
+  "seconds": 7.3816942000012205
+}
