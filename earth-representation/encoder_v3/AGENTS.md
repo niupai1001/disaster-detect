@@ -33,3 +33,5 @@
 - 初始两对B2四个观测已由用户确认保留已复核历史QA，不增加SCL2/7或全高气溶胶额外排除；B2_QA_policy_confirmation.json绑定成员和audit_lineage.py哈希。此批准不含处理域、偏移、校准或其他准入；配对仍0。
 - 第五轮名称对账1,589,051条，本轮新增28,811未分类。接续672块完成，剩55可续块、1深度上限超时叶、2访问错误块；父证据哈希不变。见discovery_coverage_after_pending_followup.json。
 - 当前GPU状态已变化：pair_quality_runtime_diagnostics.json中torch-only与导入质量模块两种独立GPU1进程均以3221225477原生访问冲突退出，不能归因新QA代码。历史146全套保留，新9项CPU审计通过；新的整套GPU验证未通过。未重启GPU/改环境/干预其他任务，真实更新214且预算停止。
+
+- 新架构latent_response_sensor_memory_v1（spec_revision=1.2）在encoder_v3/latent_response/独立开展：接口I1–I5仍PENDING，已实现Registry/SensorMemory/ModuleQuery/动态卷积/Sub-Patch几何并有37项CPU测试；未接真实数据、0次真实optimizer.step、未改旧Participation模型/配置/检查点与400次pilot预算。提案与阶段证据见latent_response/interface_proposal.md与reports/latent_response/。
