@@ -1,8 +1,10 @@
-# interface_proposal.md — EncoderV3-LR v1.2 第一阶段待审接口
+# interface_proposal.md — EncoderV3-LR v1.2 接口提案（含 2026-11-08 纠错）
 
 状态：`spec_revision=1.2`，`architecture_id=latent_response_sensor_memory_v1`。
-本文件是**提案**，不是批准记录；I1–I5 在用户确认前一律为 `PENDING`，不得写入
-`interface_review` 的 `CONFIRMED`，也不得据此宣称 E1 通过。
+本文件最初是待审提案；2026-11-08 用户已按推荐确认 Q1–Q7，确认记录见
+`interface_confirmation.json`。同日独立审查 F1–F7 的确定性纠错已并入本文件与代码；
+新增或仍需补充选择的接口条目集中列在 `interface_revision.md`（IR1–IR7），
+未确认前不写入正式配置，也不得据此宣称 E1 通过。
 
 标注约定：**【事实】**为已核查的规范原文、仓库代码或数据文件；**【推断】**为由
 事实推出但未直接验证的判断；**【建议】**为实现选择，待确认后才成为配置。
@@ -49,7 +51,8 @@ agent_plan `782c868b…`、handoff `f0cca2f9…`，完整值见
   `TRAIN-only physical reflectance by instrument and band; no held-out fit`，
   43 个 `instrument:band` 键，字段仅 `mean/std/valid_pixels`；数据单位为
   `surface_reflectance` 且 `values_already_scaled=true`。
-- 【事实】旧路径只用了 `std`，没有减均值；因此旧 NMSE 的分母是 `σ²`，不是方差。
+- 【事实】旧路径只用了 `std`，没有减均值；因此旧 NMSE 的分母是 `σ²`（即方差），
+  而不是当前观测/批次的方差。
 - 【事实】A/B1 的 target 来自 `tasks.py`，真值与输入共享底层缓存数组，隐藏必须
   在进入任何可学习运算前完成（`spatial_hide` / `_spectral_view`）。
 
@@ -78,8 +81,9 @@ agent_plan `782c868b…`、handoff `f0cca2f9…`，完整值见
   `validation_metric` 的 A/B1 两族与 B1 单/多隐藏分层。零支持目标不计入均值但
   必须记录 `NO_VALID_SUPPORTED_TARGET`，不得静默补零。
 - **指标还原**：`y=y_z·σ+μ`；`rmse_phys=rmse_z·σ`、`mae_phys=mae_z·σ`、
-  `bias_phys=bias_z·σ`、`NMSE=mean((ẑ−ŷ)²)`。预测均值基线在 z 域的 NMSE 为 1，
-  可继续作为旧报告口径的解释量，但新旧数据/面板不同，不能直接宣称可比。
+  `bias_phys=bias_z·σ`、`NMSE=mean((ẑ−ŷ)²)`。若预测恒为 TRAIN 均值 `μ`，则
+  `NMSE=1+((mean_target−μ)/σ)²`；对 VAL 或任意子集**不保证等于 1**，必须实际计算，
+  不能把 1 当作通用验收阈值。新旧数据/面板不同，不能直接宣称可比。
 
 ### 必要备选与取舍
 - 备选 A：Decoder 输出 reflectance，损失按旧 `MSE/σ²`。与推荐方案等价但输出动态
@@ -142,18 +146,23 @@ Token 数或注意力规模。真正的成本变化来自 I2–I4，不来自 I1
 
 ### 最小推荐方案【建议】
 - **保留 4×4 排列的 LocalEmbed（v0）**：
-  `h[j,c] = Linear( [vec16(U) (512), vec16(support) (16), vec16(Fourier2D(微格中心相对 Sub-Patch 中心 / L_sub)) (16×2B)] ) → 128`，
-  单层线性 + bias，无激活、无注意力。微格坐标用 `(col+0.5)/4,(row+0.5)/4∈(0,1)`，
-  Fourier 频率建议 `B=4`（1,2,3,4 周期），得 16×8=128 维位置项；总计
-  512+16+128=656→128（约 84k 参数，全载荷共享）。
-  这样 16 个微格按固定顺序展平，**不是** permutation-invariant 平均；`support`
-  显式告诉网络哪些槽位是真实观测。`visible_count` 只进审计/representation，不重复
-  进入输入（与 `support` 高度冗余），除非确认需要。
+  `h[j,c] = Linear( [vec16(U_masked) (512), vec16(support) (16), vec16(Fourier2D(微格中心相对 Sub-Patch 中心 / L_sub)) (16×16)] ) → 128`。
+  Fourier2D 按**每轴 4 个频率**、每轴 sin+cos：每微格 `(x: 4 sin + 4 cos, y: 4 sin + 4 cos)=16` 维，
+  16 微格共 256 维；输入总宽 **512+16+256=784**（修正原 656 的算术错误），
+  单层线性 + bias，无激活、无注意力，约 100k 参数，全载荷共享。
+  `U_masked = where(support>0, U, 0)` 在投影前**硬屏蔽**，不依赖网络自行忽略无支持值。
+  微格坐标固定（`(col+0.5)/4,(row+0.5)/4`），因此在单层 flatten+Linear 中位置项等价于
+  固定偏置，位置敏感性来自各槽位的不同权重；不宣称额外位置机制已被证明有效。
+  16 个微格按固定顺序展平，**不是** permutation-invariant 平均；`support` 显式告诉
+  网络哪些槽位是真实观测。`visible_count` 只进审计/representation，不重复进入输入。
 - **`Q_sum`**：一个全载荷共享的 learned `[128]` 向量（不依赖 C、传感器、波段）。
 - **`Q_latent,r`**：`Linear(Fourier((r+0.5)/R(C))), B_lat=3 → 128`，共享参数，
   `r=0..R−1`；`C=0` 时不生成内容 Token（只保留几何占位，不建可学习空白 Token）。
 - **`R(C)`**：严格 `min(16,ceil(sqrt(C)))`，`C` 为该 Sub-Patch 内有有效可见支持的
   输入通道数（不是目录通道数，也不是隐藏目标数）。
+- **`ModuleQuery` 的频带是独立参数**：`F_meta`（目录顺位 Fourier）与上述
+  `B_local/B_lat/B_pos` 不是同一个数；`F_meta` 与小投影宽度尚未写进确认记录，见
+  `interface_revision.md` IR5。
 
 ### 必要备选与取舍
 - 备选 A：16 个微格 Token → 1 层 4 头 self-attention → 可学习 query 池化。表达力更强，
@@ -170,9 +179,11 @@ Token 数或注意力规模。真正的成本变化来自 I2–I4，不来自 I1
   不使用 NaN 占位进入可学习运算。
 
 ### 资源影响【推断】
-S2 385² 十波段：`N_sub≈49²=2401`，每 Sub-Patch 每通道 656×128≈84k MAC；
-10 通道约 2.0 GMAC 的前端投影（不含卷积与融合），与原生卷积 3×3×32 同量级。
+S2 385² 十波段（样例，非最大）：`N_sub≈49²=2401`，每 Sub-Patch 每通道 784×128≈100k MAC；
+10 通道约 2.4 GMAC 的前端投影（不含卷积与融合），与原生卷积 3×3×32 同量级。
 256/512 通道合成场景该投影按通道线性增长，不新增每波段参数。
+真实最大缓存（S2B 2769×2264）约 41 倍于 385²，必须按实际 `N_sub` 与分块重算，不能把
+385² 的数当成上界。
 
 ### 直接验证方法
 1. 排列敏感性：固定 `U/support`，置换 16 个微格后 `h` 必须改变；置换回去恢复。
@@ -214,10 +225,14 @@ Fourier 频带数（LocalEmbed `B=4`、latent `B_lat=3`）、LocalEmbed 采用�
 6. 局部谱 Token 的 1 层交互范围（同 Sub-Patch + 8 邻域？）。
 
 ### 最小推荐方案【建议】
-- **位置表达**：绝对米制固定正弦编码，`x,y` 各用波长 `2^k m, k=0..K−1`
-  建议 `K=12`（1m…2048m），`2K=24` 维/轴，`Linear(48,128)` 投影后加到 summary；
-  粗尺度用粗格中心（支持像元质心）同一编码。绝对米制保证分块、batch、通道顺序
-  都不改变位置项；**不使用**按场景范围归一化（会破坏分块等价）。
+- **位置表达（修订提案，IR6，待确认）**：以**不可变 `full_geometry`** 的场景原点
+  `o=(x0,y0)` 与全景尺度 `(W,H)` 为所有块共用的公共参考：`d=(x−x0,y−y0)`；正弦分量
+  用 `sin/cos(2π·d/2^k), k=0..11`（场景相对坐标，避免 UTM 大数相位），再拼接
+  **非周期**的全景线性坐标 `(d_x/W, d_y/H)`，`Linear(50,128)` 投影后加到 summary。
+  原“纯 1…2048m 正弦、绝对 UTM”的编码有公共周期 2048m（`PE(x+2048)=PE(x)`），
+  在 `L_sub=80m` 栅格上每 128 个 Sub-Patch 重复，故不能称为全景唯一绝对位置。
+  新增全景线性坐标使全景内位置可区分；参考系由所有块共享，不破坏分块等价。
+  这是对已确认 I3 公式的修订，确认前不冻结、不写入正式配置。
 - **局部窗口**：在全局 Sub-Patch 索引空间以 `floor(index/8)` 划分 8×8 窗口，
   原点固定；不足 8×8 的边缘窗口用 key-padding mask 补齐（不产生虚假内容），
   窗口间不通信；2 层 pre-LN、4 头、残差。
@@ -253,10 +268,13 @@ Fourier 频带数（LocalEmbed `B=4`、latent `B_lat=3`）、LocalEmbed 采用�
 - 分块接口额外带 `window_row_range` 与 Halo 行，输出拼回全局索引。
 
 ### 资源影响【推断】
-S2 385²：`N_sub≈2401`（49×49），窗口 7×7=49 个（边缘 1 个不满），局部注意力
-约 `49×64²×2层≈40 万` pair/层；粗 `N_c≈576`，全局 `32×576`；对照全长全局
-`N_sub²≈5.8M` pair。Landsat 128²@30m：`L_sub=240m` → 约 16×16=256 Sub-Patch，
-窗口 2×2。以上为公式估算，实测在 E1 记录。
+S2 385²（样例）：`N_sub=49×49=2401`，窗口 `7×7=49`（最后一个不满），局部注意力约
+`49×64²×2 层≈40 万` pair/层；**粗格 `ceil(49/4)²=13²=169`**（修正原 576 的错误），
+全局 `32×169`；对照全长全局 `N_sub²≈5.8M` pair。
+真实最大 S2B 2769×2264@10m：`N_sub≈347×283=98,201`，窗口 `44×36=1,584`，
+粗格 `87×71=6,177`，全局 `32×6,177`；全长 `N_sub²≈9.6×10^9` pair（不可行），
+必须流式/两遍执行。Landsat 128²@30m：`L_sub=240m` → `16×16=256`，窗口 `2×2`，
+粗格 `4×4=16`。以上为公式估算，实测在 E1 记录。
 
 ### 直接验证方法
 1. 分块等价：同一输入，`full` vs `chunk=2/4 窗口行` 的细/粗/全局输出在
@@ -287,9 +305,10 @@ S2 385²：`N_sub≈2401`（49×49），窗口 7×7=49 个（边缘 1 个不满�
 - 【事实】旧 `ReflectanceDecoder` 有两种读出：B1 用原生 cell 交叠面积加权；
   A 用“掩码区域边界邻接 + `1/(1+|rel|²)`”权重；条件为 SRF32；`supported` 由
   `weights.sum>0` 决定，无支持输出 NaN。
-- 【事实】旧 A 规则里“目标中心在隐藏矩形外”的门槛与面积重叠要求，会把完全隐藏
-  Sub-Patch 的目标判为无支持；新合同要求这些目标仍可预测（01 §10.1），因此旧
-  读出不能直接复用。
+- 【事实】旧 A 规则用 **Token 中心**是否在隐藏矩形外（`legacy_center_outside`）作为
+  邻接筛选，并要求 Token 代表区域与掩码边界接触；它与 B1 的原生 cell 面积重叠规则
+  是两套不同语义，不能混用。该筛选会把完全隐藏 Sub-Patch 的目标判为无支持；新合同
+  要求这些目标仍可预测（01 §10.1），因此旧 A 读出不能直接复用。
 - 【事实】旧 decoder 已有逐像素 chunked 反传（`streaming.stream_task_roots`），
   可作为新 Decoder 的执行骨架；其 `supported=False` 的 NaN 约定可沿用。
 
@@ -310,14 +329,19 @@ S2 385²：`N_sub≈2401`（49×49），窗口 7×7=49 个（边缘 1 个不满�
 - **检索**：在可见细 summary 集合上取距目标中心最近的 `k=8` 个（欧氏距离，
   以 `L_sub` 为单位；同 Sub-Patch 若有 summary 必取）。附 `mask`；kNN 只做索引，
   不把坐标当内容。
-- **Query**：`q = MLP([z_decoder(32), Fourier2D(t, B_pos), log(gx/L_sub), log(gy/L_sub),
-  log(area/L_sub²)]) → 128`，其中 `z_decoder` 由静态 `Q_decoder(s,c)` 读同一 KV 得到；
-  `B_pos` 建议 4。`Q_decoder` 只吃 `ChannelMeta + log(GSD)`，不读像元。
-- **聚合**：1 层 4 头 masked Cross-Attention，Q=`q`，K/V=`summary_k` 加相对位置
-  Fourier（`p_k−t`）；输出 `a_local`。再以同一 `q` 对 32 个全局 latent 做 1 层
-  masked Cross-Attention 得 `a_global`；拼接
-  `[a_local, a_global, q_geo, z_decoder, has_local]` → 2 层 MLP（128→128→1）输出 `ẑ`。
-  `has_local=0` 时 `a_local` 置 0（不是 NaN），全局路径仍可用。
+- **Query**：`q_geo = [Fourier2D(t, B_pos=4) (16), log(gx/L_sub), log(gy/L_sub),
+  log(area/L_sub²)]` 共 **11** 维；`q = MLP([z_decoder(32), q_geo(11)]) → 128`。
+  `z_decoder` 由静态 `Q_decoder(s,c)` 读同一 KV 得到，只吃 `ChannelMeta + log(GSD)`，不读像元。
+- **聚合（含 R(C) latent 的明确读取，IR1，待确认）**：1 层 4 头 masked Cross-Attention，
+  Q=`q`，K/V = 局部 summary（加相对位置 Fourier `p_k−t`）与**融合后 `R(C)` latent**
+  （加类型嵌入）；输出 `a_local` 128。再以同一 `q` 对 32 个全局 latent 做 1 层
+  masked Cross-Attention 得 `a_global` 128。`R(C)` 读取方式：取目标 kNN 命中的
+  Sub-Patch 的融合后 latent Token（每子块 ≤`R(C)` 个，k≤8 → ≤128 个 key），
+  与 summary 一起进入同一局部注意力；没有可用 latent 时置 `a_latent=0, has_latent=0`。
+  这样局部谱分支实际进入 loss，不是独立高维 skip，也不删除该分支。最终拼接
+  `[a_local(128), a_global(128), a_latent(128), q_geo(11), z_decoder(32),
+  has_local(1), has_latent(1)]` 共 **429** 维 → `Linear(429,128) → GELU →
+  Linear(128,1)` 输出 `ẑ`。`has_local=0` 时 `a_local=0`（不是 NaN），全局路径仍可用。
 - **可区分性**：`t` 与支持尺寸既进入 `q`（改变注意力权重），也进入最终 MLP；
   同一通道、同一 Sub-Patch 的两个目标像元因此有不同的 query、不同的检索权重和
   不同的 MLP 输入。测试要求 `∂ẑ/∂t` 非零（除初始化对称点外），不要求随机初始
@@ -348,10 +372,15 @@ S2 385²：`N_sub≈2401`（49×49），窗口 7×7=49 个（边缘 1 个不满�
   `target_valid` 分开记录（01 §10.1 三类语义）。
 
 ### 资源影响【推断】
-每目标 `k=8`：检索距离 8×2、注意力 `8×128`、全局 `32×128`、MLP 约 128²。
-粗算每像元 ~1.5 万 MAC；S2 385² 单波段约 2.2 GMAC，必须沿用旧 Decoder 的
-逐像素 chunk 反传（`chunk_pixels`）与 cell 索引，否则显存不可控。旧 cell-indexed
-读出可复用其索引/分块思想，但 A 的邻接规则必须换成“上下文可用”规则。
+`k=8` 只是**选中邻居数，不是搜索成本**。实现必须给出空间索引（按 Sub-Patch 索引的
+桶 + 环形扩展，或每景一次 `cKDTree`），并记录实际扫描距离次数；正常密度约扫描
+1–4 个子块，A 完全隐藏区附近可能更远，需设最大环半径并在超界时走全局回退，
+避免退化为 O(N) 全量扫描。
+注意力：局部 K/V ≤ `8 summary + 8×R(C)` 个 latent（真实 10 通道 `R≤4` → ≤40 key；
+224 通道合成 `R=16` → ≤136 key）；全局 32 key；最终 MLP 429→128→1 约 55k MAC/像元。
+S2 385² 单波段约 148k 目标像元，按上述约 1×10^10 MAC 量级，必须沿用逐像素 chunk
+反传（`chunk_pixels`）与索引；真实最大 2769×2264 单波段约 6.3M 目标像元，需在 E1
+实测分块耗时/显存，不能把 385² 当上界。
 
 ### 直接验证方法
 1. 完全隐藏 Sub-Patch：A 掩码覆盖整块，目标区无 Encoder 内容 Token，Decoder 仍输出
@@ -392,13 +421,20 @@ kNN `k=8` + 局部/全局两路 Cross-Attention + 融合 MLP 的读出方案；
 | 4 波段 S2 缓存只有 4 个通道数组；10 波段只有 10 个；L8 7 波段只有 7 个 | `.npz` keys 实测 |
 | `observation_contracts.jsonl` 只列出已加载通道的 grid，没有未加载通道几何 | 首条 contract 实测 |
 | 统计量 43 键，字段 `mean/std/valid_pixels`，scope 明确 TRAIN-only | `statistics.json` |
-| 形状：S2 4 波段 128²@10m；S2 10 波段 385²@10m + 193²@20m；Landsat 128²@30m | 成员几何 |
+| 形状跨度：Landsat 128²@30m；S2 4 波段 128²@10m；S2 10 波段从 193²/385² 到 **S2B 2769×2264@10m（+1385×1133@20m）**、S2A 2016×2011、S2C 412×412；最大单波段 `H×W=6,269,016` | 逐成员重读 `members.jsonl` |
 | 20m 网格可与 10m 原点相差 10m（如 y 起点 6184550 vs 6184560） | 10 波段成员 |
-| TRAIN 10 波段 S2 594 个，其中 586 个 native side>128（即旧 16384 上限排除数）；VAL 10 波段 98 个（97 个 >128） | 逐成员统计 |
-| bbox 约 1.28km（128²@10m）或 3.85km（385²@10m）；原始 L2A 产品为 10980² 像元量级 | 成员 bbox/`product`/`source_asset` |
+| TRAIN 10 波段 S2 594 个，按旧谓词 `max_band(H×W)>16384` 排除 586 个；VAL 10 波段 98 个（97 个满足）；全 release 683 个成员满足（TRAIN 586） | `data_pool_reconciliation.json` |
+| 对全部成员，`max_side>128` 与 `max_band(H×W)>16384` 计数相同（683/586）；旧配方谓词仍是面积条件，报告不得把边长当通用等价式 | 同上 |
+| bbox 从约 1.28km（128²@10m）到约 27.7km×22.6km（2769×2264@10m）；原始 L2A 产品为 10980² 像元量级 | 成员 bbox/`product`/`source_asset` |
 
 【事实】因此：release 的 “scene” 是**缓存窗口**，不是原始产品整幅；缓存与合同都
 不保存未加载通道的几何。
+
+【纠正】2026-11-08 审查 F3：先前版本把 385² 写成“最大缓存”，与本表同批证据
+（S2A 2016×2011、S2B 2769×2264、S2C 412×412）冲突。本版已更正为实际最大值，
+**不新增任何上限、不裁剪、不删除合格成员**；“整景=完整 observation/cache”的
+已确认语义不变。逐成员对账与旧谓词计数见
+`reports/latent_response/data_pool_reconciliation.json`。
 
 ### 尚未确定 / 冲突
 1. **SensorKey 命名**：规范示例 `(S2A,MSI)` 与数据字段 `(S2,S2A)` 不一致。若直接把
@@ -415,8 +451,9 @@ kNN `k=8` + 局部/全局两路 Cross-Attention + 融合 MLP 的读出方案；
    微格∈{20,60}m；若某 S2 视图只保留 20m 波段（数据中不存在，但 B1 理论上可隐藏
    全部 10m 波段），按“可见输入”算会变成 20m，锚点漂移——必须用与可见性无关的
    完整记录几何。
-5. **场景范围**：E1 要求的“超过旧 16384 像元上限的完整十波段 scene”在本 release
-   只能对应 193²/385² 的完整**缓存**；原始产品整幅（约 10980²）没有本地加载路径。
+5. **场景范围**：E1 的“超过旧 16384 像元上限的完整十波段 scene”在本 release 对应
+   完整**缓存**，样例 193²/385²，实际最大 2769×2264（单波段 6,269,016 像元）；
+   原始产品整幅（约 10980²）没有本地加载路径。
 6. **VAL 覆盖**：VAL 有 S2（335：4/10 波段）与 L8（48：7 波段），没有 L9；TRAIN 有
    L9 524 个 6 波段成员。E1 的“Landsat 六/七波段各≥1”可由 L8 满足，但 L9 无 VAL 面板。
 
@@ -433,8 +470,9 @@ kNN `k=8` + 局部/全局两路 Cross-Attention + 融合 MLP 的读出方案；
   区域）的非数值网格元数据（CRS/affine/shape），由 `tasks.py` 的 targets 保留；
   它不随 `visible` 变化。`g_ref`、`L_sub`、地理锚点只由它决定；B1 删通道不得改变。
   它**不等于**原始产品整幅，也不包含未加载通道。
-- **场景范围（v0 建议）**：本阶段与 E1 的“整景”= 完整 observation/cache（最大
-  385²@10m）；原始产品整幅训练/评测不在本轮，需要新的数据加载与授权。
+- **场景范围（v0 建议）**：本阶段与 E1 的“整景”= 完整 observation/cache，
+  **没有 385² 上限**；已盘点最大为 S2B 2769×2264@10m（单波段 6,269,016 像元）。
+  原始产品整幅训练/评测不在本轮，需要新的数据加载与授权。
   报告同时给出 cache 覆盖与产品 bbox 的差异，不能互相冒充。
 - **注册集合**：v0 只注册真实出现的 5 个键；S2C 虽然规范示例未列，但数据存在，
   不能并入 S2A/S2B。
@@ -481,7 +519,10 @@ SensorKey 用数据原值；目录取 release 并集 10/7/6 且 0-based；`full_
 
 ## 6. 集中待确认问题（最少集）
 
-每条都给出推荐项；未确认前对应实现暂停，不写入正式配置。
+每条都给出推荐项；Q1–Q7 已于 2026-11-08 按推荐确认（记录见
+`interface_confirmation.json`）。审查后对 Q2 的 Fourier 维数算术、Q3 的位置周期、
+Q4 的 R(C) 读出/拼接宽度做了纠正或补充；其中位置编码公式与 R(C) 的具体使用方式
+属于待重新确认的修订项（IR1、IR6），见 `interface_revision.md`。
 
 | 编号 | 问题 | 推荐 | 影响 |
 | --- | --- | --- | --- |
@@ -491,7 +532,7 @@ SensorKey 用数据原值；目录取 release 并集 10/7/6 且 0-based；`full_
 | Q4 | I4：kNN `k=8` + 局部/全局两路 Cross-Attention + 融合 MLP；以所属 Sub-Patch 中心归一化相对坐标？ | 是 | A 隐藏区读出、同通道不同像元可区分性 |
 | Q5 | I5：SensorKey 直接使用数据字段 `(sensor,instrument)`（5 个键），不造 MSI/OLI 别名？ | 是 | 注册表/checkpoint 身份 |
 | Q6 | I5：ChannelCatalog 取 release 并集 10/7/6，0-based ordinal，`total=并集大小`；不采用 13 通道产品目录？ | 是（v0） | Query 输入、目录哈希 |
-| Q7 | I5：`full_geometry` = 观测记录全部已加载通道（含 B1 目标通道）的网格；E1“整景”接受完整 cache（≤385²），不要求产品整幅？ | 是（v0） | g_ref/锚点稳定性、E1 覆盖范围声明 |
+| Q7 | I5：`full_geometry` = 观测记录全部已加载通道（含 B1 目标通道）的网格；E1“整景”接受完整 observation/cache（无 385² 上限；已盘点最大 2769×2264），不要求产品整幅？ | 是（v0） | g_ref/锚点稳定性、E1 覆盖范围声明 |
 
 若 Q6 选 13 通道目录、Q5 选别名、Q7 选产品整幅，均需新增数据合同与目录版本，
 不能在 Agent 侧静默切换。
@@ -507,7 +548,7 @@ SensorKey 用数据原值；目录取 release 并集 10/7/6 且 0-based；`full_
 | C3 | 01 §10 已把“TRAIN-only 统计量标准化原生标量”写成监督协议，01 §14 I1 又把“输入变换”列为待审 | 适配器是否可以先标准化 | 不冲突但需在 Q1 一次确认输入+输出+损失域 |
 | C4 | 01 §14 的“标准化域 MSE”是候选，03 明确“不能视为已批准” | 损失实现 | 本文件按候选处理，Q1 确认前不冻结 |
 | C5 | 01 §7 保留融合后 `R(C)` 局部 latent，03/02 又强调“无独立高维 skip” | 易把 R(C) 误删或误当 skip | 本文件按“R(C) 保留、F/U/h 不进 Decoder”执行；测试已断言 Decoder 不接收前端张量（待 Decoder 实现后） |
-| C6 | 02 §D4 说“所有符合数据合同的完整场景都可成为训练候选”，但 release 的 scene 是缓存窗口（最大 385²@10m），不是产品整幅 | E1 大场景覆盖的可宣称范围 | 列入 Q7；报告区分 cache 与产品 bbox |
+| C6 | 02 §D4 说“所有符合数据合同的完整场景都可成为训练候选”，但 release 的 scene 是缓存窗口（样例 385²，实际最大 2769×2264@10m），不是产品整幅 | E1 大场景覆盖的可宣称范围 | 列入 Q7；报告区分 cache 与产品 bbox |
 | C7 | 01 §12 指出旧 `formal_runner` 验证回写状态可能滞后；旧 README 记载已有修复/测试 | 新 runner 不能继承旧“通过”结论 | 新 runner 实现时单测“验证完成→checkpoint→resume”；本轮未改旧 runner |
 
 ## 8. 本提案不改变的内容

@@ -1,0 +1,114 @@
+{
+  "schema": "latent_response_phase1_correction_evidence_v1",
+  "generated_utc": "2026-11-08T18:53:19.056983+00:00",
+  "architecture_id": "latent_response_sensor_memory_v1",
+  "spec_revision": "1.2",
+  "git": {
+    "branch": "dev/encoder-v3-sensor-memory-v1",
+    "base_commit": "d806e84a1c4848291a0db2fba1cb1c49dc3cd204",
+    "head_at_generation": "d806e84a1c4848291a0db2fba1cb1c49dc3cd204",
+    "dirty": [
+      " M earth-representation/encoder_v3/AGENTS.md",
+      " M earth-representation/encoder_v3/latent_response/__init__.py",
+      " M earth-representation/encoder_v3/latent_response/interface_confirmation.json",
+      " M earth-representation/encoder_v3/latent_response/interface_proposal.md",
+      " M earth-representation/encoder_v3/latent_response/native_patch.py",
+      " M earth-representation/encoder_v3/latent_response/tests/test_native_patch.py",
+      " M earth-representation/encoder_v3/latent_response/types.py",
+      " M earth-representation/scripts/enmap_pairs_valid.py",
+      "?? earth-representation/encoder_v3/latent_response/interface_revision.md",
+      "?? earth-representation/encoder_v3/latent_response/memory_read.py",
+      "?? earth-representation/encoder_v3/latent_response/tests/test_memory_read.py",
+      "?? earth-representation/encoder_v3/reports/latent_response/channel_catalog_frozen.json",
+      "?? earth-representation/encoder_v3/reports/latent_response/data_pool_members.csv",
+      "?? earth-representation/encoder_v3/reports/latent_response/data_pool_reconciliation.json",
+      "?? earth-representation/encoder_v3/reports/latent_response/phase1_correction_evidence.json",
+      "?? earth-representation/encoder_v3/reports/latent_response/phase1_correction_readiness.md"
+    ]
+  },
+  "spec_sha256": {
+    "LR_ARCHITECTURE.md": "001ea601e50e11fdacca3c9b6fbaac062beea52e4722d08d7b5d33969711e30b",
+    "LR_AGENT_PLAN.md": "782c868b2781bb8a8ff8787fc51cfaf0f72694b02dbd53057bd225c589e825f7",
+    "LR_HANDOFF.md": "f0cca2f97c2d05036981239fb7d2d335bdf235385de02562adb64048dfcfe9b8"
+  },
+  "implementation_sha256": {
+    "encoder_v3\\latent_response\\__init__.py": "a8f0ed4ed46ccb6812f63393a639406ad8ca5c11d867480c068fc26683500577",
+    "encoder_v3\\latent_response\\dynamic_conv.py": "d2dc5de2b150dc7d8df1025b55003a826f59301e198123bd20ae33875355fb17",
+    "encoder_v3\\latent_response\\memory_read.py": "aa472d633e91656ea5046c3303b975597d196731cf8fc79f5bb62e3b28e60f7a",
+    "encoder_v3\\latent_response\\module_query.py": "e4f4753c333e0abad83f24f172822d570ac126bab2eeef49dc96991560015bee",
+    "encoder_v3\\latent_response\\native_patch.py": "7e7e3baac19561f8eff474e11c8f44a0c0282f916260312170c921afe4fa3221",
+    "encoder_v3\\latent_response\\registry.py": "5ee2dbce757ccf20f148fa10fd9ee57de2693463174924b90527d6a157274a73",
+    "encoder_v3\\latent_response\\sensor_memory.py": "ea4662f222ad6ad1d424a5d72d22787734ead4a991bd04d8b716d8112a2516eb",
+    "encoder_v3\\latent_response\\types.py": "a509487c3bdce85f81531a7eed08246688ac50a9136095d86ed50f418bafa9b3"
+  },
+  "test_sha256": {
+    "encoder_v3\\latent_response\\tests\\test_dynamic_conv.py": "78cb676a6afd86ce35771742b46d1a5dff386998cfcf86cd514e04fe80b38b46",
+    "encoder_v3\\latent_response\\tests\\test_memory_read.py": "d977a0e24a973cdc645e05b02f02f2951535024496660dddbc2404db70bebf8e",
+    "encoder_v3\\latent_response\\tests\\test_module_queries.py": "0116b58b7d8263982784e477f7a6f2eef1053f741528b764987c7eb6342e2a93",
+    "encoder_v3\\latent_response\\tests\\test_native_patch.py": "3f49caa67b4615d03693e886529553bf05a8ca82f4c0a7ada805c2ce641ff377",
+    "encoder_v3\\latent_response\\tests\\test_registry_memory.py": "be22e3933c27d1e2cad0ebfe665d6ce1e70baa3e1527776f89fe9349af530789"
+  },
+  "documents_sha256": {
+    "encoder_v3\\latent_response\\interface_proposal.md": "914610505adae04eb90fc88b8e54668cd4c5170b5c7c34e6e6e3bfa6a2ba6ecf",
+    "encoder_v3\\latent_response\\interface_confirmation.json": "4b7a0b7ab61d8e43ad37d0927c6d2fba96dcd84dc33ba3750fbac1627fd55338",
+    "encoder_v3\\latent_response\\interface_revision.md": "9721591b00779e4a12e9bfae8b2d23e5b950f7d3c7157b9443201d2229eaa4e8",
+    "encoder_v3\\reports\\latent_response\\data_pool_reconciliation.json": "2c5af1b13d14bc8551d7de40f1b621ac0f69f88eeb9383307c211d834e44be89",
+    "encoder_v3\\reports\\latent_response\\channel_catalog_frozen.json": "9519ebe2e38db21950ef1670a3f6e19bae0621ea21e2e09bd8bf9e687dfa19d7",
+    "encoder_v3\\reports\\latent_response\\data_pool_members.csv": "e5dd85807ad2b04a60acd311bde9cc74fa1926de16aa05ef29a3085e979eb53a"
+  },
+  "readiness_note": "reports/latent_response/phase1_correction_readiness.md is not hashed here to avoid a circular reference",
+  "tests": {
+    "old_cpu_baseline": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "failed": []
+    },
+    "new_architecture": {
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "failed": []
+    }
+  },
+  "environment": {
+    "python": "3.12.14",
+    "torch": "2.11.0+cu128",
+    "device": "CPU only this round",
+    "note": "review ran Python 3.13 / torch 2.10.0+cpu; this evidence is the project venv, not a GPU rerun"
+  },
+  "interfaces": {
+    "I1": "CONFIRMED",
+    "I2": "CONFIRMED",
+    "I3": "CONFIRMED",
+    "I4": "CONFIRMED",
+    "I5": "CONFIRMED",
+    "source": "latent_response/interface_confirmation.json",
+    "revisions_pending": [
+      "IR1 R(C) decoder usage",
+      "IR5 ModuleQuery frequencies",
+      "IR6 position encoding"
+    ]
+  },
+  "corrections": {
+    "F1": "fixed in native_patch aggregate_microcells",
+    "F2": "fixed in types.metric_projected_crs",
+    "F3": "corrected in proposal/confirmation + data_pool_reconciliation",
+    "F4": "pending IR1",
+    "F5": "corrected in proposal I2/I4 + IR2-IR4",
+    "F6": "pending IR6",
+    "F7": "corrected in proposal I3/I4 + IR7"
+  },
+  "optimizer_steps": {
+    "real_data": 0,
+    "synthetic_cpu_this_run": 1,
+    "synthetic_cpu_suite_runs_this_round": 6,
+    "note": "one CPU AdamW step inside test_unused_descriptor_keeps_no_gradient_and_no_adamw_update per full suite run; never real data"
+  },
+  "e1_status": "NOT_EXECUTED_PENDING_IR1_IR6",
+  "training_authorization": false,
+  "data_reconciliation": "encoder_v3/reports/latent_response/data_pool_reconciliation.json",
+  "frozen_catalog": "encoder_v3/reports/latent_response/channel_catalog_frozen.json"
+}

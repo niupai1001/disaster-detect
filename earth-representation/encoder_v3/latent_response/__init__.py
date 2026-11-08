@@ -8,6 +8,7 @@ backbone, decoder and adapters stay unimplemented until I1-I5 are confirmed.
 from .types import SensorKey, ChannelMeta, NativeGrid, ChannelObservation
 from .registry import SensorRegistry, ChannelCatalog
 from .sensor_memory import SensorMemory
+from .memory_read import read_memory
 from .module_query import ModuleQuery, KINDS
 from .dynamic_conv import DynamicKernelBank, masked_native_conv
 from .native_patch import reference_gsd, subpatch_size, aggregate_microcells
@@ -17,7 +18,7 @@ SPEC_REVISION = '1.2'
 
 __all__ = [
     'ARCHITECTURE_ID', 'SPEC_REVISION', 'SensorKey', 'ChannelMeta', 'NativeGrid',
-    'ChannelObservation', 'SensorRegistry', 'ChannelCatalog', 'SensorMemory',
+    'ChannelObservation', 'SensorRegistry', 'ChannelCatalog', 'SensorMemory', 'read_memory',
     'ModuleQuery', 'KINDS', 'DynamicKernelBank', 'masked_native_conv',
     'reference_gsd', 'subpatch_size', 'aggregate_microcells',
 ]

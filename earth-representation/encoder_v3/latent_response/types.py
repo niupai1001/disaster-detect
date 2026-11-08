@@ -36,6 +36,20 @@ class ChannelMeta:
             raise ValueError('canonical ordinal must lie inside the native catalog')
 
 
+def metric_projected_crs(value):
+    """Parse a CRS and require projected metre units; never reproject silently."""
+    if not isinstance(value, str) or not value:
+        raise ValueError('Explicit CRS required')
+    try:
+        from rasterio.crs import CRS
+        crs = CRS.from_user_input(value)
+    except Exception as exc:
+        raise ValueError(f'Unknown or unparsable CRS {value!r}; refusing a metric interpretation') from exc
+    if not crs.is_projected or crs.linear_units not in ('metre', 'meter'):
+        raise ValueError('Metric projected CRS required; geographic, imperial and unknown CRS are rejected')
+    return value
+
+
 @dataclass(frozen=True)
 class NativeGrid:
     """North-up projected metric grid; rotated/geographic grids stay unsupported."""
@@ -51,8 +65,7 @@ class NativeGrid:
             raise ValueError('Reference path requires north-up projected metric grids')
         if any(type(v) is not int or v < 1 for v in self.shape):
             raise ValueError('Positive integer native shape required')
-        if not isinstance(self.crs, str) or not self.crs:
-            raise ValueError('Explicit CRS required')
+        metric_projected_crs(self.crs)
 
     @property
     def gsd_xy(self):

@@ -15,8 +15,9 @@
   },
   "proposal": {
     "path": "encoder_v3/latent_response/interface_proposal.md",
-    "sha256": "4c105a052521629a5802234f14d2f78d46df6d8396b5f15380dbfb5e471ddf74",
-    "note": "proposal text is the pre-confirmation version; this record is the confirmation authority"
+    "sha256": "914610505adae04eb90fc88b8e54668cd4c5170b5c7c34e6e6e3bfa6a2ba6ecf",
+    "sha256_at_confirmation": "4c105a052521629a5802234f14d2f78d46df6d8396b5f15380dbfb5e471ddf74",
+    "note": "proposal text was corrected after the independent review (F1-F7); confirmed decisions unchanged; see corrections and interface_revision.md"
   },
   "decisions": {
     "I1": {
@@ -79,7 +80,7 @@
     "sensor_key": "data fields sensor+instrument verbatim; 5 keys: S2/S2A, S2/S2B, S2/S2C, L8/LC08, L9/LC09",
     "channel_catalog": "release union; S2=10 LC08=7 LC09=6; 0-based ordinal; total=union size",
     "full_geometry": "all loaded channels of the observation record including B1 targets",
-    "e1_scene_scope": "complete observation/cache up to 385x385 native",
+    "e1_scene_scope": "complete observation/cache; no 385x385 limit (manifest maxima: S2B 2769x2264, S2A 2016x2011, S2C 412x412; Landsat 128x128)",
     "independent_high_dim_skip": false,
     "encoder_learned_blank_content_tokens": false
   },
@@ -89,5 +90,48 @@
     "deleting historical checkpoints",
     "reusing the stopped pilot budget"
   ],
-  "notes": "Q1-Q7 accepted as recommended on 2026-11-08; implementation may proceed to D4-D8 and E1 no-update only. E2/E3 require separate authorization."
+  "notes": "Q1-Q7 accepted as recommended on 2026-11-08; implementation may proceed to D4-D8 and E1 no-update only. E2/E3 require separate authorization.",
+  "corrections": {
+    "applied_utc": "2026-11-08",
+    "source": "independent review REVIEW.md + AGENT_FIX_TASK.md against d806e84",
+    "note": "F1/F2 implementation fixes and F3 data-fact correction do not change the confirmed main route; e1_scene_scope text corrected because the earlier 385x385 maximum was false.",
+    "items": {
+      "F1": {
+        "scope": "native_patch.aggregate_microcells",
+        "status": "FIXED_IN_WORKTREE",
+        "detail": "all positive-area micro-cell/Sub-Patch intersections; no centre-only assignment"
+      },
+      "F2": {
+        "scope": "types.NativeGrid",
+        "status": "FIXED_IN_WORKTREE",
+        "detail": "projected metric CRS required; geographic/imperial/unknown rejected"
+      },
+      "F3": {
+        "scope": "e1_scene_scope",
+        "status": "CORRECTED",
+        "detail": "complete cache, no 385x385 maximum; manifest maxima recorded in reports/latent_response/data_pool_reconciliation.json"
+      },
+      "F4": {
+        "scope": "I4 R(C) latent usage",
+        "status": "PENDING_CONFIRMATION",
+        "detail": "interface_revision.md IR1"
+      },
+      "F5": {
+        "scope": "I2/I4 tensor widths",
+        "status": "PARTIALLY_CORRECTED",
+        "detail": "LocalEmbed 784; decoder concat 429; ModuleQuery bands listed in IR5"
+      },
+      "F6": {
+        "scope": "I3 position encoding",
+        "status": "PENDING_CONFIRMATION",
+        "detail": "common 2048m period; scene-frame linear coordinate proposed in IR6"
+      },
+      "F7": {
+        "scope": "resource estimates",
+        "status": "CORRECTED",
+        "detail": "coarse 169 not 576; kNN search cost separated from k in proposal I3/I4"
+      }
+    },
+    "data_reconciliation": "encoder_v3/reports/latent_response/data_pool_reconciliation.json"
+  }
 }
