@@ -17,8 +17,9 @@ from .validation_metric import aggregate_validation,ValidationUnavailable
 
 
 class FrozenValidationPanels:
-    def __init__(self,path,*,config,frozen_ids,dataset,rate_curve,selection_seed):
-        require_training(config)
+    def __init__(self,path,*,config,frozen_ids,dataset,rate_curve,selection_seed,gate=require_training,metric=None):
+        gate(config)
+        self._metric=aggregate_validation if metric is None else metric
         if frozen_ids.get('formal_config_sha256')!=frozen_identity(config):raise ValueError('Frozen formal configuration differs')
         expected=frozen_ids.get('validation_panel_sha256');_sha(expected);path=Path(path)
         if sha256(path)!=expected:raise ValueError('Frozen validation panel differs')
@@ -55,6 +56,11 @@ class FrozenValidationPanels:
         chunk=config.get('formal_step',{}).get('chunk_pixels')
         if type(chunk) is not int or chunk<1:raise ValueError('Explicit Decoder chunk required')
         self._doc=doc;self._dataset=dataset;self._indices={row['id']:i for i,row in enumerate(dataset.rows)};self._rows=rows;self._curve=rate_curve;self._seed=selection_seed;self._frozen=copy.deepcopy(frozen_ids);self.chunk=chunk;self.identity=expected;self._path=path;st=path.stat();self._stat=(st.st_size,st.st_mtime_ns)
+
+    def __len__(self):return len(self._doc['panels'])
+
+    @property
+    def document(self):return self._doc
 
     def iter_views(self,*,cell_indexed,retain_layouts):
         st=self._path.stat()
@@ -94,7 +100,7 @@ class FrozenValidationPanels:
             if device.type=='cuda':torch.cuda.synchronize(device)
             cases=[dict(case_id=row['panel_id'],kind=row['kind'],source=row['source'],observation=row['observation'],loss=row['result'].get('loss'),status=row['result'].get('status','OK'),hidden_count=row['hidden_count'],band_count=row['band_count'],P_m=row['P_m']) for row in rows]
             try:
-                metric=aggregate_validation(cases);metric_status=metric['status']
+                metric=self._metric(cases);metric_status=metric['status']
             except ValidationUnavailable as exc:
                 metric=None;metric_status=str(exc)
             return dict(status='FIXED_PANEL_RESULTS_COLLECTED',panel_sha256=self.identity,rows=rows,seconds_wall=time.perf_counter()-start,metric=metric,metric_status=metric_status,optimizer_updates=0)

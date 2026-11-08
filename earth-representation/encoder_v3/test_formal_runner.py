@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import torch
 
@@ -136,6 +136,8 @@ class RunnerChecks(unittest.TestCase):
         progress = RouteProgress("shared", 0, "a" * 64)
 
         def fake_update(**kwargs):
+            if kwargs["validation"] is not None:
+                kwargs["validation"]({}, kwargs["progress"].logical_update + 1)
             return replace(kwargs["progress"], logical_update=kwargs["progress"].logical_update + 1), {"validation": {"metric": 1.0}}
 
         with patch("encoder_v3.formal_runner.move_views", side_effect=lambda views, device: views), \
@@ -146,6 +148,7 @@ class RunnerChecks(unittest.TestCase):
                     scheduler=None, schedule=ScheduleFixture(5), directory=Path(folder), device="cpu",
                     control=dict(max_updates=5, max_wall_seconds=10.0, cell_indexed=False, retain_layouts=False,
                                  early_stop=dict(patience=2, min_delta=.1)),
+                    validation=lambda modules, update: 1.0,
                 )
         self.assertEqual(result["updates"], 3)
         self.assertEqual(result["reason"], "early_stop")

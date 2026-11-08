@@ -1,0 +1,62 @@
+{
+  "B2_used": false,
+  "P_values": [
+    60.0,
+    120.0
+  ],
+  "builder": {
+    "writes_per_update_tensors": false
+  },
+  "kind": "optical_selfsup_sampling_recipe_v1",
+  "mask_rule": {
+    "aspect_ratio": [
+      0.5,
+      2.0
+    ],
+    "count": 1,
+    "position": "uniform feasible patch-aligned rectangle",
+    "size_rounding": "nearest integer patch count, clipped to observation patch layout",
+    "target_patch_fraction": 0.5
+  },
+  "pool": {
+    "excluded": {
+      "above_native_pixel_cap": 586,
+      "below_min_bands": 0,
+      "unknown_sensor": 0
+    },
+    "excluded_by_sensor": {
+      "S2:10bands": 586
+    },
+    "max_native_pixels": 16384,
+    "members": {
+      "Landsat": 2046,
+      "S2": 4763
+    },
+    "min_bands": 2,
+    "release_members": 7395,
+    "rule": "all TRAIN optical members with >=2 native bands and native scene pixels <= max_native_pixels",
+    "sha256": "2713544bd9bdc73599102503954e12a386669094f738e7318ad7b214f0f1cb8f"
+  },
+  "sampling": {
+    "families": [
+      "S2",
+      "Landsat"
+    ],
+    "members_per_update": 8,
+    "method": "without-replacement hash ranking of sha256(seed:update:family) over the frozen pool",
+    "seed": 20261108,
+    "slots_per_source": 4
+  },
+  "source_identities": {
+    "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+    "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+    "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+  },
+  "status": "ENGINEERING_FROZEN_RESEARCH_APPROVAL_PENDING",
+  "tasks": {
+    "A": "rectangle spatial hide; targets are cells fully inside the rectangle",
+    "B1": "native visible-band holdout; every target band leaves the Encoder"
+  },
+  "updates": 10000
+}

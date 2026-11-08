@@ -1,0 +1,313 @@
+{
+  "experiment": "optical_intra_selfsup_v1",
+  "device": "cuda:0",
+  "torch": "2.11.0+cu128",
+  "device_name": "NVIDIA GeForce RTX 5090",
+  "parameter_count": 1240225,
+  "configuration_sha256": "800417c728f5b51fedd66fc11cbd97e9f107676f06ac56aaeb21b2bac47dd35d",
+  "status": "BOUNDED_REAL_BENCHMARK_NO_OPTIMIZER_STEP",
+  "updates": [],
+  "bounded_execution_sweep": {
+    "update": "bounded-small-eight",
+    "P_m": 60.0,
+    "members": [
+      "obs_0b3866f1735e74a8a349ae53_L8",
+      "obs_0bd30c9411ceff223e904b20_L8",
+      "obs_0d7c84b1ff83f4a5550a9e35_L8",
+      "obs_0faaae406ff743c506f0f94c_L8",
+      "obs_101e19b54c0dc76f22825fdd_L8",
+      "obs_16ed9b271e2f344ed73a893d_L8",
+      "obs_1dfc3224ec845aa5ed1e5787_L8",
+      "obs_2364bd02d7d6bf6ad7c44068_L8"
+    ],
+    "tasks": 16,
+    "AB_input_signature": null,
+    "candidates": [
+      {
+        "name": "bounded_reference_baseline_local64_packed_off_microbatch1",
+        "cell_indexed": true,
+        "local_batch": 64,
+        "packed": false,
+        "matrix_decoder": false,
+        "microbatch": 1,
+        "repeats": 2,
+        "seconds": [
+          20.627371699985815,
+          19.56663970000227
+        ],
+        "seconds_median": 20.097005699994043,
+        "seconds_min": 19.56663970000227,
+        "seconds_max": 20.627371699985815,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 798.30908203125,
+        "peak_reserved_mb": 1386.0,
+        "weighted_loss": 14.998534261842197,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 0.0,
+          "gradient_relative_l2": 0.0,
+          "supports_match": true,
+          "tokens_match": true
+        }
+      },
+      {
+        "name": "bounded_local256_packed_off",
+        "cell_indexed": true,
+        "local_batch": 256,
+        "packed": false,
+        "matrix_decoder": false,
+        "microbatch": 1,
+        "repeats": 3,
+        "seconds": [
+          12.48785519998637,
+          13.819714100012789,
+          12.557100899983197
+        ],
+        "seconds_median": 12.557100899983197,
+        "seconds_min": 12.48785519998637,
+        "seconds_max": 13.819714100012789,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 798.22314453125,
+        "peak_reserved_mb": 1370.0,
+        "weighted_loss": 14.998534017942063,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 5.1495923296518453e-08,
+          "gradient_relative_l2": 8.605568861464935e-08,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.6004494875103643,
+        "peak_memory_ratio_vs_baseline": 0.9998923505921024
+      },
+      {
+        "name": "bounded_local512_packed_off",
+        "cell_indexed": true,
+        "local_batch": 512,
+        "packed": false,
+        "matrix_decoder": false,
+        "microbatch": 1,
+        "repeats": 3,
+        "seconds": [
+          13.491485100006685,
+          12.42281419999199,
+          12.097217700007604
+        ],
+        "seconds_median": 12.42281419999199,
+        "seconds_min": 12.097217700007604,
+        "seconds_max": 13.491485100006685,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 815.0888671875,
+        "peak_reserved_mb": 1304.0,
+        "weighted_loss": 14.998534153934305,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 3.8286713938972684e-08,
+          "gradient_relative_l2": 8.356039383249016e-08,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.6177498412563396,
+        "peak_memory_ratio_vs_baseline": 1.021019158536384
+      },
+      {
+        "name": "bounded_local1024_packed_off",
+        "cell_indexed": true,
+        "local_batch": 1024,
+        "packed": false,
+        "matrix_decoder": false,
+        "microbatch": 1,
+        "repeats": 3,
+        "seconds": [
+          10.732770300004631,
+          11.421014300023671,
+          11.22539819998201
+        ],
+        "seconds_median": 11.22539819998201,
+        "seconds_min": 10.732770300004631,
+        "seconds_max": 11.421014300023671,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 814.75537109375,
+        "peak_reserved_mb": 1312.0,
+        "weighted_loss": 14.998534189914334,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 4.5520583871235435e-08,
+          "gradient_relative_l2": 8.595251476521547e-08,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.7903156166011331,
+        "peak_memory_ratio_vs_baseline": 1.0206014054364174
+      },
+      {
+        "name": "bounded_local64_packed_on",
+        "cell_indexed": true,
+        "local_batch": 64,
+        "packed": true,
+        "matrix_decoder": false,
+        "microbatch": 1,
+        "repeats": 1,
+        "seconds": [
+          18.459551100007957
+        ],
+        "seconds_median": 18.459551100007957,
+        "seconds_min": 18.459551100007957,
+        "seconds_max": 18.459551100007957,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 806.75537109375,
+        "peak_reserved_mb": 1390.0,
+        "weighted_loss": 14.998534224877144,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 3.905315377175017e-08,
+          "gradient_relative_l2": 5.176599696643945e-08,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.0887050064822745,
+        "peak_memory_ratio_vs_baseline": 1.010580224192125
+      },
+      {
+        "name": "bounded_matrix_A_readout",
+        "cell_indexed": true,
+        "local_batch": 64,
+        "packed": false,
+        "matrix_decoder": true,
+        "microbatch": 1,
+        "repeats": 1,
+        "seconds": [
+          19.2922155999986
+        ],
+        "seconds_median": 19.2922155999986,
+        "seconds_min": 19.2922155999986,
+        "seconds_max": 19.2922155999986,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 696.9462890625,
+        "peak_reserved_mb": 810.0,
+        "weighted_loss": 14.998534349753644,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 2.4435528002414652e-08,
+          "gradient_relative_l2": 5.449597658770186e-08,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.0417157944261985,
+        "peak_memory_ratio_vs_baseline": 0.8730281350290562
+      },
+      {
+        "name": "bounded_microbatch2",
+        "cell_indexed": true,
+        "local_batch": 64,
+        "packed": false,
+        "matrix_decoder": false,
+        "microbatch": 2,
+        "repeats": 1,
+        "seconds": [
+          19.306395499996142
+        ],
+        "seconds_median": 19.306395499996142,
+        "seconds_min": 19.306395499996142,
+        "seconds_max": 19.306395499996142,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 1299.61181640625,
+        "peak_reserved_mb": 1922.0,
+        "weighted_loss": 14.998534249706742,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 2.121574954881189e-08,
+          "gradient_relative_l2": 1.2393395482448561e-07,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.0409506891122198,
+        "peak_memory_ratio_vs_baseline": 1.6279556949289178
+      },
+      {
+        "name": "bounded_microbatch4",
+        "cell_indexed": true,
+        "local_batch": 64,
+        "packed": false,
+        "matrix_decoder": false,
+        "microbatch": 4,
+        "repeats": 1,
+        "seconds": [
+          19.85137299998314
+        ],
+        "seconds_median": 19.85137299998314,
+        "seconds_min": 19.85137299998314,
+        "seconds_max": 19.85137299998314,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 2261.88330078125,
+        "peak_reserved_mb": 2672.0,
+        "weighted_loss": 14.998534268477641,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 3.9350813702393386e-08,
+          "gradient_relative_l2": 1.806709082751635e-07,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.0123735874597244,
+        "peak_memory_ratio_vs_baseline": 2.833342813820961
+      },
+      {
+        "name": "bounded_microbatch8",
+        "cell_indexed": true,
+        "local_batch": 64,
+        "packed": false,
+        "matrix_decoder": false,
+        "microbatch": 8,
+        "repeats": 1,
+        "seconds": [
+          19.330279399990104
+        ],
+        "seconds_median": 19.330279399990104,
+        "seconds_min": 19.330279399990104,
+        "seconds_max": 19.330279399990104,
+        "tokens": 94641,
+        "sum_n_squared": 1193302407,
+        "max_tokens_per_observation": 14377,
+        "peak_allocated_mb": 3886.51318359375,
+        "peak_reserved_mb": 4344.0,
+        "weighted_loss": 14.998534204556837,
+        "optimizer_updates": 0,
+        "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+        "relative_to_baseline": {
+          "max_loss_relative_difference": 5.895320949608312e-08,
+          "gradient_relative_l2": 2.886359862884388e-07,
+          "supports_match": true,
+          "tokens_match": true
+        },
+        "speedup_vs_baseline": 1.0396645223867964,
+        "peak_memory_ratio_vs_baseline": 4.868431627640698
+      }
+    ]
+  },
+  "method": "one execution variable at a time on the real frozen A+B1 logical update (eight observations); gradient/support/token equality against the reference readout; no optimizer.step"
+}

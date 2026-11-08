@@ -1,0 +1,265 @@
+{
+  "status": "REAL_DATA_ARCHITECTURE_EVIDENCE_NO_OPTIMIZER_STEP",
+  "device": "cpu",
+  "members": [
+    {
+      "sensor": "S2",
+      "observation": "obs_0002e58c12d2c4a9e4c91a8c",
+      "member_pool": 4755,
+      "bands": 4,
+      "shape": [
+        128,
+        128
+      ],
+      "hidden_band_ids": [
+        "B04"
+      ],
+      "P_m": 60.0,
+      "partition": [
+        {
+          "visible_positions": 16384,
+          "groups": 14545,
+          "group_positions": 16384,
+          "unique_positions": 16384,
+          "merged_groups": 1437,
+          "singleton_groups": 13108,
+          "tokens": 14545,
+          "every_visible_position_exactly_once": true,
+          "covers_only_visible_positions": true,
+          "max_group": 4
+        },
+        {
+          "visible_positions": 16384,
+          "groups": 14545,
+          "group_positions": 16384,
+          "unique_positions": 16384,
+          "merged_groups": 1437,
+          "singleton_groups": 13108,
+          "tokens": 14545,
+          "every_visible_position_exactly_once": true,
+          "covers_only_visible_positions": true,
+          "max_group": 4
+        }
+      ],
+      "B1_band_isolation": {
+        "visible": [
+          "B02",
+          "B03",
+          "B08"
+        ],
+        "targets": [
+          "B04"
+        ],
+        "disjoint": true,
+        "leaves_visible": true,
+        "every_band_accounted": true
+      },
+      "A_hidden_value_isolation": {
+        "hidden_positions": 8052,
+        "tokens_equal": false,
+        "group_ids_equal": true,
+        "finite_visible_tokens": true
+      },
+      "batch_independence": {
+        "duplicate_pair_token_max_abs_difference": 2.384185791015625e-06,
+        "vs_single_token_max_abs_difference": 0.5284187197685242,
+        "duplicate_pair_group_ids_equal": true
+      },
+      "support": {
+        "A": {
+          "status": "OK",
+          "planned": 32208,
+          "supported": 32208,
+          "supervised_targets_are_the_hidden_positions": true,
+          "supervised_positions_disjoint_per_band": true,
+          "decoder_equals_plan": [
+            {
+              "band": "B02",
+              "plan": 8052,
+              "decoder": 8052,
+              "matches_plan": true
+            },
+            {
+              "band": "B03",
+              "plan": 8052,
+              "decoder": 8052,
+              "matches_plan": true
+            },
+            {
+              "band": "B04",
+              "plan": 8052,
+              "decoder": 8052,
+              "matches_plan": true
+            },
+            {
+              "band": "B08",
+              "plan": 8052,
+              "decoder": 8052,
+              "matches_plan": true
+            }
+          ]
+        },
+        "B1": {
+          "status": "OK",
+          "planned": 16384,
+          "supported": 16384,
+          "supervised_targets_are_the_hidden_positions": true,
+          "supervised_positions_disjoint_per_band": true,
+          "decoder_equals_plan": [
+            {
+              "band": "B04",
+              "plan": 16384,
+              "decoder": 16384,
+              "matches_plan": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sensor": "L8",
+      "observation": "obs_00cb3b76301992b5ece4a9f8_L8",
+      "member_pool": 647,
+      "bands": 6,
+      "shape": [
+        44,
+        44
+      ],
+      "hidden_band_ids": [
+        "SR_B2",
+        "SR_B5",
+        "SR_B7"
+      ],
+      "P_m": 60.0,
+      "partition": [
+        {
+          "visible_positions": 1936,
+          "groups": 1871,
+          "group_positions": 1936,
+          "unique_positions": 1936,
+          "merged_groups": 59,
+          "singleton_groups": 1812,
+          "tokens": 1871,
+          "every_visible_position_exactly_once": true,
+          "covers_only_visible_positions": true,
+          "max_group": 4
+        },
+        {
+          "visible_positions": 1936,
+          "groups": 1871,
+          "group_positions": 1936,
+          "unique_positions": 1936,
+          "merged_groups": 59,
+          "singleton_groups": 1812,
+          "tokens": 1871,
+          "every_visible_position_exactly_once": true,
+          "covers_only_visible_positions": true,
+          "max_group": 4
+        }
+      ],
+      "B1_band_isolation": {
+        "visible": [
+          "SR_B3",
+          "SR_B4",
+          "SR_B6"
+        ],
+        "targets": [
+          "SR_B2",
+          "SR_B5",
+          "SR_B7"
+        ],
+        "disjoint": true,
+        "leaves_visible": true,
+        "every_band_accounted": true
+      },
+      "A_hidden_value_isolation": {
+        "hidden_positions": 960,
+        "tokens_equal": true,
+        "group_ids_equal": true,
+        "finite_visible_tokens": true
+      },
+      "batch_independence": {
+        "duplicate_pair_token_max_abs_difference": 2.384185791015625e-06,
+        "vs_single_token_max_abs_difference": 1.6689300537109375e-06,
+        "duplicate_pair_group_ids_equal": true
+      },
+      "support": {
+        "A": {
+          "status": "OK",
+          "planned": 5760,
+          "supported": 5760,
+          "supervised_targets_are_the_hidden_positions": true,
+          "supervised_positions_disjoint_per_band": true,
+          "decoder_equals_plan": [
+            {
+              "band": "SR_B2",
+              "plan": 960,
+              "decoder": 960,
+              "matches_plan": true
+            },
+            {
+              "band": "SR_B3",
+              "plan": 960,
+              "decoder": 960,
+              "matches_plan": true
+            },
+            {
+              "band": "SR_B4",
+              "plan": 960,
+              "decoder": 960,
+              "matches_plan": true
+            },
+            {
+              "band": "SR_B5",
+              "plan": 960,
+              "decoder": 960,
+              "matches_plan": true
+            },
+            {
+              "band": "SR_B6",
+              "plan": 960,
+              "decoder": 960,
+              "matches_plan": true
+            },
+            {
+              "band": "SR_B7",
+              "plan": 960,
+              "decoder": 960,
+              "matches_plan": true
+            }
+          ]
+        },
+        "B1": {
+          "status": "OK",
+          "planned": 5808,
+          "supported": 5808,
+          "supervised_targets_are_the_hidden_positions": true,
+          "supervised_positions_disjoint_per_band": true,
+          "decoder_equals_plan": [
+            {
+              "band": "SR_B2",
+              "plan": 1936,
+              "decoder": 1936,
+              "matches_plan": true
+            },
+            {
+              "band": "SR_B5",
+              "plan": 1936,
+              "decoder": 1936,
+              "matches_plan": true
+            },
+            {
+              "band": "SR_B7",
+              "plan": 1936,
+              "decoder": 1936,
+              "matches_plan": true
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "optimizer_updates": 0,
+  "parameter_updates": 0,
+  "scope": "two real TRAIN members: partition uniqueness, hidden-value isolation, B1 band isolation, batch independence, plan/decoder support equality"
+}

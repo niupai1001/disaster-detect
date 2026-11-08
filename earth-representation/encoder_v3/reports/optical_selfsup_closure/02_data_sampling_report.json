@@ -1,0 +1,609 @@
+{
+  "status": "EXACT_RECIPE_ACCOUNTING",
+  "experiment": "optical_intra_selfsup_v1",
+  "configuration_sha256": "ac9b0e52976af778beb7fbe3e298548f915d147045ccb3eb4b27d07320fcd5c7",
+  "recipe_sha256": "ef14df12cf836fe1f0a4870ec0da8e893cc856c4a2624d86f699e2c6ae6d4d12",
+  "updates": 10000,
+  "release_members": 7395,
+  "pool": {
+    "members": 6809,
+    "sha256": "2713544bd9bdc73599102503954e12a386669094f738e7318ad7b214f0f1cb8f",
+    "families": {
+      "S2": 4763,
+      "Landsat": 2046
+    },
+    "band_counts": {
+      "4": 4755,
+      "6": 1875,
+      "7": 171,
+      "10": 8
+    },
+    "excluded": {
+      "below_min_bands": 0,
+      "unknown_sensor": 0,
+      "above_native_pixel_cap": 586
+    },
+    "excluded_by_sensor": {
+      "S2:10bands": 586
+    },
+    "max_native_pixels": 16384
+  },
+  "exposures": {
+    "per_member": {
+      "count": 6809,
+      "min": 0,
+      "p1": 3,
+      "p25": 7,
+      "median": 10,
+      "p75": 16,
+      "p99": 28,
+      "max": 40,
+      "mean": 11.749155529446321,
+      "zero": 1
+    },
+    "by_family": {
+      "Landsat": 40000,
+      "S2": 40000
+    },
+    "totals": {
+      "slots": 80000,
+      "expected_unique_members": 6809
+    },
+    "covered_members": 6808,
+    "by_sensor": {
+      "Landsat": 2046,
+      "S2": 4763
+    }
+  },
+  "P_counts": {
+    "120.0": 5000,
+    "60.0": 5000
+  },
+  "task_counts": {
+    "A": 80000,
+    "B1": 80000
+  },
+  "B1_hidden": {
+    "single_vs_multi": {
+      "multi": 40049,
+      "single": 39951
+    },
+    "by_hidden_count": {
+      "1": 39951,
+      "2": 15039,
+      "3": 14820,
+      "4": 4895,
+      "5": 4953,
+      "6": 338,
+      "7": 2,
+      "8": 1,
+      "9": 1
+    },
+    "by_band_count": {
+      "4": {
+        "1": 19989,
+        "2": 10080,
+        "3": 9869
+      },
+      "6": {
+        "1": 18170,
+        "2": 4618,
+        "3": 4625,
+        "4": 4549,
+        "5": 4582
+      },
+      "7": {
+        "1": 1755,
+        "2": 337,
+        "3": 325,
+        "4": 341,
+        "5": 364,
+        "6": 334
+      },
+      "10": {
+        "1": 37,
+        "2": 4,
+        "3": 1,
+        "4": 5,
+        "5": 7,
+        "6": 4,
+        "7": 2,
+        "8": 1,
+        "9": 1
+      }
+    }
+  },
+  "token_estimate": {
+    "per_member": {
+      "count": 6809,
+      "min": 11006,
+      "p1": 11262,
+      "p25": 60817,
+      "median": 60817,
+      "p75": 60817,
+      "p99": 97522,
+      "max": 97522,
+      "mean": 59606.12395359084,
+      "zero": 0
+    },
+    "max": 97522,
+    "sum_squares_upper_bound": 27917838762520,
+    "method": "analytic (1-r)+r/group per band from the frozen curve; measured sample in supervision probe"
+  },
+  "supervision": {
+    "updates": 3,
+    "cases": 48,
+    "by_kind": {
+      "A": {
+        "cases": 24,
+        "ratio": {
+          "count": 24,
+          "min": 1.0,
+          "p1": 1.0,
+          "p25": 1.0,
+          "median": 1.0,
+          "p75": 1.0,
+          "p99": 1.0,
+          "max": 1.0,
+          "mean": 1.0,
+          "zero": 0
+        },
+        "planned": 753505,
+        "supported": 753505
+      },
+      "B1": {
+        "cases": 24,
+        "ratio": {
+          "count": 24,
+          "min": 1.0,
+          "p1": 1.0,
+          "p25": 1.0,
+          "median": 1.0,
+          "p75": 1.0,
+          "p99": 1.0,
+          "max": 1.0,
+          "mean": 1.0,
+          "zero": 0
+        },
+        "planned": 446931,
+        "supported": 446931
+      }
+    },
+    "method": "real native geometry on the first frozen updates; not repeated over all updates",
+    "records": [
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 36864,
+        "supported": 36864,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 49152,
+        "supported": 49152,
+        "ratio": 1.0,
+        "bands": 3
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 25776,
+        "supported": 25776,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 13896,
+        "supported": 13896,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 34272,
+        "supported": 34272,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 16384,
+        "supported": 16384,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 34560,
+        "supported": 34560,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 16384,
+        "supported": 16384,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 6834,
+        "supported": 6834,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 2204,
+        "supported": 2204,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 48402,
+        "supported": 48402,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 14547,
+        "supported": 14547,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 49248,
+        "supported": 49248,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 32752,
+        "supported": 32752,
+        "ratio": 1.0,
+        "bands": 2
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 6048,
+        "supported": 6048,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 5808,
+        "supported": 5808,
+        "ratio": 1.0,
+        "bands": 3
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 36864,
+        "supported": 36864,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 32768,
+        "supported": 32768,
+        "ratio": 1.0,
+        "bands": 2
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 35328,
+        "supported": 35328,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 32768,
+        "supported": 32768,
+        "ratio": 1.0,
+        "bands": 2
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 36864,
+        "supported": 36864,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 16384,
+        "supported": 16384,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 36864,
+        "supported": 36864,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 16384,
+        "supported": 16384,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 48948,
+        "supported": 48948,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 16382,
+        "supported": 16382,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 48546,
+        "supported": 48546,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 16305,
+        "supported": 16305,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 50592,
+        "supported": 50592,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 16383,
+        "supported": 16383,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 6066,
+        "supported": 6066,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 120.0,
+        "planned": 1923,
+        "supported": 1923,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 36280,
+        "supported": 36280,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 49143,
+        "supported": 49143,
+        "ratio": 1.0,
+        "bands": 3
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 35568,
+        "supported": 35568,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 16384,
+        "supported": 16384,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 32928,
+        "supported": 32928,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 16384,
+        "supported": 16384,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 36720,
+        "supported": 36720,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 32768,
+        "supported": 32768,
+        "ratio": 1.0,
+        "bands": 2
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 48702,
+        "supported": 48702,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 16376,
+        "supported": 16376,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 8547,
+        "supported": 8547,
+        "ratio": 1.0,
+        "bands": 7
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 9592,
+        "supported": 9592,
+        "ratio": 1.0,
+        "bands": 4
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 6912,
+        "supported": 6912,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 2162,
+        "supported": 2162,
+        "ratio": 1.0,
+        "bands": 1
+      },
+      {
+        "kind": "A",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 5772,
+        "supported": 5772,
+        "ratio": 1.0,
+        "bands": 6
+      },
+      {
+        "kind": "B1",
+        "status": "OK",
+        "P_m": 60.0,
+        "planned": 3698,
+        "supported": 3698,
+        "ratio": 1.0,
+        "bands": 2
+      }
+    ]
+  },
+  "optimizer_updates": 0
+}

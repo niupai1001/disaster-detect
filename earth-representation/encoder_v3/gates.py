@@ -42,6 +42,20 @@ ADAPTIVE_IDS = {
     "adaptive_gpu_efficiency_acceptance",
     "participation_curve_and_anisotropic_rule",
 }
+# Independent E0 (A+B1 intra-observation) admission. It shares the evidence
+# format but none of the ids above: an E0 config cannot satisfy the historical
+# A/B1/B2 gates by renaming them, and the historical gates stay closed.
+OPTICAL_IDS = {
+    "optical_data_freeze",
+    "optical_sampling_recipe",
+    "optical_task_protocol",
+    "optical_validation_protocol",
+    "optical_optimizer_schedule",
+    "optical_resource_budget",
+    "optical_update_recovery_acceptance",
+    "optical_formal_training_authorization",
+}
+OPTICAL_SCOPE = "optical_selfsup_formal_training"
 APPROVAL_FIELDS = (
     "gate_id",
     "status",
@@ -182,6 +196,39 @@ def require_adaptive(adaptive_config, *, source_manifest_sha256=None, data_manif
     return True
 
 
+def optical_identity_only(config):
+    """Load-time identity check only (preflight); authorization lives in selfsup_train."""
+    return True
+
+
+def require_optical_selfsup_training(config, *, source_manifest_sha256=None, data_manifest_sha256=None):
+    """E0 admission only: A+B1 intra-observation; B2, JEPA and task heads are out of scope."""
+    required = config.get("required_before_training") if isinstance(config, dict) else None
+    if not isinstance(required, dict) or not required:
+        raise ValueError("Missing optical required_before_training")
+    missing = sorted(OPTICAL_IDS - set(required))
+    unresolved = sorted(key for key in OPTICAL_IDS & set(required) if required[key] is None or required[key] is False or required[key] == "")
+    if missing or unresolved:
+        raise ValueError("Optical self-supervised training blocked: " + ", ".join(missing + unresolved))
+    config_sha = payload_sha256(config)
+    for gate_id in sorted(OPTICAL_IDS):
+        _validate_approval(
+            gate_id,
+            required[gate_id],
+            scope=OPTICAL_SCOPE,
+            config_sha=config_sha,
+            source_sha256=source_manifest_sha256,
+            data_sha256=data_manifest_sha256,
+        )
+    if config.get("B2_training_required") is not False:
+        raise ValueError("E0 must declare B2_training_required=false")
+    if config.get("JEPA_training_required") is not False:
+        raise ValueError("E0 must declare JEPA_training_required=false")
+    if config.get("m9_task_head_training_authorized") is not False:
+        raise ValueError("Task-head training must remain unauthorized for E0")
+    return True
+
+
 def require_all(config, *, adaptive_config=None, jepa=False, source_manifest_sha256=None, data_manifest_sha256=None):
     require_training(config, source_manifest_sha256=source_manifest_sha256, data_manifest_sha256=data_manifest_sha256)
     if adaptive_config is not None:
@@ -198,23 +245,28 @@ def _main(argv=None):
     parser.add_argument("--config", type=Path, default=Path(__file__).with_name("config.json"))
     parser.add_argument("--adaptive-config", type=Path, default=None)
     parser.add_argument("--jepa", action="store_true")
+    parser.add_argument("--optical", action="store_true", help="Check the independent E0 A+B1 admission only")
     parser.add_argument("--source-manifest-sha256", default=None)
     parser.add_argument("--data-manifest-sha256", default=None)
     args = parser.parse_args(argv)
     try:
         adaptive = json.loads(args.adaptive_config.read_text(encoding="utf-8-sig")) if args.adaptive_config else None
-        require_all(
-            json.loads(args.config.read_text(encoding="utf-8-sig")),
-            adaptive_config=adaptive,
-            jepa=args.jepa,
-            source_manifest_sha256=args.source_manifest_sha256,
-            data_manifest_sha256=args.data_manifest_sha256,
-        )
+        config = json.loads(args.config.read_text(encoding="utf-8-sig"))
+        if args.optical:
+            require_optical_selfsup_training(config, source_manifest_sha256=args.source_manifest_sha256, data_manifest_sha256=args.data_manifest_sha256)
+        else:
+            require_all(
+                config,
+                adaptive_config=adaptive,
+                jepa=args.jepa,
+                source_manifest_sha256=args.source_manifest_sha256,
+                data_manifest_sha256=args.data_manifest_sha256,
+            )
     except ValueError as exc:
         message = str(exc)
-        print(message if message.startswith(("Training blocked", "JEPA blocked")) else "Training blocked: " + message, file=sys.stderr)
+        print(message if message.startswith(("Training blocked", "JEPA blocked", "Optical self-supervised training blocked")) else "Training blocked: " + message, file=sys.stderr)
         return 2
-    print("TRAINING_AUTHORIZED")
+    print("OPTICAL_TRAINING_AUTHORIZED" if args.optical else "TRAINING_AUTHORIZED")
     return 0
 
 

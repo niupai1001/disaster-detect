@@ -1,0 +1,417 @@
+{
+  "schema": "encoder_v3_optical_selfsup_performance_v1",
+  "experiment": "optical_intra_selfsup_v1",
+  "status": "BOUNDED_REAL_MEASUREMENT_NO_OPTIMIZER_STEP",
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "torch": "2.11.0+cu128",
+    "python": "3.12.14",
+    "cuda_visible_devices": "1 (physical GPU 1; process-local cuda:0)",
+    "precision": "fp32"
+  },
+  "identity": {
+    "configuration_payload_sha256": "c976647f8886c277532e45a083fdfee0fac25cebcea09581881e27cc42dbd17a",
+    "recipe_sha256": "ef14df12cf836fe1f0a4870ec0da8e893cc856c4a2624d86f699e2c6ae6d4d12",
+    "panel_sha256": "39fab67c59add2e91193aa2741e3eff024df70fcf560fb5dd477f30d6d072951",
+    "code_branch": "dev/optical-intra-selfsup-v1",
+    "code_head": null,
+    "note": "short commit SHA is recorded after the commit in 08_gate_matrix.json and the final commit message"
+  },
+  "parameter_count": 1240225,
+  "summary": {
+    "b1_readout_seconds_before": 54.027,
+    "b1_readout_seconds_after": 3.095,
+    "b1_readout_speedup": 17.5,
+    "b1_readout_loss_relative_difference": 1.5149483321679494e-09,
+    "b1_readout_support_identical": true,
+    "b1_readout_tokens_identical": true,
+    "a_readout_seconds_before": 4.864,
+    "a_readout_seconds_after": 3.173,
+    "a_readout_speedup": 1.53,
+    "a_readout_loss_relative_difference": 7.452093470585373e-09,
+    "real_update_seconds": {
+      "P60": 50.20136700000148,
+      "P120": 65.43620649998775
+    },
+    "real_update_peak_allocated_mb": {
+      "P60": 5112.4,
+      "P120": 5737.2
+    },
+    "real_update_peak_reserved_mb": {
+      "P60": 6414.0,
+      "P120": 6076.0
+    },
+    "real_update_tokens": {
+      "P60": 492595,
+      "P120": 642123
+    },
+    "real_update_sum_n_squared": {
+      "P60": 40109946169,
+      "P120": 63696708945
+    },
+    "real_update_seconds_per_1000_tokens": {
+      "60.0": 0.1019,
+      "120.0": 0.1019
+    },
+    "local_batch_effect": {
+      "note": "same real logical update, same cell-indexed readout, only the local batch changes",
+      "local_batch_64": {
+        "P60": 95.36,
+        "P120": 118.92,
+        "source": "evidence/benchmark_real_updates.json measured earlier in this round with local_batch=64 (single repeat)"
+      },
+      "local_batch_1024": {
+        "P60": 50.20136700000148,
+        "P120": 65.43620649998775,
+        "repeats": [
+          50.722870099998545,
+          49.67986390000442
+        ]
+      },
+      "speedup": {
+        "P60": 1.9,
+        "P120": 1.82
+      }
+    },
+    "adopted_execution": {
+      "cell_indexed_decoder": true,
+      "local_batch_size": 1024,
+      "packed_local_output": false,
+      "matrix_A_decoder": false,
+      "microbatch_observations": 1,
+      "precision": "fp32"
+    },
+    "bounded_sweep_best": {
+      "name": "bounded_local1024_packed_off",
+      "speedup_vs_local64": 1.79
+    },
+    "observed_bottleneck": "the reconstruction readout dominates: the reference B1 path performs one Python iteration per candidate token (65,430 union-overlap calls for one 128x128 four-band view), while the cell-indexed exact readout is vectorised over native cells with identical support and weights",
+    "cost_extrapolation": {
+      "per_update_seconds_range": [
+        50.20136700000148,
+        65.43620649998775
+      ],
+      "updates_10000_days": [
+        5.8,
+        7.6
+      ],
+      "with_prepare_seconds": [
+        62.5,
+        78.4
+      ],
+      "with_prepare_days": [
+        7.2,
+        9.1
+      ],
+      "caveat": "fwd/bwd only for the fast pair; the prepare-inclusive range adds the measured CPU preparation time. Excludes the fixed panel every 250 updates (92.8 s) and I/O; not a promise"
+    }
+  },
+  "measurements_selected_readout": [
+    {
+      "kind": "A",
+      "readout": "reference_python_loop",
+      "seconds": 4.864,
+      "loss": 2.393153921946656,
+      "tokens": 29592,
+      "planned": 32208,
+      "supported": 32208,
+      "peak_mb": 658.5
+    },
+    {
+      "kind": "A",
+      "readout": "cell_indexed_exact",
+      "seconds": 3.173,
+      "loss": 2.393153939780663,
+      "tokens": 29592,
+      "planned": 32208,
+      "supported": 32208,
+      "peak_mb": 658.5
+    },
+    {
+      "kind": "B1",
+      "readout": "reference_python_loop",
+      "seconds": 54.027,
+      "loss": 1.6388746394822944,
+      "tokens": 43674,
+      "planned": 16384,
+      "supported": 16384,
+      "peak_mb": 259.1
+    },
+    {
+      "kind": "B1",
+      "readout": "cell_indexed_exact",
+      "seconds": 3.095,
+      "loss": 1.6388746419651048,
+      "tokens": 43674,
+      "planned": 16384,
+      "supported": 16384,
+      "peak_mb": 259.1
+    }
+  ],
+  "real_logical_updates": [
+    {
+      "logical_update": 0,
+      "P_m": 60.0,
+      "tasks": 16,
+      "members": [
+        "obs_8235b60a433a4cfe44f74055",
+        "obs_bb270bd9860d349af3abf098",
+        "obs_96ca1d3ac06de9b160f29615",
+        "obs_d43bbbed6c577eb0a3801666",
+        "obs_7c647e09b2b136d43d5c59c8_L8",
+        "obs_e2f80dfa4f98dec409911ea5",
+        "obs_c6cbab499e03036983e31c69",
+        "obs_10a9301806d29cac438eba86_L8"
+      ],
+      "readout": "cell_indexed_exact",
+      "local_batch": 1024,
+      "microbatch": 1,
+      "seconds": 50.20136700000148,
+      "seconds_samples": [
+        50.722870099998545,
+        49.67986390000442
+      ],
+      "tokens": 492595,
+      "sum_n_squared": 40109946169,
+      "max_tokens_per_observation": 110724,
+      "peak_allocated_mb": 5112.4,
+      "peak_reserved_mb": 6414.0,
+      "seconds_per_1000_tokens": 0.1019,
+      "optimizer_updates": 0
+    },
+    {
+      "logical_update": 1,
+      "P_m": 120.0,
+      "tasks": 16,
+      "members": [
+        "obs_02dbaf8c134dceac71d78398",
+        "obs_3f6a2dc5cb206bf88edb317b",
+        "obs_b403c88141bd47a886b5318b",
+        "obs_675db2c2e039c3bf62f2094b",
+        "obs_cd45e42fb2e9115b2afc1cd3",
+        "obs_2583bd269eeff1ccca0c139a",
+        "obs_535434ed78e5c41c410567e2",
+        "obs_e54a5631b6a1d7f0a1f75d46_L8"
+      ],
+      "readout": "cell_indexed_exact",
+      "local_batch": 1024,
+      "microbatch": 1,
+      "seconds": 65.43620649998775,
+      "seconds_samples": [
+        65.43620649998775
+      ],
+      "tokens": 642123,
+      "sum_n_squared": 63696708945,
+      "max_tokens_per_observation": 126937,
+      "peak_allocated_mb": 5737.2,
+      "peak_reserved_mb": 6076.0,
+      "seconds_per_1000_tokens": 0.1019,
+      "optimizer_updates": 0
+    }
+  ],
+  "bounded_execution_sweep": [
+    {
+      "name": "bounded_reference_baseline_local64_packed_off_microbatch1",
+      "local_batch": 64,
+      "packed": false,
+      "matrix_A_decoder": false,
+      "microbatch": 1,
+      "repeats": 2,
+      "seconds_samples": [
+        20.627371699985815,
+        19.56663970000227
+      ],
+      "seconds_median": 20.097005699994043,
+      "speedup_vs_local64": 1.0,
+      "peak_allocated_mb": 798.3,
+      "peak_memory_ratio_vs_local64": 1.0,
+      "gradient_relative_l2": 0.0,
+      "max_loss_relative_difference": 0.0,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_local256_packed_off",
+      "local_batch": 256,
+      "packed": false,
+      "matrix_A_decoder": false,
+      "microbatch": 1,
+      "repeats": 3,
+      "seconds_samples": [
+        12.48785519998637,
+        13.819714100012789,
+        12.557100899983197
+      ],
+      "seconds_median": 12.557100899983197,
+      "speedup_vs_local64": 1.6,
+      "peak_allocated_mb": 798.2,
+      "peak_memory_ratio_vs_local64": 1.0,
+      "gradient_relative_l2": 8.605568861464935e-08,
+      "max_loss_relative_difference": 5.1495923296518453e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_local512_packed_off",
+      "local_batch": 512,
+      "packed": false,
+      "matrix_A_decoder": false,
+      "microbatch": 1,
+      "repeats": 3,
+      "seconds_samples": [
+        13.491485100006685,
+        12.42281419999199,
+        12.097217700007604
+      ],
+      "seconds_median": 12.42281419999199,
+      "speedup_vs_local64": 1.618,
+      "peak_allocated_mb": 815.1,
+      "peak_memory_ratio_vs_local64": 1.021,
+      "gradient_relative_l2": 8.356039383249016e-08,
+      "max_loss_relative_difference": 3.8286713938972684e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_local1024_packed_off",
+      "local_batch": 1024,
+      "packed": false,
+      "matrix_A_decoder": false,
+      "microbatch": 1,
+      "repeats": 3,
+      "seconds_samples": [
+        10.732770300004631,
+        11.421014300023671,
+        11.22539819998201
+      ],
+      "seconds_median": 11.22539819998201,
+      "speedup_vs_local64": 1.79,
+      "peak_allocated_mb": 814.8,
+      "peak_memory_ratio_vs_local64": 1.021,
+      "gradient_relative_l2": 8.595251476521547e-08,
+      "max_loss_relative_difference": 4.5520583871235435e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_local64_packed_on",
+      "local_batch": 64,
+      "packed": true,
+      "matrix_A_decoder": false,
+      "microbatch": 1,
+      "repeats": 1,
+      "seconds_samples": [
+        18.459551100007957
+      ],
+      "seconds_median": 18.459551100007957,
+      "speedup_vs_local64": 1.089,
+      "peak_allocated_mb": 806.8,
+      "peak_memory_ratio_vs_local64": 1.011,
+      "gradient_relative_l2": 5.176599696643945e-08,
+      "max_loss_relative_difference": 3.905315377175017e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_matrix_A_readout",
+      "local_batch": 64,
+      "packed": false,
+      "matrix_A_decoder": true,
+      "microbatch": 1,
+      "repeats": 1,
+      "seconds_samples": [
+        19.2922155999986
+      ],
+      "seconds_median": 19.2922155999986,
+      "speedup_vs_local64": 1.042,
+      "peak_allocated_mb": 696.9,
+      "peak_memory_ratio_vs_local64": 0.873,
+      "gradient_relative_l2": 5.449597658770186e-08,
+      "max_loss_relative_difference": 2.4435528002414652e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_microbatch2",
+      "local_batch": 64,
+      "packed": false,
+      "matrix_A_decoder": false,
+      "microbatch": 2,
+      "repeats": 1,
+      "seconds_samples": [
+        19.306395499996142
+      ],
+      "seconds_median": 19.306395499996142,
+      "speedup_vs_local64": 1.041,
+      "peak_allocated_mb": 1299.6,
+      "peak_memory_ratio_vs_local64": 1.628,
+      "gradient_relative_l2": 1.2393395482448561e-07,
+      "max_loss_relative_difference": 2.121574954881189e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_microbatch4",
+      "local_batch": 64,
+      "packed": false,
+      "matrix_A_decoder": false,
+      "microbatch": 4,
+      "repeats": 1,
+      "seconds_samples": [
+        19.85137299998314
+      ],
+      "seconds_median": 19.85137299998314,
+      "speedup_vs_local64": 1.012,
+      "peak_allocated_mb": 2261.9,
+      "peak_memory_ratio_vs_local64": 2.833,
+      "gradient_relative_l2": 1.806709082751635e-07,
+      "max_loss_relative_difference": 3.9350813702393386e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    },
+    {
+      "name": "bounded_microbatch8",
+      "local_batch": 64,
+      "packed": false,
+      "matrix_A_decoder": false,
+      "microbatch": 8,
+      "repeats": 1,
+      "seconds_samples": [
+        19.330279399990104
+      ],
+      "seconds_median": 19.330279399990104,
+      "speedup_vs_local64": 1.04,
+      "peak_allocated_mb": 3886.5,
+      "peak_memory_ratio_vs_local64": 4.868,
+      "gradient_relative_l2": 2.886359862884388e-07,
+      "max_loss_relative_difference": 5.895320949608312e-08,
+      "support_counts_identical": true,
+      "token_counts_identical": true,
+      "optimizer_updates": 0
+    }
+  ],
+  "numerical_acceptance": {
+    "criterion": "identical support counts, identical token counts and relative differences within the FP32 reordering level of this run",
+    "observed_max_gradient_relative_l2": 2.886359862884388e-07,
+    "observed_max_loss_relative_difference": 5.895320949608312e-08,
+    "adopted_value_gradient_relative_l2": 8.595251476521547e-08,
+    "formal_tolerance_approved": false,
+    "note": "measured engineering regression, not a newly approved formal numerical tolerance"
+  },
+  "limitations": [
+    "One 128x128 four-band Sentinel-2 view for the before/after readout pair; the whole real update was measured with the adopted readout only.",
+    "The reference readout was not measured on the full 16-view update because it exceeded the bounded round budget; its cost is reported per view and is not multiplied into an invented end-to-end number.",
+    "Local batch, packed output, matrix A readout and microbatch were compared on a bounded eight-observation update of the smallest pool members (94,641 tokens), not on the modal 492,643k-token update.",
+    "All numbers come from one machine, one GPU, FP32; another device or precision requires re-measurement.",
+    "No optimizer step was executed; loss/gradient comparisons use the same initialisation seed and identical supervision plans."
+  ],
+  "optimizer_updates": 0
+}

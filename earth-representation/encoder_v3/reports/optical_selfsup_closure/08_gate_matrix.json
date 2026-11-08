@@ -1,0 +1,240 @@
+{
+  "schema": "encoder_v3_optical_selfsup_gate_matrix_v1",
+  "generated_at": "2026-11-08T08:34:30.038944+00:00",
+  "code": {
+    "branch": "dev/optical-intra-selfsup-v1",
+    "head": "5c99db6f448dc91db0627feec6aeb5602c6fecba"
+  },
+  "experiment": "optical_intra_selfsup_v1",
+  "configuration": {
+    "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\config_optical_selfsup_v1.json",
+    "sha256": "6eb861e5ecab8a8404c308c586aaa4053a5dad2ac487ea8826225cb56ac747a9",
+    "payload_sha256": "2b24650763502ac70e541b48d7002b817be57ce684a30544b81b503fc1e6f380"
+  },
+  "frozen_inputs": {
+    "recipe_sha256": "ef14df12cf836fe1f0a4870ec0da8e893cc856c4a2624d86f699e2c6ae6d4d12",
+    "panel_sha256": "39fab67c59add2e91193aa2741e3eff024df70fcf560fb5dd477f30d6d072951"
+  },
+  "historical_gate": {
+    "authorized": false,
+    "note": "config_optical_selfsup_v1.json cannot satisfy the 14 historical ids; the old gate function still refuses it"
+  },
+  "optical_gate": {
+    "authorized": false,
+    "ids": [
+      "optical_data_freeze",
+      "optical_formal_training_authorization",
+      "optical_optimizer_schedule",
+      "optical_resource_budget",
+      "optical_sampling_recipe",
+      "optical_task_protocol",
+      "optical_update_recovery_acceptance",
+      "optical_validation_protocol"
+    ]
+  },
+  "engineering_criteria": [
+    {
+      "id": 1,
+      "criterion": "A+B1 完整数据任务链可运行",
+      "satisfied": true,
+      "evidence": "evidence/preflight_no_update.json",
+      "detail": "2 real logical updates, 32 A/B1 views, absent tasks 0"
+    },
+    {
+      "id": 2,
+      "criterion": "已审 TRAIN 采样覆盖真实成员池",
+      "satisfied": true,
+      "evidence": "02_data_sampling_report.json",
+      "detail": "pool 6809 members; 6808/6809 members sampled at least once over 10000 updates (one Poisson-tail zero-exposure member reported); recipe reproduces=True"
+    },
+    {
+      "id": 3,
+      "criterion": "数据、SRF、QA 与统计身份可验证",
+      "satisfied": true,
+      "evidence": "evidence/preflight_check.json",
+      "detail": "{\"contracts\": \"5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a\", \"members\": \"b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c\", \"srf\": \"e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d\", \"statistics\": \"d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f\"}"
+    },
+    {
+      "id": 4,
+      "criterion": "原生/合并双尺度语义正确",
+      "satisfied": true,
+      "evidence": "evidence/architecture_evidence.json",
+      "detail": "each visible position appears in exactly one output group; native and merged tokens both present"
+    },
+    {
+      "id": 5,
+      "criterion": "固定 VAL 面板完整",
+      "satisfied": true,
+      "evidence": "frozen/validation_panels.json",
+      "detail": "54 fixed cases over 3 VAL observations, B2 pairs 0"
+    },
+    {
+      "id": 6,
+      "criterion": "新的 A+B1 验证指标可计算",
+      "satisfied": true,
+      "evidence": "evidence/preflight_no_update.json/panel",
+      "detail": "S_intra=14.60006540011413, A=14.277484233445051, B1=14.922646566783207"
+    },
+    {
+      "id": 7,
+      "criterion": "Runner 支持确定性恢复",
+      "satisfied": true,
+      "evidence": "test_formal_runner.py, test_route_step.py",
+      "detail": "checkpoint commits runner early-stop state; resumed decision equals continuous; synthetic continuous vs resumed equality"
+    },
+    {
+      "id": 8,
+      "criterion": "数值回归测试通过",
+      "satisfied": true,
+      "evidence": "evidence/tests.json",
+      "detail": "244 tests, 0 failures, 0 errors, 71.5 s"
+    },
+    {
+      "id": 9,
+      "criterion": "无更新真实数据诊断通过",
+      "satisfied": true,
+      "evidence": "evidence/preflight_no_update.json",
+      "detail": "parameter sha stable 3f1b2cd0d30edb88…, optimizer_steps=0"
+    },
+    {
+      "id": 10,
+      "criterion": "性能瓶颈已量化，采用的优化可复现",
+      "satisfied": true,
+      "evidence": "05_performance_comparison.json",
+      "detail": "real A+B1 logical update measured before/after the cell-indexed readout; gradient/support/token equality recorded"
+    },
+    {
+      "id": 11,
+      "criterion": "B2 不阻断 E0",
+      "satisfied": true,
+      "evidence": "gates.py, scheduled_data.py, validation_metric.py",
+      "detail": "independent gate ids; B2 pair table empty; S_intra rejects B2 cases"
+    },
+    {
+      "id": 12,
+      "criterion": "E1 不阻断 E0",
+      "satisfied": true,
+      "evidence": "06_jepa_candidate.md",
+      "detail": "no JEPA module is imported by the E0 preflight or training entry"
+    }
+  ],
+  "formal_criteria": [
+    {
+      "id": 1,
+      "criterion": "正式数据/QA/统计冻结",
+      "satisfied": false,
+      "decision": "D6"
+    },
+    {
+      "id": 2,
+      "criterion": "A+B1 指标与任务权重批准",
+      "satisfied": false,
+      "decision": "D2/D3"
+    },
+    {
+      "id": 3,
+      "criterion": "训练控制与资源预算冻结",
+      "satisfied": false,
+      "decision": "D3/D4"
+    },
+    {
+      "id": 4,
+      "criterion": "真实更新/恢复验收通过",
+      "satisfied": false,
+      "decision": "D5"
+    },
+    {
+      "id": 5,
+      "criterion": "正式训练授权",
+      "satisfied": false,
+      "decision": "D7"
+    }
+  ],
+  "gates": [
+    {
+      "gate": "optical_data_freeze",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    },
+    {
+      "gate": "optical_formal_training_authorization",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    },
+    {
+      "gate": "optical_optimizer_schedule",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    },
+    {
+      "gate": "optical_resource_budget",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    },
+    {
+      "gate": "optical_sampling_recipe",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    },
+    {
+      "gate": "optical_task_protocol",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    },
+    {
+      "gate": "optical_update_recovery_acceptance",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    },
+    {
+      "gate": "optical_validation_protocol",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true,
+      "evidence": "09_remaining_decisions.md",
+      "note": "requires explicit user approval bound to this configuration payload"
+    }
+  ],
+  "summary": {
+    "engineering_ready": true,
+    "engineering_satisfied": 12,
+    "engineering_total": 12,
+    "formal_ready": false,
+    "formal_training_authorized": false,
+    "optimizer_steps_executed_this_round": 0,
+    "b2_blocks_e0": false,
+    "jepa_blocks_e0": false
+  },
+  "verdict": {
+    "engineering": "E0_ENGINEERING_READY",
+    "formal": "E0_FORMAL_NOT_READY"
+  },
+  "evidence": {
+    "check": "evidence/preflight_check.json",
+    "no_update": "evidence/preflight_no_update.json",
+    "architecture": "evidence/architecture_evidence.json",
+    "benchmark": "05_performance_comparison.json",
+    "tests": "evidence/tests.json"
+  }
+}

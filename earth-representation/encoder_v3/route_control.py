@@ -71,6 +71,9 @@ def _check_modules(modules,optimizer,phase):
     import torch
     if type(optimizer) is not torch.optim.AdamW:raise ValueError('Only the user-selected AdamW is supported')
     if set(modules)!=_module_names(phase):raise ValueError('Complete route module set required')
+    if any(type(module).__module__.split('.')[0] in ('unittest','mock') for module in modules.values()):
+        raise ValueError('Test doubles cannot enter a production route')
+    if any(not isinstance(module,torch.nn.Module) for module in modules.values()):raise ValueError('Real torch modules required')
     all_parameters=[p for module in modules.values() for p in module.parameters()]
     if len({id(p) for p in all_parameters})!=len(all_parameters):raise ValueError('Teacher and trainable module parameters must be independent')
     if phase=='A+B+JEPA':

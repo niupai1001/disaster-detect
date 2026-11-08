@@ -1,0 +1,162 @@
+{
+  "schema": "encoder_v3_optical_selfsup_config_v1",
+  "experiment": "optical_intra_selfsup_v1",
+  "scope": "First-stage multi-source optical self-supervision with A (spatial rectangle reconstruction) and B1 (native visible-band holdout reconstruction) only. B2 cross-source pairing, cross-satellite geometry calibration, JEPA and EnMAP admission are outside E0.",
+  "B2_training_required": false,
+  "JEPA_training_required": false,
+  "m9_task_head_training_authorized": false,
+  "model": {
+    "architecture": "participation_selected_windows_v1",
+    "hypernetwork_hidden": 64,
+    "local_batch_size": 1024,
+    "packed_local_output": false,
+    "indexed_decoder": true,
+    "cell_indexed_decoder": true,
+    "matrix_a_decoder": false,
+    "precision": "fp32",
+    "init_seed": 20261108,
+    "notes": "Architecture is unchanged from the audited Participation path: continuous SRF -> SRF+log(GSDx)+log(GSDy) -> shared hypernetwork -> per-band 3x3 dynamic convolution -> single-round participation merge -> native and merged tokens -> shared local/global Transformer. No satellite embedding, no PSF, no recursive merge, no band-count unification.",
+    "execution_evidence": "Cell-indexed exact readout measured on a real four-band 128-pixel Sentinel-2 B1 view: 55.5 s -> 2.6 s (21.7x) with identical support (16384), identical token count (43674) and NMSE 1.6388746404 vs 1.6388746416 (relative difference 7.5e-10); A view 4.4 s -> 2.9 s with NMSE 2.39315393 in both. Same native cells, same union-overlap weights, same supervision support, same loss normalization; no model, token or supervision change.",
+    "local_batch_evidence": "Bounded eight-observation real A+B1 update: local batch 1024 is 1.79x the local-64 baseline (11.23 s vs 20.10 s median of three repeats), peak allocated memory unchanged (815 MB vs 798 MB), gradient relative L2 8.6e-8 and loss relative difference 4.6e-8 against the baseline, identical support counts and token counts. 256/512 give 1.60x/1.62x. Packed local output (1.09x) and the matrix A readout (1.04x, memory 697 MB) are not adopted because their gain is inside noise on this bounded case set. Observation microbatch 1 stays the default: 2/4/8 give 1.01-1.04x with 1.6x/2.8x/4.9x peak memory."
+  },
+  "data": {
+    "release": "N:/Users/yzh/Disater/earth-representation/observation_model/outputs/encoder_v2/data_expansion",
+    "contracts": "N:/Users/yzh/Disater/earth-representation/observation_model/outputs/encoder_v2/G1",
+    "roles": {
+      "TRAIN": "frozen member pool only; never VAL",
+      "VAL": "fixed validation panel only; never a training input"
+    },
+    "merge_curve": {
+      "amplitude": 0.8092248954506467,
+      "scale_m": 4.010953026221307,
+      "power": 1.219268281571556
+    },
+    "merge_curve_status": "preflight-confirmed coefficients reused unchanged; formal freeze is an E0 approval item",
+    "selection_seed": 0,
+    "statistics": "release statistics.json, scope TRAIN-only, 43 instrument:band keys"
+  },
+  "sampling": {
+    "recipe": "reports/optical_selfsup_closure/frozen/sampling_recipe.json",
+    "recipe_sha256": "ef14df12cf836fe1f0a4870ec0da8e893cc856c4a2624d86f699e2c6ae6d4d12",
+    "updates": 10000,
+    "seed": 20261108,
+    "slots_per_source": 4,
+    "source_rule": "equal 4+4 slots for the S2 and Landsat families, eight distinct members per logical update, hash-ranked without replacement within the frozen TRAIN pool",
+    "mask_rule": {
+      "count": 1,
+      "target_patch_fraction": 0.5,
+      "aspect_ratio": "log-uniform [0.5,2.0]",
+      "position": "uniform feasible patch-aligned rectangle",
+      "size_rounding": "nearest integer patch count, clipped to observation patch layout"
+    },
+    "P_values": [
+      60.0,
+      120.0
+    ],
+    "P_rule": "P = P_values[logical_update % 2]; P is task mask and physical grid context only and never changes Merge membership",
+    "B1_rule": "half single-hidden and half multi-hidden; multi-hidden hidden count uniform over 2..C-1; at least one real input band always remains; target bands never enter the Encoder and only their SRF conditions the Decoder",
+    "logs": {
+      "per_update_members": false,
+      "compact_identity_only": true
+    },
+    "pool_rule": {
+      "min_bands": 2,
+      "max_native_pixels": 16384,
+      "rationale": "Full-attention Transformer cost grows quadratically in tokens. The release contains S2 10-band scenes up to 2769x2769 native pixels (estimated 32.5M tokens, physically untrainable in the declared budget). The cap is a counted data rule frozen into the recipe hash: 586 of 7395 TRAIN members (all S2 10-band, native side >128) are excluded and reported, not dropped silently. Lifting the cap needs a compute-budget or crop protocol decision.",
+      "status": "CANDIDATE_PENDING_APPROVAL"
+    }
+  },
+  "validation": {
+    "panel": "reports/optical_selfsup_closure/frozen/validation_panels.json",
+    "panel_sha256": "39fab67c59add2e91193aa2741e3eff024df70fcf560fb5dd477f30d6d072951",
+    "panel_seed": 20261108,
+    "metric": "S_intra=(L_A+L_B1)/2",
+    "weights": {
+      "A": 0.5,
+      "B1": 0.5
+    },
+    "hierarchy": "A: cases -> observation -> source -> equal sources. B1: single-hidden mean and multi-hidden mean at 1/2 each, multi-hidden an equal mean over hidden counts 2..C-1 after the mean over cases within each count, then observation, then source, then equal sources.",
+    "fixed": "fixed VAL members, fixed masks, fixed SRF/data version, fixed panel; no dynamic member or mask replacement and no silent source renormalization",
+    "forbidden": "B2 cases, VAL fitted statistics, missing-source reweighting, nonfinite placeholder values",
+    "cell_indexed": true,
+    "execution_note": "fixed panel is collected with the same cell-indexed readout as training; forward only, no gradients"
+  },
+  "control": {
+    "max_updates": 10000,
+    "max_wall_seconds": 604800,
+    "warmup_updates": 100,
+    "validation_interval": 250,
+    "plateau_patience": 4,
+    "lr_factor": 0.5,
+    "min_lr": 1e-05,
+    "early_stop": {
+      "patience": 8,
+      "min_delta": 0.0
+    },
+    "retain_layouts": false,
+    "checkpoint": "one complete checkpoint per logical update with full optimizer, scheduler, RNG and runner early-stop state",
+    "memory_budget_bytes": 10737418240,
+    "budget_status": "candidate; resource_limit and early_stop are E0 approval items"
+  },
+  "formal_step": {
+    "precision": "fp32",
+    "chunk_pixels": 512,
+    "microbatch_observations": 1,
+    "clip_norm": 3,
+    "peak_lr": 0.0003,
+    "plateau_threshold": 0.0001,
+    "weight_decay": 0.04,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "ema_coefficient": 0.996
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "groups": "decay on weights, no decay on bias and LayerNorm",
+    "selection_status": "user-selected AdamW for the historical pilot; E0 re-approval is an E0 item"
+  },
+  "required_before_training": {
+    "optical_data_freeze": null,
+    "optical_sampling_recipe": null,
+    "optical_task_protocol": null,
+    "optical_validation_protocol": null,
+    "optical_optimizer_schedule": null,
+    "optical_resource_budget": null,
+    "optical_update_recovery_acceptance": null,
+    "optical_formal_training_authorization": null
+  },
+  "research_status": {
+    "gate_block": "independent E0 ids only; historical A/B1/B2 gates stay closed and unchanged",
+    "engineering_status": "ENGINEERING_READY_SELF_ASSESSED_PENDING_INDEPENDENT_REVIEW",
+    "formal_status": "NOT_READY",
+    "out_of_scope": [
+      "B2 pair admission and cross-source registration",
+      "JEPA latent objective",
+      "EnMAP admission",
+      "task-head training"
+    ],
+    "candidate_values_pending_approval": [
+      "S_intra weights A=0.5/B1=0.5",
+      "plateau_threshold 1e-4",
+      "early-stop patience 8 and min_delta 0",
+      "max_wall_seconds 604800",
+      "memory_budget_bytes 10737418240"
+    ]
+  },
+  "curriculum": {
+    "implementation": "accumulate_adaptive_joint uses tasks.curriculum(logical_update, duration=2000); A weight 1.00->0.25 and B weight 0.25->1.00 through a smoothstep",
+    "duration_updates": 2000,
+    "A_weights": [
+      1.0,
+      0.25
+    ],
+    "B1_weights": [
+      0.25,
+      1.0
+    ],
+    "status": "CANDIDATE_PENDING_APPROVAL: inherited from the historical A/B curriculum and not yet approved for A+B1"
+  }
+}

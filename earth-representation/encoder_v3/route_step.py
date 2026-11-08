@@ -78,9 +78,10 @@ def _json(path,payload,*,new=False):
         os.replace(temp,path)
 
 
-def execute_route_update(*,config,progress,frozen_ids,modules,optimizer,scheduler,views,expected_input_signature,sampler_after,directory,jepa_views=(),jepa_weight=None,latent_loss_fn=None,ab_stable=False,validation=None,expected_AB_input_signature=None):
+def execute_route_update(*,config,progress,frozen_ids,modules,optimizer,scheduler,views,expected_input_signature,sampler_after,directory,jepa_views=(),jepa_weight=None,latent_loss_fn=None,ab_stable=False,validation=None,expected_AB_input_signature=None,gate=None,runner_state=None):
     started=time.perf_counter()
-    require_training(config)
+    if gate is None:gate=require_training
+    gate(config)
     if frozen_ids.get('formal_config_sha256')!=frozen_identity(config) or progress.run_identity!=frozen_identity(frozen_ids):raise ValueError('Frozen formal configuration or route identity differs')
     after=progress.next()  # Refuse the next optimizer operation before exceeding the cap.
     settings=config.get('formal_step')
@@ -143,7 +144,10 @@ def execute_route_update(*,config,progress,frozen_ids,modules,optimizer,schedule
             finally:
                 for k,m in modules.items():m.train(training[k])
             validation_result=scheduler.validate(metric,completed_update=after.logical_update);_sync(modules);event('VALIDATION_COMPLETED')
-        draft=dict(result=result,logical_update=after.logical_update,input_signature=signature,AB_input_signature=record['AB_input_signature'],lr=[g['lr'] for g in optimizer.param_groups],validation=validation_result)
+        draft=dict(result=result,logical_update=after.logical_update,optimizer_steps=1,optimizer_steps_before=progress.logical_update,input_signature=signature,AB_input_signature=record['AB_input_signature'],lr=[g['lr'] for g in optimizer.param_groups],validation=validation_result)
+        if runner_state is not None:
+            if not isinstance(runner_state,dict) or {'best_validation','stale_validations','validation_evaluations'} - set(runner_state):raise ValueError('Complete runner early-stop state required')
+            sampler_after=dict(sampler_after,runner_state=dict(runner_state))
         digest=save_route_checkpoint(checkpoint,progress=after,modules=modules,optimizer=optimizer,scheduler=scheduler,sampler=dict(sampler_after,_route_last_metrics=draft),frozen_ids=frozen_ids)
         record.update(status='CHECKPOINT_COMMITTED',checkpoint_sha256=digest);event('CHECKPOINT_COMMITTED')
         metrics=dict(draft,checkpoint_sha256=digest,end_to_end_wall_seconds=time.perf_counter()-started,timing_scope='Synchronized update/EMA and checkpoint; includes control checks and I/O, excludes caller data read/transfer')

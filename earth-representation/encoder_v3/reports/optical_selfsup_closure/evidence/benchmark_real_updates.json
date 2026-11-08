@@ -1,0 +1,108 @@
+{
+  "experiment": "optical_intra_selfsup_v1",
+  "device": "cuda:0",
+  "torch": "2.11.0+cu128",
+  "device_name": "NVIDIA GeForce RTX 5090",
+  "parameter_count": 1240225,
+  "configuration_sha256": "c976647f8886c277532e45a083fdfee0fac25cebcea09581881e27cc42dbd17a",
+  "status": "BOUNDED_REAL_BENCHMARK_NO_OPTIMIZER_STEP",
+  "updates": [
+    {
+      "update": 0,
+      "P_m": 60.0,
+      "members": [
+        "obs_8235b60a433a4cfe44f74055",
+        "obs_bb270bd9860d349af3abf098",
+        "obs_96ca1d3ac06de9b160f29615",
+        "obs_d43bbbed6c577eb0a3801666",
+        "obs_7c647e09b2b136d43d5c59c8_L8",
+        "obs_e2f80dfa4f98dec409911ea5",
+        "obs_c6cbab499e03036983e31c69",
+        "obs_10a9301806d29cac438eba86_L8"
+      ],
+      "tasks": 16,
+      "AB_input_signature": "e6e3b28f41730837b6bbcbf0d4b34b2a39c1bf8ac3ba6f56938d870bdb4a40bf",
+      "candidates": [
+        {
+          "name": "adopted_defaults_cell_indexed_local1024_microbatch1",
+          "cell_indexed": true,
+          "local_batch": 1024,
+          "packed": false,
+          "matrix_decoder": false,
+          "microbatch": 1,
+          "repeats": 2,
+          "seconds": [
+            50.722870099998545,
+            49.67986390000442
+          ],
+          "seconds_median": 50.20136700000148,
+          "seconds_min": 49.67986390000442,
+          "seconds_max": 50.722870099998545,
+          "tokens": 492595,
+          "sum_n_squared": 40109946169,
+          "max_tokens_per_observation": 110724,
+          "peak_allocated_mb": 5112.40283203125,
+          "peak_reserved_mb": 6414.0,
+          "weighted_loss": 11.239114137808865,
+          "optimizer_updates": 0,
+          "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+          "relative_to_baseline": {
+            "max_loss_relative_difference": 0.0,
+            "gradient_relative_l2": 0.0,
+            "supports_match": true,
+            "tokens_match": true
+          }
+        }
+      ]
+    },
+    {
+      "update": 1,
+      "P_m": 120.0,
+      "members": [
+        "obs_02dbaf8c134dceac71d78398",
+        "obs_3f6a2dc5cb206bf88edb317b",
+        "obs_b403c88141bd47a886b5318b",
+        "obs_675db2c2e039c3bf62f2094b",
+        "obs_cd45e42fb2e9115b2afc1cd3",
+        "obs_2583bd269eeff1ccca0c139a",
+        "obs_535434ed78e5c41c410567e2",
+        "obs_e54a5631b6a1d7f0a1f75d46_L8"
+      ],
+      "tasks": 16,
+      "AB_input_signature": "ba9dd18b943842b1cfe6ac160ec3d0bd9de5b2d318ae640341b0137f487e105a",
+      "candidates": [
+        {
+          "name": "adopted_defaults_P120",
+          "cell_indexed": true,
+          "local_batch": 1024,
+          "packed": false,
+          "matrix_decoder": false,
+          "microbatch": 1,
+          "repeats": 1,
+          "seconds": [
+            65.43620649998775
+          ],
+          "seconds_median": 65.43620649998775,
+          "seconds_min": 65.43620649998775,
+          "seconds_max": 65.43620649998775,
+          "tokens": 642123,
+          "sum_n_squared": 63696708945,
+          "max_tokens_per_observation": 126937,
+          "peak_allocated_mb": 5737.24951171875,
+          "peak_reserved_mb": 6076.0,
+          "weighted_loss": 9.796393330440281,
+          "optimizer_updates": 0,
+          "parameter_sha256": "3f1b2cd0d30edb887ae6b14f001ca1c70ede04ad05ae32832fc4b69215fc4160",
+          "relative_to_baseline": {
+            "max_loss_relative_difference": 0.0,
+            "gradient_relative_l2": 0.0,
+            "supports_match": true,
+            "tokens_match": true
+          }
+        }
+      ]
+    }
+  ],
+  "bounded_execution_sweep": null,
+  "method": "one execution variable at a time on the real frozen A+B1 logical update (eight observations); gradient/support/token equality against the reference readout; no optimizer.step"
+}

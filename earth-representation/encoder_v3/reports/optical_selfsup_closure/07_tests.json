@@ -1,0 +1,200 @@
+{
+  "schema": "encoder_v3_optical_selfsup_tests_v1",
+  "generated_at": "2026-11-08T08:25:57.866161+00:00",
+  "status": "PASS",
+  "suite": {
+    "command": "python.exe -m unittest discover -s encoder_v3 -t . -p test_*.py -v",
+    "cwd": "N:\\Users\\yzh\\Disater\\earth-representation",
+    "tests": 244,
+    "unittest_seconds": 62.75,
+    "outcomes": {
+      "ok": 243,
+      "FAIL": 0,
+      "ERROR": 0,
+      "skipped": 1
+    },
+    "failures": [],
+    "skipped": [
+      {
+        "test": "test_names_include_hidden_and_ignored_files_without_opening_images",
+        "module": "encoder_v3.test_discovery.DiscoveryChecks.test_names_include_hidden_and_ignored_files_without_opening_images"
+      }
+    ],
+    "log": {
+      "path": "encoder_v3\\reports\\optical_selfsup_closure\\evidence\\tests.log",
+      "sha256": "a055583c97831d0c6972936515874db34de12c8ce11cb8a15a552931114f3b0c"
+    },
+    "source_sha256": {
+      "gates.py": "8ba6235b6af533e24b2be8d62d30f9f2218bfc8290576d8b8d6e2c6b04084d29",
+      "validation_metric.py": "bb94c7e5d2a82ee36cdcf882d600b06f35c7575f425188cda8663cb84cb310d1",
+      "formal_schedule.py": "98cc74507f8b390e0980f5f0cf4515c9420fbd92b5553a32841d3cd1a1fa0179",
+      "scheduled_data.py": "2a4e00f72ad816e02fb87e1cc3acfbc6aef042b7ebb88517ea8c14cfaae2bc9c",
+      "validation_panels.py": "682b1e5b67e241eb57c7c5d1823705c92631d423c0b3f1a5c1a72f49776ebdd5",
+      "formal_panels.py": "879a1ebfac7de3f2b37f76e97f1bd23151e7247bed389acf4403b15602d731c4",
+      "route_step.py": "beac708663e7a60e337815c67bc77a668bf376fe433fa71b35e79ce388b4ac67",
+      "route_control.py": "2de26dd649824cd88c8994dd4bceddeeb987eaa96dc46ac6eee4ca89202111fc",
+      "formal_runner.py": "040ff2025600da3f82ff7f9e488d5085b277a1a70440e22280035ca1dd695c5b",
+      "selfsup_preflight.py": "c6f4387955e42cdab1701f75031b8285e4602f68bd5feb2e2a73d192a1a62a32",
+      "selfsup_train.py": "9d08fdc4f900ad793d3be678ce144b7277a99aeaff9da7780ec43f6f4321093c",
+      "selfsup_benchmark.py": "fcbc3e5b82372a1332a0fb825db54830afb0e3579da81282f0af7b14b1366266",
+      "sampling_coverage.py": "9587d4e5447968018525256a8acb363e35bf361f3baabb067ef5575035647b5d",
+      "test_optical_selfsup.py": "b2241e17350671b07a36e52ba9461af0e965b8723c7386a8c6e394fd4685305a",
+      "test_formal_runner.py": "981c6efa85eed27b9e1fc4fce8f451d482bcc98270d64b1f9c33fb66c3a15621",
+      "test_route_step.py": "23ae83a86fa5195897010de44f1d2f10be133535740aed23551afb98ad1294a2",
+      "test_discovery.py": "ed626579aeb031a236138c529e37423c964c0dde027363e4cfb89017b2924135",
+      "config_optical_selfsup_v1.json": "6eb861e5ecab8a8404c308c586aaa4053a5dad2ac487ea8826225cb56ac747a9"
+    }
+  },
+  "acceptance_classes": {
+    "A_logic": {
+      "status": "PASS",
+      "evidence": [
+        "test_optical_selfsup.py (17 cases)",
+        "test_model.py",
+        "test_participation_encoder.py",
+        "test_participation_layout.py",
+        "test_participation_batch.py",
+        "test_tasks.py",
+        "test_validation_metric.py",
+        "test_validation_panels.py",
+        "test_gates_formal.py",
+        "test_formal_runner.py",
+        "test_route_step.py",
+        "test_route_control.py",
+        "test_training.py",
+        "test_participation_decoder.py"
+      ],
+      "covered": [
+        "SRF 与 Hypernetwork 形状/梯度/面积归一化",
+        "Participation Merge 与选组确定性",
+        "原生/合并 Token 共存",
+        "A/B1 隐藏值隔离（真实数据 NaN 替换）",
+        "不同波段数",
+        "P60/P120 语义",
+        "采样确定性/去重/来源均衡/配方复现",
+        "S_intra 层级与拒错",
+        "固定面板与指标",
+        "E0 独立门禁与旧门禁不放宽"
+      ]
+    },
+    "B_synthetic_training": {
+      "status": "PASS",
+      "evidence": [
+        "test_route_step.py (checkpoint, optimizer state, RNG, continuous vs resumed equality, runner_state)",
+        "test_adaptive_joint.py",
+        "test_training.py",
+        "test_participation_joint.py",
+        "test_route_transaction.py"
+      ],
+      "covered": [
+        "前向/反向",
+        "AdamW 更新",
+        "梯度累积",
+        "checkpoint 写入与恢复",
+        "中断恢复与连续执行一致",
+        "学习率 warmup/平台期",
+        "早停状态随 checkpoint 提交",
+        "输出/梯度回归"
+      ],
+      "note": "合成更新不等于真实数据训练授权；本轮真实优化器步数为 0"
+    },
+    "C_real_data_no_update": {
+      "status": "REAL_DATA_NO_UPDATE_COMPLETE",
+      "evidence": [
+        "evidence/preflight_no_update.json",
+        "evidence/architecture_evidence.json"
+      ],
+      "updates": 2,
+      "tokens": [
+        492595,
+        642123
+      ],
+      "supervised_pixels": [
+        393131,
+        449369
+      ],
+      "gradient_norm_before_clip": [
+        2909.1145823657143,
+        2056.437886033266
+      ],
+      "gradient_norm_after_clip": [
+        3.0000000117793144,
+        3.0000003775224644
+      ],
+      "all_gradients_finite": true,
+      "parameter_sha256_stable": true,
+      "panel_metric": {
+        "status": "OK",
+        "S_intra": 14.60006540011413,
+        "A": 14.277484233445051,
+        "B1": 14.922646566783207,
+        "weights": {
+          "A": 0.5,
+          "B1": 0.5
+        },
+        "counts": {
+          "A": 3,
+          "B1": 3
+        },
+        "sources": {
+          "A": [
+            "L8",
+            "S2"
+          ],
+          "B1": [
+            "L8",
+            "S2"
+          ]
+        },
+        "source_values": {
+          "A": {
+            "L8": 24.005997240966302,
+            "S2": 4.5489712259237995
+          },
+          "B1": {
+            "L8": 24.030835560596937,
+            "S2": 5.814457572969475
+          }
+        }
+      },
+      "panel_seconds": 92.77494000000297,
+      "optimizer_steps": 0,
+      "architecture_checks": {
+        "members": [
+          "obs_0002e58c12d2c4a9e4c91a8c",
+          "obs_00cb3b76301992b5ece4a9f8_L8"
+        ],
+        "partition_unique": [
+          true,
+          true
+        ],
+        "hidden_value_isolation": [
+          false,
+          true
+        ],
+        "b1_band_isolation": [
+          true,
+          true
+        ],
+        "plan_decoder_support_match": [
+          true,
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "D_real_optimizer_update": {
+      "status": "NOT_EXECUTED",
+      "reason": "本轮没有真实更新授权；正式启动前需要一次独立、受预算约束的 2 次匹配更新 + 1 次恢复验收",
+      "required_authorization": "09_remaining_decisions.md D5",
+      "prior_budget": "已停止的 186 次预检更新不得恢复使用"
+    }
+  },
+  "identity": {
+    "configuration_payload_sha256": "2b24650763502ac70e541b48d7002b817be57ce684a30544b81b503fc1e6f380",
+    "recipe_sha256": "ef14df12cf836fe1f0a4870ec0da8e893cc856c4a2624d86f699e2c6ae6d4d12",
+    "panel_sha256": "39fab67c59add2e91193aa2741e3eff024df70fcf560fb5dd477f30d6d072951"
+  },
+  "optimizer_updates": 0
+}

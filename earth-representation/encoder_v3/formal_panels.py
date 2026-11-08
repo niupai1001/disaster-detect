@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 
 
-def build_validation_panel_document(dataset, cases, *, pair_admissions=None):
+def build_validation_panel_document(dataset, cases, *, pair_admissions=None, status="CANDIDATE_NOT_APPROVED"):
     """Build a loader-compatible panel from explicit cases; no case choice here."""
     if dataset.role != "VAL":
         raise ValueError("Only an explicit VAL release can build a validation panel")
@@ -50,4 +50,4 @@ def build_validation_panel_document(dataset, cases, *, pair_admissions=None):
         raise ValueError("At least one explicit validation case required")
     return dict(kind="frozen_validation_panels_v1", source_identities=dataset.identities,
                 eligible_members=eligible, panels=panels, pair_admissions=pair_admissions,
-                builder=dict(status="CANDIDATE_NOT_APPROVED", cases=len(panels)))
+                builder=dict(status=status, cases=len(panels)))

@@ -115,6 +115,40 @@ def _source_means(observation_losses):
     return {source: _mean(list(observations.values()), f"source {source}") for source, observations in observation_losses.items()}
 
 
+def aggregate_intra_validation(cases):
+    """E0 scalar S_intra=(A+B1)/2 with the same per-family hierarchy; no B2 term.
+
+    Independent of aggregate_validation on purpose: the historical S=(A+B)/2,
+    B=(B1+B2)/2 scalar keeps its own name and its B2 requirement. A missing
+    source in either family, or a source set that differs between A and B1,
+    aborts the scalar instead of silently renormalizing the remaining sources.
+    """
+    normalized = _validate_cases(cases)
+    if any(case["kind"] == "B2" for case in normalized):
+        raise ValidationUnavailable("S_intra is the A+B1 protocol; B2 cases must not enter")
+    a_observations = _observation_losses(normalized, "A")
+    b1_observations = _observation_losses(normalized, "B1")
+    for kind, values in (("A", a_observations), ("B1", b1_observations)):
+        if not values:
+            raise ValidationUnavailable(f"{kind}: no evaluation source")
+    a_sources = _source_means(a_observations)
+    b1_sources = _source_means(b1_observations)
+    if set(a_sources) != set(b1_sources):
+        raise ValidationUnavailable("A/B1 source sets differ; S_intra weights are not renormalized")
+    a = _mean(list(a_sources.values()), "A")
+    b1 = _mean(list(b1_sources.values()), "B1")
+    return dict(
+        status="OK",
+        S_intra=0.5 * (a + b1),
+        A=a,
+        B1=b1,
+        weights={"A": 0.5, "B1": 0.5},
+        counts={kind: sum(len(items) for items in values.values()) for kind, values in (("A", a_observations), ("B1", b1_observations))},
+        sources={"A": sorted(a_sources), "B1": sorted(b1_sources)},
+        source_values={"A": a_sources, "B1": b1_sources},
+    )
+
+
 def aggregate_validation(cases, *, require_b2=True):
     normalized = _validate_cases(cases)
     family_observations = {kind: _observation_losses(normalized, kind) for kind in ("A", "B1", "B2")}

@@ -29,8 +29,8 @@ class RouteStepChecks(unittest.TestCase):
         latent=paired if jepa else ();signature=update_signature(views,latent)
         return dict(config=config,progress=progress,frozen_ids=frozen,modules=modules,optimizer=optimizer,scheduler=scheduler,views=views,expected_input_signature=signature,expected_AB_input_signature=update_signature(views),jepa_views=latent,jepa_weight=.05 if jepa else None,latent_loss_fn=(lambda p,t,b:(p-t).square().mean()) if jepa else None,ab_stable=jepa)
 
-    def call(self,fixture,directory):
-        return execute_route_update(**fixture,directory=directory,sampler_after=dict(next_update=fixture['progress'].logical_update+1,next_input_signature=fixture['expected_input_signature'],next_AB_input_signature=fixture['expected_AB_input_signature'],fixture_cursor=fixture['progress'].logical_update+1))
+    def call(self,fixture,directory,**extra):
+        return execute_route_update(**fixture,directory=directory,sampler_after=dict(next_update=fixture['progress'].logical_update+1,next_input_signature=fixture['expected_input_signature'],next_AB_input_signature=fixture['expected_AB_input_signature'],fixture_cursor=fixture['progress'].logical_update+1),**extra)
 
     def compare(self,a,b):
         if isinstance(a,torch.Tensor):torch.testing.assert_close(a,b,rtol=0,atol=0)
@@ -72,6 +72,29 @@ class RouteStepChecks(unittest.TestCase):
                 torch.testing.assert_close(torch.rand(3),expected_rng,rtol=0,atol=0);self.assertEqual(restored['sampler']['fixture_cursor'],cursor+1);f['progress']=progress
                 actual_progress,actual=self.call(f,folder/'resumed');self.assertEqual(actual_progress,second);self.assertEqual(actual['result']['weighted_loss'],expected['result']['weighted_loss']);self.assertEqual(actual['input_signature'],expected['input_signature'])
                 self.compare({k:m.state_dict() for k,m in f['modules'].items()},weights);self.compare(f['optimizer'].state_dict(),moments);self.compare(f['scheduler'].state_dict(),schedule)
+
+    def test_runner_state_and_optimizer_steps_are_committed_with_the_checkpoint(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parent) as folder:
+            folder=Path(folder);f=self.fixture()
+            state=dict(best_validation=1.25,stale_validations=2,validation_evaluations=3)
+            progress,metrics=self.call(f,folder/'with_state',runner_state=state)
+            checkpoint=folder/'with_state'/progress.phase/f'u{progress.logical_update:06d}.pt'
+            saved=torch.load(checkpoint,map_location='cpu',weights_only=False)
+            self.assertEqual(saved['sampler']['runner_state'],state)
+            self.assertEqual(metrics['optimizer_steps'],1)
+            self.assertEqual(metrics['optimizer_steps_before'],0)
+            self.assertEqual(metrics['result']['optimizer_updates'],0)
+            with self.assertRaisesRegex(ValueError,'Complete runner early-stop state'):
+                self.call(self.fixture(),folder/'bad_state',runner_state=dict(best_validation=1.0))
+
+    def test_default_gate_blocks_and_an_injected_gate_is_used(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parent) as folder:
+            with self.assertRaisesRegex(ValueError,'Missing required_before_training'):
+                execute_route_update(config={},progress=None,frozen_ids={},modules=None,optimizer=None,scheduler=None,views=None,expected_input_signature=None,sampler_after={},directory=Path(folder)/'never')
+            def refuse(config):raise ValueError('custom E0 gate refused')
+            with self.assertRaisesRegex(ValueError,'custom E0 gate refused'):
+                execute_route_update(config={},progress=None,frozen_ids={},modules=None,optimizer=None,scheduler=None,views=None,expected_input_signature=None,sampler_after={},directory=Path(folder)/'never',gate=refuse)
+            self.assertFalse((Path(folder)/'never').exists())
 
     def test_plateau_reduction_survives_warmup_exit_and_resume(self):
         model=torch.nn.Linear(1,1);optimizer=torch.optim.AdamW(model.parameters(),lr=3e-4);schedule=RouteSchedule(optimizer,peak_lr=3e-4,threshold=.01)

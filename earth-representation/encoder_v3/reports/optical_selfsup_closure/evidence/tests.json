@@ -1,0 +1,56 @@
+{
+  "schema": "encoder_v3_unit_suite_evidence_v1",
+  "generated_at": "2026-11-08T08:25:57.866161+00:00",
+  "command": "python.exe -m unittest discover -s encoder_v3 -t . -p test_*.py -v",
+  "cwd": "N:\\Users\\yzh\\Disater\\earth-representation",
+  "started_at": "2026-11-08T08:24:46.382110+00:00",
+  "seconds": 71.5,
+  "tests": 244,
+  "unittest_seconds": 62.75,
+  "status": "PASS",
+  "exit_code": 0,
+  "outcomes": {
+    "ok": 243,
+    "FAIL": 0,
+    "ERROR": 0,
+    "skipped": 1
+  },
+  "failures": [],
+  "skipped": [
+    {
+      "test": "test_names_include_hidden_and_ignored_files_without_opening_images",
+      "module": "encoder_v3.test_discovery.DiscoveryChecks.test_names_include_hidden_and_ignored_files_without_opening_images"
+    }
+  ],
+  "new_or_changed_tests": {
+    "optical_selfsup": "test_optical_selfsup.py (17 cases: pool/sampler/recipe, S_intra, E0 gates, panel collect end-to-end)",
+    "runner": "test_formal_runner.py (+4: lookahead single prepare, committed early-stop restore, wall pre-check, mock rejection)",
+    "route_step": "test_route_step.py (+2: runner_state/optimizer_steps in checkpoint, injected gate)",
+    "discovery": "test_discovery.py: explicit skip when ripgrep is absent in the environment"
+  },
+  "source_sha256": {
+    "gates.py": "8ba6235b6af533e24b2be8d62d30f9f2218bfc8290576d8b8d6e2c6b04084d29",
+    "validation_metric.py": "bb94c7e5d2a82ee36cdcf882d600b06f35c7575f425188cda8663cb84cb310d1",
+    "formal_schedule.py": "98cc74507f8b390e0980f5f0cf4515c9420fbd92b5553a32841d3cd1a1fa0179",
+    "scheduled_data.py": "2a4e00f72ad816e02fb87e1cc3acfbc6aef042b7ebb88517ea8c14cfaae2bc9c",
+    "validation_panels.py": "682b1e5b67e241eb57c7c5d1823705c92631d423c0b3f1a5c1a72f49776ebdd5",
+    "formal_panels.py": "879a1ebfac7de3f2b37f76e97f1bd23151e7247bed389acf4403b15602d731c4",
+    "route_step.py": "beac708663e7a60e337815c67bc77a668bf376fe433fa71b35e79ce388b4ac67",
+    "route_control.py": "2de26dd649824cd88c8994dd4bceddeeb987eaa96dc46ac6eee4ca89202111fc",
+    "formal_runner.py": "040ff2025600da3f82ff7f9e488d5085b277a1a70440e22280035ca1dd695c5b",
+    "selfsup_preflight.py": "c6f4387955e42cdab1701f75031b8285e4602f68bd5feb2e2a73d192a1a62a32",
+    "selfsup_train.py": "9d08fdc4f900ad793d3be678ce144b7277a99aeaff9da7780ec43f6f4321093c",
+    "selfsup_benchmark.py": "fcbc3e5b82372a1332a0fb825db54830afb0e3579da81282f0af7b14b1366266",
+    "sampling_coverage.py": "9587d4e5447968018525256a8acb363e35bf361f3baabb067ef5575035647b5d",
+    "test_optical_selfsup.py": "b2241e17350671b07a36e52ba9461af0e965b8723c7386a8c6e394fd4685305a",
+    "test_formal_runner.py": "981c6efa85eed27b9e1fc4fce8f451d482bcc98270d64b1f9c33fb66c3a15621",
+    "test_route_step.py": "23ae83a86fa5195897010de44f1d2f10be133535740aed23551afb98ad1294a2",
+    "test_discovery.py": "ed626579aeb031a236138c529e37423c964c0dde027363e4cfb89017b2924135",
+    "config_optical_selfsup_v1.json": "6eb861e5ecab8a8404c308c586aaa4053a5dad2ac487ea8826225cb56ac747a9"
+  },
+  "log": {
+    "path": "encoder_v3\\reports\\optical_selfsup_closure\\evidence\\tests.log",
+    "sha256": "a055583c97831d0c6972936515874db34de12c8ce11cb8a15a552931114f3b0c"
+  },
+  "optimizer_updates": 0
+}

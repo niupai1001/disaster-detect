@@ -1,3 +1,4 @@
+import shutil
 import tempfile
 from pathlib import Path
 import unittest
@@ -5,6 +6,7 @@ from .discover_rasters import scan
 
 
 class DiscoveryChecks(unittest.TestCase):
+    @unittest.skipUnless(shutil.which('rg'), 'ripgrep binary is required by the read-only filename discovery')
     def test_names_include_hidden_and_ignored_files_without_opening_images(self):
         with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as tmp:
             root=Path(tmp);source=root/'input';out=root/'output';source.mkdir();out.mkdir()
