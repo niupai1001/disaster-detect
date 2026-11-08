@@ -8,6 +8,7 @@ from .route_step import RouteSchedule,execute_route_update,update_signature
 from .training import make_teacher,JEPAPredictor
 from .pilot_protocol import optimizer_groups
 from . import test_participation_joint as joint_fixtures
+from .formal_test_fixtures import populate as populate_approvals
 
 
 class RouteStepChecks(unittest.TestCase):
@@ -17,8 +18,8 @@ class RouteStepChecks(unittest.TestCase):
         for v in paired:v.source.metadata['frozen_source_ids']=source_ids;v.target.metadata['frozen_source_ids']=source_ids
         encoder=base.encoder();modules=dict(encoder=encoder,decoder=__import__('encoder_v3.model',fromlist=['ReflectanceDecoder']).ReflectanceDecoder(indexed=True,cell_indexed=True))
         if jepa:modules.update(predictor=JEPAPredictor(),teacher=make_teacher(encoder))
-        real=json.loads((Path(__file__).parent/'config.json').read_text());config=dict(required_before_training={k:'SYNTHETIC_REVIEW_ONLY' for k in real['required_before_training']},required_before_jepa={k:'SYNTHETIC_REVIEW_ONLY' for k in real['required_before_jepa']},formal_step=dict(precision='fp32',chunk_pixels=7,microbatch_observations=1,clip_norm=3.,peak_lr=1e-4,plateau_threshold=0.,weight_decay=.04,betas=[.9,.999],eps=1e-8,ema_coefficient=.996))
-        config['required_before_training'].update(formal_training_authorization=True,optimizer_choice='AdamW')
+        real=json.loads((Path(__file__).parent/'config.json').read_text());config=dict(required_before_training={k:None for k in real['required_before_training']},required_before_jepa={k:None for k in real['required_before_jepa']},formal_step=dict(precision='fp32',chunk_pixels=7,microbatch_observations=1,clip_norm=3.,peak_lr=1e-4,plateau_threshold=0.,weight_decay=.04,betas=[.9,.999],eps=1e-8,ema_coefficient=.996))
+        populate_approvals(config,jepa=True)
         optimizer=torch.optim.AdamW(optimizer_groups([m for k,m in modules.items() if k!='teacher'],.04),lr=1e-4,betas=(.9,.999),eps=1e-8);scheduler=RouteSchedule(optimizer,peak_lr=1e-4,threshold=0.)
         frozen=dict(formal_config_sha256=frozen_identity(config),source_identities=source_ids,merge_recipe=encoder.merge_recipe,fixture='NO_REAL_DATA_OR_OPERATIONAL_AUTHORIZATION')
         progress=RouteProgress('shared',cursor,frozen_identity(frozen))

@@ -1,0 +1,722 @@
+{
+  "schema": "encoder_v3_formal_readiness_architecture_audit_v1",
+  "generated_at": "2026-11-07T16:21:00.822488+00:00",
+  "architecture": {
+    "hypernetwork": {
+      "input": 34,
+      "hidden": 64,
+      "output": 320,
+      "activation": "GELU",
+      "gsd_transform": "natural_log_of_gsd_in_meters"
+    },
+    "encoder_parameters": 1219232,
+    "parameter_table": {
+      "cls": {
+        "shape": [
+          1,
+          1,
+          128
+        ],
+        "count": 128
+      },
+      "srf.wave.0.weight": {
+        "shape": [
+          64,
+          1
+        ],
+        "count": 64
+      },
+      "srf.wave.0.bias": {
+        "shape": [
+          64
+        ],
+        "count": 64
+      },
+      "srf.wave.2.weight": {
+        "shape": [
+          32,
+          64
+        ],
+        "count": 2048
+      },
+      "srf.wave.2.bias": {
+        "shape": [
+          32
+        ],
+        "count": 32
+      },
+      "hyper.0.weight": {
+        "shape": [
+          64,
+          34
+        ],
+        "count": 2176
+      },
+      "hyper.0.bias": {
+        "shape": [
+          64
+        ],
+        "count": 64
+      },
+      "hyper.2.weight": {
+        "shape": [
+          320,
+          64
+        ],
+        "count": 20480
+      },
+      "hyper.2.bias": {
+        "shape": [
+          320
+        ],
+        "count": 320
+      },
+      "project.weight": {
+        "shape": [
+          128,
+          32
+        ],
+        "count": 4096
+      },
+      "project.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.0.self_attn.in_proj_weight": {
+        "shape": [
+          384,
+          128
+        ],
+        "count": 49152
+      },
+      "local.layers.0.self_attn.in_proj_bias": {
+        "shape": [
+          384
+        ],
+        "count": 384
+      },
+      "local.layers.0.self_attn.out_proj.weight": {
+        "shape": [
+          128,
+          128
+        ],
+        "count": 16384
+      },
+      "local.layers.0.self_attn.out_proj.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.0.linear1.weight": {
+        "shape": [
+          512,
+          128
+        ],
+        "count": 65536
+      },
+      "local.layers.0.linear1.bias": {
+        "shape": [
+          512
+        ],
+        "count": 512
+      },
+      "local.layers.0.linear2.weight": {
+        "shape": [
+          128,
+          512
+        ],
+        "count": 65536
+      },
+      "local.layers.0.linear2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.0.norm1.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.0.norm1.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.0.norm2.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.0.norm2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.1.self_attn.in_proj_weight": {
+        "shape": [
+          384,
+          128
+        ],
+        "count": 49152
+      },
+      "local.layers.1.self_attn.in_proj_bias": {
+        "shape": [
+          384
+        ],
+        "count": 384
+      },
+      "local.layers.1.self_attn.out_proj.weight": {
+        "shape": [
+          128,
+          128
+        ],
+        "count": 16384
+      },
+      "local.layers.1.self_attn.out_proj.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.1.linear1.weight": {
+        "shape": [
+          512,
+          128
+        ],
+        "count": 65536
+      },
+      "local.layers.1.linear1.bias": {
+        "shape": [
+          512
+        ],
+        "count": 512
+      },
+      "local.layers.1.linear2.weight": {
+        "shape": [
+          128,
+          512
+        ],
+        "count": 65536
+      },
+      "local.layers.1.linear2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.1.norm1.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.1.norm1.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.1.norm2.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "local.layers.1.norm2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.0.self_attn.in_proj_weight": {
+        "shape": [
+          384,
+          128
+        ],
+        "count": 49152
+      },
+      "global_net.layers.0.self_attn.in_proj_bias": {
+        "shape": [
+          384
+        ],
+        "count": 384
+      },
+      "global_net.layers.0.self_attn.out_proj.weight": {
+        "shape": [
+          128,
+          128
+        ],
+        "count": 16384
+      },
+      "global_net.layers.0.self_attn.out_proj.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.0.linear1.weight": {
+        "shape": [
+          512,
+          128
+        ],
+        "count": 65536
+      },
+      "global_net.layers.0.linear1.bias": {
+        "shape": [
+          512
+        ],
+        "count": 512
+      },
+      "global_net.layers.0.linear2.weight": {
+        "shape": [
+          128,
+          512
+        ],
+        "count": 65536
+      },
+      "global_net.layers.0.linear2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.0.norm1.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.0.norm1.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.0.norm2.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.0.norm2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.1.self_attn.in_proj_weight": {
+        "shape": [
+          384,
+          128
+        ],
+        "count": 49152
+      },
+      "global_net.layers.1.self_attn.in_proj_bias": {
+        "shape": [
+          384
+        ],
+        "count": 384
+      },
+      "global_net.layers.1.self_attn.out_proj.weight": {
+        "shape": [
+          128,
+          128
+        ],
+        "count": 16384
+      },
+      "global_net.layers.1.self_attn.out_proj.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.1.linear1.weight": {
+        "shape": [
+          512,
+          128
+        ],
+        "count": 65536
+      },
+      "global_net.layers.1.linear1.bias": {
+        "shape": [
+          512
+        ],
+        "count": 512
+      },
+      "global_net.layers.1.linear2.weight": {
+        "shape": [
+          128,
+          512
+        ],
+        "count": 65536
+      },
+      "global_net.layers.1.linear2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.1.norm1.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.1.norm1.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.1.norm2.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.1.norm2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.2.self_attn.in_proj_weight": {
+        "shape": [
+          384,
+          128
+        ],
+        "count": 49152
+      },
+      "global_net.layers.2.self_attn.in_proj_bias": {
+        "shape": [
+          384
+        ],
+        "count": 384
+      },
+      "global_net.layers.2.self_attn.out_proj.weight": {
+        "shape": [
+          128,
+          128
+        ],
+        "count": 16384
+      },
+      "global_net.layers.2.self_attn.out_proj.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.2.linear1.weight": {
+        "shape": [
+          512,
+          128
+        ],
+        "count": 65536
+      },
+      "global_net.layers.2.linear1.bias": {
+        "shape": [
+          512
+        ],
+        "count": 512
+      },
+      "global_net.layers.2.linear2.weight": {
+        "shape": [
+          128,
+          512
+        ],
+        "count": 65536
+      },
+      "global_net.layers.2.linear2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.2.norm1.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.2.norm1.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.2.norm2.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.2.norm2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.3.self_attn.in_proj_weight": {
+        "shape": [
+          384,
+          128
+        ],
+        "count": 49152
+      },
+      "global_net.layers.3.self_attn.in_proj_bias": {
+        "shape": [
+          384
+        ],
+        "count": 384
+      },
+      "global_net.layers.3.self_attn.out_proj.weight": {
+        "shape": [
+          128,
+          128
+        ],
+        "count": 16384
+      },
+      "global_net.layers.3.self_attn.out_proj.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.3.linear1.weight": {
+        "shape": [
+          512,
+          128
+        ],
+        "count": 65536
+      },
+      "global_net.layers.3.linear1.bias": {
+        "shape": [
+          512
+        ],
+        "count": 512
+      },
+      "global_net.layers.3.linear2.weight": {
+        "shape": [
+          128,
+          512
+        ],
+        "count": 65536
+      },
+      "global_net.layers.3.linear2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.3.norm1.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.3.norm1.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.3.norm2.weight": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      },
+      "global_net.layers.3.norm2.bias": {
+        "shape": [
+          128
+        ],
+        "count": 128
+      }
+    },
+    "module_hashes": {
+      "model.py": "982d4517e0c397d246d75b58763285c869d2a444eebbdd68239cebb004e21d55",
+      "participation_layout.py": "c8d11902caac1cb4afd68df7377ee3b02e070de23d787e9ae450317aa08d7718",
+      "participation_encoder.py": "f86849b151c86b69f7073873501c6762ab113fdc3229523df200c0bbc3dbe528",
+      "adaptive_window.py": "cc455fbcf9a757d48b270fcd7395fc2f7b31884dfc516515e22aeecd52483eca",
+      "spatial_index.py": "84cf82264eb3344e7423ea7c9411e4d55a77768de02b81375254838d343bd9bf",
+      "participation_decoder.py": "cbda7c1efcf43492e448b5584c0a10fcbb4b863f114cfde6092d08f33db778df",
+      "complete_attention.py": "442356301e64d8fe37e31b869162cc53d4dad27448c3e5958cb6143a72608490"
+    }
+  },
+  "srf": {
+    "shape": [
+      32
+    ],
+    "same_curve_sampling_max_abs": 8.940696716308594e-08,
+    "quadrature_tolerance_1e_4": true,
+    "all_parameters_receive_gradient": true,
+    "input_condition_on_target_srf_supported": true
+  },
+  "hypernetwork": {
+    "hyper_output": 320,
+    "kernel_values": 288,
+    "bias_values": 32,
+    "output_total": 320,
+    "kernels_plus_bias": 320,
+    "serial_vs_grouped_max_abs": 0.0,
+    "condition_max_abs": 0.0,
+    "keep_masks_equal": true,
+    "encoder_parameter_gradients_finite": true
+  },
+  "merge": {
+    "gsd_cases": [
+      {
+        "gsd_m": 0.5,
+        "visible_positions": 4096,
+        "target_rate": 0.75,
+        "actual_rate": 0.75,
+        "merged_participants": 3072,
+        "independent_positions": 1024,
+        "merged_groups": 192,
+        "tokens": 1216,
+        "window_m": [
+          2.0,
+          2.0
+        ],
+        "group_size_min": 16,
+        "group_size_max": 16,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 1.21,
+        "visible_positions": 4096,
+        "target_rate": 0.6568586219503006,
+        "actual_rate": 0.65673828125,
+        "merged_participants": 2690,
+        "independent_positions": 1406,
+        "merged_groups": 319,
+        "tokens": 1725,
+        "window_m": [
+          3.526243342837972,
+          3.526243342837972
+        ],
+        "group_size_min": 4,
+        "group_size_max": 9,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 10.0,
+        "visible_positions": 1024,
+        "target_rate": 0.2,
+        "actual_rate": 0.19921875,
+        "merged_participants": 204,
+        "independent_positions": 820,
+        "merged_groups": 89,
+        "tokens": 909,
+        "window_m": [
+          12.5,
+          12.5
+        ],
+        "group_size_min": 2,
+        "group_size_max": 4,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 20.0,
+        "visible_positions": 1024,
+        "target_rate": 0.1,
+        "actual_rate": 0.099609375,
+        "merged_participants": 102,
+        "independent_positions": 922,
+        "merged_groups": 47,
+        "tokens": 969,
+        "window_m": [
+          22.22222222222222,
+          22.22222222222222
+        ],
+        "group_size_min": 2,
+        "group_size_max": 4,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 30.0,
+        "visible_positions": 1024,
+        "target_rate": 0.06408431642857908,
+        "actual_rate": 0.064453125,
+        "merged_participants": 66,
+        "independent_positions": 958,
+        "merged_groups": 31,
+        "tokens": 989,
+        "window_m": [
+          32.05416954390706,
+          32.05416954390706
+        ],
+        "group_size_min": 2,
+        "group_size_max": 4,
+        "deterministic": true
+      }
+    ],
+    "anisotropic": {
+      "visible_positions": 204,
+      "tokens": 69,
+      "sum_lengths": 204,
+      "target_rate": 0.7127592152002903,
+      "actual_rate": 0.7303921568627451,
+      "window_m": [
+        1.7406998812812926,
+        4.212493712700728
+      ]
+    },
+    "participation_definition": "valid visible native positions participating in multi-position merges, not token reduction",
+    "p_invariance": {
+      "geometry_cells_equal": true,
+      "centers_equal": true,
+      "bounds_equal": true,
+      "physical_patch_metadata_60": 60.0,
+      "physical_patch_metadata_120": 120.0,
+      "merge_recipe_equal": true
+    }
+  },
+  "isolation": {
+    "tokens_equal": true,
+    "group_ids_equal": true,
+    "hidden_positions": 196,
+    "finite_visible_tokens": true
+  },
+  "decoder": {
+    "mlp": [
+      [
+        128,
+        162
+      ],
+      [
+        128
+      ],
+      [
+        1,
+        128
+      ],
+      [
+        1
+      ]
+    ],
+    "shared_across_kinds": true
+  },
+  "local_global": {
+    "local_layers": 2,
+    "global_layers": 4,
+    "width": 128,
+    "heads": 4,
+    "ffn": 512,
+    "full_attention_default": true,
+    "query_chunk_optional": "complete_attention.query_chunked_transformer only when explicitly configured"
+  },
+  "notes": [
+    "The pair-query offset is applied once; tuple*2 is [dx,dy,dx,dy], not a doubled translation.",
+    "Dense and indexed A paths now share represented_boundary_v1; legacy_center_outside remains only for old reference representations.",
+    "Signed/unsigned numeric gaps are measured diagnostics, not formal tolerances."
+  ]
+}

@@ -58,6 +58,8 @@ class FrozenABSchedule:
         if type(chunk) is not int or chunk<1:raise ValueError('Explicit frozen Decoder chunk required')
         self._document=document;self._rows=rows;self._indices={r['id']:i for i,r in enumerate(dataset.rows)};self.dataset=dataset;self.rate_curve=rate_curve;self.selection_seed=selection_seed;self.chunk=chunk;self.frozen_ids=copy.deepcopy(frozen_ids);self.path=path;self.identity=expected;stat=path.stat();self._file_stat=(stat.st_size,stat.st_mtime_ns)
 
+    def __len__(self):return len(self._document['updates'])
+
     def prepare(self,index,*,cell_indexed,retain_layouts):
         if type(index) is not int or not 0<=index<len(self._document['updates']):raise ValueError('Logical update outside frozen schedule')
         if type(cell_indexed) is not bool or type(retain_layouts) is not bool:raise ValueError('Explicit geometry execution choices required')

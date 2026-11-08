@@ -3,7 +3,7 @@ import hashlib,json,math,os,time
 from pathlib import Path
 import torch
 from .adaptive_joint import accumulate_adaptive_joint
-from .gates import require_training
+from .gates import require_jepa,require_training
 from .joint import layout
 from .pair_geometry import reviewed_pair_task,frame_for_task
 from .participation_encoder import ParticipationEncoder
@@ -14,30 +14,30 @@ from .training import CheckedPlateau,update_teacher
 
 
 class RouteSchedule:
-    def __init__(self,optimizer,*,peak_lr,threshold):
+    def __init__(self,optimizer,*,peak_lr,threshold,warmup_updates=100,validation_interval=250,max_updates=10000):
         if isinstance(peak_lr,bool) or isinstance(threshold,bool) or not math.isfinite(threshold) or threshold<0:raise ValueError('Explicit finite learning rate and improvement threshold required')
-        self.warmup=LinearWarmup(optimizer,peak=peak_lr,warmup=100)
+        if any(type(v) is not int or v<1 for v in (warmup_updates,validation_interval,max_updates)) or max_updates>10000:raise ValueError('Positive explicit scheduler controls required')
+        self.warmup_updates=warmup_updates;self.validation_interval=validation_interval;self.max_updates=max_updates
+        self.warmup=LinearWarmup(optimizer,peak=peak_lr,warmup=warmup_updates)
         self.plateau=CheckedPlateau(optimizer,threshold=threshold,patience=4,factor=.5,minimum=1e-5)
         self.last_update=-1;self.last_validation=0
-
     def before_update(self,index):
-        if type(index) is not int or index!=self.last_update+1 or not 0<=index<10000:raise ValueError('Scheduler cursor must advance with the logical route cursor')
-        if self.last_validation!=(index//250)*250:raise ValueError('Previous fixed validation is missing')
-        if index<100:self.warmup.apply(index)
+        if type(index) is not int or index!=self.last_update+1 or not 0<=index<self.max_updates:raise ValueError('Scheduler cursor must advance within the frozen route cursor')
+        if self.last_validation!=(index//self.validation_interval)*self.validation_interval:raise ValueError('Previous fixed validation is missing')
+        if index<self.warmup_updates:self.warmup.apply(index)
         self.last_update=index
-
     def validate(self,metric,*,completed_update):
-        if completed_update!=self.last_update+1 or completed_update%250 or completed_update<=self.last_validation:raise ValueError('Only the next250-update fixed validation is accepted')
+        if completed_update!=self.last_update+1 or completed_update%self.validation_interval or completed_update<=self.last_validation:raise ValueError('Only the next fixed validation is accepted')
         result=self.plateau.step(metric);self.last_validation=completed_update;return result
-
     def state_dict(self):
-        return dict(kind='route_schedule_v1',warmup=self.warmup.state_dict(),plateau=self.plateau.state_dict(),last_update=self.last_update,last_validation=self.last_validation)
-
+        return dict(kind='route_schedule_v2',warmup_updates=self.warmup_updates,validation_interval=self.validation_interval,max_updates=self.max_updates,warmup=self.warmup.state_dict(),plateau=self.plateau.state_dict(),last_update=self.last_update,last_validation=self.last_validation)
     def load_state_dict(self,state):
-        if state.get('kind')!='route_schedule_v1' or any(state['plateau'][k]!=getattr(self.plateau,k) for k in ('threshold','patience','factor','minimum')):raise ValueError('Frozen scheduler configuration differs')
+        if state.get('kind') not in ('route_schedule_v1','route_schedule_v2'):raise ValueError('Frozen scheduler configuration differs')
+        warmup_updates=state.get('warmup_updates',100);validation_interval=state.get('validation_interval',250);max_updates=state.get('max_updates',10000)
+        if (warmup_updates,validation_interval,max_updates)!=(self.warmup_updates,self.validation_interval,self.max_updates) or any(state['plateau'][k]!=getattr(self.plateau,k) for k in ('threshold','patience','factor','minimum')):raise ValueError('Frozen scheduler configuration differs')
         index,validation=state['last_update'],state['last_validation']
-        if type(index) is not int or not -1<=index<10000 or type(validation) is not int or validation<0 or validation%250 or validation>index+1:raise ValueError('Malformed scheduler progress')
-        if state['warmup']['last_update']!=min(index,99):raise ValueError('Warmup progress differs from logical cursor')
+        if type(index) is not int or not -1<=index<self.max_updates or type(validation) is not int or validation<0 or validation%self.validation_interval or validation>index+1:raise ValueError('Malformed scheduler progress')
+        if state['warmup']['last_update']!=min(index,self.warmup_updates-1):raise ValueError('Warmup progress differs from logical cursor')
         self.warmup.load_state_dict(state['warmup']);self.plateau.load_state_dict(state['plateau']);self.last_update=index;self.last_validation=validation
 
 
@@ -101,8 +101,7 @@ def execute_route_update(*,config,progress,frozen_ids,modules,optimizer,schedule
         if tuple(group['betas'])!=tuple(settings['betas']) or group['eps']!=settings['eps'] or group.get('maximize',False) or group.get('amsgrad',False) or any(group['weight_decay']!=expected_decay[id(p)] for p in group['params']):raise ValueError('Optimizer or bias/LayerNorm decay differs from frozen configuration')
     latent=progress.phase=='A+B+JEPA'
     if latent:
-        checks=config.get('required_before_jepa',{});names={'latent_loss_and_normalization','admitted_cross_source_pairs','AB_stability_evidence','joint_effective_batch_integration','query_projection_review'}
-        if not names<=checks.keys() or any(checks[k] is None or checks[k] is False or checks[k]=='' for k in names):raise ValueError('JEPA reviews incomplete')
+        require_jepa(config)
         if ab_stable is not True or progress.logical_update<2000 or not callable(latent_loss_fn) or jepa_weight is None or not math.isfinite(jepa_weight) or jepa_weight<=0 or not 0<=settings['ema_coefficient']<1:raise ValueError('Explicit reviewed JEPA conditions required')
     elif jepa_views or jepa_weight is not None or latent_loss_fn is not None:raise ValueError('JEPA cannot enter the shared or A+B route')
     for view in jepa_views:

@@ -124,6 +124,13 @@ def restore_checkpoint(path, *, modules, optimizer, scheduler, frozen_ids):
     if (cuda_rng is not None and not isinstance(cuda_rng,dict)) or set(cuda_rng or {})!=devices:raise ValueError('CUDA RNG device layout mismatch; no implicit device migration')
     for name,module in modules.items(): module.load_state_dict(state['modules'][name])
     optimizer.load_state_dict(state['optimizer']); scheduler.load_state_dict(state['scheduler'])
+    # torch.load(map_location='cpu') leaves optimizer moments on CPU; move them
+    # back to each parameter's device before the next step.
+    for group in optimizer.param_groups:
+        for parameter in group['params']:
+            for key,value in optimizer.state.get(parameter,{}).items():
+                if torch.is_tensor(value) and value.shape == parameter.shape and value.device != parameter.device:
+                    optimizer.state[parameter][key]=value.to(parameter.device)
     rng=state['rng']; random.setstate(rng['python']); np.random.set_state(rng['numpy']); torch.set_rng_state(rng['torch'])
     if cuda_rng is not None:
         for device,value in cuda_rng.items():torch.cuda.set_rng_state(value,device=int(device))

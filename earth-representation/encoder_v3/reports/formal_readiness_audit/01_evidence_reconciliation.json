@@ -1,0 +1,310 @@
+{
+  "schema": "encoder_v3_formal_readiness_evidence_reconciliation_v1",
+  "generated_at": "2026-11-07T15:59:04.030730+00:00",
+  "baseline_head": "269a1e04c8a30510176da01231ce43c3d125bce7",
+  "admission": {
+    "evidence": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\admission_review_2026-11-07.json",
+      "bytes": 6219
+    },
+    "reported_summary": {
+      "satisfied": 1,
+      "partially_satisfied_preflight_only": 6,
+      "not_satisfied": 7
+    },
+    "recomputed_by_verdict": {
+      "SATISFIED": 1,
+      "PARTIAL_PREFLIGHT": 5,
+      "NOT_SATISFIED": 8
+    },
+    "recomputed_required_summary": {
+      "satisfied": 1,
+      "partially_satisfied_preflight_only": 5,
+      "not_satisfied": 8
+    },
+    "summary_mismatch": {
+      "satisfied": false,
+      "partial": true,
+      "not_satisfied": true
+    },
+    "items": [
+      {
+        "gate": "optimizer_choice",
+        "verdict": "SATISFIED",
+        "config_value": "AdamW",
+        "gap": null
+      },
+      {
+        "gate": "merge_configuration",
+        "verdict": "PARTIAL_PREFLIGHT",
+        "config_value": null,
+        "gap": "架构（单轮B、原生/合并两尺度）已按正式范围确认；GSD→r 曲线仍标注为预检；60/120m 与任务遮盖的关系未审。"
+      },
+      {
+        "gate": "hypernetwork_hidden_structure",
+        "verdict": "PARTIAL_PREFLIGHT",
+        "config_value": null,
+        "gap": "34→64→320、GELU、log(gsd) 已冻结，但 review 明确写 scope=preflight_only。"
+      },
+      {
+        "gate": "frozen_data_manifest",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "合格清单与划分未冻结；名称发现仍有 430 块待查、10 个目标未全覆盖。"
+      },
+      {
+        "gate": "pair_admission",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "真实配对准入为 0；偏移数值、校准隔离、残差/处理域准入未确认。"
+      },
+      {
+        "gate": "mask_rectangle_distribution",
+        "verdict": "PARTIAL_PREFLIGHT",
+        "config_value": null,
+        "gap": "遮盖规则已确认但 scope=preflight_mask_rule_only。"
+      },
+      {
+        "gate": "validation_panel",
+        "verdict": "PARTIAL_PREFLIGHT",
+        "config_value": null,
+        "gap": "面板与指标公式已确认，但成员/面板批文写的是用于预检；尚无真实图像读取验收。"
+      },
+      {
+        "gate": "improvement_threshold",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "指标公式已定，但「多大改进才算改进」没有数值；只能由用户定。"
+      },
+      {
+        "gate": "stability_window",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "计划 §10.3/§13 要求固定验证间隔、稳定观察窗口、验证不确定性阈值；仓库内无对应批文。"
+      },
+      {
+        "gate": "early_stop",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "现有只是预检被用户叫停的记录，不是正式训练的早停规则。"
+      },
+      {
+        "gate": "precision_acceptance",
+        "verdict": "PARTIAL_PREFLIGHT",
+        "config_value": null,
+        "gap": "容差（2e-6 / 1e-5 / 1e-6 / 2e-6）已确认，但 scope=preflight_only。"
+      },
+      {
+        "gate": "resource_limit",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "缺正式的计算资源上限与总预算；budget.json 不存在。"
+      },
+      {
+        "gate": "execution_equivalence",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "当前运行时存在原生访问冲突，真实更新/恢复与端到端等价未通过；历史 146 项不能替代当前验收。"
+      },
+      {
+        "gate": "formal_training_authorization",
+        "verdict": "NOT_SATISFIED",
+        "config_value": null,
+        "gap": "必须为 true 才放行；只能由用户明确授权。"
+      }
+    ],
+    "status": "CORRECTED_COUNT_1_SATISFIED_5_PARTIAL_8_NOT_SATISFIED"
+  },
+  "discovery": {
+    "evidence": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\discovery_coverage_current.json",
+      "bytes": 5619
+    },
+    "status": "LISTED_TIMEOUT_GAPS_CLOSED_ACCESS_AND_ADMISSION_GAPS_REMAIN",
+    "scheduled_pending_chunks": 0,
+    "unresolved_timeout_leaves": [],
+    "access_error_chunks": [
+      "F:\\mydustpaper\\outputs\\repair50\\redesign_20261019\\event_dehai_camera_zip03",
+      "F:\\mydustpaper\\outputs\\repair50\\v22_causal_digital_twin\\audit"
+    ],
+    "admitted_members": 0,
+    "unique_candidate_paths": 1589404,
+    "limits": [
+      "Coverage limited to explicitly listed formats and readable directories; access-denied paths, unfollowed links and archives remain unverified",
+      "Names do not establish physical SRF, reflectance calibration, QA or native-grid admission",
+      "Not a whole-machine completion claim"
+    ],
+    "conclusion": "FILE_DISCOVERY_PENDING_ZERO_DOES_NOT_MEAN_DATA_ADMISSION"
+  },
+  "pilot_budget": {
+    "budget_exists": true,
+    "stop_exists": true,
+    "total_limit": 400,
+    "per_candidate_limit": 200,
+    "reserved": 214,
+    "completed": 214,
+    "incomplete": [],
+    "stop_decision": {
+      "status": "PRECHECK_UPDATES_STOPPED_BY_USER",
+      "selected_optimizer": "AdamW",
+      "remaining_total": 186,
+      "remaining_by_candidate": {
+        "AdamW": 92,
+        "CAdamW": 94
+      },
+      "formal_training_authorized": false
+    },
+    "conclusion": "214_REAL_PREFLIGHT_UPDATES_COMPLETED_186_REMAINING_NOT_AUTHORIZED"
+  },
+  "stale_engineering_report": {
+    "existing": {
+      "status": "ENGINEERING_TESTS_PASS",
+      "tests": 59,
+      "seconds": 40.763196300002164,
+      "reported_gates_py_sha256": "472efd2c4946216dd6b9dc7b1d897e70df7e60904db5d9d4f1dd3b94594e83a8",
+      "current_gates_py_sha256": "b1f4943f92a496df0347dd1bee2ae178f16b19ec2b1d7fa36d54c8aa781f737b",
+      "source_hash_mismatch": true,
+      "source_hash_count": 75,
+      "current_top_level_py_count": 154,
+      "limitations": [
+        "Unit tests include tiny synthetic optimizer fixtures; they do not consume or replace the separate real-data pilot ledger",
+        "Skipped GPU cases are unverified, never GPU acceptance",
+        "Not a replacement for full data, GPU equivalence or per-stage acceptance"
+      ]
+    },
+    "current_test_method_count": 193,
+    "status": "STALE_DOES_NOT_DESCRIBE_CURRENT_HEAD"
+  },
+  "gates": {
+    "required_keys": [
+      "early_stop",
+      "execution_equivalence",
+      "formal_training_authorization",
+      "frozen_data_manifest",
+      "hypernetwork_hidden_structure",
+      "improvement_threshold",
+      "mask_rectangle_distribution",
+      "merge_configuration",
+      "optimizer_choice",
+      "pair_admission",
+      "precision_acceptance",
+      "resource_limit",
+      "stability_window",
+      "validation_panel"
+    ],
+    "null_or_false": [
+      "hypernetwork_hidden_structure",
+      "frozen_data_manifest",
+      "pair_admission",
+      "mask_rectangle_distribution",
+      "validation_panel",
+      "improvement_threshold",
+      "stability_window",
+      "early_stop",
+      "precision_acceptance",
+      "resource_limit",
+      "execution_equivalence",
+      "formal_training_authorization",
+      "merge_configuration"
+    ],
+    "optimizer_choice": "AdamW",
+    "formal_training_authorization": null,
+    "formal_step_present": false,
+    "required_before_jepa": {
+      "latent_loss_and_normalization": null,
+      "admitted_cross_source_pairs": null,
+      "AB_stability_evidence": null,
+      "joint_effective_batch_integration": null,
+      "query_projection_review": null
+    },
+    "m9_task_head_training_authorized": false
+  },
+  "adaptive_gates": {
+    "required_before_training": {
+      "spatial_hierarchy_review": "reports/merge_levels_confirmation.json",
+      "physical_patch_role_and_mask_review": null,
+      "adaptive_gpu_efficiency_acceptance": null,
+      "participation_curve_and_anisotropic_rule": {
+        "preflight_review": "reports/merge_rate_confirmation.json",
+        "formal_configuration_adoption": null
+      }
+    },
+    "unresolved": [
+      "physical_patch_role_and_mask_review",
+      "adaptive_gpu_efficiency_acceptance"
+    ],
+    "status": "GEOMETRY_B_AND_SINGLE_ROUND_CONFIRMED_CURVE_CONFIRMED_PREFLIGHT"
+  },
+  "data": {
+    "native_cache": {
+      "status": "CACHE_REREAD_PASS_NOT_V3_ADMISSION",
+      "read_members": 7778,
+      "roles": {
+        "TRAIN/S2B": 2716,
+        "TRAIN/S2A": 2164,
+        "TRAIN/S2C": 469,
+        "TRAIN/LC08": 1522,
+        "TRAIN/LC09": 524,
+        "VAL/S2B": 181,
+        "VAL/LC08": 48,
+        "VAL/S2A": 138,
+        "VAL/S2C": 16
+      }
+    },
+    "native_cache_evidence": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\native_cache_audit.json",
+      "bytes": 7892
+    },
+    "train_statistics": {
+      "status": "TRAIN_STATISTICS_RECOMPUTED_NOT_V3_FREEZE",
+      "members_checked": 7395,
+      "all_counts_match": true,
+      "max_abs_mean": 2.498001805406602e-16,
+      "max_abs_std": 4.718447854656915e-16
+    },
+    "train_statistics_evidence": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\train_statistics_recomputed.json",
+      "bytes": 1133143
+    },
+    "lineage": {
+      "status": "LINEAGE_REPRODUCTION_PASS_NOT_V3_ADMISSION",
+      "members_total": 7778,
+      "seconds": 111.78349519999756
+    },
+    "lineage_evidence": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\native_lineage_audit.json",
+      "bytes": 2018
+    },
+    "b1": {
+      "status": "B1_PANEL_ALL_CASES_EXECUTED_NOT_MODEL_QUALITY_ACCEPTANCE",
+      "cases": 502,
+      "members": 8,
+      "per_band_reports": 1796,
+      "supported_pixel_exposures": 14336038,
+      "no_support_cases": 0,
+      "parameters_unchanged": true
+    },
+    "b1_evidence": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\B1_expanded_evidence.json",
+      "bytes": 4904
+    },
+    "validation_metric": {
+      "status": "USER_CONFIRMED_FIXED_HIERARCHICAL_VALIDATION_METRIC",
+      "implementation_status": "PENDING_IMPLEMENTATION_AND_RUNNER_CONNECTION",
+      "formal_panels_and_support_set_frozen": false,
+      "pair_admission_approved": false
+    },
+    "validation_metric_evidence": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\validation_metric_confirmation.json",
+      "bytes": 1594
+    }
+  },
+  "conclusions": [
+    "The admission review summary is arithmetically wrong; per-item verdicts are authoritative until re-reviewed.",
+    "File discovery has no scheduled pending chunks, but access errors and archives remain; admitted members are zero.",
+    "The pilot ledger is complete at 214/214; the remaining 186 updates are explicitly not authorized.",
+    "The existing engineering_tests.json predates current gates.py and cannot support current admission.",
+    "B1 502-case diagnostics cover selected combinations only and are not training-quality evidence.",
+    "The confirmed validation metric is not implemented and its formal panels/support set are not frozen."
+  ]
+}

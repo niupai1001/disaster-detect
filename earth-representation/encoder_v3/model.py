@@ -290,7 +290,10 @@ class ReflectanceDecoder(nn.Module):
                 touch.append((intersects & ~strictly_inside).any())
             touch=torch.stack(touch)
             outside=~((r.centers[:,0]>m[0])&(r.centers[:,0]<m[2])&(r.centers[:,1]>m[1])&(r.centers[:,1]<m[3]))
-            weights=(1/(1+relative.square().sum(-1)))*(touch & outside & r.valid)[None]
+            rule=getattr(r,'a_adjacency_rule',None) or 'legacy_center_outside'
+            if rule not in ('legacy_center_outside','represented_boundary_v1'):raise ValueError('Unknown A adjacency rule')
+            adjacent=touch if rule=='represented_boundary_v1' else touch & outside
+            weights=(1/(1+relative.square().sum(-1)))*(adjacent & r.valid)[None]
         else:
             weights=torch.stack([union_overlap(c,targets) for c in r.cells],1)*r.valid[None]
         supported=weights.sum(1)>0

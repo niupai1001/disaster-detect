@@ -1,0 +1,52 @@
+{
+  "schema": "encoder_v3_enmap_admission_audit_v1",
+  "generated_at": "2026-11-08T00:20:00-05:00",
+  "decision": "USER_REQUESTED_INCLUSION_SUBJECT_TO_SEPARATE_ADMISSION",
+  "status": "BLOCKED_NOT_ADMITTED",
+  "local_data": {
+    "manifest": "earth-representation/data/enmap/manifest.json",
+    "manifest_sha256": "e935d6fd9ce11bd053d24b60803c6b02b4e2090ee071cabcfbd953888064f1b6",
+    "scenes": 1,
+    "scene": "ENMAP01-____L2A-DT0000017720_20230505T103652Z_027_V010502_20251209T203038Z",
+    "image_bytes": 460907016,
+    "metadata_bytes": 4406613
+  },
+  "release_membership": {
+    "members_sha256": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+    "in_frozen_release": false,
+    "statistics_sha256": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f",
+    "statistics_keys": 0,
+    "formal_statistics_included": false
+  },
+  "srf": {
+    "physics_readme_sha256": "e5d0a08b3fff70d01c748c2d87deae0fec64e6fcbe2683121230aa582fcef45d",
+    "sensor_physics_sha256": "58745fb9af49e53cf868c0612c86a1fc3184d067342bda510b5cc9d3e18e8726",
+    "declared_status": "derived_gaussian",
+    "measured_curve_available": false,
+    "g1_measured_curve_count_including_enmap": 0,
+    "note": "EnMAP has no measured SRF in the local G1 measured/transformed curve set; its physics entry is a centre-wavelength/FWHM Gaussian approximation."
+  },
+  "contracts": {
+    "native_observation_contract": false,
+    "qa_policy": false,
+    "lineage": false,
+    "role": "not a TRAIN/VAL release member"
+  },
+  "gates": {
+    "data_manifest": "FAIL",
+    "srf_contract": "FAIL_DERIVED_GAUSSIAN_ONLY",
+    "statistics": "FAIL_NOT_INCLUDED",
+    "qa": "FAIL_NOT_AUDITED",
+    "role_isolation": "FAIL_NOT_IN_RELEASE",
+    "pair_admission": "NOT_APPLICABLE_NO_PAIR"
+  },
+  "admitted": false,
+  "options": [
+    {"id": "keep_out", "label": "本轮不纳入 EnMAP（推荐）", "effect": "S2/Landsat 正式范围不变；EnMAP 作为独立未来观测。"},
+    {"id": "derived_explicit", "label": "明确批准 derived_gaussian 近似并单独建统计/契约", "effect": "需要新的 SRF 来源标注、QA/处理契约、TRAIN 统计重算和独立验证；不能与实测 SRF 混报。"},
+    {"id": "measured", "label": "取得官方实测 SRF 后再纳入", "effect": "满足实测 SRF 才可进入正式训练；当前不满足。"}
+  ],
+  "requires_user_decision": true,
+  "blocks_formal_training": true,
+  "limits": ["This audit reads the EnMAP manifest and physics metadata only; it does not open the 460 MB image or derive calibration.", "No EnMAP pixels were used for training, statistics, validation or pairing."]
+}

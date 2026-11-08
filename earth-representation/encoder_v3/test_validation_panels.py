@@ -9,13 +9,14 @@ from .participation_encoder import ParticipationEncoder,merge_recipe
 from .participation_layout import AreaEquivalentHillRate
 from .model import ReflectanceDecoder
 from .route_control import frozen_identity
+from .formal_test_fixtures import populate as populate_approvals
 
 
 class ValidationPanelChecks(unittest.TestCase):
     def setup_case(self,folder,edit=None):
         ds=fixtures.DatasetFixture();ds.role='VAL'
         for row,obs in zip(ds.rows,ds.observations):row['role']='VAL';obs.metadata['role']='VAL'
-        actual=json.loads((Path(__file__).parent/'config.json').read_text());config=dict(required_before_training={k:'SYNTHETIC_ONLY' for k in actual['required_before_training']},formal_step={'chunk_pixels':7});config['required_before_training']['formal_training_authorization']=True
+        actual=json.loads((Path(__file__).parent/'config.json').read_text());config=dict(required_before_training={k:None for k in actual['required_before_training']},formal_step={'chunk_pixels':7});populate_approvals(config)
         curve=AreaEquivalentHillRate(.8092248954506467,4.010953026221307,1.219268281571556)
         pair=dict(source_id='fixture0',target_id='fixture1',checks={k:True for k in ['space','registration','time_difference','surface_change','qa','srf','role_isolation']})
         common=dict(source_id='fixture0',origin_xy=[0.,0.],P_m=60.)

@@ -1,0 +1,322 @@
+{
+  "schema": "encoder_v3_formal_readiness_numerical_audit_v1",
+  "generated_at": "2026-11-08T05:41:44.987444+00:00",
+  "regression": {
+    "full_gpu": {
+      "status": "ENGINEERING_TESTS_PASS",
+      "tests": 223,
+      "skipped": 0,
+      "failures": [],
+      "errors": [],
+      "seconds": 88.8592815999873,
+      "report_sha256": "01417f592d801cff50f643b0bb6ad0f6bffc401c1a6179956f4ebcb793a55094"
+    },
+    "cpu_cross_check": {
+      "status": "ENGINEERING_TESTS_PASS_WITH_SKIPS",
+      "tests": 223,
+      "skipped": 8,
+      "failures": [],
+      "errors": [],
+      "note": "CPU run hid CUDA; all seven CUDA cases were executed and passed in the full GPU run."
+    },
+    "gate_rejected_expected": "Training blocked: early_stop, execution_equivalence, formal_training_authorization, frozen_data_manifest, hypernetwork_hidden_structure, improvement_threshold, mask_rectangle_distribution, merge_configuration, pair_admission, precision_acceptance, resource_limit, stability_window, validation_panel"
+  },
+  "architecture_checks": {
+    "srf": {
+      "shape": [
+        32
+      ],
+      "same_curve_sampling_max_abs": 8.940696716308594e-08,
+      "quadrature_tolerance_1e_4": true,
+      "all_parameters_receive_gradient": true,
+      "input_condition_on_target_srf_supported": true
+    },
+    "hypernetwork": {
+      "hyper_output": 320,
+      "kernel_values": 288,
+      "bias_values": 32,
+      "output_total": 320,
+      "kernels_plus_bias": 320,
+      "serial_vs_grouped_max_abs": 0.0,
+      "condition_max_abs": 0.0,
+      "keep_masks_equal": true,
+      "encoder_parameter_gradients_finite": true
+    },
+    "merge": [
+      {
+        "gsd_m": 0.5,
+        "visible_positions": 4096,
+        "target_rate": 0.75,
+        "actual_rate": 0.75,
+        "merged_participants": 3072,
+        "independent_positions": 1024,
+        "merged_groups": 192,
+        "tokens": 1216,
+        "window_m": [
+          2.0,
+          2.0
+        ],
+        "group_size_min": 16,
+        "group_size_max": 16,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 1.21,
+        "visible_positions": 4096,
+        "target_rate": 0.6568586219503006,
+        "actual_rate": 0.65673828125,
+        "merged_participants": 2690,
+        "independent_positions": 1406,
+        "merged_groups": 319,
+        "tokens": 1725,
+        "window_m": [
+          3.526243342837972,
+          3.526243342837972
+        ],
+        "group_size_min": 4,
+        "group_size_max": 9,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 10.0,
+        "visible_positions": 1024,
+        "target_rate": 0.2,
+        "actual_rate": 0.19921875,
+        "merged_participants": 204,
+        "independent_positions": 820,
+        "merged_groups": 89,
+        "tokens": 909,
+        "window_m": [
+          12.5,
+          12.5
+        ],
+        "group_size_min": 2,
+        "group_size_max": 4,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 20.0,
+        "visible_positions": 1024,
+        "target_rate": 0.1,
+        "actual_rate": 0.099609375,
+        "merged_participants": 102,
+        "independent_positions": 922,
+        "merged_groups": 47,
+        "tokens": 969,
+        "window_m": [
+          22.22222222222222,
+          22.22222222222222
+        ],
+        "group_size_min": 2,
+        "group_size_max": 4,
+        "deterministic": true
+      },
+      {
+        "gsd_m": 30.0,
+        "visible_positions": 1024,
+        "target_rate": 0.06408431642857908,
+        "actual_rate": 0.064453125,
+        "merged_participants": 66,
+        "independent_positions": 958,
+        "merged_groups": 31,
+        "tokens": 989,
+        "window_m": [
+          32.05416954390706,
+          32.05416954390706
+        ],
+        "group_size_min": 2,
+        "group_size_max": 4,
+        "deterministic": true
+      }
+    ],
+    "p_invariance": {
+      "geometry_cells_equal": true,
+      "centers_equal": true,
+      "bounds_equal": true,
+      "physical_patch_metadata_60": 60.0,
+      "physical_patch_metadata_120": 120.0,
+      "merge_recipe_equal": true
+    },
+    "hidden_isolation": {
+      "tokens_equal": true,
+      "group_ids_equal": true,
+      "hidden_positions": 196,
+      "finite_visible_tokens": true
+    }
+  },
+  "tolerance": {
+    "scope": "FP32_single_GPU_native_cell_readout_preflight_only",
+    "status": "USER_CONFIRMED_PREFLIGHT_TOLERANCES",
+    "limits": {
+      "prediction_max_absolute": 2e-06,
+      "per_band_nmse_max_absolute": 1e-05,
+      "per_task_loss_max_absolute": 1e-06,
+      "gradient_relative_l2": 2e-06,
+      "parameter_update_or_resume_max_absolute": 5e-07,
+      "optimizer_state_relative_l2": 2e-06
+    },
+    "not_covered": [
+      "BF16",
+      "compile",
+      "DDP",
+      "independent_multi_GPU_routes",
+      "microbatch_2_4_8",
+      "JEPA_EMA",
+      "peak_LR_updates"
+    ],
+    "conclusion": "Only prior preflight FP32 limits are confirmed; no BF16/DDP/formal/microbatch/JEPA-EMA tolerance extension."
+  },
+  "real_no_update": {
+    "schema": "encoder_v3_real_ab1_no_update_diagnostic_v1",
+    "status": "REAL_FORWARD_BACKWARD_NO_OPTIMIZER_UPDATE",
+    "release_identities": {
+      "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+      "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+      "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+      "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+    },
+    "logical_update": 0,
+    "patch_m": 60.0,
+    "observations": [
+      "obs_0002e58c12d2c4a9e4c91a8c",
+      "obs_00218d14b4b83cc6315ee7d4",
+      "obs_01ef02ab37643eb26fca2ccd",
+      "obs_023656914628c0f7f9d45bb8",
+      "obs_008dbe74c0d7a99de352e5e6",
+      "obs_00cb3b76301992b5ece4a9f8_L8",
+      "obs_00bac1a5957f7b4db0ef1f95",
+      "obs_00fbb39ce16c263504831a11"
+    ],
+    "views": 16,
+    "tokens": null,
+    "optimizer_updates": 0,
+    "weighted_loss": 6.550278958915472,
+    "gradient_norm_before_clip": 1602.137451171875,
+    "gradient_tensors": 87,
+    "nonfinite_gradient_tensors": 0,
+    "parameter_hash_before": {
+      "encoder": "8a527bae4ed39c7b9169baf62028c6f0c5de6eb20a1bd24bef0669c971070cc6",
+      "decoder": "96ae48ccfdd7a4190f022178c12303d5177052b8680c35ddc607649aebb58e42"
+    },
+    "parameter_hash_after": {
+      "encoder": "8a527bae4ed39c7b9169baf62028c6f0c5de6eb20a1bd24bef0669c971070cc6",
+      "decoder": "96ae48ccfdd7a4190f022178c12303d5177052b8680c35ddc607649aebb58e42"
+    },
+    "parameters_unchanged": true,
+    "budget_before": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+    "budget_after": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+    "budget_unchanged": true,
+    "peak_allocated_GiB": 7.017062187194824,
+    "seconds_wall": 72.53277910000179,
+    "device": "NVIDIA GeForce RTX 5090",
+    "checkpoint_created": false,
+    "optimizer_constructed": false,
+    "ema_run": false,
+    "limitations": [
+      "Randomly initialized fixture model; not reconstruction quality",
+      "Single update-0 pilot schedule; not formal training acceptance",
+      "B2 absent; no cross-source gradient"
+    ]
+  },
+  "controlled_update": {
+    "schema": "encoder_v3_controlled_update_incident_v1",
+    "status": "CORRECTED_RUN_WITHIN_PREFLIGHT_TOLERANCE_NOT_FORMAL",
+    "authorization": {
+      "path": "encoder_v3/reports/formal_readiness_audit/approvals/D10_authorization.json",
+      "sha256": "7c017017aa03bb45a4a28e0cbde1ff0b004065dfe004d19a65a18b603c0d9c0c",
+      "authorized_unique_updates": 2,
+      "authorized_resume_checks": 1,
+      "max_wall_seconds": 1200,
+      "max_allocated_GiB": 10,
+      "use_stopped_pilot_budget": false
+    },
+    "observed": {
+      "attempts": 3,
+      "optimizer_steps": 9,
+      "unique_logical_updates": 6,
+      "resume_repeats": 3,
+      "overrun_unique_updates": 4,
+      "overrun_resume_checks": 2,
+      "first_attempt_status": "CONTROLLED_UPDATE_CHECK_FAILED",
+      "first_attempt_seconds": 229.80851390000316,
+      "first_attempt_peak_allocated_GiB": 7.034677982330322,
+      "first_attempt_parameter_hashes_changed": true,
+      "first_attempt_resumed_loss": 5.053266340644938,
+      "first_attempt_loss_difference": 5.033600196981221e-08,
+      "first_attempt_parameters_equal": false,
+      "second_attempt_status": "ABORTED_BEFORE_REPORT",
+      "second_attempt_error": "optimizer state tensors compared across CPU/CUDA after restore",
+      "second_attempt_report": false,
+      "current_checkpoint_sha256": "ccca1f053d66777b2d5da79af11753f4e4a7d6f2f6f63f79f3461dbff25b4ea3",
+      "corrected_status": "CONTROLLED_UPDATE_AND_RESUME_WITHIN_PREFLIGHT_TOLERANCE_NOT_FORMAL",
+      "corrected_seconds": 244.23065179999685,
+      "corrected_peak_allocated_GiB": 7.039299964904785,
+      "corrected_parameter_max_abs": 7.450580596923828e-09,
+      "corrected_optimizer_state_relative_l2": 1.4694954629799982e-09,
+      "corrected_loss_abs_difference": 2.4658084463169416e-08,
+      "corrected_parameters_equal": false,
+      "corrected_loss_equal": false,
+      "current_report_sha256": "d05ba6f11f6321766fdb7b155f5ecac9eaf3e7fba028a1a1187f57d16874c246"
+    },
+    "root_cause": {
+      "confirmed": "restore_checkpoint loaded optimizer moments with torch.load(map_location='cpu') and did not move same-shape tensors back to the parameter device; the controlled comparison then mixed CPU and CUDA state tensors.",
+      "suspected": "even with the device fix, CUDA index_add/atomic reductions may leave sub-1e-6 parameter differences; this is not yet measured on a correctly restored run.",
+      "not_yet_tested": "deterministic-algorithm / serial reference comparison after the device fix"
+    },
+    "repair": {
+      "file": "encoder_v3/training.py",
+      "change": "after optimizer.load_state_dict, move same-shape optimizer state tensors to each parameter's device",
+      "test": "test_formal_runner.test_restore_moves_optimizer_moments_to_parameter_device",
+      "test_result": "PASS on GPU1"
+    },
+    "preservation": {
+      "pilot_budget_before": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+      "pilot_budget_after": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+      "pilot_reserved": 214,
+      "pilot_completed": 214,
+      "remaining_pilot_not_used": 186,
+      "formal_training_started": false,
+      "task_head_training_started": false,
+      "formal_checkpoint_created": false
+    },
+    "evidence": {
+      "first_attempt_report": "encoder_v3/reports/formal_readiness_audit/evidence/controlled_update/report.json",
+      "first_attempt_report_sha256": "528bb4ad7f52603d1ef65599ad4b9dee8dc2f5371edde7765c35960ddfa0b9a4",
+      "first_attempt_checkpoint_sha256": "6a7cfc1a9837aa39e4c323154640f958392b3696242e6a3c38335aa080e3286d",
+      "current_checkpoint_sha256": "ccca1f053d66777b2d5da79af11753f4e4a7d6f2f6f63f79f3461dbff25b4ea3",
+      "log": "encoder_v3/reports/formal_readiness_audit/logs/controlled_update_measured.log",
+      "limitation": "The first-attempt checkpoint was overwritten by the second attempt; the first report's checkpoint hash no longer matches the file on disk. No first-attempt model state remains.",
+      "current_report": "encoder_v3/reports/formal_readiness_audit/evidence/controlled_update/report.json",
+      "current_report_sha256": "d05ba6f11f6321766fdb7b155f5ecac9eaf3e7fba028a1a1187f57d16874c246"
+    },
+    "next_action": "User accepted the overrun under the addendum. The corrected run is within the old FP32 preflight tolerance (parameter max 7.45e-9, optimizer relative L2 1.47e-9, loss 2.47e-8) but is not a formal new-architecture tolerance. execution_equivalence remains BLOCKED for formal training until formal tolerance/approval and data/B2/panel/auth gates are resolved.",
+    "requires_user_decision": true,
+    "blocks_formal_training": true
+  },
+  "equivalence": {
+    "reference_vs_accelerated": "No current real-data reference-vs-accelerated full acceptance; only synthetic CPU/GPU equivalence tests and one real serial no-update run.",
+    "real_microbatch_1": "completed",
+    "real_microbatch_2_4_8": "not rerun in this audit; historical measurements remain engineering diagnostics",
+    "real_update_or_resume": "BLOCKED; no authorization and no formal checkpoint"
+  },
+  "performance": {
+    "real_ab1_seconds": 72.53277910000179,
+    "real_ab1_peak_allocated_GiB": 7.017062187194824,
+    "device": "NVIDIA GeForce RTX 5090",
+    "not_an_end_to_end_training_step": true
+  },
+  "updates": {
+    "optimizer_updates": 0,
+    "parameters_unchanged": true,
+    "budget_unchanged": true,
+    "pilot_total": 214,
+    "remaining_stopped": 186
+  },
+  "status": "ENGINEERING_CPU_GPU_TESTS_PASS_FORMAL_NUMERICAL_ACCEPTANCE_INCOMPLETE",
+  "blockers": [
+    "Controlled real updates are within the old FP32 preflight tolerance only; no formal new-architecture tolerance or formal acceptance",
+    "No formal accelerated-path acceptance",
+    "No formal precision/resource acceptance",
+    "No B2 panel for the B branch of the validation metric"
+  ]
+}

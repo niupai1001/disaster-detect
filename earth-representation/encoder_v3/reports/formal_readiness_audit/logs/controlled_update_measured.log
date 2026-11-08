@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\reports\formal_readiness_audit\tools\controlled_update_check.py", line 220, in <module>
+    main()
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\reports\formal_readiness_audit\tools\controlled_update_check.py", line 181, in main
+    optimizer_relative_l2 = relative_l2_between(optimizer_snapshot, optimizer.state_dict())
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "N:\Users\yzh\Disater\earth-representation\encoder_v3\reports\formal_readiness_audit\tools\controlled_update_check.py", line 91, in relative_l2_between
+    a = torch.cat([tensor.flatten() for tensor in ordered_tensors(left)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but got tensors is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA_cat)

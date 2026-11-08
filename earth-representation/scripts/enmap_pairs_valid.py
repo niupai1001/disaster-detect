@@ -221,10 +221,18 @@ def main(argv=None):
             if budget <= 0:
                 break
             feat = cand[sids[0]][depth[sids[0]]]
-            try:
-                out, info = cut_scene(samples, session, feat, sids, creds, OUT)
-            except Exception as exc:
-                print(f"  {scene_id[:22]}: failed {type(exc).__name__}: {str(exc)[:60]}", flush=True)
+            out, info = None, None
+            for attempt in range(2):
+                try:
+                    out, info = cut_scene(samples, session, feat, sids, creds, OUT)
+                    break
+                except Exception as exc:
+                    print(f"  {scene_id[:22]}: attempt {attempt+1} failed "
+                          f"{type(exc).__name__}: {str(exc)[:60]}", flush=True)
+                    time.sleep(10 * (attempt + 1))
+                    session = requests.Session()
+                    session.trust_env = False
+            if out is None:
                 for sid in sids:
                     depth[sid] += 1
                 continue

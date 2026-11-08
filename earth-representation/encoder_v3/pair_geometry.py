@@ -41,6 +41,7 @@ class PairQueryFrame:
     query_offset_xy: tuple
     record_sha256: str
 
+    # tuple repetition -> [dx,dy,dx,dy]; one translation, not a doubled one.
     def boxes(self,boxes):return boxes+boxes.new_tensor(self.query_offset_xy*2)
 
 

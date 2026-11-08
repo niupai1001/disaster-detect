@@ -1,0 +1,71 @@
+{
+  "schema": "encoder_v3_formal_readiness_runtime_audit_v1",
+  "generated_at": "2026-11-08T05:41:44.988943+00:00",
+  "baseline": {
+    "branch": "audit/formal-readiness-269a1e0",
+    "head": "269a1e04c8a30510176da01231ce43c3d125bce7",
+    "python": {
+      "executable": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Scripts\\python.exe",
+      "version": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "packages": {
+        "numpy": "2.5.2",
+        "torch": "2.11.0+cu128",
+        "rasterio": "1.5.2",
+        "shapely": "2.2.0",
+        "scipy": "1.18.1",
+        "pandas": null,
+        "pyproj": "3.8.0"
+      },
+      "torch_cuda_build": "12.8",
+      "cuda_available_without_context": true
+    },
+    "gpu": {
+      "args": [
+        "nvidia-smi",
+        "--query-gpu=index,name,driver_version,memory.total,memory.used,utilization.gpu",
+        "--format=csv"
+      ],
+      "returncode": 0,
+      "stdout": "index, name, driver_version, memory.total [MiB], memory.used [MiB], utilization.gpu [%]\n0, NVIDIA GeForce RTX 5090, 621.14, 32607 MiB, 5294 MiB, 72 %\n1, NVIDIA GeForce RTX 5090, 621.14, 32607 MiB, 61 MiB, 0 %\n",
+      "stderr": ""
+    }
+  },
+  "isolated_probe": {
+    "schema": "encoder_v3_formal_readiness_runtime_probe_v1",
+    "generated_at": "2026-11-07T16:22:08.635592+00:00",
+    "python": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Scripts\\python.exe",
+    "visible_devices": "1",
+    "probe": {
+      "returncode": 0,
+      "stdout": "{\"device_count\": 1, \"name\": \"NVIDIA GeForce RTX 5090\", \"ok\": true}\n",
+      "stderr": "",
+      "timed_out": false
+    },
+    "nvidia_smi": {
+      "returncode": 0,
+      "stdout": "index, name, driver_version, memory.total [MiB], memory.used [MiB], utilization.gpu [%]\n0, NVIDIA GeForce RTX 5090, 621.14, 32607 MiB, 1049 MiB, 2 %\n1, NVIDIA GeForce RTX 5090, 621.14, 32607 MiB, 429 MiB, 0 %\n",
+      "stderr": ""
+    },
+    "status": "CUDA_RUNTIME_OK",
+    "notes": [
+      "Child process only; no global driver/environment change.",
+      "Prior native access-violation reports remain historical evidence."
+    ]
+  },
+  "historical_incidents": {
+    "cuda_runtime_failure": {
+      "status": "CUDA_DRIVER_INITIALIZATION_ACCESS_VIOLATION",
+      "exit_code": null
+    },
+    "pair_quality_runtime": {
+      "status": "ISOLATED_RUNTIME_DIAGNOSTICS"
+    }
+  },
+  "current_status": "CUDA_RUNTIME_OK",
+  "conclusion": "CUDA tensor probe passed on GPU1 in an isolated child process; the prior native access-violation reports are retained but did not reproduce in this run. No driver, global environment or other process was changed.",
+  "limitations": [
+    "One probe and one suite run do not prove long-run stability",
+    "GPU0/GPU1 state can change; device mapping is per-process"
+  ]
+}

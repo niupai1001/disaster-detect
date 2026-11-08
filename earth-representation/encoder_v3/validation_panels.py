@@ -13,6 +13,7 @@ from .route_control import frozen_identity,_sha
 from .route_step import update_signature
 from .tasks import spatial_task,fixed_spectral_task
 from .adaptive_streaming import stream_adaptive_task
+from .validation_metric import aggregate_validation,ValidationUnavailable
 
 
 class FrozenValidationPanels:
@@ -89,9 +90,14 @@ class FrozenValidationPanels:
             encoder.eval();decoder.eval()
             with torch.no_grad():
                 for label,view in self.iter_views(cell_indexed=cell_indexed,retain_layouts=retain_layouts):
-                    signature=update_signature([view]);moved=move_views([view],device)[0];result=stream_adaptive_task(encoder,decoder,moved.task,moved.plan,train_stds=moved.train_stds,chunk_pixels=self.chunk,loss_weight=1.,backward=False,precision='fp32');rows.append(dict(panel_id=label,observation=view.task.metadata['id'],kind=view.task.kind,source=view.loss_source,exposure_signature=signature,result=result))
+                    signature=update_signature([view]);moved=move_views([view],device)[0];result=stream_adaptive_task(encoder,decoder,moved.task,moved.plan,train_stds=moved.train_stds,chunk_pixels=self.chunk,loss_weight=1.,backward=False,precision='fp32');rows.append(dict(panel_id=label,observation=view.task.metadata['id'],kind=view.task.kind,source=view.loss_source,P_m=view.plan.physical_patch_m if view.plan is not None else None,hidden_count=len(view.task.metadata.get('hidden_band_ids') or []) if view.task.kind=='B1' else None,band_count=len(self._rows[view.task.metadata['id']]['bands']),exposure_signature=signature,result=result))
             if device.type=='cuda':torch.cuda.synchronize(device)
-            return dict(status='FIXED_PANEL_RESULTS_COLLECTED',panel_sha256=self.identity,rows=rows,seconds_wall=time.perf_counter()-start,metric=None,metric_status='REQUIRES_REVIEWED_AGGREGATION',optimizer_updates=0)
+            cases=[dict(case_id=row['panel_id'],kind=row['kind'],source=row['source'],observation=row['observation'],loss=row['result'].get('loss'),status=row['result'].get('status','OK'),hidden_count=row['hidden_count'],band_count=row['band_count'],P_m=row['P_m']) for row in rows]
+            try:
+                metric=aggregate_validation(cases);metric_status=metric['status']
+            except ValidationUnavailable as exc:
+                metric=None;metric_status=str(exc)
+            return dict(status='FIXED_PANEL_RESULTS_COLLECTED',panel_sha256=self.identity,rows=rows,seconds_wall=time.perf_counter()-start,metric=metric,metric_status=metric_status,optimizer_updates=0)
         finally:
             for i,m in parts.items():m.training=flags[i]
             random.setstate(python);np.random.set_state(numpy);torch.set_rng_state(cpu)

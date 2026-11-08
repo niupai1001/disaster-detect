@@ -1,0 +1,284 @@
+{
+  "schema": "encoder_v3_formal_readiness_gate_matrix_v1",
+  "generated_at": "2026-11-08T05:41:12.938784+00:00",
+  "code": {
+    "branch": "audit/formal-readiness-269a1e0",
+    "head": "269a1e04c8a30510176da01231ce43c3d125bce7",
+    "config_sha256": "ee3137b36d334a2c973f88abaf681e977be7f12e4e348582c0b104b28e5d5184",
+    "config_payload_sha256": "ea719cee3743d0207dda370e337b8d84fa20d4741af97a72f1894f738e008f53",
+    "adaptive_config_sha256": "dceeb57e3abd900aa3a73fa0bf0f9fc442b4854d163ebf57440220ec9524b292"
+  },
+  "admission_review_reported": {
+    "satisfied": 1,
+    "partial": 6,
+    "not_satisfied": 7
+  },
+  "admission_review_recomputed": {
+    "SATISFIED": 1,
+    "PARTIAL_PREFLIGHT": 5,
+    "NOT_SATISFIED": 8
+  },
+  "summary": {
+    "gate_count": 14,
+    "research_satisfied": 1,
+    "partial": 5,
+    "not_satisfied": 8,
+    "structured_approved": 4,
+    "formal_training_authorized": null,
+    "task_head_authorized": false
+  },
+  "gates": [
+    {
+      "gate": "early_stop",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "reports/pilot_runs/pilot_stop_decision.json",
+      "note": "No formal early-stop rule; only the stopped pilot record exists.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "execution_equivalence",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "reports/formal_readiness_audit/08_execution_audit.json; reports/formal_readiness_audit/evidence/controlled_update/incident.json",
+      "note": "Corrected D10 (2 unique updates + 1 resume) is within old FP32 preflight bounds, but formal new-architecture tolerance/approval is absent; earlier overrun remains documented.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "formal_training_authorization",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "config.json",
+      "note": "Must be explicitly issued by the user; it is not.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "frozen_data_manifest",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "reports/native_cache_audit.json; reports/cross_role_split_audit.json; reports/discovery_coverage_current.json",
+      "note": "No approved formal manifest; release has 7,395 TRAIN/383 VAL, no TEST/GUARD; QA policy for all members not approved.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "hypernetwork_hidden_structure",
+      "configured_value": {
+        "gate_id": "hypernetwork_hidden_structure",
+        "status": "APPROVED",
+        "scope": "formal_training",
+        "approval_reference": "encoder_v3\\reports\\formal_readiness_audit\\approvals\\D4_D6_formal_freeze.json",
+        "source_sha256": "8fbd2b8141c49fa526604090be6b2c24553a13d67f08f4c4c4b8523d53b0cee6",
+        "data_sha256": null,
+        "config_sha256": "ea719cee3743d0207dda370e337b8d84fa20d4741af97a72f1894f738e008f53",
+        "tests": [
+          "encoder_v3/reports/formal_readiness_audit/evidence/full_suite_gpu.json"
+        ],
+        "reviewer": "user",
+        "approved_at": "2026-11-08T00:05:44-05:00"
+      },
+      "research_verdict": "PARTIAL_PREFLIGHT",
+      "structured_gate_status": "APPROVED",
+      "evidence": "reports/hypernetwork_preflight_review.json",
+      "note": "34->64->320/GELU/log-GSD frozen for preflight only.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "improvement_threshold",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "none",
+      "note": "No approved numeric improvement threshold.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "mask_rectangle_distribution",
+      "configured_value": {
+        "gate_id": "mask_rectangle_distribution",
+        "status": "APPROVED",
+        "scope": "formal_training",
+        "approval_reference": "encoder_v3\\reports\\formal_readiness_audit\\approvals\\D4_D6_formal_freeze.json",
+        "source_sha256": "8fbd2b8141c49fa526604090be6b2c24553a13d67f08f4c4c4b8523d53b0cee6",
+        "data_sha256": null,
+        "config_sha256": "ea719cee3743d0207dda370e337b8d84fa20d4741af97a72f1894f738e008f53",
+        "tests": [
+          "encoder_v3/reports/formal_readiness_audit/evidence/full_suite_gpu.json"
+        ],
+        "reviewer": "user",
+        "approved_at": "2026-11-08T00:05:44-05:00"
+      },
+      "research_verdict": "PARTIAL_PREFLIGHT",
+      "structured_gate_status": "APPROVED",
+      "evidence": "reports/spatial_mask_preflight_review.json",
+      "note": "Mask rule is preflight-only; rectangle-vs-Merge-unit semantics and P relation unresolved.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "merge_configuration",
+      "configured_value": {
+        "gate_id": "merge_configuration",
+        "status": "APPROVED",
+        "scope": "formal_training",
+        "approval_reference": "encoder_v3\\reports\\formal_readiness_audit\\approvals\\D4_D6_formal_freeze.json",
+        "source_sha256": "8fbd2b8141c49fa526604090be6b2c24553a13d67f08f4c4c4b8523d53b0cee6",
+        "data_sha256": null,
+        "config_sha256": "ea719cee3743d0207dda370e337b8d84fa20d4741af97a72f1894f738e008f53",
+        "tests": [
+          "encoder_v3/reports/formal_readiness_audit/evidence/full_suite_gpu.json"
+        ],
+        "reviewer": "user",
+        "approved_at": "2026-11-08T00:05:44-05:00"
+      },
+      "research_verdict": "PARTIAL_PREFLIGHT",
+      "structured_gate_status": "APPROVED",
+      "evidence": "reports/merge_B_confirmation.json; reports/merge_levels_confirmation.json; reports/merge_rate_confirmation.json",
+      "note": "Single-round B and native/merged scales confirmed; GSD->r curve is preflight-only and the P/mask relation is unresolved.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "optimizer_choice",
+      "configured_value": {
+        "gate_id": "optimizer_choice",
+        "status": "APPROVED",
+        "scope": "formal_training",
+        "approval_reference": "encoder_v3\\reports\\formal_readiness_audit\\approvals\\D4_D6_formal_freeze.json",
+        "source_sha256": "8fbd2b8141c49fa526604090be6b2c24553a13d67f08f4c4c4b8523d53b0cee6",
+        "data_sha256": null,
+        "config_sha256": "ea719cee3743d0207dda370e337b8d84fa20d4741af97a72f1894f738e008f53",
+        "tests": [
+          "encoder_v3/reports/formal_readiness_audit/evidence/full_suite_gpu.json"
+        ],
+        "reviewer": "user",
+        "approved_at": "2026-11-08T00:05:44-05:00"
+      },
+      "research_verdict": "SATISFIED",
+      "structured_gate_status": "APPROVED",
+      "evidence": "reports/pilot_runs/pilot_stop_decision.json",
+      "note": "AdamW selected; pilot stop decision records the user instruction.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "pair_admission",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "reports/pair_admission_evidence.json; reports/pair_spatial_holdout_disjoint.json",
+      "note": "Admitted B2 pairs are zero; offsets, calibration isolation, registration/change thresholds are unapproved.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "precision_acceptance",
+      "configured_value": null,
+      "research_verdict": "PARTIAL_PREFLIGHT",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "reports/fp32_equivalence_tolerance_review.json",
+      "note": "Only the prior FP32 single-GPU preflight limits are approved; new Participation path not accepted.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "resource_limit",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "none",
+      "note": "No formal update/time/memory/storage cap or failure budget.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "stability_window",
+      "configured_value": null,
+      "research_verdict": "NOT_SATISFIED",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "none",
+      "note": "No approved stability window or validation-uncertainty rule.",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "validation_panel",
+      "configured_value": null,
+      "research_verdict": "PARTIAL_PREFLIGHT",
+      "structured_gate_status": "NOT_APPROVED",
+      "evidence": "reports/validation_metric_confirmation.json; reports/formal_readiness_audit/04_task_audit.json",
+      "note": "Metric confirmed and now implemented; formal panels/support set are not frozen; B2 absent and B1 multi counts incomplete.",
+      "blocks_formal_training": true
+    }
+  ],
+  "adaptive_gates": [
+    {
+      "gate": "adaptive_gpu_efficiency_acceptance",
+      "configured_value": null,
+      "status": "NOT_APPROVED_OR_PREFLIGHT_ONLY",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "participation_curve_and_anisotropic_rule",
+      "configured_value": {
+        "preflight_review": "reports/merge_rate_confirmation.json",
+        "formal_configuration_adoption": null
+      },
+      "status": "NOT_APPROVED_OR_PREFLIGHT_ONLY",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "physical_patch_role_and_mask_review",
+      "configured_value": null,
+      "status": "NOT_APPROVED_OR_PREFLIGHT_ONLY",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "spatial_hierarchy_review",
+      "configured_value": "reports/merge_levels_confirmation.json",
+      "status": "NOT_APPROVED_OR_PREFLIGHT_ONLY",
+      "blocks_formal_training": true
+    }
+  ],
+  "jepa_gates": [
+    {
+      "gate": "AB_stability_evidence",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "admitted_cross_source_pairs",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "joint_effective_batch_integration",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "latent_loss_and_normalization",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true
+    },
+    {
+      "gate": "query_projection_review",
+      "configured_value": null,
+      "status": "NOT_APPROVED",
+      "blocks_formal_training": true
+    }
+  ],
+  "structured_gate_check": "NOT_APPROVED: Training blocked: early_stop, execution_equivalence, formal_training_authorization, frozen_data_manifest, improvement_threshold, pair_admission, precision_acceptance, resource_limit, stability_window, validation_panel",
+  "formal_step_present": false,
+  "verdict": "NOT_READY",
+  "blockers": [
+    "No formal data manifest or full-release QA approval",
+    "B2 admitted pairs = 0",
+    "Architecture/Merge/mask are formally approved; formal validation panel is not frozen",
+    "No approved improvement/stability thresholds or formal resource policy",
+    "Corrected D10 is within old FP32 preflight tolerance only; formal equivalence remains unapproved",
+    "JEPA five conditions unapproved",
+    "No formal training authorization",
+    "Single-route runner and candidate schedule/panel builders exist; automatic two-route/JEPA orchestration remains missing"
+  ]
+}

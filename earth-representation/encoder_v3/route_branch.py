@@ -2,7 +2,7 @@
 import random
 import numpy as np
 import torch
-from .gates import require_training
+from .gates import require_jepa,require_training
 from .participation_encoder import ParticipationEncoder
 from .pilot_protocol import optimizer_groups
 from .route_control import checkpoint_sha,frozen_identity,inspect_route_checkpoint,restore_route_checkpoint,_sha,_check_modules
@@ -23,8 +23,7 @@ def initialize_route_branch(*,config,prefix_checkpoint,frozen_ids,phase,encoder_
     if not isinstance(settings,dict):raise ValueError('Frozen formal_step configuration required')
     latent=phase=='A+B+JEPA'
     if latent:
-        checks=config.get('required_before_jepa',{});names={'latent_loss_and_normalization','admitted_cross_source_pairs','AB_stability_evidence','joint_effective_batch_integration','query_projection_review'}
-        if not names<=checks.keys() or any(checks[k] is None or checks[k] is False or checks[k]=='' for k in names):raise ValueError('JEPA reviews incomplete')
+        require_jepa(config)
         if not callable(predictor_factory):raise ValueError('Explicit reviewed Predictor factory required')
         _sha(next_AB_input_signature);_sha(next_input_signature)
     elif predictor_factory is not None or next_AB_input_signature is not None or next_input_signature is not None:
@@ -44,7 +43,7 @@ def initialize_route_branch(*,config,prefix_checkpoint,frozen_ids,phase,encoder_
     if checkpoint_sha(prefix_checkpoint)!=digest:raise ValueError('Prefix changed during branch initialization')
     devices={p.device for m in modules.values() for p in m.parameters()}
     if len(devices)!=1:raise ValueError('Explicit single-device branch placement required')
-    if scheduler.last_update!=progress.logical_update-1 or scheduler.last_validation!=(progress.logical_update//250)*250:raise ValueError('Prefix scheduler is incomplete')
+    if scheduler.last_update!=progress.logical_update-1 or scheduler.last_validation!=(progress.logical_update//scheduler.validation_interval)*scheduler.validation_interval:raise ValueError('Prefix scheduler is incomplete')
     # Adding new modules must not consume the next A/B training random stream.
     try:
         for module in modules.values():module.train()

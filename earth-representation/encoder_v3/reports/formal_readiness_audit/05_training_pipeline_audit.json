@@ -1,0 +1,246 @@
+{
+  "schema": "encoder_v3_formal_readiness_pipeline_audit_v1",
+  "generated_at": "2026-11-08T05:41:07.453584+00:00",
+  "source_hashes": {
+    "route_step.py": "92778c767d07089d60af26c781ec60fece5c1810c0dbad2f8a62bd861b2c73c7",
+    "route_control.py": "775007bc4c9be0ddfc8af22b6258bd46b747e98d8bcf9fea6b82671ebb471ecb",
+    "route_branch.py": "90c1761d0e7522bb33b8c8885ec91cd28da70143a7d2366c2b295f539dd853f9",
+    "training.py": "d95cea31644bfec54383cbdd8f716d3db29c949ab4e6ff2fe332332143e34456",
+    "scheduled_data.py": "885a253611574489127198047060e387874f196f0293481765dce80b4df5202d",
+    "validation_panels.py": "e761edb4b0d356c5eac612dc0cbb83edbe51938eda9b2231e35c1deb6c14931f",
+    "validation_metric.py": "70aed36ac25f4827efde7e0f85bc9d805eaf85b3170219f6949ae864fc421391"
+  },
+  "runner": {
+    "formal_runner_module": true,
+    "execute_route_update_callers": [
+      {
+        "file": "formal_runner.py",
+        "line": 69,
+        "match": "execute_route_update("
+      },
+      {
+        "file": "route_step.py",
+        "line": 81,
+        "match": "execute_route_update("
+      }
+    ],
+    "initialize_route_branch_callers": [
+      {
+        "file": "route_branch.py",
+        "line": 18,
+        "match": "initialize_route_branch("
+      }
+    ],
+    "frozen_schedule_loader_callers": [],
+    "frozen_panel_loader_callers": [],
+    "implemented": "formal_runner.run_route composes schedule.prepare -> move_views -> execute_route_update -> next input signature; it enforces explicit max_updates/max_wall_seconds and stops without replay.",
+    "still_missing": "No automatic shared-prefix-to-two-route orchestration, no JEPA runner path, and no approved formal schedule/panel bound to a frozen manifest; loader-compatible candidate schedule/panel builders exist.",
+    "conclusion": "Single-route production control loop and candidate schedule/panel builders exist and are tested with synthetic/injected inputs; real formal integration remains blocked by data/schedule/panel/authorization decisions."
+  },
+  "schedule": {
+    "pilot_status": "CANDIDATE_REQUIRES_USER_REVIEW",
+    "pilot_scope": "400-update optimizer preflight only; not formal membership",
+    "pilot_updates": 200,
+    "pilot_members": 8,
+    "formal_schedule_sha_in_config": null,
+    "formal_schedule_builder": "formal_schedule.build_formal_candidate_schedule produces a loader-compatible candidate from explicit 8 members, P sequence and reviewed mask rule; formal_panels.build_validation_panel_document does the same for explicit validation cases; neither is an approved formal set."
+  },
+  "scheduler": {
+    "route_schedule_explicit": true,
+    "route_step_requires": {
+      "precision": "fp32",
+      "chunk_pixels": "int",
+      "microbatch_observations": "1/2/4/8",
+      "clip_norm": "positive",
+      "peak_lr": "explicit",
+      "plateau_threshold": "explicit",
+      "weight_decay": "explicit",
+      "betas": "explicit",
+      "eps": "explicit",
+      "ema_coefficient": "explicit"
+    },
+    "route_schedule_controls": {
+      "warmup_updates": "explicit 100 default",
+      "validation_interval": "explicit 250 default",
+      "max_updates": "explicit 10000 default",
+      "plateau_patience": 4,
+      "lr_factor": 0.5,
+      "min_lr": 1e-05
+    },
+    "formal_step_present": false,
+    "improvement_threshold": null,
+    "stability_window": null,
+    "early_stop": null,
+    "resource_limit": null,
+    "conclusion": "Warmup/validation/update limits and a finite-metric early-stop hook are explicit constructor/runner parameters; their values, the stability window and the formal resource policy remain unfrozen."
+  },
+  "validation": {
+    "metric_implemented": true,
+    "panel_loader": "FrozenValidationPanels requires formal_config_sha256, panel sha256 and exact VAL release; formal_panels.build_validation_panel_document builds a candidate document from explicit cases but no formal panel is frozen.",
+    "b2_available": false,
+    "formal_scalar_status": "B2_UNAVAILABLE unless an admitted B2 panel exists; strict B1 multi-count coverage required."
+  },
+  "checkpoint": {
+    "save_fields": [
+      "modules",
+      "optimizer",
+      "scheduler",
+      "logical_update",
+      "sampler",
+      "frozen_ids",
+      "rng"
+    ],
+    "route_metadata": [
+      "_route_progress",
+      "_route_optimizer_names",
+      "_route_last_metrics"
+    ],
+    "atomic_write": "temp + fsync + os.replace; exclusive lock",
+    "synthetic_tests": "route/control/branch/transaction/runner and schedule/panel-builder tests pass; current full suite is 222 tests on GPU1 with zero skips",
+    "real_update_resume": "Corrected D10 run (2 unique updates + 1 resume) is within the old FP32 preflight tolerance; not a formal new-architecture acceptance. Earlier overrun/attempts remain documented in evidence/controlled_update/incident.json."
+  },
+  "routes": {
+    "shared_prefix_requirement": "RouteProgress.fork requires a certified shared checkpoint at >=2000 updates",
+    "two_route_tests": "synthetic branch tests preserve Encoder/Decoder/optimizer/scheduler/RNG and prevent A/B stream changes",
+    "real_prefix": "No approved shared-prefix checkpoint exists",
+    "jepa": "five required_before_jepa entries are null; JEPA branch must remain disabled"
+  },
+  "execution": {
+    "real_no_update": {
+      "schema": "encoder_v3_real_ab1_no_update_diagnostic_v1",
+      "status": "REAL_FORWARD_BACKWARD_NO_OPTIMIZER_UPDATE",
+      "release_identities": {
+        "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+        "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+        "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+        "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+      },
+      "logical_update": 0,
+      "patch_m": 60.0,
+      "observations": [
+        "obs_0002e58c12d2c4a9e4c91a8c",
+        "obs_00218d14b4b83cc6315ee7d4",
+        "obs_01ef02ab37643eb26fca2ccd",
+        "obs_023656914628c0f7f9d45bb8",
+        "obs_008dbe74c0d7a99de352e5e6",
+        "obs_00cb3b76301992b5ece4a9f8_L8",
+        "obs_00bac1a5957f7b4db0ef1f95",
+        "obs_00fbb39ce16c263504831a11"
+      ],
+      "views": 16,
+      "tokens": null,
+      "optimizer_updates": 0,
+      "weighted_loss": 6.550278958915472,
+      "gradient_norm_before_clip": 1602.137451171875,
+      "gradient_tensors": 87,
+      "nonfinite_gradient_tensors": 0,
+      "parameter_hash_before": {
+        "encoder": "8a527bae4ed39c7b9169baf62028c6f0c5de6eb20a1bd24bef0669c971070cc6",
+        "decoder": "96ae48ccfdd7a4190f022178c12303d5177052b8680c35ddc607649aebb58e42"
+      },
+      "parameter_hash_after": {
+        "encoder": "8a527bae4ed39c7b9169baf62028c6f0c5de6eb20a1bd24bef0669c971070cc6",
+        "decoder": "96ae48ccfdd7a4190f022178c12303d5177052b8680c35ddc607649aebb58e42"
+      },
+      "parameters_unchanged": true,
+      "budget_before": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+      "budget_after": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+      "budget_unchanged": true,
+      "peak_allocated_GiB": 7.017062187194824,
+      "seconds_wall": 72.53277910000179,
+      "device": "NVIDIA GeForce RTX 5090",
+      "checkpoint_created": false,
+      "optimizer_constructed": false,
+      "ema_run": false,
+      "limitations": [
+        "Randomly initialized fixture model; not reconstruction quality",
+        "Single update-0 pilot schedule; not formal training acceptance",
+        "B2 absent; no cross-source gradient"
+      ]
+    },
+    "controlled_update": {
+      "schema": "encoder_v3_controlled_update_incident_v1",
+      "status": "CORRECTED_RUN_WITHIN_PREFLIGHT_TOLERANCE_NOT_FORMAL",
+      "authorization": {
+        "path": "encoder_v3/reports/formal_readiness_audit/approvals/D10_authorization.json",
+        "sha256": "7c017017aa03bb45a4a28e0cbde1ff0b004065dfe004d19a65a18b603c0d9c0c",
+        "authorized_unique_updates": 2,
+        "authorized_resume_checks": 1,
+        "max_wall_seconds": 1200,
+        "max_allocated_GiB": 10,
+        "use_stopped_pilot_budget": false
+      },
+      "observed": {
+        "attempts": 3,
+        "optimizer_steps": 9,
+        "unique_logical_updates": 6,
+        "resume_repeats": 3,
+        "overrun_unique_updates": 4,
+        "overrun_resume_checks": 2,
+        "first_attempt_status": "CONTROLLED_UPDATE_CHECK_FAILED",
+        "first_attempt_seconds": 229.80851390000316,
+        "first_attempt_peak_allocated_GiB": 7.034677982330322,
+        "first_attempt_parameter_hashes_changed": true,
+        "first_attempt_resumed_loss": 5.053266340644938,
+        "first_attempt_loss_difference": 5.033600196981221e-08,
+        "first_attempt_parameters_equal": false,
+        "second_attempt_status": "ABORTED_BEFORE_REPORT",
+        "second_attempt_error": "optimizer state tensors compared across CPU/CUDA after restore",
+        "second_attempt_report": false,
+        "current_checkpoint_sha256": "ccca1f053d66777b2d5da79af11753f4e4a7d6f2f6f63f79f3461dbff25b4ea3",
+        "corrected_status": "CONTROLLED_UPDATE_AND_RESUME_WITHIN_PREFLIGHT_TOLERANCE_NOT_FORMAL",
+        "corrected_seconds": 244.23065179999685,
+        "corrected_peak_allocated_GiB": 7.039299964904785,
+        "corrected_parameter_max_abs": 7.450580596923828e-09,
+        "corrected_optimizer_state_relative_l2": 1.4694954629799982e-09,
+        "corrected_loss_abs_difference": 2.4658084463169416e-08,
+        "corrected_parameters_equal": false,
+        "corrected_loss_equal": false,
+        "current_report_sha256": "d05ba6f11f6321766fdb7b155f5ecac9eaf3e7fba028a1a1187f57d16874c246"
+      },
+      "root_cause": {
+        "confirmed": "restore_checkpoint loaded optimizer moments with torch.load(map_location='cpu') and did not move same-shape tensors back to the parameter device; the controlled comparison then mixed CPU and CUDA state tensors.",
+        "suspected": "even with the device fix, CUDA index_add/atomic reductions may leave sub-1e-6 parameter differences; this is not yet measured on a correctly restored run.",
+        "not_yet_tested": "deterministic-algorithm / serial reference comparison after the device fix"
+      },
+      "repair": {
+        "file": "encoder_v3/training.py",
+        "change": "after optimizer.load_state_dict, move same-shape optimizer state tensors to each parameter's device",
+        "test": "test_formal_runner.test_restore_moves_optimizer_moments_to_parameter_device",
+        "test_result": "PASS on GPU1"
+      },
+      "preservation": {
+        "pilot_budget_before": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+        "pilot_budget_after": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+        "pilot_reserved": 214,
+        "pilot_completed": 214,
+        "remaining_pilot_not_used": 186,
+        "formal_training_started": false,
+        "task_head_training_started": false,
+        "formal_checkpoint_created": false
+      },
+      "evidence": {
+        "first_attempt_report": "encoder_v3/reports/formal_readiness_audit/evidence/controlled_update/report.json",
+        "first_attempt_report_sha256": "528bb4ad7f52603d1ef65599ad4b9dee8dc2f5371edde7765c35960ddfa0b9a4",
+        "first_attempt_checkpoint_sha256": "6a7cfc1a9837aa39e4c323154640f958392b3696242e6a3c38335aa080e3286d",
+        "current_checkpoint_sha256": "ccca1f053d66777b2d5da79af11753f4e4a7d6f2f6f63f79f3461dbff25b4ea3",
+        "log": "encoder_v3/reports/formal_readiness_audit/logs/controlled_update_measured.log",
+        "limitation": "The first-attempt checkpoint was overwritten by the second attempt; the first report's checkpoint hash no longer matches the file on disk. No first-attempt model state remains.",
+        "current_report": "encoder_v3/reports/formal_readiness_audit/evidence/controlled_update/report.json",
+        "current_report_sha256": "d05ba6f11f6321766fdb7b155f5ecac9eaf3e7fba028a1a1187f57d16874c246"
+      },
+      "next_action": "User accepted the overrun under the addendum. The corrected run is within the old FP32 preflight tolerance (parameter max 7.45e-9, optimizer relative L2 1.47e-9, loss 2.47e-8) but is not a formal new-architecture tolerance. execution_equivalence remains BLOCKED for formal training until formal tolerance/approval and data/B2/panel/auth gates are resolved.",
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    "runtime": "Isolated CUDA tensor probe passed on GPU1; prior native access-violation reports retained as historical; no driver/global changes made.",
+    "update_budget": "214/214 completed; 186 remaining explicitly stopped and not used."
+  },
+  "blockers": [
+    "No automatic two-route orchestration or JEPA runner path; real integration still needs an approved schedule/panel prefix.",
+    "No approved formal schedule/panel; candidate loader-compatible builders exist but no formal set is frozen.",
+    "Formal improvement/stability thresholds and resource policy are not frozen; early-stop and update/wall limits are explicit runner parameters.",
+    "Corrected D10 run is within old FP32 preflight tolerance only; no formal new-architecture acceptance.",
+    "No approved shared-prefix checkpoint or two-route formal run."
+  ]
+}

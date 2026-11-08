@@ -1,0 +1,17 @@
+{
+  "schema": "encoder_v3_controlled_update_authorization_v1",
+  "authorized_by": "user",
+  "user_answer": "授权 D10 最小验证",
+  "authorized_at": "2026-11-08T00:05:44-05:00",
+  "scope": "controlled_update_and_resume_check_only",
+  "unique_logical_updates": 2,
+  "resume_checks": 1,
+  "max_wall_seconds": 1200,
+  "max_allocated_GiB": 10,
+  "independent_ledger": true,
+  "use_stopped_pilot_budget": false,
+  "formal_training_authorized": false,
+  "task_head_training_authorized": false,
+  "inputs": "pilot_study_candidate.json eight TRAIN members and schedule entries 0 (P60) / 1 (P120); no VAL, no B2, no JEPA",
+  "stop_conditions": ["nonfinite loss or gradient", "native CUDA fault", "parameter/optimizer/RNG mismatch after resume", "budget or schedule identity drift"]
+}

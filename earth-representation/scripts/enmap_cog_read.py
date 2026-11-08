@@ -23,9 +23,9 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0"}
 
 
 class HttpRangeFile(io.RawIOBase):
-    MAX_CHUNK = 4 << 20      # the service drops long single ranges
+    MAX_CHUNK = 1 << 20      # smaller slices survive connection drops
 
-    def __init__(self, url, session, block=1 << 19, min_interval=0.35):
+    def __init__(self, url, session, block=1 << 18, min_interval=1.5):
         self.url = url
         self.session = session
         self.block = block
@@ -85,7 +85,7 @@ class HttpRangeFile(io.RawIOBase):
                 self.requests_made += 1
                 return r.content
             if r.status_code in (429, 500, 502, 503):
-                time.sleep(min(90, 3 * 2 ** attempt))
+                time.sleep(min(120, 5 * 2 ** attempt))
                 continue
             r.raise_for_status()
         raise RuntimeError(f"range request kept failing at {start}+{n}")

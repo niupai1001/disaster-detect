@@ -10,6 +10,7 @@ from .participation_encoder import merge_recipe
 from .route_control import frozen_identity
 from .plan_prefetch import move_views
 from .route_step import update_signature
+from .formal_test_fixtures import populate as populate_approvals
 
 
 class DatasetFixture:
@@ -25,7 +26,7 @@ class DatasetFixture:
 
 class FrozenScheduleChecks(unittest.TestCase):
     def setup_case(self,folder,*,pairs=False,single=False,edit=None):
-        ds=DatasetFixture(single);real=json.loads((Path(__file__).parent/'config.json').read_text());config=dict(required_before_training={k:'SYNTHETIC_ONLY' for k in real['required_before_training']},formal_step={'chunk_pixels':7});config['required_before_training']['formal_training_authorization']=True
+        ds=DatasetFixture(single);real=json.loads((Path(__file__).parent/'config.json').read_text());config=dict(required_before_training={k:None for k in real['required_before_training']},formal_step={'chunk_pixels':7});populate_approvals(config)
         curve=AreaEquivalentHillRate(.8092248954506467,4.010953026221307,1.219268281571556);slots=[dict(source_id=r['id'],origin_xy=[0.,0.],A_rectangle=[0.,0.,10.,20.],B=dict(kind='B1_ABSENT') if single and i==0 else dict(kind='B1',hidden_band_ids=['b0'])) for i,r in enumerate(ds.rows)];admissions={}
         if pairs:
             for i,target in [(0,1),(1,0)]:admissions[str(i)]=dict(source_id=f'fixture{i}',target_id=f'fixture{target}',checks={k:True for k in ['space','registration','time_difference','surface_change','qa','srf','role_isolation']})

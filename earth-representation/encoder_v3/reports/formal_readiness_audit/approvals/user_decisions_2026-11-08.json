@@ -1,0 +1,19 @@
+{
+  "schema": "encoder_v3_user_decision_record_v1",
+  "recorded_at": "2026-11-08T00:05:44-05:00",
+  "baseline_commit": "269a1e04c8a30510176da01231ce43c3d125bce7",
+  "decisions": [
+    {"id": "D1-D3", "answer": "包含 EnMAP（需单独准入）", "scope": "data/QA/statistics", "status": "ENMAP_SEPARATE_ADMISSION_REQUIRED"},
+    {"id": "D4-D6", "answer": "批准推荐冻结包", "scope": "architecture/merge/mask/panel-principle", "status": "USER_APPROVED_PENDING_STRUCTURED_FREEZE"},
+    {"id": "D7-D8", "answer": "B2 只读诊断、JEPA 关闭", "scope": "B2/JEPA", "status": "USER_APPROVED"},
+    {"id": "D9", "answer": "接受候选控制值，其余另定", "scope": "warmup/curriculum/validation/plateau/LR/budget", "status": "USER_APPROVED_CONTROL_VALUES"},
+    {"id": "D10", "answer": "授权 D10 最小验证", "scope": "controlled real update/resume", "status": "EXECUTED_WITH_AUTHORIZATION_OVERRUN"},
+    {"id": "formal_training_authorization", "answer": "保持未授权", "scope": "formal training", "status": "NOT_AUTHORIZED"}
+  ],
+  "unresolved": [
+    "EnMAP data contract and measured/derived SRF status",
+    "exact formal validation panel membership and hash",
+    "improvement_threshold / stability_window / formal resource policy",
+    "fresh authorization for a corrected 2-update controlled run after the overrun"
+  ]
+}

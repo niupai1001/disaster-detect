@@ -1,0 +1,223 @@
+{
+  "schema": "encoder_v3_formal_readiness_task_audit_v1",
+  "generated_at": "2026-11-07T16:26:19.669150+00:00",
+  "A": {
+    "hidden_value_isolation": "PASS: hidden reflectance replaced by NaN leaves tokens/group_ids unchanged",
+    "mask_unit_diagnostic": {
+      "rectangle": [
+        1.0,
+        1.0,
+        5.0,
+        5.0
+      ],
+      "hidden_positions": 64,
+      "target_positions": 64,
+      "visible_positions": 4096,
+      "participation_tokens": 1216,
+      "groups_partially_hidden": 5,
+      "groups_fully_hidden": 21,
+      "groups_fully_visible": 1190,
+      "A_supported_positions": 64,
+      "note": "Rectangle masking cuts through Merge groups; a Merge-support-unit mask would hide whole groups. They are not equivalent at group boundaries."
+    }
+  },
+  "B1": {
+    "status": "B1_PANEL_ALL_CASES_EXECUTED_NOT_MODEL_QUALITY_ACCEPTANCE",
+    "cases": 502,
+    "members": 8,
+    "possible_combinations": 2576,
+    "coverage": 0.19487577639751552,
+    "per_observation": [
+      {
+        "observation": "obs_00a79e0c48ec5e50c5284af8",
+        "bands": 4,
+        "evidence_cases": 14,
+        "possible_combinations": 14,
+        "coverage": 1.0,
+        "hidden_counts": [
+          1,
+          2,
+          3
+        ],
+        "every_band_at_every_count": true
+      },
+      {
+        "observation": "obs_0147deb1bbf2b210e09161c3",
+        "bands": 4,
+        "evidence_cases": 14,
+        "possible_combinations": 14,
+        "coverage": 1.0,
+        "hidden_counts": [
+          1,
+          2,
+          3
+        ],
+        "every_band_at_every_count": true
+      },
+      {
+        "observation": "obs_029d955ec8de6ebe98e72e5f",
+        "bands": 10,
+        "evidence_cases": 125,
+        "possible_combinations": 1022,
+        "coverage": 0.1223091976516634,
+        "hidden_counts": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "every_band_at_every_count": true
+      },
+      {
+        "observation": "obs_07ca0ebc3d6f0867de03c76e",
+        "bands": 10,
+        "evidence_cases": 125,
+        "possible_combinations": 1022,
+        "coverage": 0.1223091976516634,
+        "hidden_counts": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "every_band_at_every_count": true
+      },
+      {
+        "observation": "obs_01d43ebf236ce16c602ccfae",
+        "bands": 7,
+        "evidence_cases": 56,
+        "possible_combinations": 126,
+        "coverage": 0.4444444444444444,
+        "hidden_counts": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "every_band_at_every_count": true
+      },
+      {
+        "observation": "obs_0341756c8995070316b45a78",
+        "bands": 7,
+        "evidence_cases": 56,
+        "possible_combinations": 126,
+        "coverage": 0.4444444444444444,
+        "hidden_counts": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "every_band_at_every_count": true
+      },
+      {
+        "observation": "obs_0c185ba6b3da65608b331184",
+        "bands": 7,
+        "evidence_cases": 56,
+        "possible_combinations": 126,
+        "coverage": 0.4444444444444444,
+        "hidden_counts": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "every_band_at_every_count": true
+      },
+      {
+        "observation": "obs_180fec0c6b6036ea1773d396",
+        "bands": 7,
+        "evidence_cases": 56,
+        "possible_combinations": 126,
+        "coverage": 0.4444444444444444,
+        "hidden_counts": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "every_band_at_every_count": true
+      }
+    ],
+    "per_band_reports": 1796,
+    "supported_pixel_exposures": 14336038,
+    "no_support_cases": 0,
+    "optimizer_updates": 0,
+    "parameters_unchanged": true,
+    "quality_claim": false,
+    "note": "Selected combinations, not exhaustive; random-initialization flow diagnostic only."
+  },
+  "B2": {
+    "status": "B2_EVIDENCE_EXPANDED_NOT_PAIR_ADMISSION",
+    "admitted_pairs": 0,
+    "metadata_catalog_pairs": 349,
+    "unique_members": 315,
+    "pair_thresholds_frozen": false,
+    "raw_QA_policy_frozen": false,
+    "unresolved": [
+      "V3 QA policy and temporal/registration/change-risk acceptance decisions",
+      "Observed roughly 10m offset in two close-time cases; coarse-zero case has 2.5-5m fine-grid peaks; acceptance not decided",
+      "147 full-QA candidates have >7-day gaps; no silent time cutoff adopted",
+      "Other metadata candidates and cross-projection geometry still incomplete",
+      "No admitted B2 dataset or frozen pair manifest produced"
+    ],
+    "spatial_holdout_status": "SPATIAL_HOLDOUT_DIAGNOSTIC_COMPLETE_NOT_ADMISSION",
+    "spatial_holdout_admitted": 0,
+    "correction_applied": false
+  },
+  "decoder": {
+    "shared_module": "stream_adaptive_task passes the same ReflectanceDecoder; QueryFrameDecoder only adapts B2 query boxes",
+    "separate_decoder": false,
+    "b2_target_reflectance_input": false
+  },
+  "losses": {
+    "training_path": "stream_task_roots + joint.layout/adaptive_joint weights; per-band pixel NMSE divided by TRAIN std; family/source weights; one final clip",
+    "diagnostic_helper": "losses.band_loss/hierarchical_loss is a separate diagnostic used by tests, not the joint training path",
+    "verified_tests": [
+      "test_participation_joint.test_joint_gradient_equals_explicit_source_balanced_sum",
+      "test_participation_batch.test_joint_batch_8_source_normalization_and_jepa_isolation",
+      "test_validation_metric.test_hand_computed_hierarchy"
+    ],
+    "unverified": [
+      "inactive A/B task renormalization protocol",
+      "formal B1/B2 task mixture weights",
+      "source-set equality across validation families"
+    ]
+  },
+  "JEPA": {
+    "required_before_jepa": {
+      "latent_loss_and_normalization": null,
+      "admitted_cross_source_pairs": null,
+      "AB_stability_evidence": null,
+      "joint_effective_batch_integration": null,
+      "query_projection_review": null
+    },
+    "configured_conditions": 0,
+    "jepa_module_present": true,
+    "latent_loss_implementation": "cross_source_latent_loss requires an external callable loss_fn; no reviewed default exists",
+    "status": "BLOCKED_BY_FIVE_UNCONFIRMED_CONDITIONS"
+  },
+  "notes": [
+    "The 502-case B1 panel is not the full 2^C-2 combination space.",
+    "B2 remains fail-closed with zero admitted pairs.",
+    "No reviewed JEPA latent loss or five-condition evidence exists."
+  ]
+}

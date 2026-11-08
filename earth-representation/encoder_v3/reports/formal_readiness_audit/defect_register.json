@@ -1,0 +1,538 @@
+{
+  "schema": "encoder_v3_formal_readiness_defect_register_v1",
+  "baseline_commit": "269a1e04c8a30510176da01231ce43c3d125bce7",
+  "branch": "audit/formal-readiness-269a1e0",
+  "generated_at": "2026-11-07T12:30:00-05:00",
+  "defects": [
+    {
+      "id": "V3-AUDIT-001",
+      "severity": "P1",
+      "category": "evidence_reconciliation",
+      "status": "CONFIRMED_REPORT_ONLY",
+      "file": "encoder_v3/reports/admission_review_2026-11-07.json",
+      "problem": "Admission summary says 1/6/7 while the item verdicts are 1 SATISFIED, 5 PARTIAL_PREFLIGHT, 8 NOT_SATISFIED.",
+      "expected": "Summary and item verdicts agree on 1/5/8.",
+      "observed": "reported satisfied=1, partial=6, not_satisfied=7; recomputed 1/5/8.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/01_evidence_reconciliation.json",
+        "encoder_v3/reports/formal_readiness_audit/09_gate_matrix.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/evidence_reconcile.py"
+      ],
+      "repair": "New corrected matrix in the audit directory; historical report not overwritten.",
+      "tests": [],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-002",
+      "severity": "P1",
+      "category": "evidence_staleness",
+      "status": "CONFIRMED_SUPERSEDED",
+      "file": "encoder_v3/reports/engineering_tests.json",
+      "problem": "The report records 59 tests and a gates.py hash that differs from the current HEAD; it cannot support current admission.",
+      "expected": "Evidence bound to current source hashes and current test count.",
+      "observed": "59 tests; gates.py hash mismatch; current suite is 215 tests.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/00_baseline.json",
+        "encoder_v3/reports/formal_readiness_audit/evidence/full_suite_gpu.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/baseline_audit.py"
+      ],
+      "repair": "Replaced for admission by the current 215-test GPU/CPU reports; old report left untouched.",
+      "tests": [
+        "215 tests pass on GPU1",
+        "215 tests pass on CPU with CUDA hidden, 7 CUDA skips separately executed"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-003",
+      "severity": "P0",
+      "category": "fail_closed_gate",
+      "status": "FIXED",
+      "file": "encoder_v3/gates.py",
+      "problem": "Any non-empty string or True could satisfy the training gates; JEPA checks only tested non-emptiness.",
+      "expected": "Structured user approval bound to the substantive config payload, scope, source/data identities and tests.",
+      "observed": "Before fix, string values such as SYNTHETIC_ONLY passed except formal_training_authorization; after fix they are rejected.",
+      "evidence": [
+        "encoder_v3/gates.py",
+        "encoder_v3/formal_test_fixtures.py",
+        "encoder_v3/test_gates_formal.py"
+      ],
+      "reproduction": [
+        "python -m unittest encoder_v3.test_gates_formal"
+      ],
+      "repair": "Structured approval records, config payload hash binding, scope/reviewer/hash/test validation, JEPA and adaptive gates, task-head check.",
+      "tests": [
+        "test_real_configuration_is_rejected",
+        "test_plain_strings_do_not_approve",
+        "test_structured_approval_binds_payload_and_scope",
+        "test_jepa_and_adaptive_gates_are_not_plain_strings",
+        "test_all_requires_task_head_stay_closed"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-004",
+      "severity": "P0",
+      "category": "validation_metric",
+      "status": "FIXED",
+      "file": "encoder_v3/validation_panels.py",
+      "problem": "Confirmed fixed hierarchical validation metric was not implemented; collect() returned metric=None.",
+      "expected": "S=(A+B)/2, B=(B1+B2)/2 with the confirmed per-case hierarchy and explicit unavailable status.",
+      "observed": "metric=None, metric_status='REQUIRES_REVIEWED_AGGREGATION'.",
+      "evidence": [
+        "encoder_v3/validation_metric.py",
+        "encoder_v3/test_validation_metric.py",
+        "encoder_v3/reports/validation_metric_confirmation.json"
+      ],
+      "reproduction": [
+        "python -m unittest encoder_v3.test_validation_metric"
+      ],
+      "repair": "Added aggregate_validation and wired it into FrozenValidationPanels.collect; B2/missing-count/nonfinite cases fail closed.",
+      "tests": [
+        "test_hand_computed_hierarchy",
+        "test_order_independent",
+        "test_duplicate_case_rejected",
+        "test_missing_multi_hidden_count_rejected",
+        "test_missing_b2_keeps_formal_scalar_unavailable",
+        "test_nonfinite_and_source_imbalance"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-005",
+      "severity": "P0",
+      "category": "training_runner",
+      "status": "PARTIAL",
+      "file": "encoder_v3/route_step.py",
+      "problem": "No production loop composes frozen data, schedule, panels, route_step, validation, checkpoint and resume; callers are definitions/tests only.",
+      "expected": "One complete gated runner for the shared prefix and two routes.",
+      "observed": "execute_route_update is a single step; FrozenABSchedule and FrozenValidationPanels have only test callers.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/05_training_pipeline_audit.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/pipeline_audit.py"
+      ],
+      "repair": "formal_runner.run_route now composes schedule.prepare -> move_views -> execute_route_update -> next input signature with explicit update/wall limits; automatic two-route/JEPA orchestration and real integration remain missing.",
+      "tests": [
+        "python -m unittest encoder_v3.test_formal_runner",
+        "219-test full GPU suite"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-006",
+      "severity": "P0",
+      "category": "formal_schedule_panel",
+      "status": "PARTIAL",
+      "file": "encoder_v3/scheduled_data.py / encoder_v3/validation_panels.py",
+      "problem": "No formal 10,000-update schedule builder or formal panel builder; pilot panels use patch_m and lack P/origin/pair schema; B1 multi-hidden counts 2..C-1 are incomplete.",
+      "expected": "Frozen formal schedule/panel identities matching the loaders and the confirmed metric.",
+      "observed": "Pilot schedule has 200 entries; pilot panels 16 cases; 7-band/10-band multi counts only 2; strict metric would be unavailable.",
+      "evidence": [
+        "encoder_v3/reports/pilot_study_candidate.json",
+        "encoder_v3/reports/formal_readiness_audit/04_task_audit.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/task_audit.py"
+      ],
+      "repair": "formal_schedule.build_formal_candidate_schedule and formal_panels.build_validation_panel_document produce loader-compatible candidates from explicit inputs; no approved formal 10,000-update schedule or complete B1/B2 panel set exists.",
+      "tests": [
+        "test_candidate_schedule_builder_is_loader_compatible",
+        "test_candidate_panel_builder_is_loader_compatible"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-007",
+      "severity": "P1",
+      "category": "train_statistics",
+      "status": "EVIDENCE_SUPPORTS_FREEZE_DECISION",
+      "file": "encoder_v3/data.py",
+      "problem": "Normalization still uses engineering_train_stds and the statistics file is labeled NOT_V3_FREEZE.",
+      "expected": "Formally frozen TRAIN-only statistics bound to the release.",
+      "observed": "Recomputed 7,395 TRAIN members match legacy counts and moments (max mean diff 2.5e-16, std 4.7e-16), but no user freeze exists.",
+      "evidence": [
+        "encoder_v3/reports/train_statistics_recomputed.json",
+        "encoder_v3/reports/formal_readiness_audit/03_data_audit.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/data_audit.py"
+      ],
+      "repair": null,
+      "tests": [
+        "43/43 keys present; all std finite and positive"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-008",
+      "severity": "P0",
+      "category": "data_manifest_roles",
+      "status": "FAIL",
+      "file": "encoder_v3/data.py",
+      "problem": "No approved formal data manifest; release has TRAIN/VAL only; TEST/GUARD are absent; full-release QA policy is not approved.",
+      "expected": "Frozen member/role/QA/SRF/statistics manifest with hashes.",
+      "observed": "7,778 members (7,395 TRAIN/383 VAL), zero admitted formal members, access-error/incomplete discovery boundaries remain.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/03_data_audit.json",
+        "encoder_v3/reports/discovery_coverage_current.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/data_audit.py"
+      ],
+      "repair": null,
+      "tests": [
+        "native cache reread 7,778; lineage 7,778; cross-role exact overlap 0"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-009",
+      "severity": "P0",
+      "category": "b2_pair_admission",
+      "status": "BLOCKED_AS_DESIGNED",
+      "file": "encoder_v3/pair_geometry.py",
+      "problem": "B2 admitted pairs are zero; offsets, calibration isolation, registration/change thresholds and processing-version acceptance are unapproved.",
+      "expected": "Fail-closed B2 with zero training exposure.",
+      "observed": "349 metadata candidates, 0 admitted; two short-gap cases show ~10 m offset; thresholds_frozen=false.",
+      "evidence": [
+        "encoder_v3/reports/pair_admission_evidence.json",
+        "encoder_v3/reports/pair_spatial_holdout_disjoint.json"
+      ],
+      "reproduction": [
+        "read-only admission evidence"
+      ],
+      "repair": null,
+      "tests": [
+        "B2 tests remain synthetic and fail closed"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-010",
+      "severity": "P2",
+      "category": "b1_coverage",
+      "status": "CONFIRMED_PARTIAL",
+      "file": "encoder_v3/reports/B1_expanded_evidence.json",
+      "problem": "The 502-combination B1 diagnostic is selected, not exhaustive: 502/2,576 (19.5%) of possible hidden-band combinations.",
+      "expected": "Coverage statement distinguishes selected diagnostics from full combination coverage.",
+      "observed": "4-band cases 14/14 each; 7-band 56/126 each; 10-band 125/1,022 each; zero support cases 0; parameters unchanged.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/04_task_audit.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/task_audit.py"
+      ],
+      "repair": "Coverage quantified in audit report; diagnostic remains flow-only.",
+      "tests": [],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-011",
+      "severity": "P0",
+      "category": "jepa",
+      "status": "BLOCKED_AS_DESIGNED",
+      "file": "encoder_v3/jepa.py",
+      "problem": "Five required_before_jepa entries are null and no reviewed latent loss/normalization exists; JEPA must stay disabled.",
+      "expected": "Independent evidence for all five conditions and a reviewed latent objective.",
+      "observed": "All five null; cross_source_latent_loss accepts an external callable only.",
+      "evidence": [
+        "encoder_v3/config.json",
+        "encoder_v3/reports/formal_readiness_audit/04_task_audit.json"
+      ],
+      "reproduction": [
+        "read config and task audit"
+      ],
+      "repair": null,
+      "tests": [
+        "JEPA synthetic gradient/EMA/isolation tests pass; not a training authorization"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-012",
+      "severity": "P1",
+      "category": "a_adjacency",
+      "status": "FIXED",
+      "file": "encoder_v3/model.py",
+      "problem": "Dense reference Decoder A path used legacy centroid-outside while the indexed V3 path uses represented_boundary_v1.",
+      "expected": "Reference and accelerated A paths use the same effective target set for V3.",
+      "observed": "After fix both use represented_boundary_v1; dense/indexed support and predictions match.",
+      "evidence": [
+        "encoder_v3/model.py",
+        "encoder_v3/test_formal_semantics.py"
+      ],
+      "reproduction": [
+        "python -m unittest encoder_v3.test_formal_semantics"
+      ],
+      "repair": "Dense A reads a_adjacency_rule; legacy remains for old representations.",
+      "tests": [
+        "test_dense_A_uses_represented_boundary_rule"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-013",
+      "severity": "P3",
+      "category": "a_support_planning",
+      "status": "FIXED_EDGE_CASE",
+      "file": "encoder_v3/adaptive_streaming.py",
+      "problem": "When the A adjacency list was empty, planning set supported_count to all target pixels instead of zero.",
+      "expected": "No adjacent visible token means no supported target; let the streaming path report no support.",
+      "observed": "Fixed; empty adjacency sets count=0.",
+      "evidence": [
+        "encoder_v3/adaptive_streaming.py"
+      ],
+      "reproduction": [
+        "code inspection; difficult to reach without adversarial mask/token layout"
+      ],
+      "repair": "count=0 on empty adjacent.",
+      "tests": [
+        "existing A support planning tests pass"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-014",
+      "severity": "P1",
+      "category": "scheduler_control",
+      "status": "PARTIAL",
+      "file": "encoder_v3/route_step.py",
+      "problem": "RouteSchedule hardcodes warmup=100, validation interval=250 and cap=10000; improvement threshold/stability window/early stop/resource limit are absent or unfrozen.",
+      "expected": "Explicit frozen control values, no candidate defaults.",
+      "observed": "No formal_step in config; required gates for improvement/stability/early-stop/resource are null.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/05_training_pipeline_audit.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/pipeline_audit.py"
+      ],
+      "repair": "RouteSchedule warmup/validation/max and runner max-updates/wall/early-stop patience/min_delta are explicit; formal values, stability window and resource policy remain unfrozen.",
+      "tests": [
+        "test_route_schedule_explicit_controls_and_state",
+        "test_runner_early_stop_uses_explicit_metric_patience"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-015",
+      "severity": "P1",
+      "category": "configuration_freeze",
+      "status": "FIXED",
+      "file": "encoder_v3/config.json / encoder_v3/adaptive_config.json",
+      "problem": "SRF encoder structure/normalization, dynamic-convolution boundaries, Decoder width/chunk, Transformer layers/heads, local batch, microbatch, cell-indexed, packed and retained-geometry defaults are not formally frozen.",
+      "expected": "Formal freeze records with hashes and scope.",
+      "observed": "Candidate/preflight values and code defaults remain; extra adaptive gates unresolved.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/09_gate_matrix.json",
+        "encoder_v3/adaptive_config.json"
+      ],
+      "reproduction": [
+        "read configs and gate matrix"
+      ],
+      "repair": "D4-D6 user approval recorded in approvals/D4_D6_formal_freeze.json; confirmed_formal freezes architecture, Merge, mask, execution defaults, with structured approvals for optimizer_choice, merge_configuration, hypernetwork_hidden_structure and mask_rectangle_distribution.",
+      "tests": [
+        "config confirmed_formal + gate approvals"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-016",
+      "severity": "P0",
+      "category": "execution_equivalence",
+      "status": "PARTIAL_PREFLIGHT_TOLERANCE",
+      "file": "encoder_v3/route_step.py",
+      "problem": "No authorized real optimizer update/resume equivalence evidence exists; the stopped 186-update budget cannot be used.",
+      "expected": "A separately authorized, accounted real update/resume check.",
+      "observed": "Corrected D10 run (2 unique updates + 1 resume) is within old FP32 preflight bounds: parameter max 7.45e-9, optimizer relative L2 1.47e-9, loss 2.47e-8; not a formal new-architecture tolerance. Earlier 6 unique/9-step total and overrun remain documented.",
+      "evidence": [
+        "evidence/controlled_update/report.json",
+        "evidence/controlled_update/incident.json",
+        "08_execution_audit.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/real_ab1_no_update.py"
+      ],
+      "repair": "training.restore_checkpoint now moves optimizer moments to parameter device; corrected controlled run passed old preflight bounds; formal equivalence still blocked.",
+      "tests": [
+        "24 route/control/transaction synthetic tests; 215-test full GPU suite"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-017",
+      "severity": "P3",
+      "category": "false_positive",
+      "status": "NOT_A_DEFECT",
+      "file": "encoder_v3/pair_geometry.py / adaptive_streaming.py / jepa.py",
+      "problem": "Suspected factor-2 translation in query offsets.",
+      "expected": "One translation of [dx,dy,dx,dy].",
+      "observed": "tuple*2 repeats a 2-tuple into four elements, producing exactly one translation; test confirms a 10 m offset shifts the box by 10 m.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/02_architecture_audit.json",
+        "encoder_v3/test_formal_semantics.py"
+      ],
+      "reproduction": [
+        "python -m unittest encoder_v3.test_formal_semantics"
+      ],
+      "repair": "No code change; comment added to prevent recurrence.",
+      "tests": [
+        "test_pair_query_offset_is_applied_once"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-018",
+      "severity": "P2",
+      "category": "a_mask_semantics",
+      "status": "REVIEW_REQUIRED",
+      "file": "encoder_v3/tasks.py",
+      "problem": "Rectangle masking and mask-by-Merge-support-unit are not equivalent at group boundaries.",
+      "expected": "Researcher decision on the approved masking unit/distribution.",
+      "observed": "Diagnostic: 5 participation groups partially hidden and 21 fully hidden for one rectangle; A supported targets 64.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/04_task_audit.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/task_audit.py"
+      ],
+      "repair": null,
+      "tests": [],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-019",
+      "severity": "P2",
+      "category": "inactive_task_weights",
+      "status": "REVIEW_REQUIRED",
+      "file": "encoder_v3/joint.py",
+      "problem": "Inactive A/B task views are excluded and family weights are renormalized over remaining active sources; no frozen protocol states whether this is allowed.",
+      "expected": "Explicit frozen rule for task absence and effective batch membership.",
+      "observed": "Code renormalizes silently within the family; inactive results are recorded.",
+      "evidence": [
+        "encoder_v3/joint.py",
+        "encoder_v3/reports/formal_readiness_audit/04_task_audit.json"
+      ],
+      "reproduction": [
+        "code inspection"
+      ],
+      "repair": null,
+      "tests": [],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-020",
+      "severity": "P2",
+      "category": "enmap",
+      "status": "NOT_ADMITTED",
+      "file": "encoder_v3/data.py",
+      "problem": "EnMAP has one local scene, its SRF is derived_gaussian, and it is outside the frozen 7,778-member release.",
+      "expected": "Explicit decision on admission; no derived SRF presented as measured.",
+      "observed": "No EnMAP curve in the G1 measured/transformed curve set; not in members.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/03_data_audit.json",
+        "earth-representation/data/physics/README.md"
+      ],
+      "reproduction": [
+        "read data audit"
+      ],
+      "repair": null,
+      "tests": [],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    },
+    {
+      "id": "V3-AUDIT-021",
+      "severity": "P2",
+      "category": "runtime_history",
+      "status": "CURRENT_RUNTIME_OK_HISTORICAL_FAULTS_RETAINED",
+      "file": "encoder_v3/reports/cuda_runtime_failure.json",
+      "problem": "Historical native CUDA access violations blocked prior acceptance; current isolated probe succeeds.",
+      "expected": "Distinguish historical runtime faults from current evidence.",
+      "observed": "Isolated child tensor probe passed on GPU1; 215-test full suite passed on GPU; no driver/global change.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/07_runtime_audit.json",
+        "encoder_v3/reports/formal_readiness_audit/evidence/cuda_probe.json"
+      ],
+      "reproduction": [
+        "python encoder_v3/reports/formal_readiness_audit/tools/runtime_probe.py"
+      ],
+      "repair": null,
+      "tests": [
+        "215 tests OK on GPU1"
+      ],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-022",
+      "severity": "P3",
+      "category": "environment_dependency",
+      "status": "ENVIRONMENT_NOTE",
+      "file": "encoder_v3/discover_rasters.py",
+      "problem": "The filename-discovery test fails if ripgrep (rg) is absent from PATH; the audit environment did not expose it initially.",
+      "expected": "Document the rg prerequisite or skip with a clear reason.",
+      "observed": "Full CPU suite failed once with FileNotFoundError; rerun with a discovered rg binary passed.",
+      "evidence": [
+        "encoder_v3/reports/formal_readiness_audit/logs/cpu_verify.log",
+        "encoder_v3/reports/formal_readiness_audit/logs/cpu_verify_with_rg.log"
+      ],
+      "reproduction": [
+        "run test_discovery without rg on PATH"
+      ],
+      "repair": "Audit runs record the rg path; no production fallback scanner added.",
+      "tests": [],
+      "requires_user_decision": false,
+      "blocks_formal_training": false
+    },
+    {
+      "id": "V3-AUDIT-023",
+      "severity": "P0",
+      "category": "controlled_update_governance",
+      "status": "CORRECTED_WITHIN_PREFLIGHT_TOLERANCE_OVERRUN_WAIVED",
+      "file": "encoder_v3/reports/formal_readiness_audit/evidence/controlled_update/incident.json",
+      "problem": "The D10 controlled check exceeded its authorized 2 unique updates/1 resume: two attempts produced 4 unique updates and 6 optimizer steps; exact resume failed and the first-attempt checkpoint was overwritten.",
+      "expected": "Exactly 2 unique updates + 1 resume under a single fresh authorization and ledger; exact or preflight-bounded resume comparison.",
+      "observed": "Three attempts total: 6 unique updates/9 optimizer steps; first exact check failed, second aborted on optimizer device placement, corrected third run used exactly 2 unique +1 resume and passed old FP32 preflight bounds (param max 7.45e-9, opt rel L2 1.47e-9, loss 2.47e-8). User addendum accepts the overrun; not a formal tolerance.",
+      "evidence": [
+        "evidence/controlled_update/incident.json",
+        "evidence/controlled_update/report.json",
+        "logs/controlled_update.log",
+        "logs/controlled_update_measured.log"
+      ],
+      "reproduction": [
+        "review controlled_update/incident.json and logs"
+      ],
+      "repair": "restore_checkpoint device fix + device-agnostic comparison; corrected report evidence/controlled_update/report.json; no formal training.",
+      "tests": [
+        "test_restore_moves_optimizer_moments_to_parameter_device"
+      ],
+      "requires_user_decision": true,
+      "blocks_formal_training": true
+    }
+  ]
+}

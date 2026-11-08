@@ -46,7 +46,7 @@ def prepare_geometry_task(task,*,layout_fn,origin_xy,chunk_pixels,cell_indexed=F
         indices=torch.where((target.mask & band.valid_mask).detach().cpu().flatten())[0]
         boxes=band.cells().detach().cpu();boxes=boxes+boxes.new_tensor(tuple(query_offset_xy)*2) if any(query_offset_xy) else boxes;count=0;complete_support=False
         if adjacent is not None:
-            if not len(adjacent):complete_support=True
+            if not len(adjacent):complete_support=True;count=0
             elif safe_geometry:
                 token=adjacent[0];relative=((boxes[indices,:2]+boxes[indices,2:])/2-geometry.centers[token])/(geometry.bounds[token,2:]-geometry.bounds[token,:2])
                 # One strictly positive neighbour weight proves support; no Cartesian pairs needed.

@@ -1,0 +1,2134 @@
+{
+  "schema": "encoder_v3_formal_readiness_baseline_v1",
+  "generated_at": "2026-11-07T15:58:34.979491+00:00",
+  "cwd": "N:\\Users\\yzh\\Disater\\earth-representation",
+  "repo": {
+    "root": "N:\\Users\\yzh\\Disater\\earth-representation",
+    "branch": "audit/formal-readiness-269a1e0",
+    "head": "269a1e04c8a30510176da01231ce43c3d125bce7",
+    "requested_baseline": "269a1e04c8a30510176da01231ce43c3d125bce7",
+    "status_returncode": 0,
+    "status_porcelain": [
+      " D earth-representation/encoder_v3/reports/runtime_fault_fragments/CPU_autograd_102964/continuous/shared/.update.lock",
+      " D earth-representation/encoder_v3/reports/runtime_fault_fragments/CPU_autograd_102964/continuous/shared/u000001.attempt.json",
+      " M earth-representation/scripts/enmap_cog_read.py",
+      "?? earth-representation/encoder_v3/reports/formal_readiness_audit/"
+    ],
+    "remotes": "origin\tssh://git@ssh.github.com:443/niupai1001/disaster-detect.git (fetch)\norigin\tssh://git@ssh.github.com:443/niupai1001/disaster-detect.git (push)"
+  },
+  "python": {
+    "executable": "N:\\Users\\yzh\\Disater\\landslide-seg\\.venv-use-independent\\Scripts\\python.exe",
+    "version": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "numpy": "2.5.2",
+      "torch": "2.11.0+cu128",
+      "rasterio": "1.5.2",
+      "shapely": "2.2.0",
+      "scipy": "1.18.1",
+      "pandas": null,
+      "pyproj": "3.8.0"
+    },
+    "torch_cuda_build": "12.8",
+    "cuda_available_without_context": true
+  },
+  "gpu": {
+    "args": [
+      "nvidia-smi",
+      "--query-gpu=index,name,driver_version,memory.total,memory.used,utilization.gpu",
+      "--format=csv"
+    ],
+    "returncode": 0,
+    "stdout": "index, name, driver_version, memory.total [MiB], memory.used [MiB], utilization.gpu [%]\n0, NVIDIA GeForce RTX 5090, 621.14, 32607 MiB, 5294 MiB, 72 %\n1, NVIDIA GeForce RTX 5090, 621.14, 32607 MiB, 61 MiB, 0 %\n",
+    "stderr": ""
+  },
+  "config": {
+    "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\config.json",
+    "sha256": "be8d93ab45d3ecee2d0b038be7553c5f60abfdf829b967ca18a4c7c314368eac",
+    "bytes": 4441
+  },
+  "adaptive_config": {
+    "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\adaptive_config.json",
+    "sha256": "dceeb57e3abd900aa3a73fa0bf0f9fc442b4854d163ebf57440220ec9524b292",
+    "bytes": 5461
+  },
+  "source_hashes": {
+    "__init__.py": "fc9ecac433f40279e3375c8255ab84fe2ae4a3a5fdc113630ebd2b247dedfa50",
+    "adaptive_census.py": "2dddaf065f21432f268fba1ee17d17b35e963517c6c423052c3c7c5ba0a56afd",
+    "adaptive_gpu_probe.py": "e1876a937605adb9a36db24da12597e89bbcd1e7994e43f42b1f36223a071505",
+    "adaptive_joint.py": "dbfeebe5e84b85bed1c13bfb2357c62200566f232269626d48a532d756b8e893",
+    "adaptive_streaming.py": "5b13acdb46e95109c448645d04a6a00c1839a41046e60a3db319ee7141a1bc0b",
+    "adaptive_transfer_probe.py": "d977b4dc8063b6fd9bfa49eda6b20852c65e352be87a940f0188e03f44353996",
+    "adaptive_window.py": "cc455fbcf9a757d48b270fcd7395fc2f7b31884dfc516515e22aeecd52483eca",
+    "attention_backend_probe.py": "c12efeced8148fa0c3587c2af3c1f14727d73f0fb8f36cdd05e24a6958b3727e",
+    "audit_envi_headers.py": "8b71c51955ab2eb0dc69711cf0b0b4d0c65ca3fc61ee894797fbb3470cf160d5",
+    "audit_inventory.py": "628885904b742949136b2da739ad9521dc5eb21d4334d34b513a3a9c14938904",
+    "audit_lineage.py": "0c9239a0ec214966fb89b7e17db3cc1f63b203dcaa7ec35e6da2e9464c9f9f5e",
+    "audit_native.py": "677dbd49bf66144a426d45ded62cebd52c0e505e29bebcdd280aeac1d9298efd",
+    "audit_patch_role.py": "4059d63a805aef322812a8d7d0d28435b267b98a46ebddacbee63cc0f2c75ed3",
+    "audit_train_statistics.py": "4a2d9b5ab01815d81163592e71155931ce8586e67c854e47699509d48e271dd1",
+    "benchmark.py": "455d4f57cede70493f5383c7d588ec014714de83d98e66f39969ee9483befa07",
+    "budget.py": "b9e8590165df0d4c0c217478b21199d7c6f08b212b950e13f7f8a2b4f5724a3e",
+    "communication_probe.py": "89f692cb5c5c62f988064b09819a8cad4903602f5e624eb9367e0a5314a7f344",
+    "complete_attention.py": "442356301e64d8fe37e31b869162cc53d4dad27448c3e5958cb6143a72608490",
+    "complete_attention_gpu_probe.py": "3647f4fa00ac5744eea252407d36ddd7062e79aa2ad09ee0a917e9818fa892d2",
+    "cuda_probe.py": "b62d103d3070c14c39f658ed3047670f7c0fff277d2d7be628ae81072bc3ca99",
+    "data.py": "4576ddd96a58b997d561325b637b083431757fa7eb7a2b0f132d64af5d2565ef",
+    "diagnostic_batch.py": "11491ce064ce52c199c02043d4d80787cdd8bc6887eac84c16d59fce82951aae",
+    "discover_rasters.py": "f661dac5f9ee73c86da3f2f8298a9df8e33bdfcc14013692c2b5618e80af1b95",
+    "equivalence.py": "5631e430fd13eb1d2665ba8024c41b257b5363d15e6e7529d18dbe4350fd172b",
+    "execution_batch_probe.py": "8825ac211197719617f5b573535ca493d1504f476d2cb644350c4566660fa66a",
+    "full_target_probe.py": "de77888bb5d312b4aa123df052943c3a6b365df07830d86afc26cf8d305a4ecc",
+    "gates.py": "b1f4943f92a496df0347dd1bee2ae178f16b19ec2b1d7fa36d54c8aa781f737b",
+    "geometry_cache.py": "4f52043f4d18b5b1c169e587af9b8f76a8367cba4dd5bfe179f6ffc6886bc969",
+    "geometry_cache_gpu_probe.py": "ea38fdba55c60d9dcdbb3b30e117c5cddd8b2575e05fe1eb451acf64e6a567da",
+    "geometry_views.py": "a84c5268b595244e25bf567cfe0a5d1950f51ac150b160258d6cfa61929ec23e",
+    "gpu_update_check.py": "15e4d208ecc7c36c3952732504c12688e1ce8bfe000899f3c7e220375e305704",
+    "independent_gpu_probe.py": "74184cdc021dd1c0adfe7d822592e82f144bdc8d661295381d07c5135be90bb6",
+    "jepa.py": "0717153790ff1aa36df7978b3609554055c212fe8977fd488cbac07555d2c7fe",
+    "joint.py": "3898845522efeec25a9443484a988feb9de1d053df773cb86c60a3d5cf2b4a77",
+    "joint_probe.py": "6f1bde8cd9c3fe7fcc3a46f8721fd843df70ff0400bd8de1e0a7ac68e02ef437",
+    "layout.py": "f69cff56b3ce150fe58b1fbe574da84213a4f13fdb95c8a0cb6440d18e678140",
+    "local_qa_candidates.py": "7796515d8e33ec772ca80a2f981fbf51be316cf881a43ddc836aa02907f19085",
+    "losses.py": "f9a43ab5f2f695242d4b63fc70085e0ed5c59e19ba8e7a9189e7925a7e1cd0eb",
+    "metadata_lineage_recovery.py": "dece237cf4bbc67f44643d80876a2b9889b3bd0c81cf3e6230fa5edf69e7e5d3",
+    "microbatch_probe.py": "63ad78b079518d1ca14e6135818fc599c0853e963043a8d21035fdb56c4ee9c5",
+    "model.py": "e0ba10b8fc141cc29d0f0e6e28a76b6a3ac7368fbe1fec4b64cb1ab0437bbf7d",
+    "monitor_pilot.py": "7e551457784a832417ef2b320754c0350f2801c3a382629ce425baf1e35a0bad",
+    "pair_calibration_inventory.py": "eec79851a83e3822b59374b9cf9474adbb69c97d70b8fb66237a48ed5d6028e3",
+    "pair_catalog.py": "c88dbd31dea7a72c850b73bb2adac83757b97d608671b478b1e8a3b83cf6717c",
+    "pair_cohort_lineage.py": "b12335a6cd88ebbeab52f1aefe19cedd4f91d4cae86e5fe780b062ece1aa9d63",
+    "pair_fixed_support.py": "7462658e8481cfbdc0fd87398b55a7845c3501e3fa55f96b3f18c4baf7d7c3d7",
+    "pair_geometry.py": "0aaf9c82919ae228348bc182ccb9d2b248ff632c3dafdb5ca83ad23e8e665037",
+    "pair_quality_review.py": "33b0bfff44f629a452edc0968b49ae399bf8340300418f933a422ccf4fe0a51e",
+    "pair_registration.py": "7073a9d510f04ea6569bfae3f63931c9f1b01e049c5326aa446bdcd9914ee63d",
+    "pair_registration_cohort.py": "71235f7823ca3973160e4915506cb4902cf8439a0489b5b2581b46522d1b1e76",
+    "pair_spatial_holdout.py": "7144056c6a53712df7eb414d4583dc9ae18dfcbf3e8ea544155253f7beeea2ae",
+    "pair_support_audit.py": "e013600ba436af5e66cf27c13bf4561eff1b626ae218182079e4ad6e114bffd1",
+    "participation_decoder.py": "cbda7c1efcf43492e448b5584c0a10fcbb4b863f114cfde6092d08f33db778df",
+    "participation_encoder.py": "f86849b151c86b69f7073873501c6762ab113fdc3229523df200c0bbc3dbe528",
+    "participation_geometry.py": "f181385e7783c708a2437c6664ad8a094ae2792b6319b4ce824c5ab6ffb27884",
+    "participation_geometry_reuse_probe.py": "44dfcf0237693bae4cbe090703da1f33d3c89bb96e40bbb554cb5c0dcfc0d891",
+    "participation_gpu_probe.py": "64ba8099003859a4f4e87635d3f9bebd8857c1e3d9a946c656dacb4c304b1118",
+    "participation_layout.py": "c8d11902caac1cb4afd68df7377ee3b02e070de23d787e9ae450317aa08d7718",
+    "participation_local_batch_probe.py": "170409ed12518e1984ed2bc2ff88faefe7ace8274bdef9dfe5a155d9f93d1980",
+    "participation_observation_batch_probe.py": "f0a3ee2f79cd4a97e6be6ea95a0223ecde4587810308ebc726096b9b9dce74ab",
+    "participation_packed_probe.py": "dc141223f27646f23868dac5ffe007ae744f9c87750dbc58ab4ac7c141cb4b3d",
+    "participation_profile.py": "ad0bdc115f8531308d3dc6ba81f4f22f496ff32b5e35c0391903a4891fb050ff",
+    "participation_real_batch_probe.py": "dd953e07f9ee3c69b5cd8476f90f1c3cc19a2be687fe5fe36575e62b736be7c6",
+    "participation_validation_probe.py": "4f1691608075ae71427584fd75d66b88664808c8b50a71eb43a01a9967df4d5e",
+    "peak_update_check.py": "d694bd229f4566a568b506f9a4f4dba2377c354f0ad9106960a6dee36fa48393",
+    "pilot_fit.py": "c29d651bf680f2ec7e3db6db947f3a5aff768635547531084f9f5cededaa264d",
+    "pilot_protocol.py": "03455eb28ba0b1f62b8c52f2f0fa2c424439ec076da525d0a25ab3999b130ce7",
+    "pipeline_probe.py": "3fe000ac048a2d983651ec26f8421d8d06612d21e423a2a8710ae203e0a4da75",
+    "plan_prefetch.py": "c6eb2fe693c14bdef37c7691f3c7c67b0a8d45ac43c9479946b53f17234a89f9",
+    "plot_pair_fixed_support.py": "b12904a0422bcf878ef9ef8e70f4bf5489c8d5af6c277ab1fda6d04ff740acd7",
+    "plot_pair_native_cases.py": "55f5ed368ace8f8fec77bf3ee3de52d920717d16a91d3e562215928a6806b218",
+    "precision_probe.py": "023042bd52d000728e12a0e107d567f0429b2f43518b6d852d456479866406e9",
+    "prefetch.py": "82b787b23df87fbb6f311dc417dbb9601bbeeab5052e94931513290574e20099",
+    "prefetch_benchmark.py": "3f382f510074a564b8be10284948964aa18df89281503812097414cc79024649",
+    "prepare_pilot.py": "78abba258bad12c451587a534c944801dc16673fed918d2b234f26ebf42b022d",
+    "processes.py": "88ee2f32afab7985f5fd60fc508ae87a70a5725b6eb084ed72bd41c012d795e4",
+    "profile_task.py": "b601cad9998fc6bb8e8e2e779325b28c56ab4df261a4001163534e4cafe45f42",
+    "readout_benchmark.py": "1a378a54bdb627a5eb797e68ad1fdba4d5792ee3e1dfab8e630adff0a15bda6c",
+    "real_probe.py": "0f57dfd4be3a91828e8c438e296b82b3ed3ed67c8e64bf17ba85b4b2a5a0ae2b",
+    "reconcile_discovery.py": "eafb21d5a970ade02ec1e3c581e9345a2df7b6e905c60b0278b68e0591a3f3e5",
+    "refine_discovery.py": "21a250e7ac9756610274eca1b9f518904eed0f5fa1c689700cfdb03124a0cd08",
+    "review_collect.py": "bc045cf24a407ff39207c2431060b4b410dfe84b828b5f0e21e828b529f20b87",
+    "route_branch.py": "ae750c988e188ea221b5eb625bc2cc9e3d72c66e53b1a7bfbfd84648e5c5389a",
+    "route_control.py": "775007bc4c9be0ddfc8af22b6258bd46b747e98d8bcf9fea6b82671ebb471ecb",
+    "route_step.py": "c2b91ba88c28efa0fe685c5c6818e5cca2a9b85b678e6b01e5df97039c934102",
+    "scheduled_data.py": "60a7eae464535d10f9a58de464a47528d19a3783da4587bd4fe343372aab8ed2",
+    "spatial_index.py": "84cf82264eb3344e7423ea7c9411e4d55a77768de02b81375254838d343bd9bf",
+    "split_audit.py": "683144493a75d9546d27d5200d8424a03dfc9fbd07b8ca5ff6331d7e491b0525",
+    "streaming.py": "f5d7dc01bb3995dcd21da554d0e60b003a9d381372418d82063c015d09686053",
+    "tasks.py": "b2dc2e7206c59aed99e71e757a2f9dde7527ee3bd0399afc85d3fa21df896f55",
+    "test_A_boundary.py": "c7d1b13b43d3f5f70be2c02f785c5e31455c3b6a1919733c4d1247dd473a1b2d",
+    "test_absent_family.py": "b3c8d565b85a90e615baef07c0101d534a5f2e365d8a3b700a031df6dadcfdf7",
+    "test_absent_slot.py": "e60cf7949a630239efbd2289c7eb2bf2d105522a72c350910ba92861d58136eb",
+    "test_adaptive_census.py": "86abf23ef11d99e9e75ccc7efdb46d1c88d833b37f36a7ef524e2a6e438b85a9",
+    "test_adaptive_joint.py": "e0444f396159db3d642b1da522c2efbeedfaf00e4735425690d211e9daad6f5d",
+    "test_adaptive_window.py": "18b53cff0a919de5ab2b60ca69a995703916b2eed12c694c664645e48a9e9192",
+    "test_budget.py": "a81a2e4b7510b22077fdaf0ca7c06345670a2863ac492652d25512c8f54aa631",
+    "test_communication.py": "9e5f3d0a1a4a0f6f1b4043a8e1a7b80429cda879fb32cacb2ef6a41d41c85872",
+    "test_complete_attention.py": "f3a1d1622c74ec44a610e0aa7e04c3d177c75582a22a5986add5b2db163607d3",
+    "test_cuda_probe.py": "8aceb0d0705e3b9266d1ad260f2880710c384f2a307c192d64ef828aff6f1181",
+    "test_data.py": "c9c809ac4f0851cbe16b4eb848880586e17038b7b4d4a0f6138fb48ec0ed043f",
+    "test_discovery.py": "cdd9b2688edc4d0e60231d6af3c43e91986952c06e346b62140c4729b5a4bb1a",
+    "test_envi_headers.py": "6b50e1e73a290f4c59cad1d9a6c967cc70b720213f005a31908de83d799d0f16",
+    "test_execution.py": "f4bd87013cb023812142fff589682d753f94b760615af2001331ad5df6dbfd1e",
+    "test_frozen_pair_source.py": "df4a4e8d9194567103bf757dd859f0d85178961527312dfd2a2e068b8f514f86",
+    "test_geometry_cache.py": "e08912958703aeb21eb79aa6cfb3802f46c77fc303bfe5807a39e2f69a8552e2",
+    "test_geometry_views.py": "8e001198989c4b9a132a442bcb656004de9c84edecb063b4c7191caf1fa1c256",
+    "test_gpu_update_check.py": "1874a452c6d2e69daf3352005a04703a93a9a36c881763b3812a9f40160a9178",
+    "test_jepa_flow.py": "965cd5d75a82b2d0a622de9e13a51969542ffb9cce6976a8aa393892a2994517",
+    "test_joint.py": "8461c6fa2e6fe4357018e6004742a60b3a64304afcc56f7e464810e9994427c0",
+    "test_lineage.py": "6946c8f91160fe2e2bc97dacfc077f2ab51eaadfbf2b6b04f99c4ade5778275f",
+    "test_metadata_lineage_recovery.py": "42b3dbd5f45d4bf244340e39dcb220f4e5fad7c8ad18c378ebf8e5916620dcb0",
+    "test_model.py": "ba086d627f65206d8eca1762a7e0bf7f9c9debc96c1cd2ab0ad529ebb6432086",
+    "test_packed_local.py": "19f4793791b7d5782ebbd5310b40005ae456eb45e5c0ff2e23206a79405c8bce",
+    "test_pair_fixed_support.py": "b5fcad61936dd8a4c4d3b2e8544f3ef274760e694562f06908fea97fefc88c68",
+    "test_pair_geometry.py": "cf2365df6b34edfccc9327187e4da332491dedf73508a379c29d2319ce4f5407",
+    "test_pair_quality_review.py": "e3e42d770e16db16dc6d1985d5a56bc822d675c69a1914f6c62e2753c327020b",
+    "test_pair_registration.py": "ed46dfbcdfc8e171a5d7e07f276d3cdeb7651e91777e2091a8f7d62132d14a27",
+    "test_pair_registration_cohort.py": "179f3ade2f1cd46993f643c5c9dd6c76fcd374dff9efdc1c9bc82ff83f881b4d",
+    "test_pair_spatial_holdout.py": "caa6d164a62cdb5cb28ec79815818f69fc13e2595b9fa006ca3be9a23c4c45e7",
+    "test_pair_support.py": "83cf957ad744a3f74bf50057f39894040743984fa5509c01aba1c5db782754b2",
+    "test_participation_batch.py": "7f315b23ad9c2321d667779c4ff1b7a948b7683ebcd77b1f570d3199c9ddf652",
+    "test_participation_decoder.py": "7eaef682f60ecbdab9f91042765998901245d57fdd34541a8df762ba6a00298b",
+    "test_participation_encoder.py": "f02b09fdb40af541f69c4ad1fe7b8a6204bb22d8993a450ef1e0246c5ebc9bee",
+    "test_participation_geometry.py": "5d95a6b8141f9f575bbca7bbee0543a407b88fa0435ffa1ac0c084a2232a0158",
+    "test_participation_joint.py": "81d127b55881c838eabc088be1792722192348cb0dd98aabd26ae62356747c73",
+    "test_participation_layout.py": "ebb7d79e2c1842d90c943c7a9b31fb8262ec56fc621c35e3e013812887e42302",
+    "test_participation_validation.py": "c6e177d39e554b8ca0b789fe02bd22f8e7fd70baecfb61099f6df7118bc85889",
+    "test_peak_update.py": "8b404d8fbe138f83d3ac76e9bad274072cfc6a266dc43c5ca8890b910e2227cd",
+    "test_pilot_fit.py": "baec57d5318598f2890317bb6b89227642aaa582c796bbde9a9c7e1e181a29e6",
+    "test_pilot_protocol.py": "78cff2e1b2a1a67ce0c6e0d8fb73ec63487d4ecf808c867f7d43b33c5a77a866",
+    "test_prefetch.py": "cbf35d13862030df35f81f562b60cef09f6ccb6d0b0082eda20259d818f40255",
+    "test_processes.py": "70f3ece337eca8dc595a570869d7a46cc19ea00b6b317164c3ffc971c61e52c5",
+    "test_profile.py": "56026d54f63e0d03814f355523765f93a2819994901aeb0b3bb222dde487552d",
+    "test_reconcile_discovery.py": "509772dc3ad2a6085453a9efc8579520e4c448a37ec2c04fbee9dd319b43a54e",
+    "test_refine_discovery.py": "6096be156b2041f74d1ee7cb27f4ca749e7f6640c4aa51880cf74923b0abe222",
+    "test_retained_geometry.py": "80fd79c44db3966f6874245f8623466e5ec6d2a974926a40d1f0d2f7e1d40a26",
+    "test_route_branch.py": "8006010ceafe43e15188e53677b59473fe356439029814a82de1bbfcd76ee7e8",
+    "test_route_control.py": "8c9015f5b038c1a48aaec01e76c3d3f5766910f1a0730411c907f800103717e0",
+    "test_route_step.py": "682f0eeac412adf90786a48fbf13e60333c120b4cdcf01f7ed9242fb00e10db1",
+    "test_route_transaction.py": "40bf097457d91d8cb0c756a8a4e187e90d1400a6a4dd7436e9497e313a3993ca",
+    "test_scheduled_data.py": "c6ff812e8b0572f77f6f933950b7c43ad81dbb5b1cc77ae62a9c89abfbbed21d",
+    "test_split_audit.py": "20ce8c7cb4e6136090976d9b119f4295bcc828fd433616990fd1446b19c960a5",
+    "test_streaming.py": "f34f7a825e312f353bcf69b156f89cb909700b3d2e4bb67732fae1bcb355f4aa",
+    "test_tasks.py": "b02963dd6d73be5648d1ca88bf8065bd8094fe39c7565052f4c075bc21d75883",
+    "test_token_census.py": "e7fbc559bcb189b5cb721d07db32aa3d41e73b276d01dabb9a9b6f1fe544fb87",
+    "test_train_statistics.py": "d3bec19e7f56b07c0ee2a5171c53d20dd90b62e064b110d3564802b46dc418a0",
+    "test_training.py": "29fb57d846a09fe5c3fcc1fbb5cfa6265d781a97b57d0e3232a07c4b57fe36b1",
+    "test_validation_panels.py": "a3b358db98e80e0cc24c81be0cabf41ce6100936483db70d74beefa401762cea",
+    "token_census.py": "628851215a842b61d48b50fdcbaae3ac4b0a4848d453d36906a0af7f88146a39",
+    "training.py": "034bc9cfa7baaaa7b06d58fcfc7366874d578d9fe368cd1c509434686e030d0a",
+    "update_status.py": "141f25c6caad80a1baeb2761554e66b02056c61995dd9e7e3db24ee9cd7ace5b",
+    "validation_panels.py": "e991719144fdb35fba8d5d1fc6f99d7e4448f3a3fdff3adb4b83e414bd8d22ca",
+    "verify.py": "e595454fb242551fb58b07c3331e96a5d022a1889d6d6444380c066e65454db9"
+  },
+  "source_hash_count": 154,
+  "test_files": {
+    "test_A_boundary.py": 2,
+    "test_absent_family.py": 5,
+    "test_absent_slot.py": 5,
+    "test_adaptive_census.py": 2,
+    "test_adaptive_joint.py": 4,
+    "test_adaptive_window.py": 6,
+    "test_budget.py": 2,
+    "test_communication.py": 1,
+    "test_complete_attention.py": 4,
+    "test_cuda_probe.py": 2,
+    "test_data.py": 2,
+    "test_discovery.py": 1,
+    "test_envi_headers.py": 1,
+    "test_execution.py": 8,
+    "test_frozen_pair_source.py": 4,
+    "test_geometry_cache.py": 2,
+    "test_geometry_views.py": 2,
+    "test_gpu_update_check.py": 1,
+    "test_jepa_flow.py": 6,
+    "test_joint.py": 3,
+    "test_lineage.py": 2,
+    "test_metadata_lineage_recovery.py": 2,
+    "test_model.py": 5,
+    "test_packed_local.py": 2,
+    "test_pair_fixed_support.py": 2,
+    "test_pair_geometry.py": 9,
+    "test_pair_quality_review.py": 3,
+    "test_pair_registration.py": 2,
+    "test_pair_registration_cohort.py": 4,
+    "test_pair_spatial_holdout.py": 2,
+    "test_pair_support.py": 1,
+    "test_participation_batch.py": 5,
+    "test_participation_decoder.py": 2,
+    "test_participation_encoder.py": 3,
+    "test_participation_geometry.py": 3,
+    "test_participation_joint.py": 0,
+    "test_participation_layout.py": 2,
+    "test_participation_validation.py": 3,
+    "test_peak_update.py": 1,
+    "test_pilot_fit.py": 4,
+    "test_pilot_protocol.py": 3,
+    "test_prefetch.py": 2,
+    "test_processes.py": 1,
+    "test_profile.py": 1,
+    "test_reconcile_discovery.py": 3,
+    "test_refine_discovery.py": 6,
+    "test_retained_geometry.py": 8,
+    "test_route_branch.py": 4,
+    "test_route_control.py": 8,
+    "test_route_step.py": 5,
+    "test_route_transaction.py": 2,
+    "test_scheduled_data.py": 7,
+    "test_split_audit.py": 2,
+    "test_streaming.py": 4,
+    "test_tasks.py": 4,
+    "test_token_census.py": 1,
+    "test_train_statistics.py": 1,
+    "test_training.py": 5,
+    "test_validation_panels.py": 6
+  },
+  "test_method_count": 193,
+  "data": {
+    "release": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\release.json",
+      "bytes": 7388,
+      "sha256": "e294d40ae1f38e7efca5c7a95d632a03b6ca38a28c1edc378c9072b66d93bf96"
+    },
+    "members": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\members.jsonl",
+      "bytes": 33546087,
+      "sha256": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c"
+    },
+    "statistics": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\statistics.json",
+      "bytes": 5649,
+      "sha256": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+    },
+    "data_contract_tests": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\G1\\data_contract_tests.json",
+      "bytes": 840,
+      "sha256": "18821e01db477d94e07b2c1b33d7132fbe25089748b695f4acbd772ef4d7ddbc"
+    },
+    "observation_contracts": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\G1\\observation_contracts.jsonl",
+      "bytes": 16922950,
+      "sha256": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a"
+    },
+    "srf_manifest": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\observation_model\\outputs\\encoder_v2\\G1\\srf_manifest.json",
+      "bytes": 116517,
+      "sha256": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d"
+    }
+  },
+  "key_reports": {
+    "admission_review_2026-11-07.json": {
+      "bytes": 6219,
+      "sha256": "a409d4801463c5829d3296aac99508b9c149216e11983850999c65188c44b0c2",
+      "mtime_ns": 1794053655250321300
+    },
+    "discovery_coverage_current.json": {
+      "bytes": 5619,
+      "sha256": "ec6526f0a008b7d76e9e8900ab866850d55de86ac777bb83351f780d8077a58f",
+      "mtime_ns": 1793957389131836100
+    },
+    "engineering_tests.json": {
+      "bytes": 7929,
+      "sha256": "cb5d46094465138f9b2dfaf5e9eb7ac9310d1276c58b2f58231ea95f42270d87",
+      "mtime_ns": 1793870165082191000
+    },
+    "train_statistics_recomputed.json": {
+      "bytes": 1133143,
+      "sha256": "5f8cba42a461f79b8dbda84d9f2b7ec0c99b339d80fd70310053d75faefb1e49",
+      "mtime_ns": 1793896012216869500
+    },
+    "native_cache_audit.json": {
+      "bytes": 7892,
+      "sha256": "ae08bda45b610242418597c4d8c5589cd676aebc2f5bd2f3036a61ca72760d86",
+      "mtime_ns": 1793841113323140300
+    },
+    "native_lineage_audit.json": {
+      "bytes": 2018,
+      "sha256": "5ce2bb8ca8280bc14c1b901e814d57c01dbb5ea848a5722c000c35cd454325b7",
+      "mtime_ns": 1793847023842329500
+    },
+    "B1_expanded_evidence.json": {
+      "bytes": 4904,
+      "sha256": "c3e35f96356074ec4630344062991af0c4ae4fc5d86973067118e6622cfdae26",
+      "mtime_ns": 1793941172588444500
+    },
+    "validation_metric_confirmation.json": {
+      "bytes": 1594,
+      "sha256": "dea213bd0c16e64274269f5cb4951fc5c359ee84052aea7cbc210e16f8df6b91",
+      "mtime_ns": 1793968339821101900
+    },
+    "merge_rate_confirmation.json": {
+      "bytes": 1115,
+      "sha256": "b0c54c7c60d7a30a3c16b565bb08b04dac2b3a2e55390dfc99355b26674db887",
+      "mtime_ns": 1793939293522741900
+    },
+    "merge_B_confirmation.json": {
+      "bytes": 700,
+      "sha256": "247f0432c01db1096bf8527ce256a8b2ce95d3fc12608c442a377d0357462a76",
+      "mtime_ns": 1793900550215203800
+    },
+    "merge_levels_confirmation.json": {
+      "bytes": 419,
+      "sha256": "b613e7e5c9894428c3a4f3753dd255eb2b8cf303c5b65b992a8eadf313b42b5e",
+      "mtime_ns": 1793938471358810500
+    },
+    "fp32_equivalence_tolerance_review.json": {
+      "bytes": 1257,
+      "sha256": "59f798ac5f57fa72f1cb9c5b4f299c5c2cb66018790cd144f94b719789aae41a",
+      "mtime_ns": 1793849512379625200
+    },
+    "pilot_stop_decision.json": {
+      "status": "EVIDENCE_MISSING"
+    },
+    "pilot_runs/budget.json": {
+      "bytes": 52032,
+      "sha256": "b6ab246f2e7d0a71d66095dd498c48d2f07c81b8b972c8bc595c49bcf22f8afd",
+      "mtime_ns": 1793874413012089900
+    },
+    "pilot_runs/pilot_stop_decision.json": {
+      "bytes": 658,
+      "sha256": "704fbbf6415159fdb455402d4cd41fb155c034864168d31af95928d517254911",
+      "mtime_ns": 1793878714925462800
+    }
+  },
+  "pilot_checkpoint_evidence": {
+    "update_check_a624c7d0c860": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_runs\\update_check_a624c7d0c860",
+      "files": [
+        {
+          "name": "AdamW_candidate_after_1.pt",
+          "bytes": 15007939
+        },
+        {
+          "name": "AdamW_reference_after_1.pt",
+          "bytes": 15007939
+        },
+        {
+          "name": "AdamW_restored_after_2.pt",
+          "bytes": 15007875
+        },
+        {
+          "name": "AdamW_uninterrupted_after_2.pt",
+          "bytes": 15007875
+        },
+        {
+          "name": "CAdamW_candidate_after_1.pt",
+          "bytes": 14986289
+        },
+        {
+          "name": "CAdamW_reference_after_1.pt",
+          "bytes": 14986289
+        },
+        {
+          "name": "CAdamW_restored_after_2.pt",
+          "bytes": 14986225
+        },
+        {
+          "name": "CAdamW_uninterrupted_after_2.pt",
+          "bytes": 14986225
+        },
+        {
+          "name": "report.json",
+          "bytes": 397635
+        }
+      ]
+    },
+    "peak_update_check": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_runs\\peak_update_check",
+      "files": [
+        {
+          "name": "AdamW_cell_101.pt",
+          "bytes": 15006083
+        },
+        {
+          "name": "AdamW_reference_101.pt",
+          "bytes": 15006083
+        },
+        {
+          "name": "AdamW_restored_102.pt",
+          "bytes": 15006083
+        },
+        {
+          "name": "AdamW_uninterrupted_102.pt",
+          "bytes": 15006083
+        },
+        {
+          "name": "CAdamW_cell_101.pt",
+          "bytes": 14984433
+        },
+        {
+          "name": "CAdamW_reference_101.pt",
+          "bytes": 14984433
+        },
+        {
+          "name": "report.json",
+          "bytes": 409602
+        }
+      ]
+    },
+    "fitting": {
+      "path": "N:\\Users\\yzh\\Disater\\earth-representation\\encoder_v3\\reports\\pilot_runs\\fitting",
+      "files": [
+        {
+          "name": "AdamW\\metrics_u000001.json",
+          "bytes": 55025
+        },
+        {
+          "name": "AdamW\\metrics_u000002.json",
+          "bytes": 58190
+        },
+        {
+          "name": "AdamW\\metrics_u000003.json",
+          "bytes": 66316
+        },
+        {
+          "name": "AdamW\\metrics_u000004.json",
+          "bytes": 56427
+        },
+        {
+          "name": "AdamW\\metrics_u000005.json",
+          "bytes": 58019
+        },
+        {
+          "name": "AdamW\\metrics_u000006.json",
+          "bytes": 62806
+        },
+        {
+          "name": "AdamW\\metrics_u000007.json",
+          "bytes": 57537
+        },
+        {
+          "name": "AdamW\\metrics_u000008.json",
+          "bytes": 56405
+        },
+        {
+          "name": "AdamW\\metrics_u000009.json",
+          "bytes": 58649
+        },
+        {
+          "name": "AdamW\\metrics_u000010.json",
+          "bytes": 57048
+        },
+        {
+          "name": "AdamW\\metrics_u000011.json",
+          "bytes": 57586
+        },
+        {
+          "name": "AdamW\\metrics_u000012.json",
+          "bytes": 55292
+        },
+        {
+          "name": "AdamW\\metrics_u000013.json",
+          "bytes": 60458
+        },
+        {
+          "name": "AdamW\\metrics_u000014.json",
+          "bytes": 61136
+        },
+        {
+          "name": "AdamW\\metrics_u000015.json",
+          "bytes": 54672
+        },
+        {
+          "name": "AdamW\\metrics_u000016.json",
+          "bytes": 61182
+        },
+        {
+          "name": "AdamW\\metrics_u000017.json",
+          "bytes": 59317
+        },
+        {
+          "name": "AdamW\\metrics_u000018.json",
+          "bytes": 62377
+        },
+        {
+          "name": "AdamW\\metrics_u000019.json",
+          "bytes": 56439
+        },
+        {
+          "name": "AdamW\\metrics_u000020.json",
+          "bytes": 58838
+        },
+        {
+          "name": "AdamW\\metrics_u000021.json",
+          "bytes": 57530
+        },
+        {
+          "name": "AdamW\\metrics_u000022.json",
+          "bytes": 61215
+        },
+        {
+          "name": "AdamW\\metrics_u000023.json",
+          "bytes": 58204
+        },
+        {
+          "name": "AdamW\\metrics_u000024.json",
+          "bytes": 58834
+        },
+        {
+          "name": "AdamW\\metrics_u000025.json",
+          "bytes": 57549
+        },
+        {
+          "name": "AdamW\\metrics_u000026.json",
+          "bytes": 59987
+        },
+        {
+          "name": "AdamW\\metrics_u000027.json",
+          "bytes": 58808
+        },
+        {
+          "name": "AdamW\\metrics_u000028.json",
+          "bytes": 62386
+        },
+        {
+          "name": "AdamW\\metrics_u000029.json",
+          "bytes": 60492
+        },
+        {
+          "name": "AdamW\\metrics_u000030.json",
+          "bytes": 55342
+        },
+        {
+          "name": "AdamW\\metrics_u000031.json",
+          "bytes": 59961
+        },
+        {
+          "name": "AdamW\\metrics_u000032.json",
+          "bytes": 57742
+        },
+        {
+          "name": "AdamW\\metrics_u000033.json",
+          "bytes": 61683
+        },
+        {
+          "name": "AdamW\\metrics_u000034.json",
+          "bytes": 54782
+        },
+        {
+          "name": "AdamW\\metrics_u000035.json",
+          "bytes": 61740
+        },
+        {
+          "name": "AdamW\\metrics_u000036.json",
+          "bytes": 57712
+        },
+        {
+          "name": "AdamW\\metrics_u000037.json",
+          "bytes": 52927
+        },
+        {
+          "name": "AdamW\\metrics_u000038.json",
+          "bytes": 57723
+        },
+        {
+          "name": "AdamW\\metrics_u000039.json",
+          "bytes": 51798
+        },
+        {
+          "name": "AdamW\\metrics_u000040.json",
+          "bytes": 57205
+        },
+        {
+          "name": "AdamW\\metrics_u000041.json",
+          "bytes": 59929
+        },
+        {
+          "name": "AdamW\\metrics_u000042.json",
+          "bytes": 54833
+        },
+        {
+          "name": "AdamW\\metrics_u000043.json",
+          "bytes": 61195
+        },
+        {
+          "name": "AdamW\\metrics_u000044.json",
+          "bytes": 58958
+        },
+        {
+          "name": "AdamW\\metrics_u000045.json",
+          "bytes": 61778
+        },
+        {
+          "name": "AdamW\\metrics_u000046.json",
+          "bytes": 60037
+        },
+        {
+          "name": "AdamW\\metrics_u000047.json",
+          "bytes": 60000
+        },
+        {
+          "name": "AdamW\\metrics_u000048.json",
+          "bytes": 60065
+        },
+        {
+          "name": "AdamW\\metrics_u000049.json",
+          "bytes": 59414
+        },
+        {
+          "name": "AdamW\\metrics_u000050.json",
+          "bytes": 60001
+        },
+        {
+          "name": "AdamW\\metrics_u000051.json",
+          "bytes": 61732
+        },
+        {
+          "name": "AdamW\\metrics_u000052.json",
+          "bytes": 55858
+        },
+        {
+          "name": "AdamW\\metrics_u000053.json",
+          "bytes": 55894
+        },
+        {
+          "name": "AdamW\\metrics_u000054.json",
+          "bytes": 55973
+        },
+        {
+          "name": "AdamW\\metrics_u000055.json",
+          "bytes": 55816
+        },
+        {
+          "name": "AdamW\\metrics_u000056.json",
+          "bytes": 65241
+        },
+        {
+          "name": "AdamW\\metrics_u000057.json",
+          "bytes": 60381
+        },
+        {
+          "name": "AdamW\\metrics_u000058.json",
+          "bytes": 60560
+        },
+        {
+          "name": "AdamW\\metrics_u000059.json",
+          "bytes": 61866
+        },
+        {
+          "name": "AdamW\\metrics_u000060.json",
+          "bytes": 58328
+        },
+        {
+          "name": "AdamW\\metrics_u000061.json",
+          "bytes": 59348
+        },
+        {
+          "name": "AdamW\\metrics_u000062.json",
+          "bytes": 58855
+        },
+        {
+          "name": "AdamW\\metrics_u000063.json",
+          "bytes": 54187
+        },
+        {
+          "name": "AdamW\\metrics_u000064.json",
+          "bytes": 57824
+        },
+        {
+          "name": "AdamW\\metrics_u000065.json",
+          "bytes": 59421
+        },
+        {
+          "name": "AdamW\\metrics_u000066.json",
+          "bytes": 60651
+        },
+        {
+          "name": "AdamW\\metrics_u000067.json",
+          "bytes": 61799
+        },
+        {
+          "name": "AdamW\\metrics_u000068.json",
+          "bytes": 62437
+        },
+        {
+          "name": "AdamW\\metrics_u000069.json",
+          "bytes": 59423
+        },
+        {
+          "name": "AdamW\\metrics_u000070.json",
+          "bytes": 53710
+        },
+        {
+          "name": "AdamW\\metrics_u000071.json",
+          "bytes": 59498
+        },
+        {
+          "name": "AdamW\\metrics_u000072.json",
+          "bytes": 58916
+        },
+        {
+          "name": "AdamW\\metrics_u000073.json",
+          "bytes": 54146
+        },
+        {
+          "name": "AdamW\\metrics_u000074.json",
+          "bytes": 56055
+        },
+        {
+          "name": "AdamW\\metrics_u000075.json",
+          "bytes": 55887
+        },
+        {
+          "name": "AdamW\\metrics_u000076.json",
+          "bytes": 53068
+        },
+        {
+          "name": "AdamW\\metrics_u000077.json",
+          "bytes": 57596
+        },
+        {
+          "name": "AdamW\\metrics_u000078.json",
+          "bytes": 56571
+        },
+        {
+          "name": "AdamW\\metrics_u000079.json",
+          "bytes": 58855
+        },
+        {
+          "name": "AdamW\\metrics_u000080.json",
+          "bytes": 61807
+        },
+        {
+          "name": "AdamW\\metrics_u000081.json",
+          "bytes": 55136
+        },
+        {
+          "name": "AdamW\\metrics_u000082.json",
+          "bytes": 58853
+        },
+        {
+          "name": "AdamW\\metrics_u000083.json",
+          "bytes": 56501
+        },
+        {
+          "name": "AdamW\\metrics_u000084.json",
+          "bytes": 64683
+        },
+        {
+          "name": "AdamW\\metrics_u000085.json",
+          "bytes": 61679
+        },
+        {
+          "name": "AdamW\\metrics_u000086.json",
+          "bytes": 55848
+        },
+        {
+          "name": "AdamW\\metrics_u000087.json",
+          "bytes": 58232
+        },
+        {
+          "name": "AdamW\\metrics_u000088.json",
+          "bytes": 66570
+        },
+        {
+          "name": "AdamW\\metrics_u000089.json",
+          "bytes": 61059
+        },
+        {
+          "name": "AdamW\\metrics_u000090.json",
+          "bytes": 62410
+        },
+        {
+          "name": "AdamW\\metrics_u000091.json",
+          "bytes": 55328
+        },
+        {
+          "name": "AdamW\\metrics_u000092.json",
+          "bytes": 55375
+        },
+        {
+          "name": "AdamW\\metrics_u000093.json",
+          "bytes": 58148
+        },
+        {
+          "name": "AdamW\\metrics_u000094.json",
+          "bytes": 57129
+        },
+        {
+          "name": "AdamW\\metrics_u000095.json",
+          "bytes": 54230
+        },
+        {
+          "name": "AdamW\\metrics_u000096.json",
+          "bytes": 62989
+        },
+        {
+          "name": "AdamW\\metrics_u000097.json",
+          "bytes": 63446
+        },
+        {
+          "name": "AdamW\\metrics_u000098.json",
+          "bytes": 57100
+        },
+        {
+          "name": "AdamW\\metrics_u000099.json",
+          "bytes": 63548
+        },
+        {
+          "name": "AdamW\\metrics_u000100.json",
+          "bytes": 59540
+        },
+        {
+          "name": "AdamW\\u000000.pt",
+          "bytes": 5011288
+        },
+        {
+          "name": "AdamW\\u000001.pt",
+          "bytes": 15026755
+        },
+        {
+          "name": "AdamW\\u000002.pt",
+          "bytes": 15027843
+        },
+        {
+          "name": "AdamW\\u000003.pt",
+          "bytes": 15030915
+        },
+        {
+          "name": "AdamW\\u000004.pt",
+          "bytes": 15027203
+        },
+        {
+          "name": "AdamW\\u000005.pt",
+          "bytes": 15027843
+        },
+        {
+          "name": "AdamW\\u000006.pt",
+          "bytes": 15029571
+        },
+        {
+          "name": "AdamW\\u000007.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000008.pt",
+          "bytes": 15027139
+        },
+        {
+          "name": "AdamW\\u000009.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000010.pt",
+          "bytes": 15027395
+        },
+        {
+          "name": "AdamW\\u000011.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000012.pt",
+          "bytes": 15026755
+        },
+        {
+          "name": "AdamW\\u000013.pt",
+          "bytes": 15028739
+        },
+        {
+          "name": "AdamW\\u000014.pt",
+          "bytes": 15028931
+        },
+        {
+          "name": "AdamW\\u000015.pt",
+          "bytes": 15026499
+        },
+        {
+          "name": "AdamW\\u000016.pt",
+          "bytes": 15028931
+        },
+        {
+          "name": "AdamW\\u000017.pt",
+          "bytes": 15028291
+        },
+        {
+          "name": "AdamW\\u000018.pt",
+          "bytes": 15029379
+        },
+        {
+          "name": "AdamW\\u000019.pt",
+          "bytes": 15027139
+        },
+        {
+          "name": "AdamW\\u000020.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000021.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000022.pt",
+          "bytes": 15028931
+        },
+        {
+          "name": "AdamW\\u000023.pt",
+          "bytes": 15027843
+        },
+        {
+          "name": "AdamW\\u000024.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000025.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000026.pt",
+          "bytes": 15028483
+        },
+        {
+          "name": "AdamW\\u000027.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000028.pt",
+          "bytes": 15029379
+        },
+        {
+          "name": "AdamW\\u000029.pt",
+          "bytes": 15028739
+        },
+        {
+          "name": "AdamW\\u000030.pt",
+          "bytes": 15026755
+        },
+        {
+          "name": "AdamW\\u000031.pt",
+          "bytes": 15028483
+        },
+        {
+          "name": "AdamW\\u000032.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000033.pt",
+          "bytes": 15029187
+        },
+        {
+          "name": "AdamW\\u000034.pt",
+          "bytes": 15026499
+        },
+        {
+          "name": "AdamW\\u000035.pt",
+          "bytes": 15029187
+        },
+        {
+          "name": "AdamW\\u000036.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000037.pt",
+          "bytes": 15025859
+        },
+        {
+          "name": "AdamW\\u000038.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000039.pt",
+          "bytes": 15025411
+        },
+        {
+          "name": "AdamW\\u000040.pt",
+          "bytes": 15027395
+        },
+        {
+          "name": "AdamW\\u000041.pt",
+          "bytes": 15028483
+        },
+        {
+          "name": "AdamW\\u000042.pt",
+          "bytes": 15026499
+        },
+        {
+          "name": "AdamW\\u000043.pt",
+          "bytes": 15028931
+        },
+        {
+          "name": "AdamW\\u000044.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000045.pt",
+          "bytes": 15029123
+        },
+        {
+          "name": "AdamW\\u000046.pt",
+          "bytes": 15028483
+        },
+        {
+          "name": "AdamW\\u000047.pt",
+          "bytes": 15028483
+        },
+        {
+          "name": "AdamW\\u000048.pt",
+          "bytes": 15028483
+        },
+        {
+          "name": "AdamW\\u000049.pt",
+          "bytes": 15028291
+        },
+        {
+          "name": "AdamW\\u000050.pt",
+          "bytes": 15028483
+        },
+        {
+          "name": "AdamW\\u000051.pt",
+          "bytes": 15029187
+        },
+        {
+          "name": "AdamW\\u000052.pt",
+          "bytes": 15026947
+        },
+        {
+          "name": "AdamW\\u000053.pt",
+          "bytes": 15026947
+        },
+        {
+          "name": "AdamW\\u000054.pt",
+          "bytes": 15026947
+        },
+        {
+          "name": "AdamW\\u000055.pt",
+          "bytes": 15026947
+        },
+        {
+          "name": "AdamW\\u000056.pt",
+          "bytes": 15030467
+        },
+        {
+          "name": "AdamW\\u000057.pt",
+          "bytes": 15028739
+        },
+        {
+          "name": "AdamW\\u000058.pt",
+          "bytes": 15028739
+        },
+        {
+          "name": "AdamW\\u000059.pt",
+          "bytes": 15029123
+        },
+        {
+          "name": "AdamW\\u000060.pt",
+          "bytes": 15027843
+        },
+        {
+          "name": "AdamW\\u000061.pt",
+          "bytes": 15028291
+        },
+        {
+          "name": "AdamW\\u000062.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000063.pt",
+          "bytes": 15026307
+        },
+        {
+          "name": "AdamW\\u000064.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000065.pt",
+          "bytes": 15028291
+        },
+        {
+          "name": "AdamW\\u000066.pt",
+          "bytes": 15028739
+        },
+        {
+          "name": "AdamW\\u000067.pt",
+          "bytes": 15029123
+        },
+        {
+          "name": "AdamW\\u000068.pt",
+          "bytes": 15029379
+        },
+        {
+          "name": "AdamW\\u000069.pt",
+          "bytes": 15028291
+        },
+        {
+          "name": "AdamW\\u000070.pt",
+          "bytes": 15026051
+        },
+        {
+          "name": "AdamW\\u000071.pt",
+          "bytes": 15028291
+        },
+        {
+          "name": "AdamW\\u000072.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000073.pt",
+          "bytes": 15026307
+        },
+        {
+          "name": "AdamW\\u000074.pt",
+          "bytes": 15026947
+        },
+        {
+          "name": "AdamW\\u000075.pt",
+          "bytes": 15026947
+        },
+        {
+          "name": "AdamW\\u000076.pt",
+          "bytes": 15025859
+        },
+        {
+          "name": "AdamW\\u000077.pt",
+          "bytes": 15027587
+        },
+        {
+          "name": "AdamW\\u000078.pt",
+          "bytes": 15027203
+        },
+        {
+          "name": "AdamW\\u000079.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000080.pt",
+          "bytes": 15029123
+        },
+        {
+          "name": "AdamW\\u000081.pt",
+          "bytes": 15026755
+        },
+        {
+          "name": "AdamW\\u000082.pt",
+          "bytes": 15028035
+        },
+        {
+          "name": "AdamW\\u000083.pt",
+          "bytes": 15027139
+        },
+        {
+          "name": "AdamW\\u000084.pt",
+          "bytes": 15030275
+        },
+        {
+          "name": "AdamW\\u000085.pt",
+          "bytes": 15029123
+        },
+        {
+          "name": "AdamW\\u000086.pt",
+          "bytes": 15026947
+        },
+        {
+          "name": "AdamW\\u000087.pt",
+          "bytes": 15027843
+        },
+        {
+          "name": "AdamW\\u000088.pt",
+          "bytes": 15030915
+        },
+        {
+          "name": "AdamW\\u000089.pt",
+          "bytes": 15028931
+        },
+        {
+          "name": "AdamW\\u000090.pt",
+          "bytes": 15029379
+        },
+        {
+          "name": "AdamW\\u000091.pt",
+          "bytes": 15026755
+        },
+        {
+          "name": "AdamW\\u000092.pt",
+          "bytes": 15026755
+        },
+        {
+          "name": "AdamW\\u000093.pt",
+          "bytes": 15027843
+        },
+        {
+          "name": "AdamW\\u000094.pt",
+          "bytes": 15027395
+        },
+        {
+          "name": "AdamW\\u000095.pt",
+          "bytes": 15026307
+        },
+        {
+          "name": "AdamW\\u000096.pt",
+          "bytes": 15029571
+        },
+        {
+          "name": "AdamW\\u000097.pt",
+          "bytes": 15029827
+        },
+        {
+          "name": "AdamW\\u000098.pt",
+          "bytes": 15027395
+        },
+        {
+          "name": "AdamW\\u000099.pt",
+          "bytes": 15029827
+        },
+        {
+          "name": "AdamW\\u000100.pt",
+          "bytes": 15028291
+        },
+        {
+          "name": "AdamW\\validation_u000000.json",
+          "bytes": 95621
+        },
+        {
+          "name": "AdamW\\validation_u000002.json",
+          "bytes": 95613
+        },
+        {
+          "name": "AdamW\\validation_u000100.json",
+          "bytes": 95839
+        },
+        {
+          "name": "CAdamW\\metrics_u000001.json",
+          "bytes": 55026
+        },
+        {
+          "name": "CAdamW\\metrics_u000002.json",
+          "bytes": 58204
+        },
+        {
+          "name": "CAdamW\\metrics_u000003.json",
+          "bytes": 66324
+        },
+        {
+          "name": "CAdamW\\metrics_u000004.json",
+          "bytes": 56415
+        },
+        {
+          "name": "CAdamW\\metrics_u000005.json",
+          "bytes": 58048
+        },
+        {
+          "name": "CAdamW\\metrics_u000006.json",
+          "bytes": 62809
+        },
+        {
+          "name": "CAdamW\\metrics_u000007.json",
+          "bytes": 57544
+        },
+        {
+          "name": "CAdamW\\metrics_u000008.json",
+          "bytes": 56444
+        },
+        {
+          "name": "CAdamW\\metrics_u000009.json",
+          "bytes": 58632
+        },
+        {
+          "name": "CAdamW\\metrics_u000010.json",
+          "bytes": 57071
+        },
+        {
+          "name": "CAdamW\\metrics_u000011.json",
+          "bytes": 57617
+        },
+        {
+          "name": "CAdamW\\metrics_u000012.json",
+          "bytes": 55293
+        },
+        {
+          "name": "CAdamW\\metrics_u000013.json",
+          "bytes": 60462
+        },
+        {
+          "name": "CAdamW\\metrics_u000014.json",
+          "bytes": 61137
+        },
+        {
+          "name": "CAdamW\\metrics_u000015.json",
+          "bytes": 54702
+        },
+        {
+          "name": "CAdamW\\metrics_u000016.json",
+          "bytes": 61176
+        },
+        {
+          "name": "CAdamW\\metrics_u000017.json",
+          "bytes": 59369
+        },
+        {
+          "name": "CAdamW\\metrics_u000018.json",
+          "bytes": 62354
+        },
+        {
+          "name": "CAdamW\\metrics_u000019.json",
+          "bytes": 56459
+        },
+        {
+          "name": "CAdamW\\metrics_u000020.json",
+          "bytes": 58861
+        },
+        {
+          "name": "CAdamW\\metrics_u000021.json",
+          "bytes": 57549
+        },
+        {
+          "name": "CAdamW\\metrics_u000022.json",
+          "bytes": 61226
+        },
+        {
+          "name": "CAdamW\\metrics_u000023.json",
+          "bytes": 58270
+        },
+        {
+          "name": "CAdamW\\metrics_u000024.json",
+          "bytes": 58865
+        },
+        {
+          "name": "CAdamW\\metrics_u000025.json",
+          "bytes": 57565
+        },
+        {
+          "name": "CAdamW\\metrics_u000026.json",
+          "bytes": 60005
+        },
+        {
+          "name": "CAdamW\\metrics_u000027.json",
+          "bytes": 58872
+        },
+        {
+          "name": "CAdamW\\metrics_u000028.json",
+          "bytes": 62440
+        },
+        {
+          "name": "CAdamW\\metrics_u000029.json",
+          "bytes": 60497
+        },
+        {
+          "name": "CAdamW\\metrics_u000030.json",
+          "bytes": 55342
+        },
+        {
+          "name": "CAdamW\\metrics_u000031.json",
+          "bytes": 59984
+        },
+        {
+          "name": "CAdamW\\metrics_u000032.json",
+          "bytes": 57763
+        },
+        {
+          "name": "CAdamW\\metrics_u000033.json",
+          "bytes": 61717
+        },
+        {
+          "name": "CAdamW\\metrics_u000034.json",
+          "bytes": 54783
+        },
+        {
+          "name": "CAdamW\\metrics_u000035.json",
+          "bytes": 61797
+        },
+        {
+          "name": "CAdamW\\metrics_u000036.json",
+          "bytes": 57719
+        },
+        {
+          "name": "CAdamW\\metrics_u000037.json",
+          "bytes": 52946
+        },
+        {
+          "name": "CAdamW\\metrics_u000038.json",
+          "bytes": 57760
+        },
+        {
+          "name": "CAdamW\\metrics_u000039.json",
+          "bytes": 51809
+        },
+        {
+          "name": "CAdamW\\metrics_u000040.json",
+          "bytes": 57211
+        },
+        {
+          "name": "CAdamW\\metrics_u000041.json",
+          "bytes": 59906
+        },
+        {
+          "name": "CAdamW\\metrics_u000042.json",
+          "bytes": 54837
+        },
+        {
+          "name": "CAdamW\\metrics_u000043.json",
+          "bytes": 61195
+        },
+        {
+          "name": "CAdamW\\metrics_u000044.json",
+          "bytes": 58876
+        },
+        {
+          "name": "CAdamW\\metrics_u000045.json",
+          "bytes": 61708
+        },
+        {
+          "name": "CAdamW\\metrics_u000046.json",
+          "bytes": 60117
+        },
+        {
+          "name": "CAdamW\\metrics_u000047.json",
+          "bytes": 60070
+        },
+        {
+          "name": "CAdamW\\metrics_u000048.json",
+          "bytes": 60166
+        },
+        {
+          "name": "CAdamW\\metrics_u000049.json",
+          "bytes": 59418
+        },
+        {
+          "name": "CAdamW\\metrics_u000050.json",
+          "bytes": 60020
+        },
+        {
+          "name": "CAdamW\\metrics_u000051.json",
+          "bytes": 61824
+        },
+        {
+          "name": "CAdamW\\metrics_u000052.json",
+          "bytes": 55968
+        },
+        {
+          "name": "CAdamW\\metrics_u000053.json",
+          "bytes": 55922
+        },
+        {
+          "name": "CAdamW\\metrics_u000054.json",
+          "bytes": 55966
+        },
+        {
+          "name": "CAdamW\\metrics_u000055.json",
+          "bytes": 55936
+        },
+        {
+          "name": "CAdamW\\metrics_u000056.json",
+          "bytes": 65385
+        },
+        {
+          "name": "CAdamW\\metrics_u000057.json",
+          "bytes": 60580
+        },
+        {
+          "name": "CAdamW\\metrics_u000058.json",
+          "bytes": 60650
+        },
+        {
+          "name": "CAdamW\\metrics_u000059.json",
+          "bytes": 61872
+        },
+        {
+          "name": "CAdamW\\metrics_u000060.json",
+          "bytes": 58430
+        },
+        {
+          "name": "CAdamW\\metrics_u000061.json",
+          "bytes": 59519
+        },
+        {
+          "name": "CAdamW\\metrics_u000062.json",
+          "bytes": 58917
+        },
+        {
+          "name": "CAdamW\\metrics_u000063.json",
+          "bytes": 54232
+        },
+        {
+          "name": "CAdamW\\metrics_u000064.json",
+          "bytes": 57804
+        },
+        {
+          "name": "CAdamW\\metrics_u000065.json",
+          "bytes": 59392
+        },
+        {
+          "name": "CAdamW\\metrics_u000066.json",
+          "bytes": 60663
+        },
+        {
+          "name": "CAdamW\\metrics_u000067.json",
+          "bytes": 61823
+        },
+        {
+          "name": "CAdamW\\metrics_u000068.json",
+          "bytes": 62420
+        },
+        {
+          "name": "CAdamW\\metrics_u000069.json",
+          "bytes": 59414
+        },
+        {
+          "name": "CAdamW\\metrics_u000070.json",
+          "bytes": 53683
+        },
+        {
+          "name": "CAdamW\\metrics_u000071.json",
+          "bytes": 59469
+        },
+        {
+          "name": "CAdamW\\metrics_u000072.json",
+          "bytes": 59015
+        },
+        {
+          "name": "CAdamW\\metrics_u000073.json",
+          "bytes": 54161
+        },
+        {
+          "name": "CAdamW\\metrics_u000074.json",
+          "bytes": 56088
+        },
+        {
+          "name": "CAdamW\\metrics_u000075.json",
+          "bytes": 55934
+        },
+        {
+          "name": "CAdamW\\metrics_u000076.json",
+          "bytes": 53125
+        },
+        {
+          "name": "CAdamW\\metrics_u000077.json",
+          "bytes": 57695
+        },
+        {
+          "name": "CAdamW\\metrics_u000078.json",
+          "bytes": 56627
+        },
+        {
+          "name": "CAdamW\\metrics_u000079.json",
+          "bytes": 58921
+        },
+        {
+          "name": "CAdamW\\metrics_u000080.json",
+          "bytes": 61874
+        },
+        {
+          "name": "CAdamW\\metrics_u000081.json",
+          "bytes": 55277
+        },
+        {
+          "name": "CAdamW\\metrics_u000082.json",
+          "bytes": 59023
+        },
+        {
+          "name": "CAdamW\\metrics_u000083.json",
+          "bytes": 56522
+        },
+        {
+          "name": "CAdamW\\metrics_u000084.json",
+          "bytes": 64817
+        },
+        {
+          "name": "CAdamW\\metrics_u000085.json",
+          "bytes": 61817
+        },
+        {
+          "name": "CAdamW\\metrics_u000086.json",
+          "bytes": 56036
+        },
+        {
+          "name": "CAdamW\\metrics_u000087.json",
+          "bytes": 58217
+        },
+        {
+          "name": "CAdamW\\metrics_u000088.json",
+          "bytes": 66664
+        },
+        {
+          "name": "CAdamW\\metrics_u000089.json",
+          "bytes": 61152
+        },
+        {
+          "name": "CAdamW\\metrics_u000090.json",
+          "bytes": 62448
+        },
+        {
+          "name": "CAdamW\\metrics_u000091.json",
+          "bytes": 55402
+        },
+        {
+          "name": "CAdamW\\metrics_u000092.json",
+          "bytes": 55469
+        },
+        {
+          "name": "CAdamW\\metrics_u000093.json",
+          "bytes": 58285
+        },
+        {
+          "name": "CAdamW\\metrics_u000094.json",
+          "bytes": 57242
+        },
+        {
+          "name": "CAdamW\\metrics_u000095.json",
+          "bytes": 54210
+        },
+        {
+          "name": "CAdamW\\metrics_u000096.json",
+          "bytes": 62948
+        },
+        {
+          "name": "CAdamW\\metrics_u000097.json",
+          "bytes": 63430
+        },
+        {
+          "name": "CAdamW\\metrics_u000098.json",
+          "bytes": 57206
+        },
+        {
+          "name": "CAdamW\\metrics_u000099.json",
+          "bytes": 63502
+        },
+        {
+          "name": "CAdamW\\metrics_u000100.json",
+          "bytes": 59436
+        },
+        {
+          "name": "CAdamW\\u000000.pt",
+          "bytes": 5011288
+        },
+        {
+          "name": "CAdamW\\u000001.pt",
+          "bytes": 15005041
+        },
+        {
+          "name": "CAdamW\\u000002.pt",
+          "bytes": 15006129
+        },
+        {
+          "name": "CAdamW\\u000003.pt",
+          "bytes": 15009265
+        },
+        {
+          "name": "CAdamW\\u000004.pt",
+          "bytes": 15005489
+        },
+        {
+          "name": "CAdamW\\u000005.pt",
+          "bytes": 15006193
+        },
+        {
+          "name": "CAdamW\\u000006.pt",
+          "bytes": 15007921
+        },
+        {
+          "name": "CAdamW\\u000007.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000008.pt",
+          "bytes": 15005489
+        },
+        {
+          "name": "CAdamW\\u000009.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000010.pt",
+          "bytes": 15005745
+        },
+        {
+          "name": "CAdamW\\u000011.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000012.pt",
+          "bytes": 15005041
+        },
+        {
+          "name": "CAdamW\\u000013.pt",
+          "bytes": 15007025
+        },
+        {
+          "name": "CAdamW\\u000014.pt",
+          "bytes": 15007281
+        },
+        {
+          "name": "CAdamW\\u000015.pt",
+          "bytes": 15004849
+        },
+        {
+          "name": "CAdamW\\u000016.pt",
+          "bytes": 15007281
+        },
+        {
+          "name": "CAdamW\\u000017.pt",
+          "bytes": 15006577
+        },
+        {
+          "name": "CAdamW\\u000018.pt",
+          "bytes": 15007729
+        },
+        {
+          "name": "CAdamW\\u000019.pt",
+          "bytes": 15005489
+        },
+        {
+          "name": "CAdamW\\u000020.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000021.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000022.pt",
+          "bytes": 15007281
+        },
+        {
+          "name": "CAdamW\\u000023.pt",
+          "bytes": 15006193
+        },
+        {
+          "name": "CAdamW\\u000024.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000025.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000026.pt",
+          "bytes": 15006833
+        },
+        {
+          "name": "CAdamW\\u000027.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000028.pt",
+          "bytes": 15007729
+        },
+        {
+          "name": "CAdamW\\u000029.pt",
+          "bytes": 15007089
+        },
+        {
+          "name": "CAdamW\\u000030.pt",
+          "bytes": 15005041
+        },
+        {
+          "name": "CAdamW\\u000031.pt",
+          "bytes": 15006833
+        },
+        {
+          "name": "CAdamW\\u000032.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000033.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000034.pt",
+          "bytes": 15004849
+        },
+        {
+          "name": "CAdamW\\u000035.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000036.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000037.pt",
+          "bytes": 15004209
+        },
+        {
+          "name": "CAdamW\\u000038.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000039.pt",
+          "bytes": 15003761
+        },
+        {
+          "name": "CAdamW\\u000040.pt",
+          "bytes": 15005745
+        },
+        {
+          "name": "CAdamW\\u000041.pt",
+          "bytes": 15006833
+        },
+        {
+          "name": "CAdamW\\u000042.pt",
+          "bytes": 15004849
+        },
+        {
+          "name": "CAdamW\\u000043.pt",
+          "bytes": 15007281
+        },
+        {
+          "name": "CAdamW\\u000044.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000045.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000046.pt",
+          "bytes": 15006833
+        },
+        {
+          "name": "CAdamW\\u000047.pt",
+          "bytes": 15006833
+        },
+        {
+          "name": "CAdamW\\u000048.pt",
+          "bytes": 15006833
+        },
+        {
+          "name": "CAdamW\\u000049.pt",
+          "bytes": 15006641
+        },
+        {
+          "name": "CAdamW\\u000050.pt",
+          "bytes": 15006833
+        },
+        {
+          "name": "CAdamW\\u000051.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000052.pt",
+          "bytes": 15005297
+        },
+        {
+          "name": "CAdamW\\u000053.pt",
+          "bytes": 15005297
+        },
+        {
+          "name": "CAdamW\\u000054.pt",
+          "bytes": 15005297
+        },
+        {
+          "name": "CAdamW\\u000055.pt",
+          "bytes": 15005297
+        },
+        {
+          "name": "CAdamW\\u000056.pt",
+          "bytes": 15008817
+        },
+        {
+          "name": "CAdamW\\u000057.pt",
+          "bytes": 15007025
+        },
+        {
+          "name": "CAdamW\\u000058.pt",
+          "bytes": 15007025
+        },
+        {
+          "name": "CAdamW\\u000059.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000060.pt",
+          "bytes": 15006193
+        },
+        {
+          "name": "CAdamW\\u000061.pt",
+          "bytes": 15006641
+        },
+        {
+          "name": "CAdamW\\u000062.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000063.pt",
+          "bytes": 15004657
+        },
+        {
+          "name": "CAdamW\\u000064.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000065.pt",
+          "bytes": 15006641
+        },
+        {
+          "name": "CAdamW\\u000066.pt",
+          "bytes": 15007025
+        },
+        {
+          "name": "CAdamW\\u000067.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000068.pt",
+          "bytes": 15007729
+        },
+        {
+          "name": "CAdamW\\u000069.pt",
+          "bytes": 15006641
+        },
+        {
+          "name": "CAdamW\\u000070.pt",
+          "bytes": 15004401
+        },
+        {
+          "name": "CAdamW\\u000071.pt",
+          "bytes": 15006577
+        },
+        {
+          "name": "CAdamW\\u000072.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000073.pt",
+          "bytes": 15004657
+        },
+        {
+          "name": "CAdamW\\u000074.pt",
+          "bytes": 15005297
+        },
+        {
+          "name": "CAdamW\\u000075.pt",
+          "bytes": 15005297
+        },
+        {
+          "name": "CAdamW\\u000076.pt",
+          "bytes": 15004209
+        },
+        {
+          "name": "CAdamW\\u000077.pt",
+          "bytes": 15005937
+        },
+        {
+          "name": "CAdamW\\u000078.pt",
+          "bytes": 15005489
+        },
+        {
+          "name": "CAdamW\\u000079.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000080.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000081.pt",
+          "bytes": 15005041
+        },
+        {
+          "name": "CAdamW\\u000082.pt",
+          "bytes": 15006385
+        },
+        {
+          "name": "CAdamW\\u000083.pt",
+          "bytes": 15005489
+        },
+        {
+          "name": "CAdamW\\u000084.pt",
+          "bytes": 15008625
+        },
+        {
+          "name": "CAdamW\\u000085.pt",
+          "bytes": 15007473
+        },
+        {
+          "name": "CAdamW\\u000086.pt",
+          "bytes": 15005297
+        },
+        {
+          "name": "CAdamW\\u000087.pt",
+          "bytes": 15006193
+        },
+        {
+          "name": "CAdamW\\u000088.pt",
+          "bytes": 15009265
+        },
+        {
+          "name": "CAdamW\\u000089.pt",
+          "bytes": 15007281
+        },
+        {
+          "name": "CAdamW\\u000090.pt",
+          "bytes": 15007729
+        },
+        {
+          "name": "CAdamW\\u000091.pt",
+          "bytes": 15005041
+        },
+        {
+          "name": "CAdamW\\u000092.pt",
+          "bytes": 15005041
+        },
+        {
+          "name": "CAdamW\\u000093.pt",
+          "bytes": 15006193
+        },
+        {
+          "name": "CAdamW\\u000094.pt",
+          "bytes": 15005745
+        },
+        {
+          "name": "CAdamW\\u000095.pt",
+          "bytes": 15004657
+        },
+        {
+          "name": "CAdamW\\u000096.pt",
+          "bytes": 15007921
+        },
+        {
+          "name": "CAdamW\\u000097.pt",
+          "bytes": 15008177
+        },
+        {
+          "name": "CAdamW\\u000098.pt",
+          "bytes": 15005745
+        },
+        {
+          "name": "CAdamW\\u000099.pt",
+          "bytes": 15008177
+        },
+        {
+          "name": "CAdamW\\u000100.pt",
+          "bytes": 15006641
+        },
+        {
+          "name": "CAdamW\\validation_u000000.json",
+          "bytes": 95611
+        },
+        {
+          "name": "CAdamW\\validation_u000002.json",
+          "bytes": 95610
+        },
+        {
+          "name": "CAdamW\\validation_u000100.json",
+          "bytes": 96018
+        },
+        {
+          "name": "identity.json",
+          "bytes": 4450
+        },
+        {
+          "name": "run_0981053d7ceb.json",
+          "bytes": 808
+        },
+        {
+          "name": "run_0a0d531cb54f.json",
+          "bytes": 140238
+        },
+        {
+          "name": "run_1a17e2577cfb.json",
+          "bytes": 73255
+        },
+        {
+          "name": "run_63df3c52239f.json",
+          "bytes": 137312
+        }
+      ]
+    }
+  },
+  "existing_engineering_report": {
+    "status": "ENGINEERING_TESTS_PASS",
+    "tests": 59,
+    "seconds": 40.763196300002164,
+    "reported_gates_py_sha256": "472efd2c4946216dd6b9dc7b1d897e70df7e60904db5d9d4f1dd3b94594e83a8",
+    "current_gates_py_sha256": "b1f4943f92a496df0347dd1bee2ae178f16b19ec2b1d7fa36d54c8aa781f737b",
+    "source_hash_mismatch": true,
+    "source_hash_count": 75,
+    "current_top_level_py_count": 154,
+    "limitations": [
+      "Unit tests include tiny synthetic optimizer fixtures; they do not consume or replace the separate real-data pilot ledger",
+      "Skipped GPU cases are unverified, never GPU acceptance",
+      "Not a replacement for full data, GPU equivalence or per-stage acceptance"
+    ]
+  },
+  "notes": [
+    "Baseline only. No CUDA context, no raster pixel read, no optimizer step.",
+    "The dirty working tree is recorded, not cleaned or committed.",
+    "A test-report source hash mismatch means that report does not describe this HEAD."
+  ]
+}
