@@ -1,0 +1,635 @@
+{
+ "status": "PASS",
+ "purpose": "integration only, not a performance result",
+ "final_evaluated": false,
+ "updates": 13,
+ "output_shape": [
+  4,
+  1,
+  128,
+  128
+ ],
+ "reload_max_error": 0.0,
+ "decoder_abs_grad_sum": 20.86027740109592,
+ "integrity": {
+  "encoder_sha256": "18eaa436a7b6c52cb8ebfb3445cb695dd89d3a8766a05ccb0ec24fa65c30517f",
+  "decoder_sha256": "efd7e8ba034675248f4eb187569f8f973586f784a5b8eec9518f5b2695a1c8ac",
+  "encoder_unchanged": true,
+  "decoder_changed": true,
+  "encoder_has_grad": false,
+  "encoder_training": false
+ },
+ "params": {
+  "total": 3725377,
+  "trainable": 395009,
+  "encoder": 0,
+  "decoder": 395009,
+  "new": 0
+ },
+ "registry_sha256": "34c8de2cdc61ce3b8d419006aae1ad1faedb85adcf3b8bd7ce9bffd26d2ed08e",
+ "source_sha256": {
+  "src/landslide_seg/__init__.py": "af201fbc0696ed533c8358270ab1423eb5e671b6e6f7d5f0e3868b930199cda2",
+  "src/landslide_seg/config.py": "d29c563d40df9e78f3516f6a0241d71908d4a109c2184102712cb55c1a4f2072",
+  "src/landslide_seg/data/__init__.py": "92be8f4baa5319214dc29bb6b644d90dab34384e712beb805e779f7bf08540e7",
+  "src/landslide_seg/data/band_mapping.py": "8b67e47e876f6cea773ea10c9969527ca0239139b50f6aa3412c74675b0c9a45",
+  "src/landslide_seg/data/certified.py": "ad7af1af1e543c3510ea89c360ad523e93e68c9e41dbbce8ae5a04f6d5aa4554",
+  "src/landslide_seg/data/loader.py": "2ac61720e861f1cd18f7efad0dd2acaf631449ae1dafde8c720a8a4adff6102d",
+  "src/landslide_seg/data/pipeline.py": "29c2502a3baa4bd1f93ba65bf7ae50cd2a3463a7204e661a0dc356b13680f31e",
+  "src/landslide_seg/data/s2_backfill.py": "73c87f5289402573d36cc7fd6c29767a41b4be5569b24e72ca499958513b323d",
+  "src/landslide_seg/data/segformer_dataset.py": "ccc011598235eaa3f5de40ef2d2515cd297162c0a998df6cb3f339ad95004d08",
+  "src/landslide_seg/data/sen12.py": "6dadafeb66bdb5ff094577c1b88ddf7d86670588f507ca7b4886acc190ef93a7",
+  "src/landslide_seg/encoders/__init__.py": "b2e86af5a4621b6efbb5296098fcbd39124666e600712a5ac3aa8e3a4e0c9320",
+  "src/landslide_seg/encoders/_terramind_loader.py": "800bcbc98ebdabe6ca64a7b73d60f2e31839c889bd456e844954fd0b3a289ef7",
+  "src/landslide_seg/encoders/anysat_scale.py": "cf600f4464a7a3a3ad492b78512c15e9a49f0eda96d03a6db903d16046bf33fb",
+  "src/landslide_seg/encoders/terramind_tim.py": "4ecd3d4b3187c2c6492cf1b268e859677f95099207997c75d74079b811cfd743",
+  "src/landslide_seg/inference/__init__.py": "3416f6ac45478f1b4a0090fabe231f10b2eb941e6fecb02120ffcebb061aa5e7",
+  "src/landslide_seg/inference/visualize.py": "a553155a99c3597cc0c804f3ae42612fdba7d8f96198d739d73edb6328fde033",
+  "src/landslide_seg/models/__init__.py": "22363fc89673112dec1e22646cc5f4c3d8764e0301c6354e6c1d7c1697f1efb2",
+  "src/landslide_seg/models/build.py": "64ff67b24ea35c441661705a5c14e87306f1d3dcddb620f4cd0bc7cae2526580",
+  "src/landslide_seg/models/coarse.py": "90e4012ed44eb38fd2cba7589e2e294c8fb167da012bc1d112a9242fbc949dc7",
+  "src/landslide_seg/models/factory.py": "db31cd43c13cfb5f39c200dcd96c538d446762bc92a05bed6c1ecec9b2a1b4fc",
+  "src/landslide_seg/models/feature_fusion.py": "e8d0d50321a90c9a3ecca553d67e5c3f2e61f2c8726bf435afedd6b7791f8dd4",
+  "src/landslide_seg/models/full_model.py": "1ea7d88cb5c57c71c9d848f18db88169d3cea8b14565c9981360be6ad43a6d54",
+  "src/landslide_seg/models/fusion.py": "b53e83f4e1828a33ffca2dfc52c6f06bb9e31a294d25bf6b35b83a5368367a86",
+  "src/landslide_seg/models/refiner.py": "511a73904861f9d177cc4dfc51c8e686b53825365b6faba246c76401a3a7b220",
+  "src/landslide_seg/models/segformer.py": "5393ab679d42e2fc034f99d057db87b507f932e1beba9e1a9a729baad03aff0c",
+  "src/landslide_seg/models/segformer_probe.py": "1f65b2222b8fb53896c915f1a50478b42193db78de96bdc361c70a804da08696",
+  "src/landslide_seg/models/semantic.py": "bd74e18519b7eb81b6e87b4b74186621a396b28dbbd33e0b81afef0dd291004c",
+  "src/landslide_seg/models/semantic_dynamic.py": "dd4e4f3f9bfaadcbf01103158aae7148cbc9e1188d87817160f46e77ed13c839",
+  "src/landslide_seg/models/spectral_stem.py": "238bf2fdfb0da7dc8de1f619b9388006d7f46a0a82d416281bc2bf01add1f317",
+  "src/landslide_seg/models/unet.py": "7a449d29e781c72b1f68241b5283829360da449a072a366dc3394873a7103aee",
+  "src/landslide_seg/training/__init__.py": "227484dda949b07eabecca5327ea4eba5849531b4589916108e2b926dbf54081",
+  "src/landslide_seg/training/losses.py": "0edf495a66b161731701044c7026adc4278c80c32af3f0722baa0f41f6f7ac48",
+  "src/landslide_seg/training/metrics.py": "7723a3ce3d90220c3bc832ecc3ffc0669edd73e5fe0e5a58be19edf07729aa81",
+  "src/landslide_seg/training/protocol.py": "954e5f6b28d733171a8200b58d7bf6f2a17023db73052466327dab5121193fed",
+  "src/landslide_seg/training/segformer_metrics.py": "8a07131305343a28a9681922811c3e5840a0a25511bcf8ae54e877104b34ff9f",
+  "src/landslide_seg/training/segformer_trainer.py": "8024abd91ebab8b9fadb5ce95b2c4b97e51e5ff696b542849f4376af39076e2a",
+  "src/landslide_seg/training/trainer.py": "c3ee581d76b9f26c4ef7c316307c90d8623caecead75189fd693798f49fde37a",
+  "src/landslide_seg/training/update_training.py": "e465ba4e728462f85a52450eefe511f52a81d020954f659359d34e15afbe09d3"
+ },
+ "summary": {
+  "experiment": "validation_frozen_best_decodeprobe_u13",
+  "seed": 1234,
+  "run_dir": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\s2_10band_v4r2_probe\\validation_frozen_best_decodeprobe_u13\\1234",
+  "n_train": 2223,
+  "n_val": 669,
+  "params": {
+   "total": 3725377,
+   "trainable": 395009,
+   "encoder": 0,
+   "decoder": 395009,
+   "new": 0
+  },
+  "global_step": 13,
+  "target_updates": 13,
+  "complete": true,
+  "selection_metric": "dev_event_mean_iou",
+  "best_val_iou": 8.37955388851203e-05,
+  "best_step": 13,
+  "seconds": 44.952009201049805,
+  "device": "cuda:1",
+  "history": [
+   {
+    "global_step": 5,
+    "epoch": 0,
+    "train_loss": 0.7631550669670105,
+    "coarse_loss": 0.0,
+    "train_clean": {
+     "pooled": {
+      "iou": 0.0005501719709320183,
+      "dice": 0.0010997388963479224,
+      "precision": 0.7903030303030303,
+      "recall": 0.0005502522974299335,
+      "false_positive_rate": 5.298731128477201e-06,
+      "tp": 652,
+      "fp": 173,
+      "fn": 1184259,
+      "tn": 32649153
+     },
+     "by_event": {
+      "chimanimani": {
+       "iou": 0.0012074027644904826,
+       "dice": 0.002411893402219469,
+       "precision": 0.9631578947368421,
+       "recall": 0.0012074585307275103,
+       "false_positive_rate": 1.167184507526506e-06,
+       "tp": 183,
+       "fp": 7,
+       "fn": 151375,
+       "tn": 5997331
+      },
+      "china": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 12279,
+       "tn": 1087648
+      },
+      "dominicamaria": {
+       "iou": 0.00016086314567881376,
+       "dice": 0.0003216745457783088,
+       "precision": 0.3333333333333333,
+       "recall": 0.00016091491623803915,
+       "false_positive_rate": 1.0773272818320874e-05,
+       "tp": 28,
+       "fp": 56,
+       "fn": 173977,
+       "tn": 5197993
+      },
+      "hokkaido": {
+       "iou": 0.00041891396554432633,
+       "dice": 0.0008374771002355405,
+       "precision": 0.6736842105263158,
+       "recall": 0.0004189989852368326,
+       "false_positive_rate": 3.1816539674198635e-05,
+       "tp": 128,
+       "fp": 62,
+       "fn": 305362,
+       "tn": 1948610
+      },
+      "indonesia": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 91682,
+       "tn": 3590470
+      },
+      "itogon": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 17104,
+       "tn": 1824818
+      },
+      "kyrgyzstan1": {
+       "iou": 0.0007951407500743063,
+       "dice": 0.001589018007178503,
+       "precision": 1.0,
+       "recall": 0.0007951407500743063,
+       "false_positive_rate": 0.0,
+       "tp": 313,
+       "fp": 0,
+       "fn": 393328,
+       "tn": 9579937
+      },
+      "kyrgyzstan2": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 1.1249565440173723e-05,
+       "tp": 0,
+       "fp": 31,
+       "fn": 34944,
+       "tn": 2755631
+      },
+      "usa_puertorico": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 2.5497501244878e-05,
+       "tp": 0,
+       "fp": 17,
+       "fn": 4208,
+       "tn": 666715
+      }
+     },
+     "event_mean_iou": 0.0002869245139764366
+    },
+    "dev": {
+     "pooled": {
+      "iou": 0.0,
+      "dice": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "false_positive_rate": 1.5525172717546484e-05,
+      "tp": 0,
+      "fp": 161,
+      "fn": 203532,
+      "tn": 10370094
+     },
+     "by_event": {
+      "hiroshima": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 2.3296592243942234e-05,
+       "tp": 0,
+       "fp": 161,
+       "fn": 125264,
+       "tn": 6910721
+      },
+      "thrissur": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 78268,
+       "tn": 3459373
+      }
+     },
+     "event_mean_iou": 0.0
+    },
+    "val_iou": 0.0,
+    "selection_metric": "dev_event_mean_iou",
+    "lr": [
+     4e-05,
+     0.0004
+    ],
+    "skipped_batches": 0,
+    "samples_exposed": 20,
+    "seconds": 17.533238887786865,
+    "probe_integrity": {
+     "encoder_sha256": "18eaa436a7b6c52cb8ebfb3445cb695dd89d3a8766a05ccb0ec24fa65c30517f",
+     "decoder_sha256": "0e4f52eedd7ddb85889c3c1a012e3e059d4f2fc71c2086be29c0ed90db1db7d0",
+     "encoder_unchanged": true,
+     "decoder_changed": true,
+     "encoder_has_grad": false,
+     "encoder_training": false
+    }
+   },
+   {
+    "global_step": 10,
+    "epoch": 0,
+    "train_loss": 0.7158997893333435,
+    "coarse_loss": 0.0,
+    "train_clean": {
+     "pooled": {
+      "iou": 0.00027512220151772936,
+      "dice": 0.0005500930602216909,
+      "precision": 0.9504373177842566,
+      "recall": 0.00027512614871496677,
+      "false_positive_rate": 5.206845617578752e-07,
+      "tp": 326,
+      "fp": 17,
+      "fn": 1184585,
+      "tn": 32649309
+     },
+     "by_event": {
+      "chimanimani": {
+       "iou": 0.0006862059409598965,
+       "dice": 0.001371470770529203,
+       "precision": 1.0,
+       "recall": 0.0006862059409598965,
+       "false_positive_rate": 0.0,
+       "tp": 104,
+       "fp": 0,
+       "fn": 151454,
+       "tn": 5997338
+      },
+      "china": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 12279,
+       "tn": 1087648
+      },
+      "dominicamaria": {
+       "iou": 1.1493460221134175e-05,
+       "dice": 2.2986656246049167e-05,
+       "precision": 0.2222222222222222,
+       "recall": 1.1493922588431366e-05,
+       "false_positive_rate": 1.3466591022901092e-06,
+       "tp": 2,
+       "fp": 7,
+       "fn": 174003,
+       "tn": 5198042
+      },
+      "hokkaido": {
+       "iou": 0.00025859247135842883,
+       "dice": 0.0005170512371596216,
+       "precision": 0.8876404494382022,
+       "recall": 0.0002586009362008576,
+       "false_positive_rate": 5.131699947451393e-06,
+       "tp": 79,
+       "fp": 10,
+       "fn": 305411,
+       "tn": 1948662
+      },
+      "indonesia": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 91682,
+       "tn": 3590470
+      },
+      "itogon": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 17104,
+       "tn": 1824818
+      },
+      "kyrgyzstan1": {
+       "iou": 0.0003581943954008856,
+       "dice": 0.0007161322762340585,
+       "precision": 1.0,
+       "recall": 0.0003581943954008856,
+       "false_positive_rate": 0.0,
+       "tp": 141,
+       "fp": 0,
+       "fn": 393500,
+       "tn": 9579937
+      },
+      "kyrgyzstan2": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 34944,
+       "tn": 2755662
+      },
+      "usa_puertorico": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 4208,
+       "tn": 666732
+      }
+     },
+     "event_mean_iou": 0.00014605402977114945
+    },
+    "dev": {
+     "pooled": {
+      "iou": 0.0,
+      "dice": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "false_positive_rate": 2.7000300378341707e-06,
+      "tp": 0,
+      "fp": 28,
+      "fn": 203532,
+      "tn": 10370227
+     },
+     "by_event": {
+      "hiroshima": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "false_positive_rate": 4.051581259816041e-06,
+       "tp": 0,
+       "fp": 28,
+       "fn": 125264,
+       "tn": 6910854
+      },
+      "thrissur": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 78268,
+       "tn": 3459373
+      }
+     },
+     "event_mean_iou": 0.0
+    },
+    "val_iou": 0.0,
+    "selection_metric": "dev_event_mean_iou",
+    "lr": [
+     1.5e-05,
+     0.00015
+    ],
+    "skipped_batches": 0,
+    "samples_exposed": 40,
+    "seconds": 30.23189067840576,
+    "probe_integrity": {
+     "encoder_sha256": "18eaa436a7b6c52cb8ebfb3445cb695dd89d3a8766a05ccb0ec24fa65c30517f",
+     "decoder_sha256": "6fb1da7ec0fbe086c6583509a2ccfe8a66687aafe95b904704a1d52a37c8d60f",
+     "encoder_unchanged": true,
+     "decoder_changed": true,
+     "encoder_has_grad": false,
+     "encoder_training": false
+    }
+   },
+   {
+    "global_step": 13,
+    "epoch": 0,
+    "train_loss": 0.717304507891337,
+    "coarse_loss": 0.0,
+    "train_clean": {
+     "pooled": {
+      "iou": 0.0005215326308114389,
+      "dice": 0.0010425215526148651,
+      "precision": 0.9142011834319527,
+      "recall": 0.0005215581592203972,
+      "false_positive_rate": 1.7764532107033388e-06,
+      "tp": 618,
+      "fp": 58,
+      "fn": 1184293,
+      "tn": 32649268
+     },
+     "by_event": {
+      "chimanimani": {
+       "iou": 0.0009897135768908477,
+       "dice": 0.001977470024850207,
+       "precision": 0.9933774834437086,
+       "recall": 0.0009897201071536969,
+       "false_positive_rate": 1.66740643932358e-07,
+       "tp": 150,
+       "fp": 1,
+       "fn": 151408,
+       "tn": 5997337
+      },
+      "china": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 12279,
+       "tn": 1087648
+      },
+      "dominicamaria": {
+       "iou": 5.171730173597743e-05,
+       "dice": 0.00010342925438999724,
+       "precision": 0.3333333333333333,
+       "recall": 5.172265164794115e-05,
+       "false_positive_rate": 3.462837691603138e-06,
+       "tp": 9,
+       "fp": 18,
+       "fn": 173996,
+       "tn": 5198031
+      },
+      "hokkaido": {
+       "iou": 0.0004811358734252619,
+       "dice": 0.0009618089860439553,
+       "precision": 0.7989130434782609,
+       "recall": 0.00048119414710792496,
+       "false_positive_rate": 1.8987289805570153e-05,
+       "tp": 147,
+       "fp": 37,
+       "fn": 305343,
+       "tn": 1948635
+      },
+      "indonesia": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 91682,
+       "tn": 3590470
+      },
+      "itogon": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 17104,
+       "tn": 1824818
+      },
+      "kyrgyzstan1": {
+       "iou": 0.0007925963372903875,
+       "dice": 0.0015839372517165665,
+       "precision": 0.9936305732484076,
+       "recall": 0.0007926003642913213,
+       "false_positive_rate": 2.0876964013437667e-07,
+       "tp": 312,
+       "fp": 2,
+       "fn": 393329,
+       "tn": 9579935
+      },
+      "kyrgyzstan2": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 34944,
+       "tn": 2755662
+      },
+      "usa_puertorico": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 4208,
+       "tn": 666732
+      }
+     },
+     "event_mean_iou": 0.00025724034326027496
+    },
+    "dev": {
+     "pooled": {
+      "iou": 0.00010315709843643312,
+      "dice": 0.00020629291629419334,
+      "precision": 0.3387096774193548,
+      "recall": 0.0001031778786628147,
+      "false_positive_rate": 3.953615412542893e-06,
+      "tp": 21,
+      "fp": 41,
+      "fn": 203511,
+      "tn": 10370214
+     },
+     "by_event": {
+      "hiroshima": {
+       "iou": 0.0001675910777702406,
+       "dice": 0.00033512599141439126,
+       "precision": 0.3387096774193548,
+       "recall": 0.00016764593179205517,
+       "false_positive_rate": 5.932672559016345e-06,
+       "tp": 21,
+       "fp": 41,
+       "fn": 125243,
+       "tn": 6910841
+      },
+      "thrissur": {
+       "iou": 0.0,
+       "dice": 0.0,
+       "precision": NaN,
+       "recall": 0.0,
+       "false_positive_rate": 0.0,
+       "tp": 0,
+       "fp": 0,
+       "fn": 78268,
+       "tn": 3459373
+      }
+     },
+     "event_mean_iou": 8.37955388851203e-05
+    },
+    "val_iou": 8.37955388851203e-05,
+    "selection_metric": "dev_event_mean_iou",
+    "lr": [
+     0.0,
+     0.0
+    ],
+    "skipped_batches": 0,
+    "samples_exposed": 52,
+    "seconds": 44.831536054611206,
+    "probe_integrity": {
+     "encoder_sha256": "18eaa436a7b6c52cb8ebfb3445cb695dd89d3a8766a05ccb0ec24fa65c30517f",
+     "decoder_sha256": "6c3cee72e2c20354ba780bb6f34c4e1dc4109e5d41de8dae52101786cc63df0e",
+     "encoder_unchanged": true,
+     "decoder_changed": true,
+     "encoder_has_grad": false,
+     "encoder_training": false
+    }
+   }
+  ],
+  "best_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\s2_10band_v4r2_probe\\validation_frozen_best_decodeprobe_u13\\1234\\best.pt",
+  "last_checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\outputs\\segformer\\s2_10band_v4r2_probe\\validation_frozen_best_decodeprobe_u13\\1234\\last.pt",
+  "skipped_batches": 0,
+  "samples_exposed": 52,
+  "unique_samples_exposed": 52,
+  "exposures_min": 0,
+  "exposures_max": 1,
+  "dev_events": {
+   "hiroshima": 448,
+   "thrissur": 221
+  },
+  "peak_alloc_mib": 216.5458984375,
+  "peak_reserved_mib": 404.0
+ }
+}

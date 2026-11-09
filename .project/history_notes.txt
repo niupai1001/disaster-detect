@@ -1,0 +1,850 @@
+===== 2026-10-17.md =====
+# 2026-10-17
+
+## Landslide4Sense 数据获取
+
+- 用户要求从 IBM-NASA Hugging Face 镜像下载部分样本，已下5 组 train 的image+mask。
+- 镜像仓库：`https://hf-mirror.com/datasets/ibm-nasa-geospatial/Landslide4sense`
+- 文件路径规律（一个 patch 一个 h5）：
+  - 影像 `images/{split}/image_{i}.h5`
+  - 标注 `annotations/{split}/mask_{i}.h5`
+  - split: train 1–3799 / validation 1–245 / test 1–800
+- **镜像上test 也带 mask**（原比赛官网 test 无标签），做本地评估时可直接用。
+- 数据实测格式：
+  - image h5：key=`img`，shape (128,128,14)，float64，Sentinel-2 B1–B12 + ALOS PALSAR 坡度 + DEM，约 10 m/px
+  - mask h5：key=`mask`，shape (128,128)，取值 {0,1}
+  - 样本1 滑坡像素占比仅 2.47%，极不平衡二分类
+- **踩坑：波段值不是 0–1 反射率，实测范围 0.5–6.4，可视化前必须做 min-max 或 2/98 分位归一化，否则全黑。**
+- 单个 image h5 约 1.79 MB，单个 mask h5 约 18 KB，全量约 9 GB。
+
+产出脚本：
+- `download_l4s.sh` — bash 版批量下载，8 路并发，支持 `bash download_l4s.sh <数量> <split>`
+- `inspect_l4s.py` — 读 h5 打印波段统计与滑坡占比，`--save` 生成真彩色/mask/overlay 三联预览图
+
+## 工作目录迁移
+
+- 工作目录从 `C:\Users\yzh\WorkBuddy\2026-10-17-03-21-16` 迁移到 `N:\Users\yzh\Claw`。
+- 迁移后已清空旧目录；备份保留在 `C:\Users\yzh\WorkBuddy\.l4s_backup_20261017`。
+- 注意：N 盘在 Git Bash 中挂载为 `/n/`，路径写法与 C 盘不同。
+- 后续工作目录切到 `N:\Users\yzh\Claw\Disater`，早前的 `L4S_sample/`、`download_l4s.sh`、`inspect_l4s.py`、`preview.png` 都落在 `Disater/` 下。
+
+## 全量下载
+
+- 目标路径：`N:\Users\yzh\Claw\Disater`
+- 新建 `download_all.py`（Python + 16 线程并发 + 5 次重试 + 断点续传），走 hf-mirror.com 镜像。
+- 结果：9688 个 h5 全部下载完成，**零失败**，耗时 20.6 分钟，体积 8.5 GB。
+  - train 3799+3799 / validation 245+245 / test 800+800（影像与标注定数一一对应）
+- 校验：无 0 字节文件，无 .part 残留。
+- 镜像注意：`--workers 16` 的参数值会被误当 split 解析，脚本里已加过滤。
+
+## SAM3 / RemoteSAM 零样本滑坡分割实验（方案1：RGB 输入）
+
+工作目录 `N:\Users\yzh\Disater\exp`。
+
+### 环境（关键）
+- venv：`C:\Users\yzh\.workbuddy\binaries\python\envs\default`，Python 3.13.12
+- torch 2.11.0+cu128 / torchvision 0.26.0（RTX 5090 需 cu128）
+- HF 直连 403/502，必须走 `hf-mirror.com`；GitHub codeload 极慢，**用 `api.github.com/git/trees` + `raw.githubusercontent.com` 并发逐文件下载**（16 线程，194 个文件几秒完成）。
+- RemoteSAM 依赖问题：mmcv 在 py3.13 无法编译 → 自写 `shim/mmcv` 最小桩（只需 FileClient/load/mkdir_or_exist/is_module_wrapper/get_dist_info）；transformers 必须降到 4.46.3（4.30.2 拉不到 tokenizers 预编译包）。
+
+### 模型获取
+- SAM3 官方 `facebook/sam3` 是 **gated**，改用非授权镜像 `bodhicitta/sam3`（文件一致）。权重 `sam3.pt` 3.45GB，848M 参数，**只有单一规格，无大小分档**。
+- RemoteSAM：`1e12Leon/RemoteSAM` → `RemoteSAMv1.pth` 2.39GB（checkpoint 含 backbone/classifier/text_encoder 1107 键）。
+- RemoteSAM 额外需 bert-base-uncased 本地目录（config/vocab/tokenizer_config + pytorch_model.bin 440MB）。
+
+### 数据处理（方案1）
+- 14 波段实测语义：b0~b9 = Sentinel-2，b10~b12 = 派生指数，b13 = 高程。
+  依据：NDVI 式 (b7-b3)/(b7+b3) 与 GT 相关 -0.288（滑坡区植被指数低，符合物理预期）；b11 对滑坡区区分度最高(+1.84)。
+- RGB 合成用 **b2,b3,b4（真彩色）**，2%~98% 分位拉伸 → uint8。
+
+### 运行踩坑
+1. SAM3 checkpoint 键带 `detector.` 前缀，需按模型 state_dict 自动剥离/补齐。
+2. 模型内部有 bf16 分支，必须用 `torch.autocast('cuda', dtype=torch.bfloat16)` 包装推理，否则 dtype mismatch。
+3. **官方 `confidence_threshold=0.5` 在遥感影像上完全失效**——所有提示词最高分仅 0.05~0.14，需降到 0.05。
+4. processor 返回掩膜已是 (N,1,128,128)，无需 resize。
+5. RemoteSAM 内部 `get_parser().parse_args()` 会读 sys.argv，参数须走环境变量。
+6. RemoteSAM 的 `RemoteSAM` 类没有 `.eval()`，直接用即可。
+7. EPOC 模块需 `chendelong/DirectSAM-EntitySeg-1024px-0501`，非核心路径，可 `use_EPOC=False` 关闭。
+
+### 结果（test 全 800 张）
+| | IoU | Dice | Prec | Rec | OA | 耗时 |
+|---|---|---|---|---|---|---|
+| SAM3 (prompt=landslide, thr=0.05) | 0.0454 | 0.0868 | 0.051 | 0.285 | 0.887 | 0.11s/图 |
+| RemoteSAM (classnames=landslide) | 0.0580 | 0.1097 | 0.421 | 0.063 | 0.981 | 0.16s/图 |
+
+失败模式截然不同：
+- SAM3 **大面积误报**：预测均值 1724px vs GT 309px（5.6 倍），800 张全部有输出，负样本上平均误报 1759px/图。
+- RemoteSAM **过保守**：800 张里 779 张输出全空，预测均值仅 46px，负样本误报仅 8.4px/图。IoU 略高是因为精确率 0.42 远高于 SAM3，但召回只有 0.063。
+- 结论：两个模型对"landslide"都不具备真正的零样本能力。SAM3 在 SA-CO 自然图像上学的概念会把裸土/岩壁/沟谷误判为滑坡；RemoteSAM 训练集无滑坡类，直接不响应。
+
+产出：`common.py`(数据+RGB合成) `metrics.py` `run_sam3.py` `run_remotesam.py` `comparison.png` `out_sam3/` `out_remotesam/`
+
+## 追加实验：PCA / 多通道输入 / RemoteSAM 类别组合
+
+### 负样本确认
+- 测试集 800 张中 **264 张掩膜全零**（负样本），536 张含滑坡。
+- 正样本掩膜像素数：min=1 / p10=26 / 中位=187 / p90=1047 / max=14475。
+- **107 张正样本掩膜 < 50px**，最小仅 1px → 这就是"看不到 GT"的原因，模型没漏，是目标太小。
+
+### RemoteSAM 类别组合（run_remotesam_combo.py）
+结论：**改提示词措辞比组合规则有效得多**。
+- `landslide` → IoU 0.0000（完全不响应）
+- `landslide area` → **IoU 0.0358**（100 张子集上最好的一项）
+- 其他：`bare soil` 0.0120、`vegetation` 0.0140、`grass` 0.0144、`earth` 0.0020、`rock`/`cliff`/`ground` 均为 0
+- 逻辑组合（bare_soil AND mountain 等 6 种）全部 ≤0.0126，**不如单词直接问**。
+- 结论：RemoteSAM 语义空间里滑坡概念缺失，措辞只能撬动边缘响应，无法根本解决。
+
+### SAM3 输入特征对比（800 张测试集）
+| 输入方式 | IoU | Dice | Prec | Rec | OA |
+|---|---|---|---|---|---|
+| RGB 真彩色 (b2,b3,b4) | 0.0454 | 0.0868 | 0.051 | 0.285 | 0.887 |
+| PCA-3（train 200 张拟合全局基） | 0.0501 | 0.0954 | 0.073 | 0.139 | 0.950 |
+| 多伪RGB投票（真彩/SWIR/NIR/NDVI，多数票） | 0.0557* | 0.1056 | 0.072 | 0.195 | 0.930 |
+| **patch_embed 3→14 通道（零填充扩展）** | **0.0609** | 0.1147 | 0.070 | **0.311** | 0.909 |
+
+*投票为 200 张子集，其余为全 800 张。
+
+**14 通道扩展是最有效的**：把 `patch_embed.proj` 从 (1024,3,14,14) 扩到 (1024,14,14,14)，前 3 通道保留预训练权重、其余零填充，召回从 0.285 提到 0.311。
+
+实现要点（都是踩过的坑）：
+- 输入必须 interpolate 到 1008×1008，否则 ViT 的 RoPE 频率与预训练不匹配报 AssertionError。
+- `Sam3Processor.transform` 写死 3 通道 ImageNet 均值，14 通道会报 size mismatch，需绕过 processor 直接调 `model.backbone.forward_image` + `forward_text` + `proc._forward_grounding`。
+- 输出掩膜在 1008 分辨率，需 F.interpolate 缩回 128。
+- PCA 基必须在 **train** 集拟合再应用到 test，避免信息泄漏。
+
+### PCA 主成分诊断
+- 解释方差比 [1.88, 1.13, 0.63]，前 3 累计 3.65（等效约 3.6 维）。
+- PC2（第二主成分）对滑坡区分度最大：滑坡区-背景均值差 -0.375。
+
+## Landslide-Seg V1：完整双骨干模型（M1 阶段）
+
+项目目录：`N:/Users/yzh/Disater/landslide-seg`。设计文档来自 `C:/Users/yzh/Downloads/Landslide-Seg_v1.md`。
+第一阶段严格按文档实现**完整架构**（不许删模块）：TerraMind small+TiM → AnySat base 多尺度 dense → 门控融合 → 冻结 RemoteCLIP 语义 → 粗定位 → U-Net 精细化。
+
+### 环境（关键）
+- 新 venv：`C:/Users/yzh/.workbuddy/binaries/python/envs/tm`（py3.13.14 / torch 2.11.0+cu128）
+- terratorch 1.2.13 只能 `--no-deps` 安装：顶层 `import terratorch` 会拉 torchgeo/rasterio/lightning 整套栈。
+  解决办法：`src/landslide_seg/encoders/_terramind_loader.py` 用「占位包(`__path__`)+空注册表桩」直接按文件加载官方 terramind 模块。
+- 需要 `clip-anytorch` 才能 `clip.load` RemoteCLIP 权重。
+- 网络：GitHub raw/codeload 不通 → 用 `ghfast.top` / `gh-proxy.com`；HF 用 `hf-mirror.com`。
+- **Windows 坑：huggingface_hub 可能只写 blobs/ 不建 snapshots/ 链接**，`hf_hub_download` 返回不存在的路径。已写兜底（复制 blob 或 urllib 直下）。
+- 会话初期 CUDA 完全不可用（cuInit access violation，deviceQuery 也崩），约 40 分钟后自愈；不是 torch 安装问题。
+
+### 数据阻塞（决定性，未解决）
+- L4S 14 通道 = B01..B12 + SLOPE + DEM，**无 B8A**；而 TerraMind S2L2A(12) 与 AnySat s2(10) 都要 B8A。
+- L4S 无地理/日期/事件 id → 无法回溯原始 L2A 补齐。
+- L4S 存储值不是 DN/反射率（各波段中位数都≈1.2，SLOPE/DEM 也一样，NDVI≈0），无法套用预训练统计。
+- 因此正式训练**必须标 BLOCKED**，只能用 `policy="synthetic_smoke"`（并强制 provenance 标注）做接口验证。
+
+### 已跑通（真实官方权重，RTX 5090）
+- TerraMind: (B,196,384) 14×14，TiM ON 0.43s / OFF 0.01s，输出相对差异 78.75%。**TiM 位置编码固定 14×14，输入必须 resize 到 224×224。**
+- AnySat: dense 输出是 NHWC `(B,128,128,1536)`，**对 s2 恒定在 10m 网格**，patch_size 只改上下文范围；patch_size 单位是米。
+- 完整模型 526.0M 参数 / 3.5M 可训练，单步 0.22–0.37s（batch2 128px 含 TiM 采样+反向），loss 稳定下降，checkpoint 41MB（只存非冻结部分），重载 max|Δ|=0。
+- 10 个单元测试全过（波段契约/严格拒绝/几何对齐/粗细头/细化器真用预测）。
+
+### 踩坑速查
+- `ModuleDict` key 不能含 `.` `@` → 需映射。
+- 融合投影若在 forward 里懒建，会留在 CPU → 必须 `__init__` 预建。
+- CLIP 的 `dtype` 属性读 `self.visual.dtype`，不能把 visual 置 None。
+- AnySat hubconf 内部 `from src.models...`，本地加载需把仓库根目录加进 sys.path。
+- TiM 采样是随机的（python random 种子），做重载对比要固定种子 + eval + 关分支丢弃。
+
+## 数据源评审：CAS 数据集否决 + Sen12Landslides 接入（M1 转为 DONE）
+
+### CAS 滑坡数据集（中科院成都山地所，Zenodo 10.5281/zenodo.10294997）
+- **不可用**：实测 4 个卫星子集（Tiburon-Sentinel / Moxitaidi-SAT / LongxiRiver-GF1 / Wenchuan-Landsat5）
+  全部是 **3 通道 RGB uint8、CRS=None、恒等仿射**。README 也写 "RGB images in TIF format"。
+- 技巧：用 `remotezip`（HTTP Range 读 ZIP 中央目录）只取单张样本，避免下载 365MB–2GB 整包。
+
+### Sen12Landslides（HF paulhoehn/Sen12Landslides，CC BY 4.0）
+- **可用**：每个 .nc 含 B02–B12（**含 B8A**，正是 AnySat 10 波段）+ SCL + MASK + DEM + x/y + time(15)；
+  attrs: crs=EPSG:32736, event_date, pre_post={pre:8,post:9}。int16 DN 0–10000，NDVI≈0.77 合理。
+- s2 分卷 28×1.4GB；可先 `curl -r 0-41943039` 拉前 40MB 流式解出样本再决定是否下整卷。
+
+### B01/B09 回补（TiM 必需）
+- AWS Earth Search STAC（公开免账号，`earth-search.aws.element84.com/v1`）+ `sentinel-cogs` COG。
+- 由 crs+center+time 反算经纬度与日期，**只查同一天**（window_days=0），命中同一 L2A 产品；
+  `coastal`(B01)/`nir09`(B09) 60m→10m 双线性重投影。找不到就跳过，绝不跨日替代。
+
+### 两个必须记住的坑
+1. **Sen12 的 S2 数组是 (x,y) 转置存储**，与 netCDF x/y 维定义相反。外部回补波段必须 `.T`，
+   否则相关性只有 0.22；转置后 0.972–0.996（B02/B03/B04/B08/B11/B12/B8A 全验证）。
+2. **attrs 命名反了**：`center_lat` 实际是 northing、`center_lon` 是 easting。
+3. 真实场景 bug：区域池化特征 [B,D,1,1]，batch=1 时 BatchNorm2d 报错 → `vis_proj` 改 GroupNorm(32,D)。
+
+### 结果
+- `train_full.py --source sen12 --steps 5`：真实 12 波段训练，loss 1.4510→1.3531，0.13s/step，保存 last.pt。
+- `real_inference.py`：5 个真实样本全模型推理（TiM ON），对齐相关 0.94–0.98。
+- M1 状态改为 **DONE**（链路 + 真实小批量），精度未评估（属 M2）。10 个单测仍全过。
+
+## 可视化复查：云 / coarse panel 图注 / 网格纹（用户提问触发）
+
+### 发现的 bug
+`real_inference.py` 调用 `save_panel(rgb, gt, prob, pmask)`，但签名是 `(rgb, gt, coarse, fine)`：
+标着 "coarse mask" 的格子画的其实是**细阶段概率**，"fine mask" 是二值结果。已改为 6 面板并同步 smoke 脚本。
+
+### 网格纹三个来源（按贡献排序）
+1. **显示放大（主因）**：coarse prob 只有 0.476–0.551、fine 只有 0.483–0.485，`imshow` 默认自动归一化把 0.075 的区间拉伸到全灰度。改为固定 vmin=0/vmax=1 后基本看不见。
+2. **AnySat 160m 分支的分块**：FFT 主峰在 **16 px = 160 m**（= patch_size 160m 的 token 网格），次峰 4 px = 40m 分支。未训练 + 门控均匀(1/3) 时最明显。
+3. 融合用 bilinear 上采样，块边界被平滑，所以边界跳变比值≈0.9（没有硬边）。
+
+### 云确实是数据自带的
+chimanimani_s2_1003 post(t=9)：SCL 云+阴影 8.5%、valid 91.5%；
+B02 云区 2383 vs 非云 393（6.06×）、B04 4.60×、B08 仅 1.26× → 典型云光谱。
+RGB 用 2–98% 分位拉伸把云推到饱和，所以**看起来比 8.5% 多**。
+对照 1004 样本 SCL 云 0.0%，说明云是逐样本的，不是渲染问题。
+
+### 重要数据质量发现
+Sen12 的 `MASK` 在 15 个时相上完全相同（每个时相都是 242 px）→
+它是**一次事件滑坡编目复制到所有时相**，不是逐期标注。
+因此：只能用 post 时相评估，**绝不能把 pre 时相当负样本**，也不能做逐期变化检测标签。M2 采样要显式禁止。
+
+## 语义分支的真实情况（用户追问"文本从哪来"）
+
+- 文本**不是用户输入**，是 `models/semantic.py` 里硬编码的 7 条英文短句：
+  1 条类别 `a landslide scar in a satellite image` + 5 条属性（exposed soil on a slope / rocky landslide scar /
+  vegetation disturbance / forest background / surrounding vegetation contrast）。
+  模型构造时用冻结的 RemoteCLIP ViT-B-32 一次性编码成 `class_prototype [1,512]`、
+  `attribute_prototypes [5,512]`，作为 buffer 常驻。推理不需要任何自然语言。
+- **只有 class_prototype 真正参与**：① 相似度图 ×0.1 加到粗 logits；② FiLM 调制细化器 P0；
+  ③ 区域池化特征 vs 类别原型的 BCE。
+- **属性分支是死代码**：buffer 算了但从未被读取，`L_attribute` 恒为 0（无属性标注，不能凭空造）。
+  已在 `describe()` 加 `attributes_active: false` + note，避免误读。
+- 实测这个文本锚点判别力很弱：RemoteCLIP 空间里任意两短语基线相似度 0.6–0.85，
+  "类别 vs a photo of a cat" = 0.62，而 "类别 vs rocky landslide scar" = 0.80。
+- 当前（未训练）sem_map 与 GT 相关 **−0.043**，语义项对粗 logits 贡献幅度 0.26 —— 说明
+  "语义接通"≠"语义有用"。M3 的 −SemAlign/−SemLoc/−SemRef 很可能测不出差异，需先补真实属性标注。
+
+## 数据认证 → 训练缺陷修复 → 可复现接口 → M1 重验 → M2
+
+### 数据认证（scripts/certify_data.py）
+- 新增 C1–C7 七项校验：源产品(同日STAC)/波段/网格/辐射/跨源配准/标签/有效像素。
+- 扩展数据到 4 个事件（chimanimani/dominicamaria/hiroshima/italy，共 1500 个 .nc）。
+- **候选 100 → 通过 72、隔离 28**（27 个 C5 配准<0.90，3 个云下标签>20%）；72=19/7/21/25。
+- 关键修正：**不能盲用 pre_post['post']**——很多 post 时相 100% 云（italy SCL=9 占满），
+  改为在 `date >= event_date` 的所有时相里挑云量最低的。掩膜是事件编目、各时相相同，故合法。
+- **680 个 annotated=False 图块既无掩膜也无 event_date → 是"未标注"不是负样本**，隔离不使用。
+- 认证加速：STAC 检索加缓存 + ThreadPoolExecutor(8)，100 个候选约 5 分钟。
+  注意：Bash 工具默认 2 分钟超时，前台长跑必须显式传 timeout。
+
+### 修复的 6 个训练问题
+1. AnySat 日期索引 tm_yday(1-365) → -1（官方 0-364）。
+2. 冻结骨干：每次 train_step 后强制 eval（否则 DropPath/BN 漂移）。
+3. 负样本：保留逻辑就绪，但本数据集无已验证负样本 → lambda_presence=0。
+4. valid/未知标签覆盖 presence、区域池化；mask<0 记为无效。
+5. 语义前景-背景：同一图内 FG/BG 双池化 → region_embedding [B,2,512]。
+6. 指标：`p &= v` 会把无效像素算成 TN → 改为展平后只取 valid（全无效样本计数现在全 0）。
+附加：argparse 多次 --set 互相覆盖 → action="append" 后合并。
+
+### 可复现
+- configs/default.yaml 真正驱动模型/损失/优化/种子；`--set a.b=c`。
+- set_seed 锁 python/numpy/torch/cuda + 关 cuDNN benchmark & TF32。
+- checkpoint 记录 config/权重大小+首尾块sha256/清单sha256+样本ID/seed/params。
+
+### 结果
+- M1 重验 `scripts/accept_m1.py`：**all_passed=True**（可训练10/10更新、冻结0/10、重载Δ=0、
+  翻转region_mask无泄漏、强制门控空输出、全无效像素计数0）。
+- 划分：train 26（chimanimani+dominicamaria）/ val 21（hiroshima）/ test 25（italy），事件与空间块均互斥。
+- 训练 60 轮 780 步：loss 1.31→0.19；**val IoU 0.270，test IoU 0.011** → 跨事件泛化失败，
+  根因是训练集仅 26 图块/2 事件，不能据此评价架构。消融（M3）按用户要求暂不做。
+
+## 管线各分支输出实测（docs/report_pipeline.md）
+
+- "分卷"= Sen12 的 S2 在 HF 上切成 28 个 tar.gz（各≈1.4GB，合计≈39GB，13628 个 .nc）；
+  本地只下了 part01/05/10 = 1500 个、4 个事件。拉全 = 下完 28 个包。
+- 输入：x12[2,12,128,128] DN；**标准化后逐通道 std 只有 0.043–0.436**（期望≈1），
+  均值 −0.53~+0.34 → 明显分布偏移（italy 场景比预训练均值暗 5 倍）。
+- TerraMind：4 层 [2,196,384]，层间余弦 0.842/0.857/0.701，TiM ON/OFF 相对差 72.05%，
+  但 **91.4 m/token、token lag-1 自相关仅 0.118** → 空间粒度是短板（建议裁 224 原生图块）。
+- AnySat：官方 NHWC [2,128,128,1536]，std 0.549，4.2% 通道 std<0.01，
+  40m vs 160m 余弦 0.425（互补），块边界跳变明显（40m/160m 固有）。
+- 语义：**初始化时语义项占粗 logits 变化的 99.6%**（FPN 原始幅度仅 0.0036）；
+  训练 60 轮后 semantic_scale 0.1→0.353，语义占比降到 **6.7%**，corr 0.192。
+- 融合门控训练后 0.30–0.38（几乎没分化），说明 26 个样本不足以让模型判断支路可信度。
+- 结论：形状/接口全符合预期；不符合需求的是 TerraMind 空间粒度、输入分布偏移、语义锚点弱。
+
+## 语义 v2 重做 + 波段/多分辨率验证 + 数据扩到 part01-10
+
+### 语义 v1 判定为错误（用户指出）
+- v1 = 一条固定英文短语 → 固定 512 维原型 → 全图相似度图，**每张图完全相同**；
+  属性向量算了但从未被读取（死代码）；无关系语义。
+- 实测：初始化时语义项占粗 logits 变化的 **99.6%**（FPN 原始幅度 0.0036）。
+
+### v2：类别查询 + 影像条件属性 + 区域-背景关系（models/semantic_dynamic.py）
+- 顺序是"两遍"：FPN 出粗 logits → region_soft=sigmoid(粗) → 算属性/关系 → 语义回补。
+  **关系用预测候选区、不用 GT**，训练/推理同路径。
+- 属性头：整图池化 → [B,K] 响应 → σ → Σ α_k·attr_emb[k] 并入 dyn；K=10 条词表（10m 可观测）。
+- 关系：[128 视觉差 + 10 光谱差 + 1 纹理差 + 2 形态] → rel_proj → 并入 dyn。
+- 语义相似度改成真正余弦（视觉侧也归一化），量级不再漂移。
+- 属性监督：target ∈ {0,1,-1}，-1=未知**不参与损失**。当前无标注 → L_attribute 不生效。
+- 消融开关已做成配置：mode=class_only|full、use_attributes、use_relation、
+  ablation.sem_align/sem_loc/sem_ref。7 种配置实测均可构建前向且行为不同。
+
+### 踩坑
+- FiLM 的 gamma 是 [B,C]，旧代码 `view(1,-1,1,1)` 会把 batch 折进通道（B=2 时 256）→ 改 `[..., None, None]`。
+- rel_dim 原写 channels+10+3，但误用了 512 维投影特征 → 改用 C 维 P0。
+- 语义余弦若只归一化 dyn 而不归一化 vis，sem_map 会到 ±29 → 两侧都归一化。
+
+### 波段/多分辨率验证（scripts/verify_bands.py，7 项全过）
+- V1 12 波段装配：与原文件逐像素 max|Δ|=0；V2 回补与 STAC 一致 max|Δ|=0。
+- V3 B01/B09 高频能量 0.094/0.092 vs B04 0.306/B08 0.403 → 确实是 60m。
+- V4 上采样保真中位误差 4.49 DN（~1.5%）。
+- V5 金字塔上采样回 128 后高频 0.746→0.267→0.180→0.087 单调下降。
+  **注意**：第一版用"直接对不同尺寸特征图求差分"是错的（步长不可比），已改正。
+- V6 TerraMind 0.119 vs AnySat 0.818（7 倍差距，符合 91m）；V7 AnySat 160m 0.521 < 40m 0.818。
+
+### 数据
+- 已拉 part01-10 并解压：**5000 个 .nc，7 个区域**
+  （chimanimani 1133 / china 159 / dominicamaria 1148 / hiroshima 864 / hokkaido 290 / indonesia 573 / italy 833），data/sen12 共 28GB。
+- 认证清单仍是旧的 72 条（4 事件），需按新数据重认证后再谈 M2。
+
+## 语义 v2 当前实测（回答"语义具体是什么样"）
+
+4 个 test 样本直接前向（未训练权重）：
+- 属性响应 σ 全在 0.479–0.520，**跨样本 std 0.000–0.001** → 属性头是 bias 主导，**没被影像激活**；
+- dyn 两两余弦 **0.993–0.999**，与 class_query 余弦 0.80 → dyn ≈ 类别查询 + 极小扰动；
+- attr_head 梯度 7.5e-6 vs rel_proj 3.0e-4（差 40 倍）；
+- 结论：结构接通但"每张图不同"尚未实现，根因是**缺属性标注**，不是实现错误。
+- 修了两个真实缺陷：(a) 关系向量各块量级差 3 个数量级 → 按块 L2 归一化（norm=√5）；
+  (b) 属性池化原本是整图，被背景压倒 → 改为**按候选区池化**（FG 像素 >8 才用，否则回退整图）。
+
+## 语义实例图 + 骨干输出可视化 + 逐像元辐射定标
+
+### 1) 语义检查图（scripts/inspect_semantic.py）
+- 产出 outputs/visualizations/semantic_inspect_10.png：10 个 italy 样本 × (RGB / GT / sem_map / 属性条)。
+- 图上一眼可见：10 个样本的属性条**完全一样**（跨样本 std 0.0000），dyn 与 class_query 余弦恒为 0.803–0.811。
+  sem_map 有块状结构（来自 AnySat 网格），量级 ±1。
+- 这就是"语义尚未被影像激活"的直接证据，不需要解释。
+
+### 2) 骨干输出可视化（backbone_features.png）
+- TerraMind 4 层 14×14×384 → PCA 伪彩色：可看出地形/地物大结构；layer11 更细碎。
+- AnySat 40m/160m 1536×128×128 → PCA 被**周期网格主导**（40m=4px、160m=16px），
+  且"减通道空间均值"后完全不变（数学上等价，PC1-3 方差比 0.2223 前后一致）。
+  → 网格不是通道常数造成，而是 dense 构造本身的周期性结构主导方差，值得后续排查。
+
+### 3) 逐像元辐射定标（scripts/verify_radiometry.py）
+- 用 **Microsoft Planetary Computer**（独立分发源，免账号，SAS token 端点）取同一景 L2A，
+  按点位+日期+MGRS 瓦片对齐，scale=1e-4 offset=0，最近邻重投影到样本网格。
+- 结果：3 个样本 × 12 波段，**中位有符号差恒为 −0.1000±0.001**（= −1000 DN）。
+- 结论：**Sen12 的 DN 少了基线 04.00 的 +1000 harmonization**；相对结构一致（残差 20–200 DN）。
+- 已在 `load_sample/make_batches` 加 `boa_offset`（配置 data.boa_offset_dn=1000），缓存仍存原始 DN。
+- **纠正一个推断**：原以为该偏移能解释标准化偏差，实测否认——
+  offset=0 均值 −0.66~+0.34；offset=1000 变成 −0.19~+0.91，绝对偏差都是 ≈0.40。
+  可见光被修正但近红外过冲，说明这是**场景光谱形状差异**（茂密植被），不是定标问题。
+- 注意：之前 val 0.270 / test 0.011 都是 offset=0 的结果，与新默认口径不可直接比较。
+
+## 输入原始状态 dump（scripts/dump_input_state.py）
+
+文本侧（每个样本完全相同，固定 11 条）：
+- 1 条类别 + 10 条属性，英文；CLIP BPE 分词**补齐到 77**，首位 49406(SOT)、末位 49407(EOT)。
+  例：class "a landslide scar in a satellite image" → len=9，ids=[49406,320,31954,18088,530,320,10316,286,77...]。
+- 编码成 [11,512] float32、单位范数；与 class 的余弦：exposed_soil 0.78、rocky_scar 0.80、
+  veg_disturbance 0.58、dense_forest 0.51、cropland 0.55 —— 文本空间基线相似度本来就高。
+- 之后**再没有任何字符串参与计算**。
+
+影像侧：
+- npz 存 float32 DN（原始，未加 1000）；读缓存时按配置加 boa_offset_dn=1000。
+- **加 1000 后与 TerraMind 参考均值高度吻合**：B01 1313 vs 1390(0.94×)、B02 1418 vs 1503(0.94×)、
+  B03 1681 vs 1718(0.98×)、B04 1512 vs 1854(0.82×)、B05 2102 vs 2199(0.96×)；
+  不加则只有 0.23/0.28/0.40/0.28/0.50×。→ **反证 TerraMind 是在 harmonized DN 上算的统计**，
+  boa_offset=1000 是对的。
+- NIR 段 B06–B09 是参考均值的 1.26–1.42×，因为这块是茂密植被（高近红外），属场景差异。
+- TerraMind 再双线性 128→224；AnySat 用官方 DN 统计单独标准化并 unsqueeze 成 [1,1,10,128,128]。
+
+## 四列对照图（scripts/figure_4col.py）
+
+四列 = ① 文本字符串（右侧为该样本区域裁剪的 CLIP 余弦）② TerraMind 四层 PC1 灰度 ③ AnySat 两尺度 PC1 灰度 ④ 假彩色 B08/B04/B03（青线=GT）。
+- 跨 4 个事件取 6 个样本，避免只看一个场景。
+- 经验：PCA 伪彩色（RGB 三通道）读不出结构，各通道独立归一导致像噪声；**改 PC1 灰度 + magma 可读性最好**。
+- TerraMind L2/L5/L8 能看出地形大结构，L11 明显高频化；AnySat 40m/160m 分别是 4px/16px 周期网格，
+  这个网格在图上非常显眼（不是渲染问题，是 dense 构造本身）。
+- CLIP 区域余弦：class 仅 +0.24~+0.29；top 属性多为 dense_forest（0.27~0.29），
+  hiroshima/chimanimani_1418 的 top 是 rocky_scar —— 说明"森林"在这类 1280m 裁剪里占主导。
+
+## AnySat dense 网格查清（关键发现）
+
+- `output='dense'` 返回 `[B,H,W,2D]` = **前 768 通道（上下文，每 patch 恒定，块内 std 实测 0.00000）
+  | 后 768 通道（局部，10m，块内 std 0.62）**。恒定通道数正好 768 = 模型 D。
+- 我们之前把 1536 全部当 10m 用 → 那 768 个块恒定通道必然在 patch 边界形成台阶，**这就是网格**。
+  不是配置错误，是 dense 的结构。
+- 已修：full_model 按真实 stride 放置 5 个来源——context@40m / context@160m / local@10m ×2 + terramind。
+- 残差仍在：local 段自身跨块跳变/块内 = 2.18，说明"10m dense"是 **10m 网格 + patch 条件化**，
+  不能替代真正连续的高分辨率特征。正确用法是多尺度上下文。
+- 结论：AnySat 的贡献应拆成"上下文"和"局部"两段分别消融，在此之前不能说它提供 10m 细节。
+
+## 澄清性确认（回答"BPE/PCA/网格"三问）
+- `grep -rn "pca|PCA|svd" src/` → **空**：模型计算里完全没有 PCA，PCA 只在可视化脚本里。
+- CLIP 分词实测（1 词 1 token，空格附在前一个词上）：
+  class → [49406,320,31954,18088,530,320,10316,2867,49407] = <sot> a landslide scar in a satellite image <eot>
+  rocky landslide scar → [49406,9648,31954,18088,49407]
+  dense forest canopy → [49406,19353,4167,26061,49407]
+- 第一列数字 = CLIP 图像塔对该样本**区域裁剪**的向量 与 该短语文本向量的余弦（0.24~0.30 量级）。
+
+## 完整测试报告（docs/test_report_2026-10-18.md）
+- 结构：放行判定 → 环境/权重身份/数据 → 五组测试矩阵（D 数据 9 项、B 骨干 7 项、S 语义 5 项、M 模型 8 项、R 复现 4 项）
+  → 缺陷清单 14 条（发现+修复+影响）→ 未解决项 8 条 → "能/不能主张什么" → 复现命令 → 数值速查。
+- 判定：工程链路通过；M2 精度不通过（test IoU 0.0105）；语义"接通但未激活"（attr std ≤0.001）。
+- 核心数字与 outputs/logs/*.json 一致；10 个单测通过（2026-10-18 04:45 复核）。
+
+## 数据集与模块输出说明报告（docs/dataset_and_modules.md + 三张图）
+
+- `scripts/dataset_and_modules_report.py` 生成：
+  rpt_dataset_gallery.png（8 样本 × 真彩/假彩/GT/SCL）、rpt_dataset_stats.png（4 子图）、rpt_module_outputs.png（12 格全流程）。
+- 渲染经验：假彩色**不要逐通道分位拉伸**（整幅偏绿/偏紫），用**整组样本统一的分位数**最好；
+  SWIR/NIR/R = B12/B8A/B04 能把滑坡显示成品红条带，比 NIR/R/G 更清楚。
+- 关键统计：掩膜占比 平均 3.37%、最大 24.7%、一半样本<1%；云+阴影 平均 0.1%、p90 0.33%。
+- 光谱差（滑坡−背景）：B04 +331、B05 +245、B11 +366、B12 +313，B08 −135；
+  NDVI 0.357 vs 0.449 → 滑坡"可见光高、短波红外高、近红外低"，物理上可分辨。
+- 模块图解释：TM=91m 大团、AnySat ctx=条纹/大块（块内 std=0）、AnySat local=4px/16px 细格、
+  P0 有结构、P3 很糊、语义低对比、粗/细概率近常数（未训练）。
+
+## 用 156 个认证样本训练（两轮）+ 发现并修复"预测堆在无效像素"
+
+### 数据
+- 按 7 区域重认证：280 候选 → **156 通过 / 124 隔离**；事件分布 italy40/hiroshima36/chimanimani34/dominicamaria15/china14/indonesia9/hokkaido8。
+- 事件互斥划分：train 80（5 事件）/ val 36（hiroshima）/ test 40（italy）。
+- 配置 epochs40 batch4 lr1e-3 boa_offset=1000；模型 total 374.3M（比 526M 少 152M，因文本塔不再是子模块），可训练 3.0M。
+
+### 第一轮
+- loss 1.176→0.290；val IoU 0.2564；test IoU **0.0107**（与 26 样本时几乎一样）。
+
+### 诊断到关键缺陷
+- test 上 **100% 的 >0.5 预测落在无效像素**；无效区平均 prob 0.99，有效区 0.00。
+- 根因：B01/B09 回补边界 nodata 保留 0 值（分布外输入）＋这些像素被 valid 排除在损失外（错了不罚分）
+  → 模型把概率"倒在"无监督且输入异常的像素上，损失上最省事。
+
+### 修复
+1. load_sample 用 distance_transform_edt 最近邻填补 B01/B09 空洞（valid 掩膜不变）；
+2. predict 增加 valid 参数，概率乘 valid；
+3. trainer.evaluate 同样按 valid 置零。
+
+### 第二轮（修复后）
+- val IoU 0.2344（略降）；test IoU **0.0177**（+65%），TP 65→166。
+- 结论：链路通、val 0.23 有效；**italy 是真域外**（有效区 prob≈0），训练集无"农田+丘陵"场景。
+- 建议：改事件 5 折交叉验证（不要把唯一类似场景全给 test）、补负样本、扩到 400+ 再谈消融。
+
+## 用户指出文档矛盾：10 波段 vs 12 波段（已核实并改文档）
+
+- 事实：Sen12 原生 **10 个**（B02–B08 / B8A / B11 / B12，**无 B01、B09、B10**）；
+  模型输入 **12 个** = 原生 10 + 回补 B01/B09（同日同景 L2A 的 coastal/nir09，60m→10m）。
+- 三条证据排除"混用/错映射"：
+  1) 原生 10 波段与 .nc 逐像素 max|Δ|=0；2) B01/B09 与 STAC 重读 max|Δ|=0；
+  3) **无辐射台阶**：中位 DN B01=263、B02=304、B08=3564、B8A=3672、B09=3652、B11=2029。
+     若 B01/B09 来自 harmonized(+1000) 口径，会比邻居高约 1000 DN —— 没有。
+- 相关矩阵符合物理：B02~B03 0.953、B08~B8A 0.937、B11~B12 0.858、B01~B02 0.713、B09~B11 0.116。
+- 已修文档：dataset_and_modules.md 增加 §1.1 明确 10+2；blockers/data_source_review 把含糊的
+  "B02…B12" 改成显式列表并注明无 B01/B09/B10。
+
+
+===== 2026-10-19.md =====
+# 2026-10-19
+
+## 通读本轮实验报告（docs/all_experiment_results_v2_2026-10-19.md）
+
+- 主体：`landslide-seg` 的 SegFormer 单期 10 波段路线（V1 双骨干 TerraMind+AnySat 路线保留但已非主线）。
+- 三条数据版本 v1 / v2_clean / v3(20 分卷)；val 恒为 hiroshima 448，test v1/v2 为 italy 382，v3 扩到 italy 2795。
+- 核对 manifests 得到关键事实：**train 全部为正样本瓦片，negative tiles = 0**（v1 1277、v2 1237、v3 1480 均为 0）；
+  val 446 pos/2 neg；test 全正。train 7 事件（v3）。
+  → 模型从未见过"整块无滑坡"的图，这是"亮地表/建筑被当滑坡"这类域外误检的结构性原因，补负样本比加候选预算更对症。
+- 报告主结论：细节残差是唯一跨版本稳健收益（+0.036~+0.054）；10→3 投影不稳健；条件精分头的"条件"无贡献（P=预测 vs P=0 差 0.0023）；
+  粗辅助监督收益依赖结构；AFF 无收益（W 长期 0.5）；单头 val 低但 italy test 高（域/尺度权衡）；U-Net 是成本对照。
+- 报告与 review 文档（research_reassessment_2026-10-19.md）存在口径冲突：§5 文中"边界带方差最大"与表内前景 std 0.0488 > 边界 0.0403 矛盾；
+  粗定位分析表格用 0.5 阈值与标题 0.4 不一致。
+- 已有产物：outputs/segformer/s2_10band_v3_p20/{A0,A1,A1_AUX,B0,B1,CF0,CF0_NOAUX,CF1,CF1_B,SINGLE_SUM,SINGLE_AFF,U0}；
+  configs/experiment_names.json 已建立 14 项架构命名映射。
+- 下一步待用户确认方向（未启动任何新训练）。
+
+## 补齐 P/R/F1 指标（新增脚本 + 文档）
+
+- 新增 `scripts/make_prf1_table.py`：只读 `ablation_eval_metric_v2.json` / `coarse_to_fine_analysis.json` /
+  `single_head/eval_v2.json`，生成 `docs/metrics_precision_recall_f1_2026-10-19.md`。
+- 口径事实：**F1 是 IoU 的单调变换** `F1=2IoU/(1+IoU)`，本项目里排序永远一致；新增信息只在 P/R 分解。
+- 四组 3-seed（v3）P/R/F1 已提取；变体组为单 seed。
+- 关键发现：
+  1. 细节残差对同一 C 的净效果 = 召回 +18pt / 精确率 −9.5pt（A1: P .504→.409, R .367→.551）；
+     CF 族却双升，因为其 C 吃过粗辅助、召回已 0.43。
+  2. test 上所有组预测面积/GT 比值都 <1（A1 0.73、CF0_NOAUX 0.54），即域外是"输出不足"；
+     单头 0.98 几乎不缩 → 单头的 test 优势可能只是未被域偏移压缩，而非识别更强。
+     **未做阈值扫描，这是成本最低的下一步验证。**
+  3. 单头在 val 更保守、test 更激进，操作点翻转 → 差异混入校准因素。
+  4. U-Net val 精确率最高（0.4419）、召回最低（0.3833），是欠检型；"U-Net 精度全面落后"不成立。
+
+## 单轴分解：A1 → CF0_NOAUX → CF0 → CF1（重要）
+
+这三步每步只改一个维度，val IoU（seed 1234）：
+- A1 0.3068 --改架构（换融合头，加 3×3 + 恒零通道）--> 0.2987（−0.0081）
+- 0.2987 --改损失（加 0.5·L(C)）--> 0.3135（+0.0148）
+- 0.3135 --改输入内容（P 由恒 0 变真概率）--> 0.3158（+0.0023）
+
+推论：CF 族相对 A1 的净提升 +0.0090 中，**架构项本身是负的**，全靠粗辅助损失扳回；
+"条件精分头"这个架构故事不成立。注意单 seed 噪声约 ±0.008~0.012。
+
+## z-score 与域偏移实测
+
+- stats 只用 train 有效像素拟合：22,360,008 px（全量复核，归一后精确 mean=0/std=1）。
+- 波段原始量级差 5.8×：B02 mean 528 vs B8A 3085；std 639~1113。
+- 归一化后：val(std 0.48–0.97, mean −0.35~+0.34)；italy test 抽样 300 张，
+  **NIR 四波段 z 均值 +0.64~+0.72、std 0.54~0.71** → 域偏移在 z-score 后仍然存在（近红外偏亮 0.7σ、对比度更低）。
+- 结论可用：z-score 统一的是"每波段尺度"，不是"每场景亮度"，不能消除跨域分布差异。
+- 本轮从未探索：输入分辨率（固定128）、波段集合（固定10）、增强（仅翻转+90°旋转）。
+
+## 通读《执行计划2》并产出 v4 开发计划
+
+- 输入：`C:\Users\yzh\Downloads\执行计划2.md`（P0 复核 → P1 SegFormer 数据量/质量 → P2 多编码器 → P3 拓展）。
+- 核账得到的硬事实（全部可复核）：
+  1. 本地 `data/sen12` 10,000 nc（part01–20）= 4,772 certified + 5,055 unannotated + 173 质量不合格
+     → 已标注合计 4,945 ≈ 官方任务子集 4,988 的 99%，**有标注正样本池基本用尽**，再下载只增加未标注图块。
+  2. train 1,480（7 事件）/ val 448(hiroshima) / test 2,795(italy)；italy 独占全部标注的 57%；本地仅 9 个事件。
+  3. "3,000 vs 3,600 steps" 冲突的真实来源 = `epochs:150` × `ceil(N/64)`（v1 1277→3000，v3 1480→3600），
+     不是两份协议；故 P1-2 数据量曲线必须显式实现 fixed_update / fixed_exposure 预算器，否则数据量与预算纠缠。
+  4. 单 run 成本仅 6–7 min（A1, 150ep, 4.7GB），算力不是瓶颈，P1 可全程 3 seeds。
+- 产出：`landslide-seg/docs/plan_v4_execution_2026-10-19.md`（实测偏差 4 条 + G0–G4 任务表 + 3 个待拍板项）。
+- 建议划分：TRAIN={chimanimani,dominicamaria,indonesia,china} DEV={hokkaido,itogon} FINAL={kyrgyzstan1}，
+  hiroshima 降级为 SEEN_DEV，italy 仅诊断——会改历史对比口径，待用户确认。
+
+## 更正：数据未完整，可补齐（用户指出）
+
+- **上一版判断错误**：把"官方任务子集 4,988"当成标注总量。官方真实口径：S2 总 13,628，已标注 6,737，任务子集 4,988。
+  本地 part01–20 有 4,945 标注（≈缺 1,790），故"标注池已耗尽"不成立。
+- 官方 `data_harmonized/s2` 共 **28 卷**（HF API 实测），本地只有 1–20；缺 21–28（约 9.7 GiB / 3,628 nc）。
+- 已启动 `scripts/download_sen12_parts.py --start 21 --end 28`；21–24 完成（+2,000 nc，全部为 **kyrgyzstan1**，该事件 nc 从 277→1,277），
+  25 卷遇到 cas-bridge.xethub 超时自动重试；26–28 待下。日志 `outputs/segformer/download_parts_21_28_console.log`。
+
+## v4 计划修订（用户四条意见）
+
+1. 数据补齐进 M1；未标注池本轮**不做 SSL**（用户明确）。
+2. 包与曲线精简：G0–G4 五级 → **M1 复核/数据、M2 学习曲线、M3 编码器**；曲线只一条（25/50/75/100%），
+   只有出现平台才追加"事件多样性 / 质量消融"；预算只保留 fixed_update。
+3. 编码器补全：M0 B0、M1 B2、M2 DOFA、M3 Prithvi-EO-2.0（须配 6-band SegFormer 对照）、M4 TerraMind、M5 AnySat、Cost U-Net。
+   理由：仓库已有 TerraMind/AnySat adapter+权重（V1 路线），适配成本近零，不该砍。
+4. 新增 `configs/segformer/v4/base.yaml`（version=s2_10band_v4，max_steps=3600）。
+
+## P0 预算对账（已产出）
+
+- 新增 `scripts/reconcile_runs.py` → `reports/P0_run_reconciliation.{md,csv}`，扫描 54 个历史 run。
+- 结论：**全部 54 个 run 满足 `total_steps = epochs × ceil(n_train/64)`，0 例外**；
+  v1 3,000 / v3 3,600 只是 N=1277 与 1480 的算术差，不是两套协议。
+- `max_steps` 在 `segformer_trainer.py:472-475,597` 已实现（含 scheduler 的 total_steps），
+  所以 fixed-update 预算**无需新写模块**，只改配置即可。
+
+## v4 数据补齐已执行完成（结果）
+
+- 28 卷下完：本地 nc 10,000 → **13,628**；日志 `outputs/segformer/download_parts_21_28_console.log`。
+- `scripts/prepare_segformer_data.py --config configs/segformer/v4/base.yaml --workers 8`（5m48s）→ `s2_10band_v4`：
+  **certified 6,303 / quarantine 7,325**；train **3,060（13 事件）**、val 448 hiroshima、test 2,795 italy。
+  对比 v3：train 1,480→3,060（×2.07），事件 7→13。
+- 新增事件：newzealand 495、thrissur 221、kyrgyzstan2 187、usa_puertorico 44、usa_alaska 15、nepal 8；
+  kyrgyzstan1 133→694；lanaodelnorte 71 全为未标注（可用 0）。
+- 质量点：时相 fallback **402** 块（newzealand 32.5%、china 42.9%、kyrgyzstan1 19.7%）；标签不可观测剔除 331 块。
+- 新脚本：
+  - `scripts/build_source_inventory.py` → `manifests/source_inventory.csv` + `reports/P0_inventory_summary.md`
+  - `scripts/build_v4_protocol.py` → `manifests/split_v4.json`（未 freeze）+ `manifests/allowed_train_pool.csv`
+- split_v4 划分：TRAIN 9 事件 2,321（chimanimani/dominicamaria/indonesia/kyrgyzstan1/kyrgyzstan2/hokkaido/itogon/china/usa_puertorico），
+  DEV = hiroshima(SEEN_DEV)+thrissur 669，FINAL = newzealand 495，DIAG = italy 2,795，EXCLUDE nepal+usa_alaska。
+  嵌套池 584/1,162/1,745/2,321 块，各档均覆盖 9 事件。
+- 待办：`segformer_dataset.filter_split` 只认 `split` 字段，M2 需要按档生成派生 manifest（train=pool_k, val=hiroshima, test=newzealand），
+  再单独评测 thrissur / italy；`--freeze` 待用户确认划分后执行。
+
+## v4 准备工作全部完成（M1 收尾）
+
+- **两段式准入是必须的**：`s2_10band_v4`（6,303）→ `s2_10band_v4_p20`（**6,048**）。
+  多事件裁决 single 5,148 / reselect 456 / after_latest 444 / quarantined **255**；
+  newzealand 495→338（157 块在"最晚事件+120 天"内无可用时相）。
+- 最终口径：认证 6,048；OOD_V4 TRAIN **2,223（9 事件）** / DEV 669（hiroshima+thrissur）/ FINAL **338（newzealand）** / DIAG 2,795（italy）。
+  嵌套池 559/1,113/1,671/2,223；每个事件每档都在。
+- `manifests/split_v4.json` 已 freeze，sha256 前缀 `aac3012179683dc9`。
+- 审计：`scripts/audit_v4_contract.py` 17 项 45 抽样 **全 PASS**（含 valid 复算、mask_px 复算、date==origin+time、MASK 15 时相恒定、缓存哈希 8/8、事件跨 split 0、bbox 重叠 0）。
+- 测试：新增 `tests/test_metrics_pooled.py` 14 例，全套 **78 passed**。
+- 对账：`scripts/reconcile_runs.py` 56 run（54 历史+2 冒烟）全部满足 total_steps=epochs×ceil(N/64)，0 例外。
+- 冒烟：`SMOKE2_POOL25` 360 步 1.0 min → val IoU 0.2573@34；三路评测可出数：
+  thrissur 0.2682、FINAL-newzealand 0.1376(R 0.187)。**仅为链路验证，不是结果**。
+- `evaluate_segformer.py` 新增 `--manifest/--tag`（原先只能评 run 内那一个 test）。
+- 官方对照 `reports/P0_official_benchmark_protocol.md`：S2 6,737 pos/6,891 neg/13,628；LD=4,988；
+  基线 S2+DEM 多时相 75ep 3seeds，U-ConvLSTM IoU 44.88 / U-TAE 44.74；论文 >0.83 F1 是 macro 不是前景 IoU。
+- 总报告：`reports/P1_preparation_report_2026-10-19.md`。
+- 未解决：`data_raw` 未下载（Q_SOURCE 做不了）；FINAL 仅 338 块且 20.4% 时相 fallback；hiroshima 是 SEEN_DEV。
+
+## 合并为单一总报告
+
+- 用户要求"一份完整报告，不要分散" → 新建 `reports/v4_full_report_2026-10-19.md`（约 435 行，自包含 11 节）：
+  摘要 / 问题定义 / 数据（补齐+两段式+漏斗+逐事件表）/ 协议（四类协议+冻结划分+嵌套池+派生清单）/
+  预算结案 / 验证证据（17 项审计+14 例单测+冒烟）/ 官方基准 / 与执行计划2 逐条对照 / 风险 / 下一步（M2 命令与判据、M3 编码器清单）/ 产物索引。
+- 其余 5 份 P0_*.md 降级为该报告的证据附件，不再单独阅读。
+- 修正了两处自算错误：漏斗剔除数 465→360（原始准入 105 + p20 255）；嵌套池前景占比 15.4%→3.43–3.65%（大 R 面积按 128² 计算）。
+
+
+===== 2026-10-20.md =====
+# 2026-10-20
+
+## v4 三批实验审阅（v4r1 / v4r2 / v4r3）
+
+- 新增 `scripts/review_dev_significance.py`：读各 run 的 `eval/per_tile_best_val.csv`（每图块 tp/fp/fn），做配对分层 bootstrap（按事件分层、5000 次、seed 20261020），并输出固定步数 DEV 表与平台均值。产出 `reports/v4_dev_significance_2026-10-20.{md,json}`。
+- 新增 `reports/v4_review_2026-10-20.md`：合并审阅结论（协议核对 + 轨迹 + 显著性 + 分箱归因 + 逐条判定 + 对 M2/M3 的修改）。
+
+### 关键结论（有持久价值，后续实验须沿用）
+
+1. **best-DEV 口径不可用于横向排名**：`best − 平台均值(≥600步)` 在 0.009–0.073，大于各 run 之间 0.017–0.030 的差距。"在 36 个 checkpoint 里取最大"引入的偏差大于模型差异。主指标应改为**固定步数 DEV（建议 1200 步）**，辅以平台均值。
+2. **数据在 1,113 块（50% 池）就饱和**：25%→50% Δ+0.024（CI 不跨 0），50%→100% Δ−0.003（CI 跨 0）。继续加标注无回报。删掉 pool_75 / pool_100 的训练预算，改投 3 种子。
+3. **n075 池是"学习曲线峰值"不成立**（Δ+0.006，CI 跨 0，2 事件 1/2 同向），应从报告中撤回。
+4. **detailres 的真实作用在 5–49 px 档**：对象召回 5–9px 0.11→0.31、10–19px 0.13→0.35、20–49px 0.30→0.50；≥200px 0.65→0.67 基本不动。总量指标只涨 0.017 是因为大目标已做对、小目标占比小。这是可解释的机制证据，比总量差更有说服力。
+5. **thrissur 结构上无法检验小目标效应**：265 个对象中 1–4px 与 5–9px 均为 0 个，10–19px 仅 2 个；全部在 ≥20px。所以 detailres 在 thrissur 上 −0.015 是分布不匹配，不是反证。**DEV 253 个 ≤19px 对象里 251 个来自 hiroshima（SEEN_DEV）**，任何小目标相关改动实际只在单个非盲事件上评估。建议把 nepal / usa_alaska 作为**分箱召回**的补充事件。
+6. **1–4 px 目标在 128px 图块上不可解**（best 模型 8/77，像素召回 0.175），应从优化目标划掉，仅作报告项。
+7. **DOFA 负结果不可外推**：ViT-B/patch16 @128px → 仅 64 个 token，5–9px 目标不到半个 token。该实验同时改了编码器、预训练、解码器（32.3M vs 0.395M）、总参数（150.5M vs 3.75M）、patch 粒度五件事。M3 必须先做**同容量随机初始化 ViT 控制组**并对齐分辨率/patch 尺寸。
+8. **低编码器 LR 结论待定**：best 口径 +0.026 支持全 LR，但平台均值排序相反（low-LR 0.2733 最高，sd 仅 0.0046，几乎不退化）。两种口径冲突，单种子无法裁决。
+9. 协议纪律全部通过：0 条 FINAL/Italy 评测、20/20 dev_mean 算术一致、4 个池 0 个池外成员、10 个 run 的 669 块验证集完全一致。
+10. **FINAL（newzealand，338 块，32.5% 时相 fallback）现在不要碰**，配置未定前任何查看都会永久污染唯一盲测。
+
+### 环境备注
+- shell 默认 `python` 是 `C:\Users\yzh\.workbuddy\binaries\python\versions\3.13.12\python`，**无 pandas**；脚本一律用标准库 csv/json。
+- `resolved_config.json` 的超参都在 `cfg["segformer"]` 下；`train_summary.json` 的 history 每项含 `train_clean.pooled.iou` / `dev.event_mean_iou` / `dev.by_event`，v4 期用 `best_step` 而非 `best_epoch`。
+- 三 run 的 LR 组完全一致（`[3.37e-5, 3.37e-4]`），DOFA 对比在 LR 上是受控的。
+
+## v4r4 早期双向交换（已做完，结论：放弃该结构）
+
+新增模块 `src/landslide_seg/models/exchange.py`（`ChannelwiseResidualExchange`）+ `segformer.py::_forward_staged`（逐阶段手动编排，阶段 2 后插入一次交换）。配置 `configs/segformer/v4r4/{self_residual,cross_exchange}_n100_u3600_s1234.yaml`，`data.version=s2_10band_v4r4`，复用 `manifests/v4r1/*`。
+
+**关键结论（有持久价值）**：
+1. 三架构 best DEV 都在第 500 步：LateDetail 0.3081 / Cross 0.3033 / Self 0.2969。**按 AP（阈值无关）Cross 0.4430 ≈ LateDetail 0.4425，Self 0.4166**。
+2. **Self − LateDetail = −0.0113，CI [−0.0156,−0.0071] 不跨 0、2 事件同向 → "在编码阶段加一层同路径残差"确定有害**。Cross − Self = +0.0065 但 CI 跨 0（−0.0003~+0.0136），只能说"把 Self 的损失补回来"。
+3. Cross 是**工作点右移**而非变准：精确率 +0.036 / 召回 −0.037，未匹配预测对象 5.11→4.07/瓦片，对象级可评估命中 901→810（净 −91）。1–4px 档唯一变好（8→10）。
+4. **三架构共同漏检 715 个（≤19px 171、≤4px 63），与 v4r3 的 172/63 几乎一致** → 这批难例对"换交互位置"完全不敏感。
+5. 交换系数确已学习（|αE| 0.024–0.049、|αD| 0.031–0.117），负结果不是模块空转。
+6. **未做阈值扫描**，无法排除"Cross ≈ 换个工作点"；单种子，无显著性。
+
+**可复用资产**：零初始化恒等、可插拔的编码期干预点（已验证 7 道门槛，与 LateDetail 初始输出差 0.0）；`reports/v4r4_results/objects_paired_best_val.csv` 是 2808 个 GT 对象 × 三架构命中状态，可直接给下一轮对象/尺度监督用；`tests/test_exchange.py` 11 条语义锁定。
+
+**下一轮建议**：单独检验对象/尺度监督（按对象面积加权或小目标过采样），不要再与结构改动混在一次实验里。
+
+### 勘误（同日追加，重要）
+
+初版报告写的"**在编码阶段加容量本身就是有害的（Self −0.0113，区间不跨 0）**"**已撤回**。补做 `scripts/compare_v4r4_checkpoints.py` 后发现同一检验在 last 检查点上反向且同样不跨 0：
+- best@500：Self − LateDetail = −0.0113 [−0.0156, −0.0071]（不跨 0，更差）
+- last@3600：Self − LateDetail = **+0.0125 [+0.0031, +0.0212]**（不跨 0，更好）
+- Cross − Self 同样翻转：best +0.0065（跨 0）→ last −0.0161（不跨 0）
+
+**正确读法**：Self 在 600 步之后每一步都高于 LateDetail（+0.008/+0.010/+0.012），平台均值 0.2620 vs 0.2523、sd 0.0107 vs 0.0152 —— 是**峰值被削平、衰减更慢**，不是天花板降低。同时暴露出一个方法论问题：**"按 best DEV 选模"会系统性偏好"峰值高但衰减快"的模型**。
+
+**唯一方向稳定的比较**：Cross − LateDetail 在 best/last 都是小幅负值（−0.0048 / −0.0036，均跨 0）→ "没有改进"成立，这才是放弃 Cross 的依据。**不要再引用"Self 显著更差"。**
+
+### 环境/工程备注
+- 项目解释器：`C:\Users\yzh\.workbuddy\binaries\python\envs\tm\Scripts\python.exe`（transformers 4.57.6 / torch 2.11.0+cu128 / 2×RTX5090）。shell 默认 python 无 torch/tf/pandas。
+- `_loss(cfg, ...)` 接收**完整 cfg**（内部读 `cfg["segformer"]["loss"]`），不是 `cfg["segformer"]`。
+- 训练/评测单次约 900s（训练）、train 侧评测约 90s；Bash 默认 120s 超时，长任务必须 `run_in_background`。
+- `ls -la | tail -N` 按名字排序，会把 `eval_cross_*` 截掉，排查时别误判文件不存在。
+
+
+## P1-3 事件覆盖对照（已完成，两组正式训练）
+
+- 新增 `scripts/build_p13_event_coverage.py`：只读 TRAIN 的 GT 掩膜属性（逐瓦片前景像素/对象数/六档面积），枚举 k∈{2,3,4} 全部事件组合，`N = 该组合可用量之和`；对同一 N 用最大余数法把 AllEvents 分摊到九事件，再按 `sha256(sample_id)` 排序取前 quota。评分 `TVD(面积档) + 相对前景比差`，同分取 N 更大、再取事件名序小。
+- **选中 N=1251，FewEvents = dominicamaria(374)+indonesia(235)+kyrgyzstan1(642)**；score 0.1162（TVD 0.1014，相对前景 0.0148）。共同核心 703 块，统计只在其上拟合、两组共用（`manifests/p13/stats_common_core.json`）。
+- 冻结产物：`manifests/p13/selection_rule.json`（含全部候选分数、文件哈希）、`{few,all}/pool_100.jsonl`、`{few,all}/protocol.json`、`reports/p13/composition.md`。
+
+### 结果（客观）
+- best DEV：Few 0.2300@200 / All 0.2908@400 / REF-2223 0.3081@500。
+- **All − Few = +0.0607** CI[+0.0422,+0.0778]（best）、**+0.0619** CI[+0.0443,+0.0791]（last）——**两检查点同向且都不跨 0**，与 v4r4 的翻转情形不同。
+- 逐事件：hiroshima +0.1106/+0.1198，thrissur +0.0108/+0.0040（增益几乎全在 hiroshima）。
+- 5–199px 三档对象召回 All 明显更高；≥200px 两档并列 61/99。
+- FewEvents 在 200 步就见顶后一路下滑（@3600 = 0.1421），事件少 → 更早过拟合。
+
+## P2-M1 B2（权重已到位，验证通过，已起训）
+
+- **权重路径与内容不符**：目录/元信息写 `segformer-b2-finetuned-ade-512-512`，但 `config.json`（decoder 768、depths 3/4/6/3、hidden 64/128/320/512）与全部张量（linear_c→768、首层 64×3×7×7、27,463,511 numel、110,000,905 B、sha256 187ca07b…）都是 **B2-768**。已按内容判定并在报告中标注"身份链只到本地文件，未取得上游哈希校验"。
+- `scripts/validate_b2_interface.py`：7 项硬门槛全 PASS（from_pretrained 0 missing/unexpected/mismatched；decoder 768；参数 **27,430,338**；batch64 峰值 11.4 GiB；100 步 loss 0.820→0.243；重载差 0.0）。
+- 新增配置 `configs/segformer/p2m1/{b2,b0ctl}_latedetail_alltrain_s1234*.yaml`，`data.version=p2m1`，复用 `manifests/v4r1/*`。**另起了同版本 B0 控制组**，隔离代码漂移。
+
+### 网络/环境（重要，之前判断有误）
+- 沙箱白名单不是主因。`~/.workbuddy/settings.json` 已加 `sandbox.orderedRules.network` 规则（allow `huggingface.co` + `*.huggingface.co`，`customized:true`，备份 `settings.json.bak-20261020-035312`），但宿主启动时才读规则，且真正拦路的是**HF 侧对该出口 IP 的 401**（首页 200、`/api/*` 与 `/resolve/*` 401 `Invalid username or password`，无 auth 与假 bearer 返回一致；hf-mirror 原样转发同一错误）。
+- Windows 下 `urllib` 在清空环境变量后仍会回落到**注册表代理 `127.0.0.1:7890`**（与 Bash 环境的 `58108` 不同）。诊断网络时必须显式 `ProxyHandler({})` 才能区分"直连"与"走系统代理"。
+- 最终由用户在有网环境下载后拷入 `weights/`，B2 才得以启动。
+
+### 代码一致性核查
+- 同一 checkpoint 同代码重跑两次**逐位一致**（漂移 0.0）；旧代码 vs 现代码 DEV 差 1.56e-5，把 v4r4 改动的算子顺序恢复后**仍是 1.56e-5** → 不是那次重构，属评测侧环境（显存/工作区→cuDNN 选不同卷积实现）差异。历史 B0 结果可作背景，但不宣称逐位可复现。
+
+### P2-M1 结果（已完成）与阶段决策
+- 四组新增正式训练全部完成：P13-Few / P13-All / B0-AllTrain-ctl / B2-AllTrain。
+- **B2 − B0ctl = −0.0384（best）/ −0.0709（last）**，两检查点同向、区间均不跨 0；两个事件也都下降。B2 best@300（B0 为 @500），末尾 TRAIN IoU 0.5616 vs 0.4894 而 DEV 更低 → 固定预算下过拟合更重。
+- **B0-AllTrain-ctl 复现历史 REF**：best 0.308176 vs 0.308138，各固定步检查点吻合到 1e-4 → **代码无行为漂移，历史 B0 可继续作参照**。
+- 成本：B2 训练 1744s / 峰值 11649 MiB / 推理 p50 13.91ms；B0ctl 1177s / 4694 MiB / 6.49ms。
+- **按 §4 决策表落入第 1 行：事件覆盖带来实质改善、B2 没有 → 优先 P3-B（跨事件学习与合法新事件获取，解决域覆盖），本阶段同族放大主干不推进。**
+- 汇总报告：`reports/p13_p2m1_stage_report_2026-10-20.md`。
+
+### 工程备注（新增）
+- `make_p13_cases.py` 在 669 瓦片上要跑 2 分钟以上（`match_objects` 对 GT 对象数多的瓦片是 O(n_obj²) 级扫描），必须后台跑，不能当成"卡死"。
+- 评测加 `--skip-efficiency` 会省 30s，但成本表的推理延迟要单独用 `scripts/bench_p2m1_latency.py` 补。
+
+## BENCH_OFFICIAL 官方单期协议（步骤1–3 完成，步骤4 待决策）
+
+- 官方仓库 `https://github.com/PaulH97/Sen12Landslides` **可达**（GitHub 通，HF 不通），已 clone 到 `vendor/official/Sen12Landslides`，锁定 commit **`2eb025bd76bef449d2f7cf4aaea861bc4cfeed51`**。
+- `tasks/S12LS-LD/harmonized/s2/splits.json`：train 3,192 / val 798 / test 998 = **4,988**（与 README 一致）。划分规则来自 `configs/splits/s12ls_ld.yaml`：`min_annotated_pixel 50`、`annotated_only`、排除 `usa_alaska`/`nepal`、`test/val=0.2`、**seed 42 随机划分（非事件级互斥）**。
+- 官方训练定义（`configs/lit_module/binary.yaml`）：BCEDice **pos_weight=5**、AdamW **lr=1e-3**、75 epochs、3 seeds。指标（`src/lit_module.py`）：torchmetrics Binary*，**`probs.flatten()` vs 全像素，不过滤 valid**。
+- **口径差异已验证**：同一 2×2 例，把 FP 像素标无效后 pooled IoU 1/3→1/2。即我们的 valid 口径只在被排除像素是 FP/FN 时改变 IoU，但一定改变 FPR。并表前须按同一口径复算。
+- 映射：4,988/4,988 本地 nc 都存在（`data/sen12/<basename>`，注意不是 `data_harmonized/s2/`）；单期规则后可用 **3,012 / 758 / 945 = 4,715**，排除 273（云量、valid<50%、标签不可观测、event_date 不可解析）；fallback 240/58/65。
+- 统计 `stats_train.json` 只由官方 TRAIN 3,012 块拟合。选模接口改为可配置：`eval.selection_metric` 支持 `dev_pooled_iou`（默认仍是 `dev_event_mean_iou`）。
+- **交集（决策依据）**：官方 TRAIN 可用块中，**newzealand(FINAL) 292、hiroshima+thrissur(DEV) 322、Italy(DIAG) 1,135**、现有 TRAIN 事件 1,263。
+- **已按计划 §4 暂停训练**，向用户提出两个选项：A 启用官方协议（FINAL 盲测身份作废）/ B 保持角色、停止精确官方 split 训练。
+- 产物：`manifests/official_single/*`、`reports/official_single/{prep_report_2026-10-20.md,interface_validation.*}`、`configs/segformer/official_single/*.yaml`、`scripts/{build_official_single_protocol.py,validate_official_single.py}`。
+
+## 官方单期主实验（步骤4完成、步骤5受阻、步骤6判断）
+
+- 用户决策：**选项 A（启用官方协议），原事件 OOD 协议与产物保留**。已写进 `docs/DECISION_LOG.md` 与 `protocol_lock.json` 的 `decision` 字段。
+- **newzealand 的 FINAL 盲测身份终止**（官方 TRAIN 含其 292 块），hiroshima/thrissur 不再是干净 DEV。此后报告必须标注。
+- 训练：官方可用单期子集 train 3,012 / val 758 / test 945；3,600 更新、687s、4,694MiB。
+- **结果**：VAL best@2700 pooled **0.3623**、AP 0.5176、事件均值 0.2933；TEST best pooled **0.3275**、AP 0.4830、对象召回 0.4602、1–4px 0.210(86/409)。
+- 曲线形态与事件 OOD 不同：**全程单调上升**（0.3053@500 → 0.3604@3600），不是 500 步见顶。训练集更大 + 同分布随机划分。
+- 逐事件差异极大：hiroshima 0.4956 / thrissur 0.4698 / hokkaido 0.4596（均在官方 TRAIN 中有样本）vs china 0.1233 / kyrgyzstan2 0.0923 / usa_puertorico 0.1047。
+- 选模接口新增 `eval.selection_metric: dev_pooled_iou`（默认仍 `dev_event_mean_iou`），改在 `update_training.py`。
+- **步骤5 官方 U-TAE 参考未运行**：依赖与格式已核验（补装 h5netcdf 即可读 nc；bs=4 每步 0.104s、3.4GiB、1.07M 参数），但 75 epoch 需先建多时相缓存，预估 5–8 小时墙钟，超本阶段预算。记录在 `official_reference_feasibility.json`。
+- 结论按 §7：单期官方条件在 VAL 侧明显高于事件 OOD、TEST 侧幅度小，但训练样本/统计/划分同时变了，**不能仅归因 split**；小对象（1–4px 0.210）与边界（F1 0.51）仍弱。
+
+### 与官方差距 + 训练是否到 best
+- 新增 `scripts/metric_scope_check.py`：用已存概率图在同一份预测上重算「仅 valid」与「全像素」两个口径。官方是全像素（`probs.flatten()`），换到官方口径后 TEST：IoU 0.3275→**0.3214**、F1 0.4935→0.4864、AP 0.4830→0.4743。**与官方表值比较必须先做这一步**。
+- 差距（全像素口径 TEST vs 官方 U-ConvLSTM）：IoU **−12.74**、F1 −13.31、Precision −6.66、Recall **−19.63**、AP −17.70 点。**差距主体是召回不是精确率**（我们的 P 53.93 已与 U-TAE 的 53.19 持平，R 只有 44.29）。
+- 训练轮数其实**大体可比**：230,400 曝光 ÷ 3,012 样本 = **76.5 遍**，官方 75 epochs。所以差距不能简单归因于预算不足；主要混杂是单期 vs 15 时相+DEM、pos_weight（1 vs 5）、lr、单 seed。
+- **训练已饱和**：VAL pooled 第 1900 步起进平台，尾部（2700–3600，10 点）均值 0.3573、sd 0.0032；best 0.3623@2700 只比平台高 0.005（≈1.6 sd）；事件均值峰值在 2200 而非 2700（峰值位置随指标漂移→噪声）。TRAIN 仍升到 0.4691，TRAIN−VAL 差 0.1087。**同配置加步数无依据**。
+- 报告：`reports/official_single/gap_and_curve.md`、`metric_scope_test.json`。
+
+### 官方实现细节核对 + 数据集调查
+- **官方 DEM 做法**（`src/data/datasets.py::_extract_image`）：所有非 {MASK,DEM,SCL,spatial_ref} 变量 concat 成波段维 → `(time,bands,y,x)`；DEM 取 `time=0`、转置 `(y,x)`，再 **broadcast 到全部 T 个时相**，channel 维 concat 成 11 通道。即 DEM 不是独立分支，而是每个时相都带一版。官方 norm.json 含 DEM 的 mean/std（763.37 / …）。
+- **我们加 DEM 的改动面很小**：`adapt_first_conv_direct10` 已经按 `in_chans` 与 `band_order` 参数化，RGB 权重拷进 B04/B03/B02、**其余通道（含 DEM 槽）零初始化**，所以只需 ①cache 存 DEM（现 npz 只有 x10/mask/valid）②band_order 加 "DEM" ③TRAIN 统计加 DEM ④SpectralStem in_chans=11。4,715 块重生成 cache 约 10 分钟 + 1 次重训约 700s。注意 DEM 静态、无时序信息，且是**新增输入**须单独申报。
+- **pos_weight 语义**：`F.binary_cross_entropy_with_logits(pos_weight=p)` = `-[p·y·logσ(z) + (1-y)·log(1-σ(z))]`。p=5 使漏掉正类像素的代价 ×5。近似等价于把判定阈值从 0.5 下移到 1/(1+p)≈0.167。
+- **实测阈值扫描（全像素口径、TEST）**：thr 0.5 → IoU 0.3214 / R 0.4429；thr 0.167 → IoU **0.3162** / R 0.5474（召回 +10.4 点但 IoU 略降）；**IoU 最优在 thr 0.3（0.3244）**。→ **pos_weight=5 只能沿同一条 PR 曲线滑动，不能把曲线推出去**；真正的差距是 AP（0.474 vs 官方 0.651），阈值调不动。之前"pos_weight 最可疑"的猜测需要修正。
+- **数据集调查** → `docs/dataset_survey_2026-10-20.md`。滑坡有 9 个可查数据集（L4S/GVLM/HR-GLDD/CAS/Bijie/LMHLD/GDCLD/MS2LandsNet/Sen12）。**泥石流没有任何公开像素级基准**：Wenchuan 是矢量清单（Zenodo，本机 403）、藏东南 UAV RGB 不公开仅可申请、市面二手转卖数据来源不明不可用于正式对照、GSDD 是冰川碎屑不是泥石流。
+- 出入网：GitHub 可达；**Zenodo 403、IARAI 不可达、HF 文件端点 401**；Bijie 的 gpcv.whu.edu.cn 可达。数据集下载基本都要外部取回。
+
+### DEM 到底有没有用（已实测）+ L4S 结构
+- Sen12Landslides 的 DEM：形状 (15,128,128) 但**15 个时相完全相同**（沿 time 方差 0），attrs 只有 grid_mapping，**无日期**。官方做法是取 time=0 后广播到全部时相。→ 它是静态底图复制 15 份，**不能判定灾前灾后**。
+- 官方 TRAIN 抽 500 块（819 万像素，滑坡 3.84%）实测：**高程单变量 AUC 0.46（比随机还差）**，P(滑坡) 只在 0.5×–1.3× 基准间浮动；**坡度 AUC 0.6127**，40° 以上滑坡占比 2.0×。→ **DEM 的价值在导数（坡度），不在高程本身**；Landslide4Sense 同时给 B13 坡度 + B14 高程正是这个道理。坡度只是弱先验（AUC 0.61），只能调先验不能定位。
+- **Landslide4Sense 结构（核实到 `dataset/landslide_dataset.py`）**：每块 `.h5`，键 `img` (128,128,14)→(14,128,128)、`mask` (128,128) float；14 波段 = S2 **B1–B12 缺 B8A** + ALOS 坡度 + DEM；**存储时已标准化**（加载又套固定 mean/std）；**无 valid 掩膜**；文件内无日期/坐标；按图块随机划分。
+- 与我们衔接的坑（按麻烦度）：①**B8A 缺失**（我们第 8 通道就是 B8A）②多 B1/B9/B10（60m 上采样）③多坡度/DEM ④无 valid ⑤归一化口径不同 ⑥无日期无法做灾后单期选择。
+- **MS2LandsNet 是网络名不是数据集**：论文自建的是 **Luding / Jiuzhaigou** 两个 S2 10m 多时相数据集；PLOS ONE 2026 写成 "MS2LandsNet Dataset" 属二手误用。数据只给 Google Drive 的**获取/预处理代码**，格式未核实。
+- 记录：`docs/dataset_structure_notes_2026-10-20.md`
+
+## 三类灾害（滑坡/泥石流/崩塌）遥感数据集清单
+- 产出：`landslide-seg/docs/dataset_catalog_3hazards_2026-10-20.md` + 同名 `.csv`（机器可读索引）。
+- 核心结论：① 滑坡像素级基准充足（L4S 在用、GDCLD Zenodo CC BY 4.0 可下、Sen12、Bijie、HR-GLDD、CAS、LMHLD、GVLM）；
+  ② 泥石流无公开像素级基准，唯一像样的是藏东南集（10,000 张，需邮件申请 lbsu@xza.edu.cn，30 天答复）；
+  ③ 崩塌无公开掩膜集，最好的是 NBSDC 宜昌「工程地质遥感关键解译标志库」（崩塌 1233 + 危岩落石 774，需单位盖章）+ MRDataset（3,921 框，百度网盘 pwd 5bks）。
+- 网络实测变化：Zenodo 由 403 变 **200 可下载**；github.com 网页与 git clone 仍 502（仅 api.github.com 通）；huggingface 000 不通。
+- 否决项：GitHub `767172261/...落石759张` 仓库只有 README，无数据；CSDN/面包多转售的滑坡-泥石流集来源不可追溯，不用于正式对照。
+- 硬约束：10 m S2 输入无法表达崩塌（米级块体 < 1 像元），三类统一分割必须改亚米级，且与现有主表不可比。
+
+### 新增三组实验：+DEM / +坡度 / pos_weight=5（实现记录）
+- 代码改动（均已通过既有 105 个测试）：
+  - `losses.bce_loss(..., pos_weight=)`；`_seg_loss` 从 `loss.pos_weight` 读取（默认 1）。
+  - `S2SegDataset(..., extra="none|dem|slope")`：附加通道接在十波段之后，用扩展后的 stats 统一 z-score；preload 分支同步。
+  - `factory` 支持 `model.in_chans` 与 `model.band_order`；`adapt_first_conv_direct10` 本就按 in_chans 参数化，新增槽**自动零初始化**（实测 absmax=0.0）。
+  - `trainer / update_training / evaluate_segformer` 全部透传 `extra_channel`。
+- 数据：`scripts/build_official_geo.py` 另建 `data/s2_official_single_geo/`（x10/mask/valid/**dem**/**slope**），**不改原缓存**，标签与 valid 逐块沿用基线；新 manifest+stats+protocol 在 `manifests/official_single_geo/`。DEM 0–3100 m（mean 733.6），坡度 mean 20.8°。
+- **踩坑**：①坡度统计曾按「度」存、数组是「百分度」→ z-score 错百倍；已改为同单位（mean 2077.21, std 1466.42）并重建 protocol（protocol 的 files 键必须是**绝对路径**，写相对路径会让 validate_protocol 报 Unregistered）。②验证脚本里 `weight[10:]` 取错维度，应为 `weight[:, 10:]`。③批次均值不能用来判"是否标准化"，改用单块逐像素核对（误差 <3e-7）。
+- 三组接口验证全 PASS：`reports/official_single/geo_variants_validation.json`。pos_weight 生效性用同批数据 pw1 vs pw5 的 loss 验证（0.8704 → 0.8988）。
+
+### 三组新增实验结果（DEM / 坡度 / pos_weight=5）
+- 四组同协议同预算同 seed，TEST best IoU：baseline 0.3275 → DEM **0.3363**(+0.0087) → Slope **0.3402**(+0.0127) → PW5 0.3314(+0.0039)。VAL 上：0.3623 / 0.3641 / 0.3598 / 0.3579 —— **VAL 与 TEST 符号不一致**，单 seed 不能判"有效"。
+- **三组方向完全一致：召回↑ 精确率↓**（DEM +2.3/−0.8，Slope +3.8/−1.6，PW5 +8.1/−7.5，TEST）。三个互不相干的改动都只沿 PR 曲线滑动，说明都是"推向正类"而非提升表征。
+- **PW5 是最干净的证据：召回 +8.1、精确率 −7.5，IoU 仅 +0.4（TEST）/−0.4（VAL），AP 基本不动** —— 与之前阈值扫描结论一致，沿曲线滑动换不到 IoU。
+- **小目标召回唯一大改善**：PW5 把 1–4px 对象召回 0.210→**0.301**、5–9px 0.377→0.442。若下游在乎"别漏小滑坡"，这是最便宜杠杆。
+- **坡度并不优于 DEM**（+0.0127 vs +0.0087，噪声内）；推测模型本就能学到局部梯度，显式给没带来新信息。
+- 报告：`reports/official_single/variants_report.md`、`variants_summary.md`。
+
+### U-Net 复跑同一批四组（八组对照）
+- 工厂里**本来就有 `type: unet`**（`src/landslide_seg/models/unet.py::UNetSeg`，SMP ResNet18 + ImageNet，首层扩通道会零初始化新增通道）。唯一要改的是工厂 unet 分支把 `in_chans` 写死成 10 → 改为读 `model.in_chans`/`band_order`。
+- `download.pytorch.org` **可达**，ImageNet 权重能正常加载（`pretrained=True`），不像 HF 那样被拦。
+- 四组 UNet：14.35M 参数、峰值 1852 MiB（SegFormer 4694）、544–602s（SegFormer 687–831s）。**TEST best IoU：0.3004 / 0.3020 / 0.3080 / 0.3000**，比 SegFormer 基线（0.3275）低 2.7 点，尽管参数 3.8 倍。
+- **族内差值（TEST）**：Slope 在两族都正（Seg +0.0127 / UNet +0.0075），且是**唯一在 UNet 的 VAL 上也正**的组（+0.0044）；DEM 符号一致但 UNet 上仅 +0.0015≈0；**PW5 的 IoU 未复现**（Seg +0.0039 / UNet −0.0004），但召回效果复现（+8.1 / +3.9）。
+- 结论：①召回↑精确率↓的机制与架构无关；②IoU 能否改善与架构有关，PW5 再次证明只沿 PR 曲线滑动；③坡度是目前唯一两架构一致的改动；④U-Net 尺度偏好相反（≥200px 0.653 > Seg 0.590，但 1–4px 0.191 < 0.210）。
+- **跨架构边界**：3.8× 参数 + LR 沿用 SegFormer 那套（未为 UNet 调），不支持"哪种架构更好"的普遍结论。
+- 报告：`reports/official_single/unet_report.md`、`unet_vs_segformer.md`；脚本 `summarize_unet_vs_segformer.py`。
+
+### 追加第五组：DEM + 坡度（SegFormer，12 通道）
+- 实现：`EXTRA_CHANNELS` 加 `both`（`EXTRA_KEYS={"both":("dem","slope")}`，堆叠顺序 DEM→SLOPE，与 band_order 一致）；新建 `stats_geoboth.json`（12 通道，dem/slope 统计复用）、`protocol_geoboth.json`（绝对路径键）。
+- 校验：12 通道、新增两通道首层权重 absmax=0、逐像素标准化误差 <3e-7、**初始 loss 0.79929 与 SegFormer 基线组完全相同**（注意：0.7782 是 UNet 的初始 loss，别混）。
+- 结果（best）：VAL IoU 0.3637 / AP 0.5263；TEST IoU 0.3364(+0.0089) / **AP 0.4969（五组最高）** / P 0.5375(−0.0028，代价最小) / R 0.4735 / 边界 F1 0.5249（最高）。last 的 TEST AP 0.4923 也是最高。
+- **DEM 与坡度不叠加**：IoU 增益 +0.0089 ≈ DEM 单独 +0.0087 < Slope +0.0127，因为坡度本就是 DEM 的导数，信息重叠。
+- **小目标反而更差**：1–4px 0.174（基线 0.210）、5–9px 0.336（基线 0.377），但 ≥200px 0.646 为五组最高 → 推向"抓大放小"，与 PW5 相反。
+- 取舍成型：IoU 选 Slope；AP/边界选 DEMSlope；小目标召回选 PW5，三者不可兼得。
+
+### 阶段性汇总报告（本轮收尾）
+- 生成器：`scripts/build_session_summary.py` —— 所有数字从既有 JSON 读取（p13/p2m1/variants_summary/unet_vs_segformer/results/metric_scope_test），不手抄；产物 `reports/session_summary_2026-10-20.md`（186 行，10 节）。
+- 汇总口径：**本轮新增 13 个正式训练**（P1-3 ×2、P2-M1 ×2、官方单期 ×9 + 其中 UNet ×4）+ 3 个历史背景参照。
+- 报告结构：一页结论（5 条带强度评级）→ 实验清单 → 事件覆盖 → 主干规格 → 官方单期基线（含全像素口径与官方差距）→ 输入/损失五组 → 架构四组 → **证据一致性总表（6 行 × 5 个比较列）** → 结论与取舍（指标冲突表）→ 8 条限制 → 产物索引。
+- 关键表述已固化：只有"扩事件覆盖"和"不放大主干"两条在两个检查点上方向一致；输入侧（DEM/坡度）量级 ≤0.013 且 VAL/TEST 反号，只能算方向性提示；PW5 的 IoU 效应跨架构不可复现但召回效应可复现。
+- 抓过一次字符串坑：Python 字符串里用中文引号 \" \" 会截断字符串，报告正文统一改用 「」。
+
+## EVENT_CV_V5（跨事件表征与时间诊断）执行进展
+
+### 步骤 1：空间审计（冻结前门槛）
+- 新增 `scripts/audit_event_cv_spatial.py`：同 CRS 内用 bbox 算轴对齐重叠/10m 邻接；跨 CRS 用测地中心距（下界）。
+- **结果：78 个事件对里只有 kyrgyzstan1↔kyrgyzstan2 有接触（1 对 10m 邻接，中心距 1.28 km）**，其余全部 >500 km。→ 合并 Kyrgyz 组既必要也充分，计划 4 折无跨组泄漏。
+
+### 步骤 2：协议冻结
+- `scripts/build_event_cv_v5.py` → `manifests/event_cv_v5/`。四折图块数与计划**逐一吻合**：
+  F1 1776/453/2486、F2 979/453/3283、F3 985/773/2957、F4 975/453/3287（outer/inner/train）。
+- **踩坑**：`validate_protocol` 只接受 train/val 两类角色，manifest 里含 test 会报 Role mismatch → 必须拆成 `pool_100.jsonl`(train+val) 与 `test.jsonl`(outer)。
+- 每折 stats 只用本折 TRAIN 拟合；断言样本 id 与事件三重互斥、Kyrgyz 组未被拆开。
+
+### 步骤 3：验收门槛
+- **回归检查 PASS**：v4r4 Self 的旧预测 npz vs 当前代码，`max_abs_diff = 0.0`（逐位一致），阈值处像素一致率 1.000000。→ 反证之前 1.56e-5 是评测环境差异，不是代码漂移。
+
+### 步骤 4：四折控制组（已完成训练）
+- 现象（best）：F1 inner 0.1866 / **outer Italy 0.1012**（AP 0.129）；F2 inner 0.1316 / outer 0.1698（AP 0.248）。
+- **远低于官方随机划分的 0.3275**，符合预期：随机划分把同事件放进了训练集。inner 曲线在 900 步就见顶后下滑，TRAIN@3600 达 0.43–0.48，泛化差距极大。
+
+### 步骤 5：冻结 probe（进行中）
+- 新增 `src/landslide_seg/models/frozen_probe.py` + 工厂 `type: probe`；复用主训练器（run_updates）以保证曝光/评测节奏/选模一致。
+- 四种编码器全部冒烟通过：sf_b0（3.32M/头 516）、sf_b2（24.2M/头 1028）、dofa_rgb 与 dofa_10（111.2M/头 3076，out_indices=[3,5,7,11] 即第 4/6/8/12 block，stride 16）。**四者初始 loss 均为 0.8328**（零初始化头）。峰值显存仅 ~210 MiB。
+- DOFA 权重实际路径：`weights/dofa/XShadow_DOFA_base/DOFA_ViT_base_e100.pth`（不是 dofa_vitb16_*）。
+- **踩坑**：训练器 `_save_checkpoint`/run_meta 直接读 `model.adapter_report`/`load_info`，FrozenProbe 必须补这些属性，否则 AttributeError。
+
+### EVENT_CV_V5 四折控制组结果（关键）
+- **跨事件 outer IoU：F1(Italy) 0.1012、F2 0.1698、F3 0.2189、F4 0.1839**；AP 0.129/0.248/0.364/0.225；Recall 0.166/0.219/0.307/0.308。
+- 对照官方随机 split 的 0.3275 → **跨事件掉 0.11–0.23 个 IoU 点，比此前所有输入/损失改动（≤0.013）大一个量级**。这是本批最重要的结论：官方随机划分主要反映同分布插值，不能当跨事件外推。
+- inner 曲线 900 步就见顶后下滑，TRAIN@3600 达 0.43–0.48（过拟合极早）。
+- 1–4px 召回高度依赖留出事件：F1 0.0006 / F2 0.0000，而 F3 0.2805。
+- probe（F1）：sf_b0_rgb inner 0.1086@3500（末步仍在升，**可能被 3600 预算截断**）、dofa_rgb 0.0486@2300。其余 14 个在跑。
+- 报告：`reports/event_cv_v5/stage_report_2026-10-20.md`（已标注进行中）、`results_summary.md`。
+- U-TAE 未运行：时序 15 期可用、缓存约 23 GB、官方 U-TAE 实测 bs=4 每步 0.104s/3.4GB，75 epoch 预估 5–8h。
+
+### EVENT_CV_V5 严格照计划执行（B2 受阻 + probe 完成 + U-TAE 启动）
+- **B2 四个 probe 已按计划标记受阻**：上游身份未闭环（目录名/meta 写 512-512、内容是 B2-768、HF 不可达无法比对哈希）。已产出的 3 个完整 run + 1 个中断 run 移到 `outputs/segformer/_blocked_probe_b2/`，**不进入结果表**；记录见 `reports/event_cv_v5/b2_probe_blocked.md`。probe 由 16 降为 12。
+- **12 个 probe 完成（外留 IoU，四折）**：sf_b0_rgb 0.0636/0.0960/0.1040/0.0776（均值 0.0853）；dofa_rgb 0.0292/0.1187/0.0758/0.0736（0.0743）；dofa_10 0.0350/0.0458/0.0411/0.0585（0.0451）。完整系统均值 **0.1685**。
+- 三条结论：①冻结线性 probe 比完整系统低 0.08–0.12 IoU（线性可分部分不足以支撑像素级分割）；②**DOFA 不优于 B0**（0.0743 < 0.0853，参数多 33 倍）；③**同一 DOFA 内十波段比 RGB 更差**（0.0451 < 0.0743，四折全负）。
+- 组宏平均/最差组：F2 最差 kyrgyz 0.0694、F3 最差 usa_puertorico 0.0496；同一折内最好 0.384（hiroshima）最差 0.048（kgz2），**8 倍离散**。
+- **时序缓存**：`data/s2_temporal_v5/` memmap，X15 (4715,15,10,128,128) int16 = 21.6 GiB，4,715 块 0 失败。
+- **U-TAE 验收 8 项全过**：单期帧 == 15 期对应帧（0.0）、memmap 帧 == 原 npz x10（0.0）、两组初始 digest 相同、mask/valid 全等、重载 0.0。
+- **U-TAE 中途读数**（非结论）：单期 best@36 pooled 0.3373；15 期 @9 epoch 已 0.3900 → 时间信息方向有利。单期约需 25 分钟收尾，15 期约 5–6 小时。
+- 报告：`reports/event_cv_v5/stage_report_2026-10-20.md`（表格已更新为 12 probe + 受阻说明）。
+
+### U-TAE 单期组完成（配对的一半）
+- 新增 `scripts/evaluate_utae.py`：best/last × VAL/TEST × valid/全像素两套口径 + 逐事件 IoU/AP + 六档尺度召回。注意 `summarize()` 不返回 AP，需另用 `pixel_average_precision` 逐事件累计。
+- **单期+DEM（75 epoch，best@63，40 分钟）**：VAL valid 0.3557 / 全像素 0.3510 / AP 0.5348；**TEST valid 0.3324 / 全像素 0.3261 / AP 0.5115**；last TEST 0.3096。
+- 对比 SegFormer 单期（TEST）：valid 0.3324 vs 0.3275、全像素 0.3261 vs 0.3214、AP 0.5115 vs 0.4830 → **U-TAE 单期略优**，但 pos_weight(5 vs 1) 与 lr 不同，不是纯架构对照。
+- **15 期组 17/75 epoch，best@17 pooled 0.3905 / 事件均值 0.3646**，已超单期全程最好（0.3557/0.2949），速率 139 s/epoch，剩余约 2.2 小时。**未完成前不是结论。**
+
+### U-TAE 配对完成（本批全部可执行项结束）
+- **15 期+DEM（75 epoch，best@65）**：VAL valid 0.4896 / 全像素 0.4877 / AP 0.6909；**TEST valid 0.4770 / 全像素 0.4750 / AP 0.6832**；事件均值 0.4413；last TEST 0.4215。
+- **差值（15期 − 单期）**：best TEST **+0.1446 IoU / +0.1489 全像素 / +0.1717 AP**；last TEST +0.1119/+0.1348/+0.1436；VAL 同向。**两个检查点、两个 split、两套口径全部一致**。
+- **同 epoch 对比**（排除"多训了"）：ep10/20/30/40/50 上 15 期分别高 +0.107/+0.077/+0.120/+0.119/+0.131。
+- **13 个事件全部提升**，增益最大的是单期最弱的三个：kyrgyzstan1 +0.2715、china +0.2522、usa_puertorico +0.2357；最小 dominicamaria +0.0668。
+- **六个尺度档全部提升**，1–4px 提升最大（0.386→0.483）。
+- 结论：**时间观测是本批唯一有量级收益的杠杆**；下一步按计划拆"跨度 vs 数量"，不要在它之上叠模块/调损失。
+- 全批状态：22 个计划 run → **18 完成 + 4 按计划受阻**。报告已更新（§6 换成完整配对表，§7 换成四条分支判定，§8 更新受阻清单）。
+- 最终报告：`reports/event_cv_v5/stage_report_2026-10-20.md`；配对表 `utae_pair_summary.md`。
+
+
+===== 2026-10-21.md =====
+
+## Sen12Landslides 多时相结构与时间跨度（本地全量实测）
+- 产出：`landslide-seg/docs/sen12_temporal_structure_2026-10-21.md` + `docs/figures/sen12_temporal_coverage.png`、`sen12_patch_timeline_example.png`；脚本 `_diag/scan_sen12_timespan.py`、`_diag/plot_sen12_temporal.py`；数据 `_diag/sen12_timespan.json`、`_diag/sen12_timespan_events.csv`。
+- 关键事实（13,628 个本地 S2 图块全扫，0 失败）：每图块恒 15 时相；**全库影像 2015-12-03 → 2023-09-25**；单图块跨度中位 362 天（p10 330 / p90 1377 / max 2215）；相邻步间隔中位 27 天（p25 20 / p75 45）；`median(间隔)/(跨度÷14)` 中位 = 1.00 → 证实“等分区间各取一景”；pre/post 索引中位 7/8，两景间隔中位 8 天。
+- 结构性事实：MASK 是**一次事件级掩膜广播到 15 步**（抽样 800/800 跨时相完全相同）；13,628 幅中仅 6,739（49.4%）带 event_date + pre_post_dates 且 annotated=True，其余为 AD 负样本。
+- 读法：16 个事件清单分两类——单事件清单跨度 ~350–450 天（tight 贴“事件前后 1 年”），多事件清单 1,000–2,200 天（newzealand 2090、china 1765、kyrgyzstan1 1280、indonesia 1270、nepal 1148）。
+- 结论对项目的含义：① 现成变化信号是“事件对齐相对时间 t−event_date”与 pre/post 索引，loader `src/landslide_seg/data/sen12.py` 已解析；② 不可把 15 步当 15 倍数据（掩膜不变 + 相邻帧自相关 → 随机切分会高估），切分须按事件清单 + pre/post 边界；③ 本地只有 S2 分册，S1 升/降轨 13,306/12,622 未落地，其时序结构仅有论文描述。
+
+## v6 结果汇总与报告补全（06:30 后）
+- 报告 `landslide-seg/docs/v6_temporal_spectral_2026-10-21.md` 已从「§0/§1 完成、其余待填」补全为 §2 真实日期 U-TAE 配对、§3 主模型四组（3/4 完成）、§4 结论、§5 限制、附录 B 成本；同时订正 `docs/DATA_OFFICIAL.md`（表三+temporal 结论段）、`docs/MODEL_EVOLUTION.md`（多期/光谱两行状态）、`docs/RESEARCH_INDEX.md`（时序链状态段旧值→订正）、`docs/v6_execution_status_2026-10-21.md`。
+- 关键数值：U-TAE 真实日期 best test 单期 0.3396 / 15期 0.4832（+0.1436 IoU、+0.1711 AP），与旧帧序号版（+0.1446/+0.1717）几乎相同 → 多帧收益不来自日期编码；主模型 best test 单期 0.3302 / 多期 0.4093（+0.0791、AP +0.1216，Precision +0.121 > Recall +0.053）/ 单期光谱 0.3336（+0.0034、AP −0.0005，噪声级）；DOFA 波长纠错后 test 0.029 < RGB 0.074 < 旧错位 0.045（0/4 折胜出）。
+- 工程问题两条：① 多期光谱组配置里多余的 `data.preload: true` 会把 3012×15×10×128×128 读进内存（约 37 GB）→ `Memory allocation failure`+cudaErrorUnknown；已删除该覆盖并归档崩溃元数据到 `outputs/segformer/v6_main/_partial_restart/`。② 多期单图推理延迟旧记录 12.26 ms（比单期 16.91 还快）不可信，独立复测 T=1 17.3 ms / T=15 61.5 ms，报告采用复测值。
+- 仍在跑：主模型 15 期＋光谱（GPU0，显存接近上限 31.8/31.8 GiB）、U-TAE「截至单期日期」条件组（GPU1）。
+- 用户明确「不需要训练，只报告当前结果」→ 已停止全部训练，清理上一会话残留的重复进程（PID 89772/90092 主模型多期光谱、106596/97068 U-TAE history，均写同一 run 目录造成冲突）；两卡回到 idle。
+- 文档结构变化：`docs/` 只保留四份固定文档＋reporting_style＋assets，所有按日期命名的报告/计划已归档到 `archive/experiment_history/`（含 `docs/v6_temporal_spectral_2026-10-21.md` 及其图目录）。固定文档链接已改指向归档路径；v6 报告内「运行中/训练中」已改为「未完成、训练已停止」。
+- 记住：以后在 docs/ 下不要再新建按日期命名的报告，结果写进四份固定文档；详细历史报告放 archive。

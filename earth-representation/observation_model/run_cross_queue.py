@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import time
 
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/"observation_model/outputs"
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/"observation_model/outputs"
 PYTHON=ROOT.parent/"landslide-seg/.venv-use-independent/Scripts/python.exe"
 
 

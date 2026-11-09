@@ -10,7 +10,7 @@ import subprocess
 import sys
 import time
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/"observation_model/outputs/repair_v2"
 SOURCE=OUT/"source/earth-representation"
 

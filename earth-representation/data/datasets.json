@@ -72,8 +72,8 @@
       "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\landsat_native",
       "role": "observation",
       "sensor": "LANDSAT8_OLI/LANDSAT9_OLI2",
-      "files": 1742,
-      "size_gb": 0.046,
+      "files": 2892,
+      "size_gb": 0.076,
       "storage": "netCDF3 (scipy)",
       "variable": "sr",
       "shape": [
@@ -108,12 +108,12 @@
       "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\enmap_pairs",
       "role": "observation",
       "sensor": "ENMAP",
-      "files": 301,
-      "size_gb": 5.022,
+      "files": 1689,
+      "size_gb": 12.398,
       "storage": "netCDF3 (scipy)",
       "variable": "spectral",
       "shape": [
-        512,
+        224,
         128,
         128
       ],
@@ -138,38 +138,38 @@
     "physics": {
       "path": "N:\\Users\\yzh\\Disater\\earth-representation\\data\\physics",
       "role": "physical descriptors",
-      "files": 12,
+      "files": 15,
       "entry_point": "physics/sensor_physics.json",
       "sensors": {
         "S2A": {
           "bands": 13,
           "srf_status": "measured",
-          "psf_status": "not sourced"
+          "psf_status": "not_sourced"
         },
         "S2B": {
           "bands": 13,
           "srf_status": "measured",
-          "psf_status": "not sourced"
+          "psf_status": "not_sourced"
         },
         "S2C": {
           "bands": 13,
           "srf_status": "measured",
-          "psf_status": "not sourced"
+          "psf_status": "not_sourced"
         },
         "LANDSAT8_OLI": {
           "bands": 9,
           "srf_status": "measured",
-          "psf_status": "not sourced"
+          "psf_status": "not_sourced"
         },
         "LANDSAT9_OLI2": {
           "bands": 9,
           "srf_status": "measured",
-          "psf_status": "not sourced"
+          "psf_status": "not_sourced"
         },
         "ENMAP": {
           "bands": 224,
           "srf_status": "derived_gaussian",
-          "psf_status": "not sourced"
+          "psf_status": "derived_from_mtf_spec"
         }
       }
     },

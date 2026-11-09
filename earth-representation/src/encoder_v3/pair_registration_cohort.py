@@ -1,0 +1,80 @@
+"""Measure every raw-lineage TRAIN pair; no temporal filter or pair admission."""
+import argparse,contextlib,io,json,time,warnings
+from pathlib import Path
+from types import SimpleNamespace
+from .data import sha256
+from .audit_lineage import audit_member
+from .pair_registration import run as measure_pair
+
+
+def select_pairs(catalog,members):
+    selected=[]
+    for pair in catalog['pairs']:
+        if pair['role']!='TRAIN' or pair['geometry_status']=='common_projection_operator_required':continue
+        rows=[members[pair[k]] for k in ('S2_id','Landsat_id')]
+        if any(row['role']!='TRAIN' or row.get('source_role')!='TRAIN' for row in rows):raise ValueError('Pair role/source mismatch')
+        if all(row['provenance']=='existing_native_TIF_with_QA' for row in rows):selected.append(pair)
+    return selected
+
+
+def check_stored_diagnostic(prior,pair,study,band_pairs,offsets_m,code_hashes):
+    if prior['status']!='REGISTRATION_DIAGNOSTIC_NOT_ADMISSION' or prior['pair']!=pair or prior['source_identities']!=study['source_identities']:raise ValueError('Stored diagnostic identity differs')
+    names=[x['source_band']+':'+x['target_band'] for x in prior['band_pairs']]
+    if names!=band_pairs or prior['offsets_m']!=offsets_m:raise ValueError('Stored diagnostic recipe differs')
+    if any(prior['source_sha256'][name]!=digest for name,digest in code_hashes.items()):raise ValueError('Stored diagnostic source differs')
+
+
+def main(args):
+    started=time.perf_counter();study=json.loads(args.study.read_text(encoding='utf-8'));catalog=json.loads(args.catalog.read_text(encoding='utf-8'));release=Path(study['release'])
+    members_path=release/'members.jsonl';members_hash=sha256(members_path)
+    if members_hash!=study['source_identities']['members'] or catalog['members_sha256']!=members_hash:raise ValueError('Catalog member identity changed')
+    members={row['id']:row for row in map(json.loads,members_path.open(encoding='utf-8-sig'))};pairs=select_pairs(catalog,members)
+    canonical_path=release.parent/'pre_G1_data_contract/v4/canonical_observations.jsonl';canonical_hash=sha256(canonical_path)
+    expected=json.loads((Path(__file__).parent/'reports/native_lineage_audit.json').read_text(encoding='utf-8'))['canonical_sha256']
+    if canonical_hash!=expected:raise ValueError('Canonical identity changed')
+    canonical={row['id']:row for row in map(json.loads,canonical_path.open(encoding='utf-8-sig'))};args.output.mkdir(parents=True,exist_ok=True)
+    source_hashes={p.name:sha256(p) for p in (Path(__file__),Path(__file__).with_name('pair_registration.py'),Path(__file__).with_name('audit_lineage.py'),Path(__file__).with_name('adaptive_census.py'))}
+    manifest_path=args.output/'index.json'
+    previous=json.loads(manifest_path.read_text(encoding='utf-8')) if manifest_path.exists() else {}
+    stored_hashes={row['artifact']:row['sha256'] for row in previous.get('rows',[]) if row.get('status')=='MEASURED_NOT_ADMITTED'}
+    report=dict(status='RUNNING_READ_ONLY_DIAGNOSTIC',selection='All existing TRAIN same-projection/false-northing candidates whose two member records declare original TIF plus full QA; lineage independently rechecked, not a scientific admission policy',planned_pairs=len(pairs),completed_pairs=0,failed_pairs=0,admitted_pairs=0,optimizer_updates=0,members_sha256=members_hash,canonical_sha256=canonical_hash,catalog_sha256=sha256(args.catalog),source_sha256=source_hashes,offsets_m=[-20.,-10.,0.,10.,20.],band_pairs=['B03:SR_B3','B04:SR_B4','B8A:SR_B5','B11:SR_B6'],lineage_rows=[],rows=[])
+    lineage={}
+    def write():
+        report['seconds']=time.perf_counter()-started
+        manifest_path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    write()
+    for pair in pairs:
+        ids=(pair['S2_id'],pair['Landsat_id']);artifact=args.output/(ids[0]+'__'+ids[1]+'.json')
+        try:
+            for identifier in ids:
+                if identifier not in lineage:
+                    with warnings.catch_warnings(record=True) as caught:
+                        warnings.simplefilter('always');result=audit_member(members[identifier],canonical.get(identifier),release)
+                    if not result['raw_QA_recomputed']:raise ValueError('Original QA was not independently reproduced')
+                    result['warnings']=[dict(category=w.category.__name__,message=str(w.message)) for w in caught]
+                    lineage[identifier]=result;report['lineage_rows'].append(result)
+            if artifact.exists():
+                if stored_hashes.get(str(artifact))!=sha256(artifact):raise ValueError('Uncommitted or modified diagnostic artifact; preserve without reuse')
+                prior=json.loads(artifact.read_text(encoding='utf-8'))
+                check_stored_diagnostic(prior,pair,study,report['band_pairs'],report['offsets_m'],{name:source_hashes[name] for name in ('pair_registration.py','adaptive_census.py')})
+                for k,identifier in zip(('source','target'),ids):
+                    if prior[k+'_id']!=identifier or prior[k+'_cache_sha256']!=members[identifier]['cache_sha256'] or sha256(members[identifier]['cache'])!=members[identifier]['cache_sha256']:raise ValueError('Stored diagnostic input differs')
+                if prior['source_sha256']['pair_registration.py']!=source_hashes['pair_registration.py'] or prior['offsets_m']!=report['offsets_m']:raise ValueError('Stored diagnostic recipe differs')
+            else:
+                with contextlib.redirect_stdout(io.StringIO()):measure_pair(SimpleNamespace(study=args.study,catalog=args.catalog,source_id=ids[0],target_id=ids[1],band_pair=report['band_pairs'],offsets_m=report['offsets_m'],output=artifact))
+            measured=json.loads(artifact.read_text(encoding='utf-8'))
+            report['rows'].append(dict(source_id=ids[0],target_id=ids[1],time_gap_seconds=pair['time_gap_seconds'],status='MEASURED_NOT_ADMITTED',artifact=str(artifact),sha256=sha256(artifact),band_scores=[dict(source_band=x['source_band'],target_band=x['target_band'],zero_offset=next(v for v in x['offsets'] if v['dx_m']==0 and v['dy_m']==0),best=x['best_measured_correlation']) for x in measured['band_pairs']]))
+            report['completed_pairs']+=1
+        except (OSError,ValueError,KeyError) as exc:
+            report['failed_pairs']+=1;report['rows'].append(dict(source_id=ids[0],target_id=ids[1],status='FAILED_NOT_ADMITTED',error=type(exc).__name__+': '+str(exc)))
+        write()
+        if len(report['rows'])%10==0:print('PAIR_COHORT',len(report['rows']),'/',len(pairs),'failures',report['failed_pairs'],flush=True)
+    if sha256(members_path)!=members_hash or sha256(canonical_path)!=canonical_hash:raise ValueError('Inventory changed during cohort measurement')
+    if any(sha256(Path(__file__).with_name(name))!=digest for name,digest in source_hashes.items()):raise ValueError('Audit source changed while running')
+    report['status']='COHORT_DIAGNOSTICS_COMPLETE_NOT_ADMISSION' if not report['failed_pairs'] else 'COHORT_DIAGNOSTICS_WITH_FAILURES_NOT_ADMISSION'
+    report['limitations']=['Raw-QA lineage reproduction does not adopt its historical policy for V3','Full QA paths selected for evidence gathering, not a frozen data subset','Offset/correlation does not establish no surface change or spectral compatibility','No time, texture, registration or change-risk threshold adopted','Different projection candidates remain unmeasured; no imagery warp or correction applied']
+    write();print(json.dumps({k:report[k] for k in ('status','planned_pairs','completed_pairs','failed_pairs','seconds')},indent=2))
+
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('--study',type=Path,required=True);p.add_argument('--catalog',type=Path,required=True);p.add_argument('--output',type=Path,required=True);main(p.parse_args())

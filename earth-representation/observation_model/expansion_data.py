@@ -21,7 +21,7 @@ from rasterio.warp import transform_bounds, reproject
 from .metered_http import DownloadBudget, HTTPRangeFile
 from .native_data import aerosol_valid, BAD
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'observation_model/outputs/encoder_v2/data_expansion'
 PRE=ROOT/'observation_model/outputs/encoder_v2/pre_G1_data_contract'
 

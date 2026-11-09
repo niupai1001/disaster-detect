@@ -16,7 +16,7 @@ def main():
     args = parser.parse_args()
     original = Path('C:/Users/yzh/Downloads/SRF/download_srf_sources.py')
     sources = runpy.run_path(str(original))['SOURCES']
-    out = Path(__file__).resolve().parents[1]/'data/physics/srf'
+    out = Path(__file__).resolve().parents[2]/'data/physics/srf'
     if not args.download:
         print(json.dumps(sources, ensure_ascii=False, indent=2)); return
     out.mkdir(parents=True, exist_ok=True)

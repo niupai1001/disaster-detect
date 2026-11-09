@@ -40,6 +40,8 @@ STAC = "https://geoservice.dlr.de/eoc/ogc/stac/v1"
 OUT = ROOT / "data" / "enmap_pairs"
 SIZE, GSD, NODATA = 128, 30, -32768
 MAX_NODATA = 0.20
+MAX_TILES_PER_GROUP = 4
+MAX_BUFFER_BYTES = 700 * 1024 * 1024
 
 
 def env():
@@ -123,60 +125,86 @@ def cut_scene(samples, session, feat, sids, creds, outdir):
     across = (page.imagewidth + tw - 1) // tw
     nbands = page.shape[-1]
 
-    need = set()
-    coords = {}
+    # per patch: which tiles its footprint touches, and the tile holding its centre
+    footprint = {}
     for sid in sids:
         m = samples[sid]
         tr = Transformer.from_crs(CRS.from_epsg(int(m["crs"].split(":")[1])),
                                   CRS.from_epsg(epsg), always_xy=True)
-        xs, ys = tr.transform([m["bbox"][0], m["bbox"][2]], [m["bbox"][1], m["bbox"][3]])
+        xs, ys = tr.transform([m["bbox"][0], m["bbox"][2]],
+                              [m["bbox"][1], m["bbox"][3]])
         cs = [int((x - ox) // GSD) for x in xs]
         rs = [int((oy - y) // GSD) for y in ys]
-        coords[sid] = (cs, rs)
-        for r in range(min(rs) // tw, max(rs) // tw + 1):
-            for c in range(min(cs) // tw, max(cs) // tw + 1):
-                need.add((r, c))
-    if len(need) > 9:
-        return {}, "too_many_tiles"
+        tiles = {(r, c) for r in range(min(rs) // tw, max(rs) // tw + 1)
+                 for c in range(min(cs) // tw, max(cs) // tw + 1)}
+        centre = (int((oy - (ys[0] + ys[1]) / 2) // GSD) // tw,
+                  int(((xs[0] + xs[1]) / 2 - ox) // GSD) // tw)
+        footprint[sid] = (tiles, centre)
 
-    r0, c0 = min(r for r, _ in need), min(c for _, c in need)
-    r1, c1 = max(r for r, _ in need), max(c for _, c in need)
-    buf = np.full(((r1 - r0 + 1) * tw, (c1 - c0 + 1) * tw, nbands), NODATA, dtype=np.int16)
-    for (r, c) in sorted(need):
-        seg = r * across + c
-        if seg >= len(page.dataoffsets):
-            continue
-        fobj.seek(page.dataoffsets[seg])
-        raw = fobj.read(page.databytecounts[seg])
-        decoded = page.decode(raw, seg)
-        tile = decoded[0] if isinstance(decoded, tuple) else decoded
-        tile = np.asarray(tile)
-        if tile.ndim == 4:
-            tile = tile[0]
-        if tile.shape[-1] != nbands and tile.shape[0] == nbands:
-            tile = np.transpose(tile, (1, 2, 0))
-        yy, xx = (r - r0) * tw, (c - c0) * tw
-        buf[yy:yy + tw, xx:xx + tw, :] = tile[:tw, :tw, :]
+    groups = defaultdict(list)
+    for sid, (_tiles, centre) in footprint.items():
+        groups[centre].append(sid)
 
-    origin = (ox + c0 * tw * GSD, oy - r0 * tw * GSD)
     out = {}
-    for sid in sids:
-        m = samples[sid]
-        cube = cut_from_buffer(buf, origin, epsg, m["bbox"],
-                               CRS.from_epsg(int(m["crs"].split(":")[1])))
-        frac = float((cube == NODATA).mean())
-        if frac <= MAX_NODATA:
-            with netcdf_file(str(outdir / f"{sid}.nc"), "w", version=2) as nc:
-                nc.createDimension("band", cube.shape[0])
-                nc.createDimension("y", SIZE)
-                nc.createDimension("x", SIZE)
-                v = nc.createVariable("spectral", cube.dtype.char, ("band", "y", "x"))
-                v[:] = cube
-                setattr(nc, "source", b"ENMAP_HSI_L2A")
-                setattr(nc, "native_gsd_m", np.int32(GSD))
-                setattr(nc, "resampled_to_m", np.int32(10))
-                setattr(nc, "nodata_fraction", np.float32(frac))
-            out[sid] = frac
+    # a whole-scene buffer reached ~1 GB and got the process killed; each centre
+    # tile now gets its own bounded buffer that is released before the next one
+    for centre, gids in groups.items():
+        union = set()
+        for sid in gids:
+            union |= footprint[sid][0]
+        if len(union) > MAX_TILES_PER_GROUP:
+            gids = [s2 for s2 in gids if len(footprint[s2][0]) <= 2]
+            union = set()
+            for sid in gids:
+                union |= footprint[sid][0]
+            if not gids or len(union) > MAX_TILES_PER_GROUP:
+                continue
+        r0, c0 = min(r for r, _ in union), min(c for _, c in union)
+        r1, c1 = max(r for r, _ in union), max(c for _, c in union)
+        nbytes = (r1 - r0 + 1) * tw * (c1 - c0 + 1) * tw * nbands * 2
+        if nbytes > MAX_BUFFER_BYTES:
+            continue
+        buf = np.full(((r1 - r0 + 1) * tw, (c1 - c0 + 1) * tw, nbands),
+                      NODATA, dtype=np.int16)
+        try:
+            for (r, c) in sorted(union):
+                seg = r * across + c
+                if seg >= len(page.dataoffsets):
+                    continue
+                fobj.seek(page.dataoffsets[seg])
+                raw = fobj.read(page.databytecounts[seg])
+                decoded = page.decode(raw, seg)
+                tile = decoded[0] if isinstance(decoded, tuple) else decoded
+                tile = np.asarray(tile)
+                if tile.ndim == 4:
+                    tile = tile[0]
+                if tile.shape[-1] != nbands and tile.shape[0] == nbands:
+                    tile = np.transpose(tile, (1, 2, 0))
+                yy, xx = (r - r0) * tw, (c - c0) * tw
+                buf[yy:yy + tw, xx:xx + tw, :] = tile[:tw, :tw, :]
+                del tile, decoded, raw
+
+            origin = (ox + c0 * tw * GSD, oy - r0 * tw * GSD)
+            for sid in gids:
+                m = samples[sid]
+                cube = cut_from_buffer(buf, origin, epsg, m["bbox"],
+                                       CRS.from_epsg(int(m["crs"].split(":")[1])))
+                frac = float((cube == NODATA).mean())
+                if frac <= MAX_NODATA:
+                    with netcdf_file(str(outdir / f"{sid}.nc"), "w", version=2) as nc:
+                        nc.createDimension("band", cube.shape[0])
+                        nc.createDimension("y", SIZE)
+                        nc.createDimension("x", SIZE)
+                        v = nc.createVariable("spectral", cube.dtype.char,
+                                              ("band", "y", "x"))
+                        v[:] = cube
+                        setattr(nc, "source", b"ENMAP_HSI_L2A")
+                        setattr(nc, "native_gsd_m", np.int32(GSD))
+                        setattr(nc, "resampled_to_m", np.int32(10))
+                        setattr(nc, "nodata_fraction", np.float32(frac))
+                    out[sid] = frac
+        finally:
+            del buf
     mb = fobj.bytes_read / 1e6
     return out, mb
 

@@ -82,7 +82,8 @@ agent_plan `782c868b…`、handoff `f0cca2f9…`，完整值见
   必须记录 `NO_VALID_SUPPORTED_TARGET`，不得静默补零。
 - **指标还原**：`y=y_z·σ+μ`；`rmse_phys=rmse_z·σ`、`mae_phys=mae_z·σ`、
   `bias_phys=bias_z·σ`、`NMSE=mean((ẑ−ŷ)²)`。若预测恒为 TRAIN 均值 `μ`，则
-  `NMSE=1+((mean_target−μ)/σ)²`；对 VAL 或任意子集**不保证等于 1**，必须实际计算，
+  `NMSE=Var_target/σ²+((mean_target−μ)/σ)²`；对 VAL 或任意子集**不保证等于 1**，必须实际计算，
+  `Var_target=mean((y−mean_target)²)`，仅在实际计分目标像元集合计算，分母为 N（correction=0），与 MSE 一致。
   不能把 1 当作通用验收阈值。新旧数据/面板不同，不能直接宣称可比。
 
 ### 必要备选与取舍
@@ -330,7 +331,7 @@ S2 385²（样例）：`N_sub=49×49=2401`，窗口 `7×7=49`（最后一个不�
   以 `L_sub` 为单位；同 Sub-Patch 若有 summary 必取）。附 `mask`；kNN 只做索引，
   不把坐标当内容。
 - **Query**：`q_geo = [Fourier2D(t, B_pos=4) (16), log(gx/L_sub), log(gy/L_sub),
-  log(area/L_sub²)]` 共 **11** 维；`q = MLP([z_decoder(32), q_geo(11)]) → 128`。
+  log(area/L_sub²)]` 共 **19** 维；`q = MLP([z_decoder(32), q_geo(19)]) → 128`。
   `z_decoder` 由静态 `Q_decoder(s,c)` 读同一 KV 得到，只吃 `ChannelMeta + log(GSD)`，不读像元。
 - **聚合（含 R(C) latent 的明确读取，IR1，待确认）**：1 层 4 头 masked Cross-Attention，
   Q=`q`，K/V = 局部 summary（加相对位置 Fourier `p_k−t`）与**融合后 `R(C)` latent**
@@ -339,8 +340,8 @@ S2 385²（样例）：`N_sub=49×49=2401`，窗口 `7×7=49`（最后一个不�
   Sub-Patch 的融合后 latent Token（每子块 ≤`R(C)` 个，k≤8 → ≤128 个 key），
   与 summary 一起进入同一局部注意力；没有可用 latent 时置 `a_latent=0, has_latent=0`。
   这样局部谱分支实际进入 loss，不是独立高维 skip，也不删除该分支。最终拼接
-  `[a_local(128), a_global(128), a_latent(128), q_geo(11), z_decoder(32),
-  has_local(1), has_latent(1)]` 共 **429** 维 → `Linear(429,128) → GELU →
+  `[a_local(128), a_global(128), a_latent(128), q_geo(19), z_decoder(32),
+  has_local(1), has_latent(1)]` 共 **437** 维 → `Linear(437,128) → GELU →
   Linear(128,1)` 输出 `ẑ`。`has_local=0` 时 `a_local=0`（不是 NaN），全局路径仍可用。
 - **可区分性**：`t` 与支持尺寸既进入 `q`（改变注意力权重），也进入最终 MLP；
   同一通道、同一 Sub-Patch 的两个目标像元因此有不同的 query、不同的检索权重和
@@ -377,7 +378,7 @@ S2 385²（样例）：`N_sub=49×49=2401`，窗口 `7×7=49`（最后一个不�
 1–4 个子块，A 完全隐藏区附近可能更远，需设最大环半径并在超界时走全局回退，
 避免退化为 O(N) 全量扫描。
 注意力：局部 K/V ≤ `8 summary + 8×R(C)` 个 latent（真实 10 通道 `R≤4` → ≤40 key；
-224 通道合成 `R=16` → ≤136 key）；全局 32 key；最终 MLP 429→128→1 约 55k MAC/像元。
+224 通道合成 `R=16` → ≤136 key）；全局 32 key；最终 MLP 437→128→1 约 55k MAC/像元。
 S2 385² 单波段约 148k 目标像元，按上述约 1×10^10 MAC 量级，必须沿用逐像素 chunk
 反传（`chunk_pixels`）与索引；真实最大 2769×2264 单波段约 6.3M 目标像元，需在 E1
 实测分块耗时/显存，不能把 385² 当上界。
@@ -557,3 +558,9 @@ P32 粒度与 32 维、`M_mem=8`、`d_k=d_v=32`、动态卷积公式、`L_sub=8�
 4×4 micro-cell、`R(C)=min(16,ceil(sqrt(C)))`、`D=128`、主干层数/头数、
 A/B1 `0.5/0.5`、数据资格规则（取消旧 `max_native_pixels=16384` 过滤）均保持
 01/02 原文；本文件只提出未定接口的最小实现，不改变上述冻结项。
+
+> 执行纠错：q_geo = 16维目标位置 Fourier + 2维 log(gx/L_sub), log(gy/L_sub) + 1维 log(area/L_sub²)，共19维。三路读出的437维及 Linear(437,128)仅为IR1待确认候选算术，不是正式配置；最终读出路径见 plan_execution/interface_decisions.md。
+
+## 当前接口批准与实现
+
+用户已确认 IR1/IR5/IR6 推荐组合。采用联合局部注意力：fine summary与融合后R(C)latent共同作为局部K/V（至多8+128=136），只产生一个a_local[128]，加32全局latent读出的a_global[128]。q_geo19、z_decoder32、has_local1、has_latent1共同形成309维，首层Linear(309,128)。上文三路437仅为未采用候选，不是当前结构。IR5为共享8→64→32加独立模块seed；IR6为统一场景相对坐标加非周期比例。实现位置为src/encoder_v3/latent_response/{geometry,fusion,spatial,decoder,model,data,execution,checkpoint,preflight}.py。

@@ -7,17 +7,64 @@
       "title": "Encoder V3推进至正式训练前并保留迁移证据",
       "owner": "01a1a763-e319-76b3-998a-93556bf02f59",
       "scopes": [
-        "encoder_v3"
+        "outputs/documentation/encoder_v3",
+        "outputs/encoder_v3",
+        "src/encoder_v3",
+        "tests/encoder_v3"
       ],
       "status": "active",
       "started_at": "2026-11-05T14:37:13.566717+00:00",
       "updated_at": "2026-11-06T12:20:28.030367+00:00",
       "evidence": [
-        "encoder_v3/reports/validation_panels_review.json",
-        "encoder_v3/reports/validation_panels_tests.json"
+        "src/encoder_v3/reports/validation_panels_review.json",
+        "src/encoder_v3/reports/validation_panels_tests.json"
       ],
       "note": "固定VAL面板读取/只读收集已实现，6项生成数据/替代预测控制检查通过，目标TRAIN统计、无支持None、全部子模块/梯度/RNG正常及异常恢复。未选择综合标量或冻结正式面板，未做真实预测/更新；214停止。指标调度/JEPA选择/全程编排及运行环境、数据科学冻结仍未完，目标活动。"
+    },
+    {
+      "id": "maintained-document-rewrite",
+      "title": "按研究演变重写整套固定文档",
+      "owner": "codex-maintained-docs",
+      "scopes": [
+        "docs/agent_roles.md",
+        "docs/data.md",
+        "docs/design.md",
+        "docs/results.md",
+        "readme.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-11-09T05:13:54.780450+00:00",
+      "updated_at": "2026-11-09T05:32:14.166254+00:00",
+      "evidence": [
+        "N:/Users/yzh/Disater/.project/maintained_document_validation.json",
+        "N:/Users/yzh/Disater/.project/engineering_layout.json"
+      ],
+      "note": "两工程五份固定文档及根入口/规则整体重写；USE按V1/V2、Encoder V3与LR合并；5张数据图；源代码和测试迁移至src/tests，数据与历史产物归类并保留兼容路径。跨卫星332+28子测试、滑坡相关26+4子测试通过。未启动正式训练。"
+    },
+    {
+      "id": "lr-plan-corrections",
+      "owner": "codex-current-chat",
+      "title": "执行LR计划：三项纠错与接口提案",
+      "status": "completed_e1_enmap_pending_inputs",
+      "scopes": [
+        "src/encoder_v3/latent_response/memory_read.py",
+        "src/encoder_v3/latent_response/interface*.md",
+        "src/encoder_v3/latent_response/interface_confirmation.json",
+        "tests/encoder_v3/latent_response/tests/test_memory_read.py",
+        "tests/encoder_v3/latent_response/tests/test_interface_contract.py",
+        "outputs/encoder_v3/latent_response/plan_execution",
+        "src/encoder_v3/latent_response",
+        "tests/encoder_v3/latent_response",
+        "configs/config_lr_e0_v1.json",
+        "docs/DESIGN.md",
+        "README.md"
+      ],
+      "note": "用户确认IR1/IR5/IR6后实现完整LR；S2/Landsat E1通过，真实更新0。EnMAP单独准入未通过：QA/XML/坏波段/角色统计缺失。最大场景只证明Encoder前向。",
+      "evidence": [
+        "outputs/encoder_v3/latent_response/plan_execution/execution_report.md",
+        "outputs/encoder_v3/latent_response/plan_execution/completion.json"
+      ]
     }
   ],
-  "updated_at": "2026-11-06T12:20:28.030367+00:00"
+  "updated_at": "2026-11-09T05:32:14.166254+00:00"
 }

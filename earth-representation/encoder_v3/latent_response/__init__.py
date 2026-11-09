@@ -1,9 +1,7 @@
 """latent_response_sensor_memory_v1, spec_revision=1.2.
 
-Phase 1 contains only modules whose contract is frozen by the specifications:
-one P32 per SensorKey, shared multi-slot memory, masked dynamic convolution,
-module queries and exact native Sub-Patch/micro-cell geometry. Fusion, spatial
-backbone, decoder and adapters stay unimplemented until I1-I5 are confirmed.
+IR1/IR5/IR6 confirmed: joint 309-wide decoder, shared metadata projection,
+scene-relative position. Complete model and E1 entry are independent of legacy training.
 """
 from .types import SensorKey, ChannelMeta, NativeGrid, ChannelObservation
 from .registry import SensorRegistry, ChannelCatalog
@@ -14,7 +12,7 @@ from .dynamic_conv import DynamicKernelBank, masked_native_conv
 from .native_patch import reference_gsd, subpatch_size, aggregate_microcells
 
 ARCHITECTURE_ID = 'latent_response_sensor_memory_v1'
-SPEC_REVISION = '1.2'
+SPEC_REVISION = '1.3'
 
 __all__ = [
     'ARCHITECTURE_ID', 'SPEC_REVISION', 'SensorKey', 'ChannelMeta', 'NativeGrid',

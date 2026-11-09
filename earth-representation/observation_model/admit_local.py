@@ -16,7 +16,7 @@ from scipy.optimize import minimize
 
 from .native_data import S2,LANDSAT,optical_from_four_view
 
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/"observation_model/outputs/phase0"
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/"observation_model/outputs/phase0"
 
 
 def rebuild_downloaded_windows():

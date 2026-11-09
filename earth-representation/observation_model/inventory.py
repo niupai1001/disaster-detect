@@ -10,7 +10,7 @@ import h5py
 import numpy as np
 from scipy.io import netcdf_file
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 WORKSPACE=ROOT.parent
 OUTPUT=ROOT/"observation_model/outputs/phase0"
 BAD=(0,1,3,8,9,10,11,255)

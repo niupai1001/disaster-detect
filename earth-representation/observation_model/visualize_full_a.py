@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'observation_model/outputs/token_A_full'
 sys.path.insert(0, str(OUT / 'source_v2/earth-representation'))
 

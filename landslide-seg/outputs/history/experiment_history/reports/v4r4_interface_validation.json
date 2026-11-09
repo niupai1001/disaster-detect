@@ -1,0 +1,1166 @@
+{
+ "device": "cuda:0",
+ "configs": {
+  "self": "configs/segformer/v4r4/segformer_b0_detail_early_self_residual_n100_u3600_s1234.yaml",
+  "cross": "configs/segformer/v4r4/segformer_b0_detail_early_cross_exchange_n100_u3600_s1234.yaml"
+ },
+ "fixed_samples": [
+  {
+   "sample_id": "chimanimani_s2_1001",
+   "event_id": "chimanimani"
+  },
+  {
+   "sample_id": "chimanimani_s2_1890",
+   "event_id": "chimanimani"
+  },
+  {
+   "sample_id": "dominicamaria_s2_552",
+   "event_id": "dominicamaria"
+  },
+  {
+   "sample_id": "hokkaido_s2_746",
+   "event_id": "hokkaido"
+  },
+  {
+   "sample_id": "itogon_s2_509",
+   "event_id": "itogon"
+  },
+  {
+   "sample_id": "kyrgyzstan1_s2_3299",
+   "event_id": "kyrgyzstan1"
+  },
+  {
+   "sample_id": "kyrgyzstan1_s2_5504",
+   "event_id": "kyrgyzstan1"
+  },
+  {
+   "sample_id": "usa_puertorico_s2_999",
+   "event_id": "usa_puertorico"
+  }
+ ],
+ "identity": {
+  "common_keys": 218,
+  "exchange_keys": [
+   "exchange.alpha_d",
+   "exchange.alpha_e",
+   "exchange.h_d.0.bias",
+   "exchange.h_d.0.weight",
+   "exchange.h_d.2.bias",
+   "exchange.h_d.2.weight",
+   "exchange.h_e.0.bias",
+   "exchange.h_e.0.weight",
+   "exchange.h_e.2.bias",
+   "exchange.h_e.2.weight",
+   "exchange.p.bias",
+   "exchange.p.weight"
+  ],
+  "ref_only_keys": [],
+  "self_only_keys": [
+   "exchange.alpha_d",
+   "exchange.alpha_e",
+   "exchange.h_d.0.bias",
+   "exchange.h_d.0.weight",
+   "exchange.h_d.2.bias",
+   "exchange.h_d.2.weight",
+   "exchange.h_e.0.bias",
+   "exchange.h_e.0.weight",
+   "exchange.h_e.2.bias",
+   "exchange.h_e.2.weight",
+   "exchange.p.bias",
+   "exchange.p.weight"
+  ],
+  "hash_common_ref": "c9deeddce71f0766bbeb36a9674f3db594358ed02f497d7c4116aa01396c4c91",
+  "hash_common_self": "c9deeddce71f0766bbeb36a9674f3db594358ed02f497d7c4116aa01396c4c91",
+  "hash_common_cross": "c9deeddce71f0766bbeb36a9674f3db594358ed02f497d7c4116aa01396c4c91",
+  "hash_exchange_self": "016ff85f27da7ebdf02f27e7f8c188ae349b709dc4d5e392be680ea0a5a3c1a2",
+  "hash_exchange_cross": "016ff85f27da7ebdf02f27e7f8c188ae349b709dc4d5e392be680ea0a5a3c1a2"
+ },
+ "shapes": {
+  "self": {
+   "input": [
+    2,
+    10,
+    128,
+    128
+   ],
+   "stage1": [
+    2,
+    32,
+    32,
+    32
+   ],
+   "E_in": [
+    2,
+    64,
+    16,
+    16
+   ],
+   "E_out": [
+    2,
+    64,
+    16,
+    16
+   ],
+   "D_in": [
+    2,
+    32,
+    128,
+    128
+   ],
+   "D_out": [
+    2,
+    32,
+    128,
+    128
+   ],
+   "stage2": [
+    2,
+    64,
+    16,
+    16
+   ],
+   "stage3": [
+    2,
+    160,
+    8,
+    8
+   ],
+   "stage4": [
+    2,
+    256,
+    4,
+    4
+   ]
+  },
+  "cross": {
+   "input": [
+    2,
+    10,
+    128,
+    128
+   ],
+   "stage1": [
+    2,
+    32,
+    32,
+    32
+   ],
+   "E_in": [
+    2,
+    64,
+    16,
+    16
+   ],
+   "E_out": [
+    2,
+    64,
+    16,
+    16
+   ],
+   "D_in": [
+    2,
+    32,
+    128,
+    128
+   ],
+   "D_out": [
+    2,
+    32,
+    128,
+    128
+   ],
+   "stage2": [
+    2,
+    64,
+    16,
+    16
+   ],
+   "stage3": [
+    2,
+    160,
+    8,
+    8
+   ],
+   "stage4": [
+    2,
+    256,
+    4,
+    4
+   ]
+  }
+ },
+ "init_equivalence": {
+  "self": 0.0,
+  "cross": 0.0
+ },
+ "param_groups": {
+  "late": {
+   "params": {
+    "total": 3753602,
+    "trainable": 3753602,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 28225
+   },
+   "n_param_tensors": 215,
+   "groups": {
+    "encoder": 192,
+    "decoder": 13,
+    "new": 10
+   },
+   "duplicate_membership": false,
+   "params_missing_from_groups": 0,
+   "exchange_in_new_group": true
+  },
+  "self": {
+   "params": {
+    "total": 3777442,
+    "trainable": 3777442,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 52065
+   },
+   "n_param_tensors": 227,
+   "groups": {
+    "encoder": 192,
+    "decoder": 13,
+    "new": 22
+   },
+   "duplicate_membership": false,
+   "params_missing_from_groups": 0,
+   "exchange_in_new_group": true
+  },
+  "cross": {
+   "params": {
+    "total": 3777442,
+    "trainable": 3777442,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 52065
+   },
+   "n_param_tensors": 227,
+   "groups": {
+    "encoder": 192,
+    "decoder": 13,
+    "new": 22
+   },
+   "duplicate_membership": false,
+   "params_missing_from_groups": 0,
+   "exchange_in_new_group": true
+  }
+ },
+ "optimizer_lr_groups": [
+  {
+   "lr": 6e-05,
+   "n_tensors": 192
+  },
+  {
+   "lr": 0.0006,
+   "n_tensors": 35
+  }
+ ],
+ "grad_window": {
+  "self": {
+   "first_step_norms": {
+    "p": 0.0,
+    "h_e": 0.0,
+    "h_d": 0.0,
+    "alpha_e": 0.004557620733976364,
+    "alpha_d": 0.0
+   },
+   "rows": [
+    {
+     "step": 1,
+     "loss": 0.801315426826477,
+     "p": 0.0,
+     "h_e": 0.0,
+     "h_d": 0.0,
+     "alpha_e": 0.0031021591275930405,
+     "alpha_d": 0.0
+    },
+    {
+     "step": 2,
+     "loss": 0.798327624797821,
+     "p": 1.649885405186069e-06,
+     "h_e": 7.030343823544172e-06,
+     "h_d": 0.0,
+     "alpha_e": 0.0029581356793642044,
+     "alpha_d": 3.762201458812342e-06
+    },
+    {
+     "step": 3,
+     "loss": 0.788936972618103,
+     "p": 4.813801979253185e-06,
+     "h_e": 1.7761682215677865e-05,
+     "h_d": 6.928256945926137e-08,
+     "alpha_e": 0.003025548532605171,
+     "alpha_d": 1.1220941814826801e-05
+    },
+    {
+     "step": 4,
+     "loss": 0.779018759727478,
+     "p": 5.22980099049164e-06,
+     "h_e": 2.433915153687849e-05,
+     "h_d": 3.8519534939496225e-07,
+     "alpha_e": 0.0024367147125303745,
+     "alpha_d": 2.4175451471819542e-05
+    },
+    {
+     "step": 5,
+     "loss": 0.7653281688690186,
+     "p": 1.1151776561746374e-05,
+     "h_e": 4.857735393670737e-05,
+     "h_d": 1.2927293937536888e-06,
+     "alpha_e": 0.004544233903288841,
+     "alpha_d": 4.441802593646571e-05
+    },
+    {
+     "step": 6,
+     "loss": 0.749281644821167,
+     "p": 1.0515398344068672e-05,
+     "h_e": 4.834416654375673e-05,
+     "h_d": 3.456742575735916e-06,
+     "alpha_e": 0.00274437153711915,
+     "alpha_d": 7.929604180390015e-05
+    },
+    {
+     "step": 7,
+     "loss": 0.732933521270752,
+     "p": 2.0217462861182867e-05,
+     "h_e": 8.654603107061121e-05,
+     "h_d": 6.953172828616516e-06,
+     "alpha_e": 0.003797741374000907,
+     "alpha_d": 0.00012749602319672704
+    },
+    {
+     "step": 8,
+     "loss": 0.7193362712860107,
+     "p": 2.5334617021144368e-05,
+     "h_e": 9.736954052641522e-05,
+     "h_d": 1.2218635902172537e-05,
+     "alpha_e": 0.0033876956440508366,
+     "alpha_d": 0.00020051622414030135
+    },
+    {
+     "step": 9,
+     "loss": 0.7016403675079346,
+     "p": 2.43732124545204e-05,
+     "h_e": 0.00010957102176689659,
+     "h_d": 1.9563299360925157e-05,
+     "alpha_e": 0.003830099478363991,
+     "alpha_d": 0.00029386873939074576
+    },
+    {
+     "step": 10,
+     "loss": 0.688201904296875,
+     "p": 3.081638624280458e-05,
+     "h_e": 0.00015802282996446593,
+     "h_d": 3.0506550956488354e-05,
+     "alpha_e": 0.004772057291120291,
+     "alpha_d": 0.000423408520873636
+    },
+    {
+     "step": 11,
+     "loss": 0.6720655560493469,
+     "p": 4.181019266980002e-05,
+     "h_e": 0.0001741095748002408,
+     "h_d": 4.3793739678221755e-05,
+     "alpha_e": 0.004033425357192755,
+     "alpha_d": 0.000559237611014396
+    },
+    {
+     "step": 12,
+     "loss": 0.6592382192611694,
+     "p": 4.0659092519490514e-05,
+     "h_e": 0.00016314146341755986,
+     "h_d": 6.339944093269878e-05,
+     "alpha_e": 0.004615812562406063,
+     "alpha_d": 0.000758407055400312
+    },
+    {
+     "step": 13,
+     "loss": 0.6492306590080261,
+     "p": 6.681377635686658e-05,
+     "h_e": 0.0002450852834954276,
+     "h_d": 8.756710440138704e-05,
+     "alpha_e": 0.0054238359443843365,
+     "alpha_d": 0.0009754187776707113
+    },
+    {
+     "step": 14,
+     "loss": 0.6345708966255188,
+     "p": 8.260269169113599e-05,
+     "h_e": 0.000265149305050727,
+     "h_d": 0.0001186377894555335,
+     "alpha_e": 0.0054466621950268745,
+     "alpha_d": 0.001253402908332646
+    },
+    {
+     "step": 15,
+     "loss": 0.6216688752174377,
+     "p": 4.610208452504594e-05,
+     "h_e": 0.00017474833293817937,
+     "h_d": 0.0001496829354437068,
+     "alpha_e": 0.003323598299175501,
+     "alpha_d": 0.0014866365818306804
+    },
+    {
+     "step": 16,
+     "loss": 0.6085313558578491,
+     "p": 3.973545517510502e-05,
+     "h_e": 0.0001652053897487349,
+     "h_d": 0.00017993351229961263,
+     "alpha_e": 0.0038870815187692642,
+     "alpha_d": 0.0017035830533131957
+    },
+    {
+     "step": 17,
+     "loss": 0.5967878103256226,
+     "p": 4.1471008444204926e-05,
+     "h_e": 0.00017231965648534242,
+     "h_d": 0.00020988140659028431,
+     "alpha_e": 0.003041740506887436,
+     "alpha_d": 0.0018964759074151516
+    },
+    {
+     "step": 18,
+     "loss": 0.5856361389160156,
+     "p": 4.350714607426198e-05,
+     "h_e": 0.00019155377322022105,
+     "h_d": 0.00024391001261392375,
+     "alpha_e": 0.0033287140540778637,
+     "alpha_d": 0.0021152272820472717
+    },
+    {
+     "step": 19,
+     "loss": 0.5774078369140625,
+     "p": 6.441077312047128e-05,
+     "h_e": 0.00024985413438116666,
+     "h_d": 0.00027828398378915153,
+     "alpha_e": 0.005094435997307301,
+     "alpha_d": 0.0023453684989362955
+    },
+    {
+     "step": 20,
+     "loss": 0.5682408213615417,
+     "p": 6.75176597724203e-05,
+     "h_e": 0.00025938784347090404,
+     "h_d": 0.0003050341838388704,
+     "alpha_e": 0.005063906777650118,
+     "alpha_d": 0.0024858058895915747
+    }
+   ],
+   "nonzero_steps": {
+    "p": 19,
+    "h_e": 19,
+    "h_d": 18,
+    "alpha_e": 20,
+    "alpha_d": 19
+   }
+  },
+  "cross": {
+   "first_step_norms": {
+    "p": 0.0,
+    "h_e": 0.0,
+    "h_d": 0.0,
+    "alpha_e": 0.0029307296499609947,
+    "alpha_d": 0.0
+   },
+   "rows": [
+    {
+     "step": 1,
+     "loss": 0.8011585474014282,
+     "p": 0.0,
+     "h_e": 0.0,
+     "h_d": 0.0,
+     "alpha_e": 0.0021747881546616554,
+     "alpha_d": 0.0
+    },
+    {
+     "step": 2,
+     "loss": 0.7976281642913818,
+     "p": 0.0,
+     "h_e": 5.440933193767705e-06,
+     "h_d": 0.0,
+     "alpha_e": 0.0019962224178016186,
+     "alpha_d": 1.1264248314546421e-05
+    },
+    {
+     "step": 3,
+     "loss": 0.7907931804656982,
+     "p": 3.334974607582808e-08,
+     "h_e": 1.48376049082799e-05,
+     "h_d": 1.037148877891525e-07,
+     "alpha_e": 0.0023020897060632706,
+     "alpha_d": 3.437205668888055e-05
+    },
+    {
+     "step": 4,
+     "loss": 0.7800533175468445,
+     "p": 1.780743446033739e-07,
+     "h_e": 3.338162377986009e-05,
+     "h_d": 5.624008352356213e-07,
+     "alpha_e": 0.0028661033138632774,
+     "alpha_d": 8.092531061265618e-05
+    },
+    {
+     "step": 5,
+     "loss": 0.7671874761581421,
+     "p": 5.05602514522252e-07,
+     "h_e": 3.4434204735589446e-05,
+     "h_d": 1.6187786968657747e-06,
+     "alpha_e": 0.0019465034129098058,
+     "alpha_d": 0.00011939841351704672
+    },
+    {
+     "step": 6,
+     "loss": 0.7499188184738159,
+     "p": 1.306719184412941e-06,
+     "h_e": 6.124170477050939e-05,
+     "h_d": 4.1785436906138784e-06,
+     "alpha_e": 0.002473018132150173,
+     "alpha_d": 0.00018810898473020643
+    },
+    {
+     "step": 7,
+     "loss": 0.7336384057998657,
+     "p": 2.6717596028902335e-06,
+     "h_e": 5.106866797177645e-05,
+     "h_d": 8.43035695652361e-06,
+     "alpha_e": 0.0017744170036166906,
+     "alpha_d": 0.00027818517992272973
+    },
+    {
+     "step": 8,
+     "loss": 0.719063937664032,
+     "p": 4.572370244204649e-06,
+     "h_e": 7.74344484852918e-05,
+     "h_d": 1.4807673323957715e-05,
+     "alpha_e": 0.0018390514887869358,
+     "alpha_d": 0.0004001755150966346
+    },
+    {
+     "step": 9,
+     "loss": 0.704543948173523,
+     "p": 7.646099220437463e-06,
+     "h_e": 5.0449743184799445e-05,
+     "h_d": 2.4478944624206633e-05,
+     "alpha_e": 0.0018169785616919398,
+     "alpha_d": 0.0005824893596582115
+    },
+    {
+     "step": 10,
+     "loss": 0.6893447637557983,
+     "p": 1.1682764579745708e-05,
+     "h_e": 9.532846115689608e-05,
+     "h_d": 3.6269131896915496e-05,
+     "alpha_e": 0.0023041211534291506,
+     "alpha_d": 0.0007564275874756277
+    },
+    {
+     "step": 11,
+     "loss": 0.6746206283569336,
+     "p": 1.5825748050701804e-05,
+     "h_e": 0.00012184986735519487,
+     "h_d": 4.9091649998445064e-05,
+     "alpha_e": 0.0024811606854200363,
+     "alpha_d": 0.0009226130787283182
+    },
+    {
+     "step": 12,
+     "loss": 0.6621490716934204,
+     "p": 2.159425912395818e-05,
+     "h_e": 9.585627867636504e-05,
+     "h_d": 6.516833946079714e-05,
+     "alpha_e": 0.002168531296774745,
+     "alpha_d": 0.0010760880541056395
+    },
+    {
+     "step": 13,
+     "loss": 0.6486456394195557,
+     "p": 2.8950017622264568e-05,
+     "h_e": 9.464441336604068e-05,
+     "h_d": 8.588247783336556e-05,
+     "alpha_e": 0.0027851152699440718,
+     "alpha_d": 0.0013301725266501307
+    },
+    {
+     "step": 14,
+     "loss": 0.6361536979675293,
+     "p": 3.814829597104108e-05,
+     "h_e": 0.00013995871267979965,
+     "h_d": 0.0001118767349908012,
+     "alpha_e": 0.0027653847355395555,
+     "alpha_d": 0.0016345614567399025
+    },
+    {
+     "step": 15,
+     "loss": 0.6206881999969482,
+     "p": 4.942548184772022e-05,
+     "h_e": 0.00014782141533942195,
+     "h_d": 0.00013945091450295877,
+     "alpha_e": 0.003004614496603608,
+     "alpha_d": 0.0019152596360072494
+    },
+    {
+     "step": 16,
+     "loss": 0.6111771464347839,
+     "p": 6.251193008210976e-05,
+     "h_e": 0.00014380051288753748,
+     "h_d": 0.00017083780130633386,
+     "alpha_e": 0.00270103313960135,
+     "alpha_d": 0.0022240474354475737
+    },
+    {
+     "step": 17,
+     "loss": 0.6001949906349182,
+     "p": 7.366423415078316e-05,
+     "h_e": 0.00016404727739427472,
+     "h_d": 0.0001957746890184353,
+     "alpha_e": 0.003711269935593009,
+     "alpha_d": 0.002465228084474802
+    },
+    {
+     "step": 18,
+     "loss": 0.589527428150177,
+     "p": 8.90258961590007e-05,
+     "h_e": 0.00015780183002789272,
+     "h_d": 0.00022866570452606538,
+     "alpha_e": 0.003123384201899171,
+     "alpha_d": 0.002755190245807171
+    },
+    {
+     "step": 19,
+     "loss": 0.5799177289009094,
+     "p": 0.00010485363600309938,
+     "h_e": 0.00015753633033455117,
+     "h_d": 0.00026119373251276556,
+     "alpha_e": 0.0031217047944664955,
+     "alpha_d": 0.002995757618919015
+    },
+    {
+     "step": 20,
+     "loss": 0.5692792534828186,
+     "p": 0.0001191355986520648,
+     "h_e": 0.00019956123014708282,
+     "h_d": 0.00028813961216656025,
+     "alpha_e": 0.002832576632499695,
+     "alpha_d": 0.0031570796854794025
+    }
+   ],
+   "nonzero_steps": {
+    "p": 18,
+    "h_e": 19,
+    "h_d": 18,
+    "alpha_e": 20,
+    "alpha_d": 19
+   }
+  }
+ },
+ "intervention": {
+  "cross": {
+   "D_unchanged_when_alpha_d_zero": 0.0,
+   "D_changed_when_alpha_d_nonzero": 0.8972458243370056,
+   "stage3_delta_under_D_scaling": 0.6177685260772705
+  },
+  "self": {
+   "D_unchanged_when_alpha_d_zero": 0.0,
+   "D_changed_when_alpha_d_nonzero": 1.040486216545105,
+   "stage3_delta_under_D_scaling": 0.0
+  }
+ },
+ "fit_100": {
+  "self": {
+   "curve": [
+    {
+     "step": 1,
+     "loss": 0.800564,
+     "batch_iou": 0.013368,
+     "alpha_e_abs_mean": 0.00011998,
+     "alpha_e_abs_max": 0.00012,
+     "alpha_d_abs_mean": 0.0,
+     "alpha_d_abs_max": 0.0
+    },
+    {
+     "step": 20,
+     "loss": 0.568778,
+     "batch_iou": 0.0,
+     "alpha_e_abs_mean": 0.00281602,
+     "alpha_e_abs_max": 0.00835165,
+     "alpha_d_abs_mean": 0.00689249,
+     "alpha_d_abs_max": 0.00960775
+    },
+    {
+     "step": 40,
+     "loss": 0.457275,
+     "batch_iou": 0.0,
+     "alpha_e_abs_mean": 0.00455143,
+     "alpha_e_abs_max": 0.01252502,
+     "alpha_d_abs_mean": 0.01714406,
+     "alpha_d_abs_max": 0.02114202
+    },
+    {
+     "step": 60,
+     "loss": 0.410047,
+     "batch_iou": 0.341768,
+     "alpha_e_abs_mean": 0.0054344,
+     "alpha_e_abs_max": 0.01815406,
+     "alpha_d_abs_mean": 0.02585961,
+     "alpha_d_abs_max": 0.03098171
+    },
+    {
+     "step": 80,
+     "loss": 0.358008,
+     "batch_iou": 0.441006,
+     "alpha_e_abs_mean": 0.00589649,
+     "alpha_e_abs_max": 0.02272595,
+     "alpha_d_abs_mean": 0.03113694,
+     "alpha_d_abs_max": 0.03745507
+    },
+    {
+     "step": 100,
+     "loss": 0.336755,
+     "batch_iou": 0.485827,
+     "alpha_e_abs_mean": 0.00604166,
+     "alpha_e_abs_max": 0.02419967,
+     "alpha_d_abs_mean": 0.03292646,
+     "alpha_d_abs_max": 0.03968981
+    }
+   ],
+   "final_params": {
+    "total": 3777442,
+    "trainable": 3777442,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 52065
+   }
+  },
+  "cross": {
+   "curve": [
+    {
+     "step": 1,
+     "loss": 0.800564,
+     "batch_iou": 0.013365,
+     "alpha_e_abs_mean": 0.00011998,
+     "alpha_e_abs_max": 0.00012,
+     "alpha_d_abs_mean": 0.0,
+     "alpha_d_abs_max": 0.0
+    },
+    {
+     "step": 20,
+     "loss": 0.568759,
+     "batch_iou": 0.0,
+     "alpha_e_abs_mean": 0.00200485,
+     "alpha_e_abs_max": 0.00517396,
+     "alpha_d_abs_mean": 0.0075724,
+     "alpha_d_abs_max": 0.00975482
+    },
+    {
+     "step": 40,
+     "loss": 0.457664,
+     "batch_iou": 0.0,
+     "alpha_e_abs_mean": 0.00294844,
+     "alpha_e_abs_max": 0.00720293,
+     "alpha_d_abs_mean": 0.01716129,
+     "alpha_d_abs_max": 0.02111557
+    },
+    {
+     "step": 60,
+     "loss": 0.411993,
+     "batch_iou": 0.309701,
+     "alpha_e_abs_mean": 0.00366163,
+     "alpha_e_abs_max": 0.0109778,
+     "alpha_d_abs_mean": 0.02357317,
+     "alpha_d_abs_max": 0.03004493
+    },
+    {
+     "step": 80,
+     "loss": 0.360251,
+     "batch_iou": 0.416232,
+     "alpha_e_abs_mean": 0.00407221,
+     "alpha_e_abs_max": 0.01247505,
+     "alpha_d_abs_mean": 0.02846155,
+     "alpha_d_abs_max": 0.03614387
+    },
+    {
+     "step": 100,
+     "loss": 0.338902,
+     "batch_iou": 0.476474,
+     "alpha_e_abs_mean": 0.00416245,
+     "alpha_e_abs_max": 0.01296499,
+     "alpha_d_abs_mean": 0.03052639,
+     "alpha_d_abs_max": 0.03856032
+    }
+   ],
+   "final_params": {
+    "total": 3777442,
+    "trainable": 3777442,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 52065
+   }
+  }
+ },
+ "memory": {
+  "batch": 64,
+  "loss": 0.834241,
+  "peak_alloc_mib": 5506.1,
+  "peak_reserved_mib": 6974.0,
+  "all_grads_finite": true,
+  "n_grad_tensors": 227,
+  "param_dtypes": [
+   "torch.float32"
+  ]
+ },
+ "gates": [
+  {
+   "gate": "setup",
+   "check": "固定 8 个 TRAIN 样本（无增强）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "n": 8,
+    "events": [
+     "chimanimani",
+     "dominicamaria",
+     "hokkaido",
+     "itogon",
+     "kyrgyzstan1",
+     "usa_puertorico"
+    ]
+   }
+  },
+  {
+   "gate": "G2",
+   "check": "公共参数初始哈希：LateDetail vs Self",
+   "ok": true,
+   "hard": true,
+   "detail": "c9deeddce71f0766"
+  },
+  {
+   "gate": "G2",
+   "check": "公共参数初始哈希：Self vs Cross",
+   "ok": true,
+   "hard": true,
+   "detail": "c9deeddce71f0766"
+  },
+  {
+   "gate": "G2",
+   "check": "新增模块初始哈希：Self vs Cross",
+   "ok": true,
+   "hard": true,
+   "detail": "016ff85f27da7ebd"
+  },
+  {
+   "gate": "G2",
+   "check": "Self 相对 LateDetail 只多出 exchange.*",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "extra": 12,
+    "missing": 0
+   }
+  },
+  {
+   "gate": "G1",
+   "check": "输入/阶段2/E校正/D/阶段3/阶段4 形状符合计划",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "input": [
+     2,
+     10,
+     128,
+     128
+    ],
+    "stage1": [
+     2,
+     32,
+     32,
+     32
+    ],
+    "E_in": [
+     2,
+     64,
+     16,
+     16
+    ],
+    "E_out": [
+     2,
+     64,
+     16,
+     16
+    ],
+    "D_in": [
+     2,
+     32,
+     128,
+     128
+    ],
+    "D_out": [
+     2,
+     32,
+     128,
+     128
+    ],
+    "stage3": [
+     2,
+     160,
+     8,
+     8
+    ],
+    "stage4": [
+     2,
+     256,
+     4,
+     4
+    ]
+   }
+  },
+  {
+   "gate": "G1",
+   "check": "E_new 确实进入阶段 3（改 α_E 后 stage3 变化）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "max_abs_delta_stage3": 0.2735706865787506
+   }
+  },
+  {
+   "gate": "G2",
+   "check": "eval 下零系数初始输出 vs LateDetail（self）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "max_abs_diff": 0.0
+   }
+  },
+  {
+   "gate": "G2",
+   "check": "eval 下零系数初始输出 vs LateDetail（cross）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "max_abs_diff": 0.0
+   }
+  },
+  {
+   "gate": "G3",
+   "check": "参数分组无重复、无遗漏（三架构）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "late": {
+     "dup": false,
+     "missing": 0
+    },
+    "self": {
+     "dup": false,
+     "missing": 0
+    },
+    "cross": {
+     "dup": false,
+     "missing": 0
+    }
+   }
+  },
+  {
+   "gate": "G3",
+   "check": "Self / Cross 可训练参数精确相等",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "self": {
+     "total": 3777442,
+     "trainable": 3777442,
+     "encoder": 3330368,
+     "decoder": 395009,
+     "new": 52065
+    },
+    "cross": {
+     "total": 3777442,
+     "trainable": 3777442,
+     "encoder": 3330368,
+     "decoder": 395009,
+     "new": 52065
+    }
+   }
+  },
+  {
+   "gate": "G3",
+   "check": "交换模块参数落在 new 组（6e-4），未被并入 encoder",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "late": true,
+    "self": true,
+    "cross": true
+   }
+  },
+  {
+   "gate": "G3",
+   "check": "学习率组只有 6e-5(encoder) 与 6e-4(其余)",
+   "ok": true,
+   "hard": true,
+   "detail": [
+    6e-05,
+    0.0006
+   ]
+  },
+  {
+   "gate": "G4",
+   "check": "20 步内两方向均获得有限梯度（self）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "p": 19,
+    "h_e": 19,
+    "h_d": 18,
+    "alpha_e": 20,
+    "alpha_d": 19
+   }
+  },
+  {
+   "gate": "G4",
+   "check": "20 步内 loss 有限（self）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "loss_last": 0.5682408213615417
+   }
+  },
+  {
+   "gate": "G4",
+   "check": "20 步内两方向均获得有限梯度（cross）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "p": 18,
+    "h_e": 19,
+    "h_d": 18,
+    "alpha_e": 20,
+    "alpha_d": 19
+   }
+  },
+  {
+   "gate": "G4",
+   "check": "20 步内 loss 有限（cross）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "loss_last": 0.5692792534828186
+   }
+  },
+  {
+   "gate": "G5",
+   "check": "α_D=0 时 D_new ≡ D（两架构）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "cross": 0.0,
+    "self": 0.0
+   }
+  },
+  {
+   "gate": "G5",
+   "check": "α_D≠0 时 D_new 改变（两架构）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "cross": 0.8972458243370056,
+    "self": 1.040486216545105
+   }
+  },
+  {
+   "gate": "G5",
+   "check": "缩放 D 改变 Cross 阶段3 输入",
+   "ok": true,
+   "hard": true,
+   "detail": 0.6177685260772705
+  },
+  {
+   "gate": "G5",
+   "check": "缩放 D 不改变 Self 阶段3 输入（无跨路影响）",
+   "ok": true,
+   "hard": true,
+   "detail": 0.0
+  },
+  {
+   "gate": "G6",
+   "check": "100 步后能在固定 8 样本上降 loss（self）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "first": 0.800564,
+    "last": 0.336755
+   }
+  },
+  {
+   "gate": "G6",
+   "check": "两方向残差系数已离开零（self）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "alpha_e_max": 0.02419967,
+    "alpha_d_max": 0.03968981
+   }
+  },
+  {
+   "gate": "G6",
+   "check": "100 步后能在固定 8 样本上降 loss（cross）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "first": 0.800564,
+    "last": 0.338902
+   }
+  },
+  {
+   "gate": "G6",
+   "check": "两方向残差系数已离开零（cross）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "alpha_e_max": 0.01296499,
+    "alpha_d_max": 0.03856032
+   }
+  },
+  {
+   "gate": "G7",
+   "check": "checkpoint 保存/重载输出一致",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "max_abs_diff": 0.0
+   }
+  },
+  {
+   "gate": "G7",
+   "check": "batch64 前反向无 OOM 且梯度全有限",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "batch": 64,
+    "loss": 0.834241,
+    "peak_alloc_mib": 5506.1,
+    "peak_reserved_mib": 6974.0,
+    "all_grads_finite": true,
+    "n_grad_tensors": 227,
+    "param_dtypes": [
+     "torch.float32"
+    ]
+   }
+  },
+  {
+   "gate": "G7",
+   "check": "全参数 FP32（无静默 AMP）",
+   "ok": true,
+   "hard": true,
+   "detail": [
+    "torch.float32"
+   ]
+  }
+ ],
+ "all_pass": true,
+ "failed_hard": []
+}

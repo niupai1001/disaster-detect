@@ -12,7 +12,7 @@ import rasterio
 from .metered_http import DownloadBudget
 from .native_data import S2,LANDSAT,native_window,optical_from_four_view
 
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/"observation_model/outputs/phase0"
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/"observation_model/outputs/phase0"
 PC="https://planetarycomputer.microsoft.com/api/stac/v1"
 
 

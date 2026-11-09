@@ -6,7 +6,7 @@
 3. 因此"完整双骨干 + 真实滑坡 Mask"的正式训练在本数据上是 **BLOCKED**。
 
 用法:
-    python scripts/audit_data_contract.py --data-root N:/Users/yzh/Disater
+    python scripts/audit_data_contract.py --data-root N:/Users/yzh/Disater/landslide-seg/data/landslide4sense
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ from landslide_seg.data.loader import L4SDataset, write_manifest  # noqa: E402
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data-root", default="N:/Users/yzh/Disater")
+    ap.add_argument("--data-root", default=str(ROOT / "data" / "landslide4sense"))
     ap.add_argument("--probe", type=int, default=32)
     ap.add_argument("--out", default=str(ROOT / "outputs" / "logs" / "data_contract.json"))
     args = ap.parse_args()

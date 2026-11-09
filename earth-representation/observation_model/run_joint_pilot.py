@@ -8,7 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'observation_model/outputs/joint_v3'
 
 

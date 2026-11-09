@@ -19,7 +19,7 @@ from shapely.geometry import box
 from shapely.strtree import STRtree
 import yaml
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 WORK=ROOT.parent
 BASE=ROOT/'observation_model/outputs/encoder_v2/pre_G1_data_contract'
 OUT=BASE/'v4'

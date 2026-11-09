@@ -1,0 +1,6 @@
+[run] utae_multi_eval: C:\Users\yzh\.workbuddy\binaries\python\envs\tm\Scripts\python.exe -X utf8 scripts/evaluate_utae_v6.py --mode multi --checkpoints best,last --device cuda:1 --save-predictions
+[run] main_multi_spectral: C:\Users\yzh\.workbuddy\binaries\python\envs\tm\Scripts\python.exe -X utf8 scripts/train_temporal.py --config configs/segformer/v6_main/temporal_multi_spectral.yaml --device cuda:0 --resume
+[done] utae_multi_eval exit=0
+[run] utae_history: C:\Users\yzh\.workbuddy\binaries\python\envs\tm\Scripts\python.exe -X utf8 scripts/train_utae_v6.py --mode history --device cuda:1 --resume
+[done] utae_history exit=2
+[error] utae_history failed with 2; see N:\Users\yzh\Disater\landslide-seg\reports\v6_execution\resume_utae_history.log

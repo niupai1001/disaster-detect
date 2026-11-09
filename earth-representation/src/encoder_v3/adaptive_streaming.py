@@ -1,0 +1,84 @@
+"""Adaptive-window supervision plans; reuse the existing exact Decoder/loss path."""
+from dataclasses import dataclass
+import math
+import torch
+from .adaptive_window import adaptive_layout,window_scale
+from .streaming import Geometry,BandPlan,task_signature,stream_task
+from .spatial_index import SpatialIndex
+from .pair_geometry import decoder_for_plan
+
+
+@dataclass
+class AdaptiveTaskPlan:
+    geometry: Geometry
+    bands: list
+    origin_xy: tuple
+    kind: str
+    observation_id: str
+    signature: str
+    exponent: float
+
+
+def prepare_geometry_task(task,*,layout_fn,origin_xy,chunk_pixels,cell_indexed=False,a_adjacency_rule=None,query_offset_xy=(0.,0.)):
+    if chunk_pixels<1 or len(origin_xy)!=2 or not all(math.isfinite(v) for v in origin_xy):
+        raise ValueError('Positive chunk size and finite origin required')
+    if not task.visible or len({b.crs for b in task.visible})!=1:
+        raise ValueError('Visible bands with common CRS required')
+    if len(query_offset_xy)!=2 or not all(math.isfinite(v) for v in query_offset_xy) or (task.kind!='B2' and any(query_offset_xy)):raise ValueError('Finite B2-only query offset required')
+    cells=[];centers=[];bounds=[]
+    for band in task.visible:
+        layout=layout_fn(band)
+        if layout is None:continue
+        cells.extend(torch.from_numpy(layout['represented']).split(layout['represented_lengths']))
+        centers.append(torch.from_numpy(layout['centers']));bounds.append(torch.from_numpy(layout['bounds']))
+    if not centers:return None
+    geometry=Geometry(cells,torch.cat(centers),torch.cat(bounds),torch.ones(len(cells),dtype=torch.bool),task.visible[0].crs)
+    geometry.a_adjacency_rule=a_adjacency_rule
+    geometry.spatial_index=SpatialIndex(geometry)
+    mask=None if task.rectangle is None else torch.tensor(task.rectangle,dtype=torch.float64)
+    plans=[]
+    adjacent=geometry.spatial_index.a_tokens(geometry,mask) if task.kind=='A' else None
+    safe_geometry=bool(torch.isfinite(geometry.centers).all() & torch.isfinite(geometry.bounds).all() & (geometry.bounds[:,2:]>geometry.bounds[:,:2]).all()) if adjacent is not None else False
+    for target in task.targets:
+        band=target.band
+        if band.crs!=geometry.crs or target.mask.shape!=band.reflectance.shape or target.mask.dtype!=torch.bool:
+            raise ValueError('Target grid/validity does not match task geometry')
+        indices=torch.where((target.mask & band.valid_mask).detach().cpu().flatten())[0]
+        boxes=band.cells().detach().cpu();boxes=boxes+boxes.new_tensor(tuple(query_offset_xy)*2) if any(query_offset_xy) else boxes;count=0;complete_support=False
+        if adjacent is not None:
+            if not len(adjacent):complete_support=True;count=0
+            elif safe_geometry:
+                token=adjacent[0];relative=((boxes[indices,:2]+boxes[indices,2:])/2-geometry.centers[token])/(geometry.bounds[token,2:]-geometry.bounds[token,:2])
+                # One strictly positive neighbour weight proves support; no Cartesian pairs needed.
+                positive=1/(1+relative.square().sum(-1))
+                if bool(torch.isfinite(positive).all() & (positive>0).all()):count=len(indices);complete_support=True
+        if not complete_support:
+            for ids in indices.split(chunk_pixels):
+                q,_,_,_=geometry.spatial_index.edges(geometry,boxes[ids],task.kind,mask,cell_indexed=cell_indexed)
+                count+=len(torch.unique(q))
+        plans.append(BandPlan(target,indices,count))
+    return geometry,plans
+
+
+def prepare_adaptive_task(task,*,exponent,origin_xy,chunk_pixels,cell_indexed=False):
+    window_scale(1.,exponent)
+    result=prepare_geometry_task(task,layout_fn=lambda band:adaptive_layout(band,exponent=exponent,origin_xy=origin_xy),origin_xy=origin_xy,chunk_pixels=chunk_pixels,cell_indexed=cell_indexed)
+    if result is None:return None
+    geometry,plans=result
+    return AdaptiveTaskPlan(geometry,plans,tuple(origin_xy),task.kind,task.metadata['id'],task_signature(task),float(exponent))
+
+
+def stream_adaptive_task(encoder,decoder,task,plan,**kwargs):
+    if plan is not None:
+        if hasattr(plan,'merge_recipe'):
+            if getattr(encoder,'merge_recipe',None)!=plan.merge_recipe:raise ValueError('Merge recipe differs from supervision plan')
+            plan.validate_retained(task)
+        elif not hasattr(encoder,'exponent') or encoder.exponent!=plan.exponent:raise ValueError('Window formula differs from supervision plan')
+        if plan.kind!=task.kind or plan.observation_id!=task.metadata['id'] or plan.signature!=task_signature(task):
+            raise ValueError('Task geometry/metadata changed after planning')
+    if plan is None or not any(b.supported_count for b in plan.bands):
+        return stream_task(encoder,decoder,task,plan,**kwargs)
+    if kwargs.get('precision','fp32')!='fp32':raise ValueError('Adaptive execution has only an FP32 reference path')
+    with torch.set_grad_enabled(kwargs['backward']):
+        representation=encoder(task.visible,origin_xy=plan.origin_xy,**({'geometry_plan':plan} if getattr(plan,'retained_layouts',None) is not None else {}))
+    return stream_task(encoder,decoder_for_plan(decoder,plan),task,plan,representation=representation,**kwargs)

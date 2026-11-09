@@ -1,0 +1,131 @@
+{
+  "moves": [
+    {
+      "from": "images",
+      "to": "landslide-seg/data/landslide4sense/images"
+    },
+    {
+      "from": "annotations",
+      "to": "landslide-seg/data/landslide4sense/annotations"
+    },
+    {
+      "from": "exp",
+      "to": "earth-representation/weights/legacy_reference_models"
+    },
+    {
+      "from": "landslide-seg/evidence/documentation_sources/landslide-seg/AGENTS.md",
+      "to": "landslide-seg/evidence/documentation_sources/landslide-seg/agent_rules_snapshot.txt"
+    },
+    {
+      "from": "earth-representation/evidence/documentation_sources/earth-representation/README.md",
+      "to": "earth-representation/evidence/documentation_sources/earth-representation/readme_snapshot.txt"
+    },
+    {
+      "from": "earth-representation/evidence/documentation_sources/earth-representation/encoder_v3/AGENTS.md",
+      "to": "earth-representation/evidence/documentation_sources/earth-representation/encoder_v3/agent_rules_snapshot.txt"
+    },
+    {
+      "from": "earth-representation/evidence/documentation_sources/earth-representation/encoder_v3/README.md",
+      "to": "earth-representation/evidence/documentation_sources/earth-representation/encoder_v3/readme_snapshot.txt"
+    },
+    {
+      "from": "earth-representation/evidence/documentation_sources/earth-representation/observation_model/README.md",
+      "to": "earth-representation/evidence/documentation_sources/earth-representation/observation_model/readme_snapshot.txt"
+    },
+    {
+      "from": "governance",
+      "to": ".project"
+    },
+    {
+      "from": ".push",
+      "to": ".project/git-transport"
+    }
+  ],
+  "deleted_redundant_documents": [
+    "landslide-seg/AGENTS.md",
+    "earth-representation/AGENTS.md",
+    "earth-representation/encoder_v3/AGENTS.md",
+    "earth-representation/encoder_v3/README.md",
+    "earth-representation/observation_model/README.md",
+    "earth-representation/use/README.md",
+    "governance/README.md",
+    "governance/RECORDING.md"
+  ],
+  "sample_deduplication": [
+    {
+      "sample": "L4S_sample/images/train/image_1.h5",
+      "canonical": "landslide-seg/data/landslide4sense/images/train/image_1.h5",
+      "sha256": "05933f459b84368f046a6dacf4204528b470718754dd617dfb60755de50ecb6d"
+    },
+    {
+      "sample": "L4S_sample/images/train/image_2.h5",
+      "canonical": "landslide-seg/data/landslide4sense/images/train/image_2.h5",
+      "sha256": "452d22e896e0c72ec10a08a21e8027fcc9f1a8f4759568af5ec25338dbef5178"
+    },
+    {
+      "sample": "L4S_sample/images/train/image_3.h5",
+      "canonical": "landslide-seg/data/landslide4sense/images/train/image_3.h5",
+      "sha256": "47579a11a1475e26368b075b652e0996259ccf1b0b5b217edc40ecacb448e8ce"
+    },
+    {
+      "sample": "L4S_sample/images/train/image_4.h5",
+      "canonical": "landslide-seg/data/landslide4sense/images/train/image_4.h5",
+      "sha256": "0c7e3dc7fb977b965fba5c51bb0aa00c51381484ab10e38850daeec68a5966a7"
+    },
+    {
+      "sample": "L4S_sample/images/train/image_5.h5",
+      "canonical": "landslide-seg/data/landslide4sense/images/train/image_5.h5",
+      "sha256": "79bbc4efa2d3706b5e20e96a42c9e45bf705255a9c54cf4df5e39efc00d71d72"
+    },
+    {
+      "sample": "L4S_sample/annotations/train/mask_1.h5",
+      "canonical": "landslide-seg/data/landslide4sense/annotations/train/mask_1.h5",
+      "sha256": "5ab8737ab1c08d51ace62c5d02a21b78944baf6dbc6f942f71cc07696319f8b6"
+    },
+    {
+      "sample": "L4S_sample/annotations/train/mask_2.h5",
+      "canonical": "landslide-seg/data/landslide4sense/annotations/train/mask_2.h5",
+      "sha256": "0c1d8fe37d35e8b1a33f618952292187962dfbd74d8a45770f7ff1d22132e364"
+    },
+    {
+      "sample": "L4S_sample/annotations/train/mask_3.h5",
+      "canonical": "landslide-seg/data/landslide4sense/annotations/train/mask_3.h5",
+      "sha256": "fc21e7ac2e5f0ae4551a97f9f97bd5d996eef7c6aedcbc312e15691b19be1bf0"
+    },
+    {
+      "sample": "L4S_sample/annotations/train/mask_4.h5",
+      "canonical": "landslide-seg/data/landslide4sense/annotations/train/mask_4.h5",
+      "sha256": "bc65934644ec92d7ee90e2d8e602af93446c549dd460c9d8c1bc317db38e419e"
+    },
+    {
+      "sample": "L4S_sample/annotations/train/mask_5.h5",
+      "canonical": "landslide-seg/data/landslide4sense/annotations/train/mask_5.h5",
+      "sha256": "4d828061c8ab0fead184cc6bd7489a12be9e410d4dd5757efcfac2e18dafbc3f"
+    }
+  ],
+  "data_counts": {
+    "images/train": 3799,
+    "images/validation": 245,
+    "images/test": 800,
+    "annotations/train": 3799,
+    "annotations/validation": 245,
+    "annotations/test": 800
+  },
+  "weights_deleted": false,
+  "retained_legacy_weight_hashes": {
+    "bert-base-uncased/config.json": "7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20",
+    "bert-base-uncased/pytorch_model.bin": "097417381d6c7230bd9e3557456d726de6e83245ec8b24f529f60198a67b203a",
+    "bert-base-uncased/tokenizer_config.json": "a025160ef0431f1a392f6f050c1310f4c5d9fb6f275932dbccba73c4d214bf10",
+    "bert-base-uncased/vocab.txt": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3",
+    "weights/remotesam/RemoteSAMv1.pth": "f85dfa044a527f096b9e41eacfe298040d52e77fca642f46dfe1226745e137e7",
+    "weights/sam3/config.json": "4616385e4b21f2e5e22c875b65679185cbccfa95de42542b9166f7dc3d57160f",
+    "weights/sam3/configuration.json": "1d6fb798aa860e22bb963db70c1d08b7f81512d62b89ce59d78e463633fcb531",
+    "weights/sam3/merges.txt": "9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+    "weights/sam3/processor_config.json": "6420cf2671fa9309ea95bc0144a8b9861666d1c5f43c8db09e410dacda974fce",
+    "weights/sam3/sam3.pt": "9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e",
+    "weights/sam3/special_tokens_map.json": "2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+    "weights/sam3/tokenizer.json": "6d9109cc838977f3ca94a379eec36aecc7c807e1785cd729660ca2fc0171fb35",
+    "weights/sam3/tokenizer_config.json": "39670ad98457fe8f14ca59f6bb74591e9fc850974380a63993e5b8ffc865baa2",
+    "weights/sam3/vocab.json": "5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363"
+  }
+}

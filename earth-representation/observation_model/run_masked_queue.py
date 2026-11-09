@@ -9,7 +9,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/"observation_model/outputs"
 RELEASE=OUT/"releases/masked_v1/earth-representation"
 PYTHON=ROOT.parent/"landslide-seg/.venv-use-independent/Scripts/python.exe"

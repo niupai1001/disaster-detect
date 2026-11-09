@@ -13,7 +13,7 @@ import time
 
 
 def main():
-    root=Path(__file__).resolve().parent.parent
+    root=Path(__file__).resolve().parent.parent.parent
     base=root/'observation_model/outputs/encoder_v2';g=base/'G5_native_bank'
     if (g/'CLOSED_BY_USER.json').exists():
         raise RuntimeError('G5 ended by user; explicit new authorization required before launch')

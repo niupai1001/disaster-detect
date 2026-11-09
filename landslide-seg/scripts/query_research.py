@@ -166,10 +166,11 @@ def main():
     a=p.parse_args()
     if a.policy:
         print(json.dumps(read(ASSETS/'research_policy.json'),ensure_ascii=False,indent=2));return
-    if a.refresh_stages:refresh();return
+    if a.refresh_stages:
+        p.error('旧四专题刷新已停用；按docs/AGENT_ROLES.md更新DESIGN/RESULTS/DATA，原台账查询仍可用')
     if not any((a.stage,a.runs,a.history,a.history_file)):
         d=stages();s=next(s for s in d['stages'] if s['id']==d['current_stage'])
-        print(json.dumps({'policy':d['policy'],'protocol_contract':'docs/assets/research/research_policy.json；scripts/query_research.py --policy','agent_rules':'AGENTS.md','current_stage':{k:s[k] for k in ('id','name','status')},'work_register':'scripts/manage_agent_work.py list','read_next':'docs/RESEARCH_INDEX.md最小接力；完整阶段用 --stage '+s['id']},ensure_ascii=False,indent=2));return
+        print(json.dumps({'policy':d['policy'],'protocol_contract':'docs/assets/research/research_policy.json；scripts/query_research.py --policy','agent_rules':'AGENTS.md','current_stage':{k:s[k] for k in ('id','name','status')},'work_register':'scripts/manage_agent_work.py list','read_next':'docs/AGENT_ROLES.md；完整阶段用 --stage '+s['id']},ensure_ascii=False,indent=2));return
     if a.stage:
         all_stages=stages()['stages']
         exact=[s for s in all_stages if a.stage==s['id']]

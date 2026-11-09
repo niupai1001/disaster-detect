@@ -1,0 +1,284 @@
+{
+ "status": "PASS",
+ "purpose": "interface + 8 TRAIN tiles overfit; not a generalization result",
+ "final_used": false,
+ "n_train_tiles": 8,
+ "sample_ids": [
+  "chimanimani_s2_1001",
+  "chimanimani_s2_1002",
+  "chimanimani_s2_1003",
+  "chimanimani_s2_1004",
+  "chimanimani_s2_1005",
+  "chimanimani_s2_1006",
+  "chimanimani_s2_1027",
+  "chimanimani_s2_1029"
+ ],
+ "config_sha256": "cd6b439bc17e35927a58ab1b9cd7e9f34432f5f5520cf4613f61693453658450",
+ "device": "cuda:0",
+ "precision": "bf16 autocast, fp32 weights/optimizer/loss",
+ "initial_train": {
+  "iou": 0.007055429952444063,
+  "dice": 0.014011999225856397,
+  "precision": 0.007458381407614966,
+  "recall": 0.11550733886407147,
+  "false_positive_rate": 0.19314719184013857,
+  "tp": 181,
+  "fp": 24087,
+  "fn": 1386,
+  "tn": 100621
+ },
+ "history": [
+  {
+   "step": 10,
+   "loss": 0.5518458485603333,
+   "train_iou": 0.0
+  },
+  {
+   "step": 20,
+   "loss": 0.4493483304977417,
+   "train_iou": 0.2900241351568785
+  },
+  {
+   "step": 30,
+   "loss": 0.35496658086776733,
+   "train_iou": 0.4387442572741195
+  },
+  {
+   "step": 40,
+   "loss": 0.28091105818748474,
+   "train_iou": 0.5569682151589243
+  },
+  {
+   "step": 50,
+   "loss": 0.217732235789299,
+   "train_iou": 0.6563944530046225
+  },
+  {
+   "step": 60,
+   "loss": 0.1817709505558014,
+   "train_iou": 0.7230443974630021
+  },
+  {
+   "step": 70,
+   "loss": 0.15072156488895416,
+   "train_iou": 0.7374677002583979
+  },
+  {
+   "step": 80,
+   "loss": 0.1293722689151764,
+   "train_iou": 0.7607629427792916
+  },
+  {
+   "step": 90,
+   "loss": 0.11774583905935287,
+   "train_iou": 0.7802617230098147
+  },
+  {
+   "step": 100,
+   "loss": 0.11388255655765533,
+   "train_iou": 0.7865655471289275
+  }
+ ],
+ "gradients": {
+  "encoder": {
+   "parameters": 111159296,
+   "with_grad": 111159296,
+   "abs_grad_sum": 262.9106633388001
+  },
+  "decoder": {
+   "parameters": 32256513,
+   "with_grad": 32256513,
+   "abs_grad_sum": 1525.5844835939351
+  },
+  "new": {
+   "parameters": 7081728,
+   "with_grad": 7081728,
+   "abs_grad_sum": 74.19028684531804
+  }
+ },
+ "params": {
+  "total": 150547457,
+  "trainable": 150497537,
+  "encoder": 111159296,
+  "decoder": 32256513,
+  "new": 7081728
+ },
+ "feature_shapes": [
+  [
+   8,
+   768,
+   8,
+   8
+  ],
+  [
+   8,
+   768,
+   8,
+   8
+  ],
+  [
+   8,
+   768,
+   8,
+   8
+  ],
+  [
+   8,
+   768,
+   8,
+   8
+  ]
+ ],
+ "pyramid_shapes": [
+  [
+   8,
+   768,
+   32,
+   32
+  ],
+  [
+   8,
+   768,
+   16,
+   16
+  ],
+  [
+   8,
+   768,
+   8,
+   8
+  ],
+  [
+   8,
+   768,
+   4,
+   4
+  ]
+ ],
+ "output_shape": [
+  8,
+  1,
+  128,
+  128
+ ],
+ "source_sha256": {
+  "src/landslide_seg/__init__.py": "af201fbc0696ed533c8358270ab1423eb5e671b6e6f7d5f0e3868b930199cda2",
+  "src/landslide_seg/config.py": "d29c563d40df9e78f3516f6a0241d71908d4a109c2184102712cb55c1a4f2072",
+  "src/landslide_seg/data/__init__.py": "92be8f4baa5319214dc29bb6b644d90dab34384e712beb805e779f7bf08540e7",
+  "src/landslide_seg/data/band_mapping.py": "8b67e47e876f6cea773ea10c9969527ca0239139b50f6aa3412c74675b0c9a45",
+  "src/landslide_seg/data/certified.py": "ad7af1af1e543c3510ea89c360ad523e93e68c9e41dbbce8ae5a04f6d5aa4554",
+  "src/landslide_seg/data/loader.py": "2ac61720e861f1cd18f7efad0dd2acaf631449ae1dafde8c720a8a4adff6102d",
+  "src/landslide_seg/data/pipeline.py": "29c2502a3baa4bd1f93ba65bf7ae50cd2a3463a7204e661a0dc356b13680f31e",
+  "src/landslide_seg/data/s2_backfill.py": "73c87f5289402573d36cc7fd6c29767a41b4be5569b24e72ca499958513b323d",
+  "src/landslide_seg/data/segformer_dataset.py": "ccc011598235eaa3f5de40ef2d2515cd297162c0a998df6cb3f339ad95004d08",
+  "src/landslide_seg/data/sen12.py": "6dadafeb66bdb5ff094577c1b88ddf7d86670588f507ca7b4886acc190ef93a7",
+  "src/landslide_seg/encoders/__init__.py": "b2e86af5a4621b6efbb5296098fcbd39124666e600712a5ac3aa8e3a4e0c9320",
+  "src/landslide_seg/encoders/_terramind_loader.py": "800bcbc98ebdabe6ca64a7b73d60f2e31839c889bd456e844954fd0b3a289ef7",
+  "src/landslide_seg/encoders/anysat_scale.py": "cf600f4464a7a3a3ad492b78512c15e9a49f0eda96d03a6db903d16046bf33fb",
+  "src/landslide_seg/encoders/terramind_tim.py": "4ecd3d4b3187c2c6492cf1b268e859677f95099207997c75d74079b811cfd743",
+  "src/landslide_seg/inference/__init__.py": "3416f6ac45478f1b4a0090fabe231f10b2eb941e6fecb02120ffcebb061aa5e7",
+  "src/landslide_seg/inference/visualize.py": "a553155a99c3597cc0c804f3ae42612fdba7d8f96198d739d73edb6328fde033",
+  "src/landslide_seg/models/__init__.py": "22363fc89673112dec1e22646cc5f4c3d8764e0301c6354e6c1d7c1697f1efb2",
+  "src/landslide_seg/models/build.py": "64ff67b24ea35c441661705a5c14e87306f1d3dcddb620f4cd0bc7cae2526580",
+  "src/landslide_seg/models/coarse.py": "90e4012ed44eb38fd2cba7589e2e294c8fb167da012bc1d112a9242fbc949dc7",
+  "src/landslide_seg/models/dofa.py": "09fbd47c4fdb38768c95eaf42c38ca3df0a4f7f7fbb58c91dbf87e743ac6ead1",
+  "src/landslide_seg/models/factory.py": "27ee6b675abff7450e63008f2681897e8dd8b0fbf8c23fc0f017e8291d3ce7a2",
+  "src/landslide_seg/models/feature_fusion.py": "e8d0d50321a90c9a3ecca553d67e5c3f2e61f2c8726bf435afedd6b7791f8dd4",
+  "src/landslide_seg/models/full_model.py": "1ea7d88cb5c57c71c9d848f18db88169d3cea8b14565c9981360be6ad43a6d54",
+  "src/landslide_seg/models/fusion.py": "b53e83f4e1828a33ffca2dfc52c6f06bb9e31a294d25bf6b35b83a5368367a86",
+  "src/landslide_seg/models/refiner.py": "511a73904861f9d177cc4dfc51c8e686b53825365b6faba246c76401a3a7b220",
+  "src/landslide_seg/models/segformer.py": "5393ab679d42e2fc034f99d057db87b507f932e1beba9e1a9a729baad03aff0c",
+  "src/landslide_seg/models/segformer_probe.py": "1f65b2222b8fb53896c915f1a50478b42193db78de96bdc361c70a804da08696",
+  "src/landslide_seg/models/semantic.py": "bd74e18519b7eb81b6e87b4b74186621a396b28dbbd33e0b81afef0dd291004c",
+  "src/landslide_seg/models/semantic_dynamic.py": "dd4e4f3f9bfaadcbf01103158aae7148cbc9e1188d87817160f46e77ed13c839",
+  "src/landslide_seg/models/spectral_stem.py": "238bf2fdfb0da7dc8de1f619b9388006d7f46a0a82d416281bc2bf01add1f317",
+  "src/landslide_seg/models/unet.py": "7a449d29e781c72b1f68241b5283829360da449a072a366dc3394873a7103aee",
+  "src/landslide_seg/training/__init__.py": "227484dda949b07eabecca5327ea4eba5849531b4589916108e2b926dbf54081",
+  "src/landslide_seg/training/losses.py": "0edf495a66b161731701044c7026adc4278c80c32af3f0722baa0f41f6f7ac48",
+  "src/landslide_seg/training/metrics.py": "7723a3ce3d90220c3bc832ecc3ffc0669edd73e5fe0e5a58be19edf07729aa81",
+  "src/landslide_seg/training/protocol.py": "954e5f6b28d733171a8200b58d7bf6f2a17023db73052466327dab5121193fed",
+  "src/landslide_seg/training/segformer_metrics.py": "8a07131305343a28a9681922811c3e5840a0a25511bcf8ae54e877104b34ff9f",
+  "src/landslide_seg/training/segformer_trainer.py": "8024abd91ebab8b9fadb5ce95b2c4b97e51e5ff696b542849f4376af39076e2a",
+  "src/landslide_seg/training/trainer.py": "c3ee581d76b9f26c4ef7c316307c90d8623caecead75189fd693798f49fde37a",
+  "src/landslide_seg/training/update_training.py": "e465ba4e728462f85a52450eefe511f52a81d020954f659359d34e15afbe09d3"
+ },
+ "reload_max_error": 0.0,
+ "batch64": {
+  "passed": true,
+  "peak_alloc_mib": 5479.28955078125
+ },
+ "seconds": 9.222739799995907,
+ "weight_loading": {
+  "missing_keys": [],
+  "unexpected_keys": [
+   "mask_token",
+   "norm.weight",
+   "norm.bias",
+   "projector.weight",
+   "projector.bias"
+  ],
+  "unexpected_keys_reason": "pretraining-only mask/norm/projector omitted by official dense encoder",
+  "checkpoint": "N:\\Users\\yzh\\Disater\\landslide-seg\\weights\\dofa\\XShadow_DOFA_base\\DOFA_ViT_base_e100.pth",
+  "checkpoint_sha256": "4720985e42b918ac0307009eb06121a3435d9bbce6fd95446f84824a538165b1",
+  "position_before": [
+   1,
+   197,
+   768
+  ],
+  "position_after": [
+   1,
+   65,
+   768
+  ],
+  "position_method": "official interpolate_pos_embed; input image not resized",
+  "code_sha256": {
+   "vendor/dofa-official-0cfb7e1/downstream_tasks/geobench_segmentation/model.py": "605b5b38109af1d088e3a9ba886759ea7772cd70760656649df24043adff2786",
+   "vendor/dofa-official-0cfb7e1/wave_dynamic_layer.py": "f3ab4b3af85b73765bc4a48e39b12d2ed6c81d2c06936b3e9ca16b1b10e25a28",
+   "vendor/dofa-official-0cfb7e1/pretraining/util/pos_embed.py": "2ff14831c533ac04fa0d61b790aa88ceee5843a7ca147a87131caf8980e1f100",
+   "vendor/dofa_runtime/mmseg/models/necks/featurepyramid.py": "c91a0c587744316a32bc1af360944849c270fea7fa5e9592aab4f7c950fb2fca",
+   "vendor/dofa_wavelength_mapping_terratorch_1_2_13.json": "65cc953d6b6d9189801d1274c73520f61e76f2754c7b2642cfe9e48a6362233a"
+  },
+  "official_commit": "0cfb7e1099f4d4c4022946ff7862c7cd7b8411b9",
+  "decoder": "Transformers UperNetHead 4.57.6",
+  "neck": "MMSegmentation Feature2Pyramid 1.2.2",
+  "encoder_frozen": false
+ },
+ "input": {
+  "type": "wavelength_conditioned_10band",
+  "band_order": [
+   "B02",
+   "B03",
+   "B04",
+   "B05",
+   "B06",
+   "B07",
+   "B08",
+   "B8A",
+   "B11",
+   "B12"
+  ],
+  "wavelengths_micrometers": [
+   0.49,
+   0.56,
+   0.665,
+   0.705,
+   0.74,
+   0.783,
+   0.832,
+   0.864,
+   1.61,
+   2.2
+  ],
+  "wavelength_source": "TerraTorch 1.2.13 dofa_vit.py waves_list; nominal optical wavelengths in micrometers",
+  "input_size": 128,
+  "native_feature_stride": 16,
+  "decoder_pyramid_strides": [
+   4,
+   8,
+   16,
+   32
+  ],
+  "note": "learned feature rescaling is not additional observed spatial detail; single binary head"
+ },
+ "checkpoint_sha256": "7d8cde8c05ae6beba9d4b71bfa79c75b81c12de31a0ba71249f8e18d9d5fd728"
+}

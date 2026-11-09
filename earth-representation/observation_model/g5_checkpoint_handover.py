@@ -8,7 +8,7 @@ import time
 
 
 def main():
-    root=Path(__file__).resolve().parent.parent;g=root/'observation_model/outputs/encoder_v2/G5_native_bank'
+    root=Path(__file__).resolve().parent.parent.parent;g=root/'observation_model/outputs/encoder_v2/G5_native_bank'
     log=(g/'acceleration/checkpoint_handover.log').open('a',encoding='utf-8',buffering=1);sys.stdout=sys.stderr=log
     control=g/'acceleration/checkpoint_handover.json';config=json.loads(control.read_text(encoding='utf-8'));pid=config['worker_pid'];target=config['target_update']
     while True:

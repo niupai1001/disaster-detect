@@ -1,0 +1,86 @@
+{
+ "download": {
+  "target": "nvidia/segformer-b2-finetuned-ade-768-768",
+  "local_dir": "N:/Users/yzh/Disater/landslide-seg/weights/segformer/segformer-b2-finetuned-ade-768-768",
+  "local_exists": false,
+  "attempts": [
+   {
+    "path": "直接 HTTPS（走环境代理）",
+    "url": "https://huggingface.co/api/models/nvidia/segformer-b2-finetuned-ade-768-768",
+    "result": "FAIL",
+    "error": "URLError: <urlopen error Tunnel connection failed: 502 Bad Gateway>"
+   },
+   {
+    "path": "直接 HTTPS（绕过代理）",
+    "url": "https://huggingface.co/api/models/nvidia/segformer-b2-finetuned-ade-768-768",
+    "result": "FAIL",
+    "error": "URLError: <urlopen error Tunnel connection failed: 502 Bad Gateway>"
+   },
+   {
+    "path": "HF 镜像 api",
+    "url": "https://hf-mirror.com/api/models/nvidia/segformer-b2-finetuned-ade-768-768",
+    "result": "FAIL",
+    "error": "HTTPError: HTTP Error 401: Unauthorized"
+   },
+   {
+    "path": "HF 镜像 resolve config.json",
+    "url": "https://hf-mirror.com/nvidia/segformer-b2-finetuned-ade-768-768/resolve/main/config.json",
+    "result": "FAIL",
+    "error": "HTTPError: HTTP Error 404: Not Found"
+   },
+   {
+    "path": "huggingface_hub.HfApi",
+    "result": "FAIL",
+    "error": "ProxyError: (MaxRetryError(\"HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/nvidia/segformer-b2-finetuned-ade-768-768 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel conne"
+   }
+  ],
+  "available": false
+ },
+ "b0_dir": "N:/Users/yzh/Disater/landslide-seg/weights/segformer/segformer-b0-finetuned-ade-512-512",
+ "calibration_b0": {
+  "params": {
+   "total": 3753602,
+   "trainable": 3753602,
+   "encoder": 3330368,
+   "decoder": 395009,
+   "new": 28225
+  },
+  "matches_known": true,
+  "known": 3753602
+ },
+ "b2_spec": {
+  "decoder_hidden_size": 768,
+  "hidden_sizes": [
+   64,
+   128,
+   320,
+   512
+  ],
+  "depths": [
+   3,
+   4,
+   6,
+   3
+  ],
+  "params": {
+   "total": 27430338,
+   "trainable": 27430338,
+   "encoder": 24218240,
+   "decoder": 3151105,
+   "new": 60993
+  },
+  "delta_vs_b0": 23676736,
+  "ratio_vs_b0": 7.307737474564432,
+  "imagenet_init_used": false,
+  "note": "仅数参数；未加载任何预训练权重，不构成可训练模型"
+ },
+ "b2_shapes_at_128": {
+  "logits": [
+   1,
+   1,
+   128,
+   128
+  ]
+ },
+ "b2_forward_ok": true
+}

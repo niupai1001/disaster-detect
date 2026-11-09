@@ -11,7 +11,7 @@ import yaml
 
 from .native_data import optical_from_four_view
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/"observation_model/outputs/phase0"
 
 

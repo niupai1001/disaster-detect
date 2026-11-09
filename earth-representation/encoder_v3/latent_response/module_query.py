@@ -1,7 +1,6 @@
 """Shared per-module, per-channel query from static catalog and native GSD metadata.
 
-The Fourier frequency set is a required argument on purpose: I2 has not frozen it,
-so no default can silently become part of a checkpoint identity.
+IR5 confirms the shared projection; explicit frequencies remain in checkpoint identity.
 """
 import math
 import torch
@@ -28,10 +27,9 @@ class ModuleQuery(nn.Module):
             raise ValueError('Positive query width required')
         self.register_buffer('frequencies', torch.tensor(frequencies))
         self.d = d
-        self.seed = nn.ParameterDict({kind: nn.Parameter(torch.zeros(d)) for kind in KINDS})
+        self.seed = nn.ParameterDict({kind: nn.Parameter(torch.randn(d) * .02) for kind in KINDS})
         width = 2 * len(frequencies) + 2
-        self.project = nn.ModuleDict(
-            {kind: nn.Sequential(nn.Linear(width, hidden), nn.GELU(), nn.Linear(hidden, d)) for kind in KINDS})
+        self.project = nn.Sequential(nn.Linear(width, hidden), nn.GELU(), nn.Linear(hidden, d))
 
     def encode(self, meta, gsd_xy):
         if not isinstance(meta, ChannelMeta):
@@ -48,4 +46,4 @@ class ModuleQuery(nn.Module):
     def forward(self, kind, meta, gsd_xy):
         if kind not in KINDS:
             raise ValueError(f'Unknown module kind {kind!r}; expected one of {KINDS}')
-        return self.seed[kind] + self.project[kind](self.encode(meta, gsd_xy))
+        return self.seed[kind] + self.project(self.encode(meta, gsd_xy))

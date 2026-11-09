@@ -1,0 +1,224 @@
+{
+ "config": "configs/segformer/official_single/segformer_b0_latedetail_officialsplit_singledate_s1234.yaml",
+ "device": "cuda:0",
+ "protocol": {
+  "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\manifests\\official_single\\protocol.json",
+  "sha256": "16bbd71d1b8dfb9da959b9155e87844003daffdf2d1aa6d287ae385025b01044",
+  "n_fit": 3012,
+  "n_train": 3012,
+  "n_dev": 758
+ },
+ "counts": {
+  "train": 3012,
+  "val": 758,
+  "test": 945
+ },
+ "read_probe": {
+  "train": {
+   "n": 3,
+   "image": [
+    3,
+    10,
+    128,
+    128
+   ],
+   "dtype": "torch.float32",
+   "mask_values": [
+    0,
+    1
+   ],
+   "valid_ratio_mean": 0.9945,
+   "sample_ids": [
+    "chimanimani_s2_1002",
+    "italy_s2_5291",
+    "usa_puertorico_s2_999"
+   ]
+  },
+  "val": {
+   "n": 3,
+   "image": [
+    3,
+    10,
+    128,
+    128
+   ],
+   "dtype": "torch.float32",
+   "mask_values": [
+    0,
+    1
+   ],
+   "valid_ratio_mean": 0.8325,
+   "sample_ids": [
+    "chimanimani_s2_1030",
+    "italy_s2_5360",
+    "usa_puertorico_s2_911"
+   ]
+  },
+  "test": {
+   "n": 3,
+   "image": [
+    3,
+    10,
+    128,
+    128
+   ],
+   "dtype": "torch.float32",
+   "mask_values": [
+    0,
+    1
+   ],
+   "valid_ratio_mean": 0.9613,
+   "sample_ids": [
+    "chimanimani_s2_1004",
+    "italy_s2_5063",
+    "usa_puertorico_s2_783"
+   ]
+  }
+ },
+ "metric_probe": {
+  "case": "2x2, pred=[[T,T],[F,F]], gt=[[T,F],[T,F]], tp=1 fp=1 fn=1",
+  "iou_all_pixels": 0.3333333333333333,
+  "iou_drop_fp_pixel": 0.5,
+  "expected_all": 0.3333333333333333,
+  "expected_drop_fp": 0.5
+ },
+ "params": {
+  "total": 3753602,
+  "trainable": 3753602,
+  "encoder": 3330368,
+  "decoder": 395009,
+  "new": 28225
+ },
+ "load_info": {
+  "missing_keys": 0,
+  "unexpected_keys": 0,
+  "mismatched_keys": 0,
+  "error_msgs": 0
+ },
+ "weight_sha256": "0f4df97633cbedd558ecffa3ad228ace5af37e082678390b45a9d22745787c61",
+ "forward_backward": {
+  "batch": 64,
+  "loss": 0.799288,
+  "n_grad": 215,
+  "all_finite": true,
+  "peak_alloc_mib": 4648.6,
+  "dtypes": [
+   "torch.float32"
+  ]
+ },
+ "gates": [
+  {
+   "check": "validate_protocol 通过",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\manifests\\official_single\\protocol.json",
+    "sha256": "16bbd71d1b8dfb9da959b9155e87844003daffdf2d1aa6d287ae385025b01044",
+    "n_fit": 3012,
+    "n_train": 3012,
+    "n_dev": 758
+   }
+  },
+  {
+   "check": "三个 split 均非空",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "train": 3012,
+    "val": 758,
+    "test": 945
+   }
+  },
+  {
+   "check": "train 读取正常",
+   "ok": true,
+   "hard": true,
+   "detail": [
+    3,
+    10,
+    128,
+    128
+   ]
+  },
+  {
+   "check": "val 读取正常",
+   "ok": true,
+   "hard": true,
+   "detail": [
+    3,
+    10,
+    128,
+    128
+   ]
+  },
+  {
+   "check": "test 读取正常",
+   "ok": true,
+   "hard": true,
+   "detail": [
+    3,
+    10,
+    128,
+    128
+   ]
+  },
+  {
+   "check": "pooled IoU 与手算一致（全像素 1/3）",
+   "ok": true,
+   "hard": true,
+   "detail": 0.3333333333333333
+  },
+  {
+   "check": "valid 口径差异可复现（排除 FP 像素后 1/3 → 1/2）",
+   "ok": true,
+   "hard": false,
+   "detail": {
+    "all": 0.3333333333333333,
+    "valid_only": 0.5,
+    "note": "官方 torchmetrics 用全像素；本项目主口径用 valid 像素。IoU/Dice/P/R 只在被排除像素为 FP 或 FN 时才变化，FPR 则必然变化。并表前须按同一口径复算"
+   }
+  },
+  {
+   "check": "预训练权重已加载（非随机初始化）",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "missing": 0,
+    "unexpected": 0,
+    "pretrained": "nvidia/segformer-b0-finetuned-ade-512-512"
+   }
+  },
+  {
+   "check": "batch64 前反向无 OOM 且梯度有限",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "batch": 64,
+    "loss": 0.799288,
+    "n_grad": 215,
+    "all_finite": true,
+    "peak_alloc_mib": 4648.6,
+    "dtypes": [
+     "torch.float32"
+    ]
+   }
+  },
+  {
+   "check": "全参数 FP32",
+   "ok": true,
+   "hard": true,
+   "detail": [
+    "torch.float32"
+   ]
+  },
+  {
+   "check": "checkpoint 重载输出一致",
+   "ok": true,
+   "hard": true,
+   "detail": {
+    "max_abs_diff": 0.0
+   }
+  }
+ ],
+ "all_pass": true
+}

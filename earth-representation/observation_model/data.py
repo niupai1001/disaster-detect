@@ -9,7 +9,7 @@ import torch
 
 from .model import BandRaster,TargetQuery
 
-ROOT=Path(os.environ.get("OBSERVATION_PROJECT_ROOT",Path(__file__).resolve().parents[1]))
+ROOT=Path(os.environ.get("OBSERVATION_PROJECT_ROOT",Path(__file__).resolve().parents[2]))
 RELEASE=Path(os.environ.get("OBSERVATION_RELEASE",ROOT/"observation_model/outputs/phase0/release_local_v1"))
 
 

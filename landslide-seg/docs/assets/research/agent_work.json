@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-30T10:37:45.372713+00:00",
+  "updated_at": "2026-11-09T05:32:14.152107+00:00",
   "sources": {
     "rules": "AGENTS.md",
     "research_facts": "docs/assets/research/stage_ledger.json",
@@ -2686,6 +2686,117 @@
         "outputs/use_next_v2/audit/p1_predictions"
       ],
       "note": "按用户要求把答案改为'两套系统输出什么、做了什么'：报告开头给出DOFA 4组(1,768,14,14)与AnySat patch/tile/dense的实物产出、机制对照表，MAE解码器降为边界一节。最终产物用P1已存概率只读重放（0次更新）渲染3瓦片，选例规则写死并各让一条路线赢一次（thrissur_1037 双命中、hiroshima_1074 AnySat强、thrissur_420 DOFA强）；官方口径事件等权IoU DOFA 0.1071/AnySat 0.1794，逐瓦片中位数0/0.090，已注明多数瓦片未命中。未训练、未改权重、未改台账。"
+    },
+    {
+      "id": "project-file-cleanup",
+      "title": "清理废弃早期实现与临时产物，保留正式证据",
+      "owner": "codex-project-cleanup-20261108",
+      "scopes": [
+        "readme.md",
+        "scripts/accept_m1.py",
+        "scripts/dataset_and_modules_report.py",
+        "scripts/dump_input_state.py",
+        "scripts/figure_4col.py",
+        "scripts/inspect_semantic.py",
+        "scripts/probe_pipeline.py",
+        "scripts/real_inference.py",
+        "scripts/review_checks.py",
+        "scripts/review_real_runtime.py",
+        "scripts/review_unit_checks.py",
+        "scripts/smoke_full_model.py",
+        "scripts/smoke_terramind.py",
+        "scripts/text_region_pairs.py",
+        "scripts/train_full.py",
+        "scripts/verify_bands.py",
+        "src/landslide_seg/models/__init__.py",
+        "src/landslide_seg/models/build.py",
+        "src/landslide_seg/models/coarse.py",
+        "src/landslide_seg/models/full_model.py",
+        "src/landslide_seg/models/fusion.py",
+        "src/landslide_seg/models/refiner.py",
+        "src/landslide_seg/models/semantic.py",
+        "src/landslide_seg/models/semantic_dynamic.py",
+        "src/landslide_seg/training/__init__.py",
+        "src/landslide_seg/training/trainer.py",
+        "tests/test_spatial_alignment.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-11-09T03:36:55.085867+00:00",
+      "updated_at": "2026-11-09T03:43:14.016896+00:00",
+      "evidence": [
+        "N:/Users/yzh/Disater/.project/cleanup_manifest.json"
+      ],
+      "note": "废弃实现、临时目录与生成夹具清理完成；5个相关测试文件通过，正式权重/数据/release未动；其他进程命令行可见性不完整。"
+    },
+    {
+      "id": "cleanup-design-consolidation",
+      "title": "将有效模型连接说明合并到固定设计文档",
+      "owner": "codex-project-cleanup-20261108",
+      "scopes": [
+        "docs/design.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-11-09T03:38:19.859224+00:00",
+      "updated_at": "2026-11-09T03:43:14.311301+00:00",
+      "evidence": [
+        "docs/DESIGN.md"
+      ],
+      "note": "两工程7段保留模型连接说明已并入固定DESIGN，311个本地链接目标通过。"
+    },
+    {
+      "id": "cleanup-legacy-artifacts",
+      "title": "删除失去执行入口的早期系统配置",
+      "owner": "codex-project-cleanup-20261108",
+      "scopes": [
+        "configs/default.yaml",
+        "configs/model_full.yaml"
+      ],
+      "status": "completed",
+      "started_at": "2026-11-09T03:41:32.729447+00:00",
+      "updated_at": "2026-11-09T03:43:14.595338+00:00",
+      "evidence": [
+        "N:/Users/yzh/Disater/.project/legacy_cleanup_manifest.json"
+      ],
+      "note": "失去入口的默认/全模型配置与RemoteSAM/SAM3废弃源码清理完成；权重目录保留。"
+    },
+    {
+      "id": "root-layout-cleanup",
+      "title": "归并根目录数据与冗余说明文档",
+      "owner": "codex-root-layout-cleanup",
+      "scopes": [
+        "docs/agent_roles.md",
+        "docs/data.md",
+        "readme.md",
+        "scripts/audit_data_contract.py"
+      ],
+      "status": "completed",
+      "started_at": "2026-11-09T03:50:29.706828+00:00",
+      "updated_at": "2026-11-09T03:52:41.996101+00:00",
+      "evidence": [
+        "N:/Users/yzh/Disater/.project/layout_manifest.json",
+        "N:/Users/yzh/Disater/.project/layout_validation.json"
+      ],
+      "note": "根目录归并为两工程；L4S影像/标注搬入data/landslide4sense，10份重复样本SHA相同后删除，旧权重前后SHA一致；重复说明并入职责；现行Sen12数据与冻结发布不变。"
+    },
+    {
+      "id": "maintained-document-rewrite",
+      "title": "按研究演变重写整套固定文档",
+      "owner": "codex-maintained-docs",
+      "scopes": [
+        "docs/agent_roles.md",
+        "docs/data.md",
+        "docs/design.md",
+        "docs/results.md",
+        "readme.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-11-09T05:13:54.744311+00:00",
+      "updated_at": "2026-11-09T05:32:14.152107+00:00",
+      "evidence": [
+        "N:/Users/yzh/Disater/.project/maintained_document_validation.json",
+        "N:/Users/yzh/Disater/.project/engineering_layout.json"
+      ],
+      "note": "两工程五份固定文档及根入口/规则整体重写；USE按V1/V2、Encoder V3与LR合并；5张数据图；源代码和测试迁移至src/tests，数据与历史产物归类并保留兼容路径。跨卫星332+28子测试、滑坡相关26+4子测试通过。未启动正式训练。"
     }
   ],
   "transfers": [

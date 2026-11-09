@@ -1,0 +1,57 @@
+{
+ "status": "未运行（可执行性已核验，成本超本阶段预算）",
+ "checked_on": "2026-10-20",
+ "official_code": {
+  "path": "vendor/official/Sen12Landslides",
+  "commit": "2eb025bd76bef449d2f7cf4aaea861bc4cfeed51",
+  "model_file": "src/models/utae.py",
+  "dataset_file": "src/data/datasets.py"
+ },
+ "dependency_check": {
+  "present": [
+   "xarray",
+   "lightning",
+   "torchmetrics",
+   "rioxarray",
+   "geopandas",
+   "pandas",
+   "h5py"
+  ],
+  "installed_for_probe": [
+   "h5netcdf"
+  ],
+  "still_missing": [
+   "hydra-core",
+   "netCDF4",
+   "wandb",
+   "torchinfo"
+  ],
+  "note": "PyPI 可达（pip download/install 均成功），缺项可安装；未改动项目依赖清单"
+ },
+ "format_check": {
+  "nc_readable": true,
+  "engine": "h5netcdf",
+  "sample": "img [15, 11, 128, 128] float32（10 波段 + DEM）, dates [15], msk [128,128] {0,1}",
+  "note": "官方 Sen12Landslides 数据集类可直接读本地 nc，无需改文件布局"
+ },
+ "measured_cost": {
+  "params": 1072995,
+  "batch": 4,
+  "sec_per_step_fwd_bwd": 0.104,
+  "peak_alloc_mib": 3454,
+  "device": "cuda:1"
+ },
+ "extrapolation": {
+  "official_budget": "75 epochs x 3,192 train samples，3 seeds",
+  "steps_one_seed": 59850,
+  "compute_only_seconds": 6225,
+  "io_risk": "每个样本每次 __getitem__ 都用 xarray 重开 nc 并读 15x11x128x128；未做缓存时 I/O 会成为主瓶颈，实测单样本打开约数十毫秒，全量约需数小时额外开销",
+  "estimated_wall_hours_one_seed": "5-8（含 I/O，未含超参调试）"
+ },
+ "blockers": [
+  "需要一个缓存层（把 15 时相 + DEM 预取成 npz/memmap）才能把 75 epoch 压到可接受时长",
+  "官方 train.py 依赖 hydra 组合配置与 data_paths.json 的目录约定，需把本地 data/sen12 映射过去",
+  "官方 3 seeds 不在本阶段范围内；单 seed 也需要 5-8 小时"
+ ],
+ "next_step_if_approved": "先建多时相缓存（预计 30-40 分钟），再按官方配置单 seed 复训；否则本阶段只用官方表值作来源背景，并明确标注'未本地复现'"
+}

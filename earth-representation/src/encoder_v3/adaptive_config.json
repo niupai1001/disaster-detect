@@ -1,0 +1,135 @@
+{
+  "architecture": "participation_selected_windows_v1",
+  "status": "GEOMETRY_B_AND_SINGLE_ROUND_CONFIRMED_CURVE_CONFIRMED_PREFLIGHT",
+  "confirmed": {
+    "window_scale_learning": false,
+    "assignment": "floor((native_pixel_center-origin)/window_m)",
+    "round_gsd": false,
+    "fixed_2x2_merge": false,
+    "read_entire_actual_group": true,
+    "shared_learned_aggregation": true,
+    "merge_participation_definition": "fraction of valid visible native positions in groups with at least two members",
+    "all_gsd_allow_spatial_aggregation": true,
+    "window_scale_control": "derive from participation rate, not an independent GSD scale or fixed 10m window",
+    "window_span_rule": "s(r)=1/(1-r)",
+    "physical_window": "(gx*s,gy*s)",
+    "group_selection": "nearest complete-group prefix in deterministic physical SHA256 ordering",
+    "unselected_positions": "independent tokens",
+    "geometry_review": "reports/merge_B_confirmation.json",
+    "A_adjacency_rule": "represented_boundary_v1: valid represented-region edge/corner adjacency; no centroid-outside gate",
+    "merge_levels": "single round B; native and merged scales retained",
+    "recursive_merge": false,
+    "merge_levels_review": "reports/merge_levels_confirmation.json",
+    "preflight_participation_curve": {
+      "family": "candidate_area_equivalent_hill",
+      "amplitude": 0.8092248954506467,
+      "scale_m": 4.010953026221307,
+      "power": 1.219268281571556,
+      "effective_gsd": "sqrt(gx*gy)",
+      "review": "reports/merge_rate_confirmation.json",
+      "scope": "preflight_only"
+    }
+  },
+  "candidate": {
+    "local_network": "existing shared 32->128 projection, two-layer Transformer, CLS readout",
+    "participation_example_anchors": [
+      {
+        "gsd_m": 0.5,
+        "participation": 0.75
+      },
+      {
+        "gsd_m": 10.0,
+        "participation": 0.2
+      },
+      {
+        "gsd_m": 20.0,
+        "participation": 0.1
+      }
+    ],
+    "participation_curve": "confirmed for preflight; formal configuration adoption pending",
+    "diagnostic_curve": {
+      "family": "AreaEquivalentHillRate",
+      "amplitude": 0.8092248954506467,
+      "scale_m": 4.010953026221307,
+      "power": 1.219268281571556,
+      "effective_gsd": "sqrt(gx*gy)",
+      "status": "same full-precision coefficients now confirmed for preflight; historical measurements retain their original confirmation state"
+    },
+    "global_query_chunk_size": null,
+    "local_batch_size_reference": 64,
+    "local_batch_size_acceleration_candidate": 1024,
+    "acceleration_default_adopted": false,
+    "observation_microbatch_execution": {
+      "reference": 1,
+      "candidates": [
+        2,
+        4,
+        8
+      ],
+      "adopted": false,
+      "completed_diagnostic_review": "reports/participation_current_execution_evidence.json",
+      "recommended_candidate": 1
+    },
+    "matrix_A_and_bulk_geometry": {
+      "review": "reports/participation_batch_execution_review.md",
+      "adopted": false
+    },
+    "packed_local_output": {
+      "default": false,
+      "adopted": false,
+      "review": "reports/packed_local_execution_review.md"
+    },
+    "retained_merge_geometry": {
+      "default": false,
+      "adopted": false,
+      "review": "reports/retained_geometry_execution_review.md",
+      "evidence": "reports/retained_geometry_execution_evidence.json",
+      "scope": "Per-task geometry only; no learned result caching; real update/resume acceptance incomplete"
+    }
+  },
+  "required_before_training": {
+    "spatial_hierarchy_review": "reports/merge_levels_confirmation.json",
+    "physical_patch_role_and_mask_review": null,
+    "adaptive_gpu_efficiency_acceptance": null,
+    "participation_curve_and_anisotropic_rule": {
+      "preflight_review": "reports/merge_rate_confirmation.json",
+      "formal_configuration_adoption": null
+    }
+  },
+  "preserved": {
+    "legacy_model": "model.py",
+    "legacy_checkpoints": "not loaded implicitly into adaptive model",
+    "optimizer": "AdamW",
+    "pilot_updates_stopped": true,
+    "formal_training_started": false
+  },
+  "pending_clarification": "Single-round two-scale B and preflight rate curve confirmed; final physical FOV/mask relation, data admission and formal execution configuration remain pending",
+  "historical_superseded_candidates": {
+    "exponent": null,
+    "exponent_range": "0<p<1; explicit constructor argument required",
+    "diagnostic_fixture_exponent": 0.5,
+    "local_network": "existing shared 32->128 projection, two-layer Transformer, CLS readout",
+    "global_query_chunk_size": null,
+    "query_chunk_execution": "optional diagnostic only; slower than efficient-attention reference with negligible memory benefit",
+    "formula": "s(g)=max(1,(10/g)^p); window_m=g*s(g)",
+    "participation_example_anchors": [
+      {
+        "gsd_m": 0.5,
+        "participation": 0.75
+      },
+      {
+        "gsd_m": 10.0,
+        "participation": 0.2
+      },
+      {
+        "gsd_m": 20.0,
+        "participation": 0.1
+      }
+    ],
+    "participation_curve": null,
+    "formula_scope": "legacy engineering reference, superseded by latest user participation definition",
+    "query_chunk_execution_status": "not_adopted_after_matched_GPU_measurement",
+    "window_from_participation_rule": null,
+    "independent_window_formula_selected": false
+  }
+}

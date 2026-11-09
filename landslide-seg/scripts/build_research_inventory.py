@@ -451,7 +451,7 @@ def check():
         if 'temporal_spectral' == r['model_config'].get('type'):
             assert '细节' in r['display_name'], 'Temporal model display must include its actual detail branch'
             assert r['effective_structure']['stem']
-    documents = ['RESEARCH_INDEX.md','DATA_OFFICIAL.md','DATA_EVENT_PROTOCOL.md','MODEL_EVOLUTION.md']
+    documents = ['DESIGN.md','RESULTS.md','DATA.md','AGENT_ROLES.md']
     checked = 0
     for name in documents:
         p = ROOT/'docs'/name
@@ -464,7 +464,8 @@ def check():
             local = target.split('#')[0].strip('<>')
             assert (p.parent/local).exists(), (name,target)
             checked += 1
-        assert body.count('![') >= 1, f'Missing figure: {name}'
+        if name == 'RESULTS.md':
+            assert body.count('![') >= 1, f'Missing figure: {name}'
     print(f'PASS: {checked} relative document links and image targets')
     (OUT/'verification.json').write_text(json.dumps({'as_of':DATE, 'run_identities_checked':len(ids),
         'relative_links_checked':checked,'config_hashes_checked':len(ids),

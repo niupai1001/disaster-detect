@@ -1,0 +1,462 @@
+{
+ "device": "cuda:0",
+ "arms": {
+  "baseline": {
+   "config": "configs/segformer/official_single/segformer_b0_latedetail_officialsplit_singledate_s1234.yaml",
+   "n_train": 3012,
+   "n_val": 758,
+   "protocol": {
+    "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\manifests\\official_single\\protocol.json",
+    "sha256": "16bbd71d1b8dfb9da959b9155e87844003daffdf2d1aa6d287ae385025b01044",
+    "n_fit": 3012,
+    "n_train": 3012,
+    "n_dev": 758
+   },
+   "in_chans": 10,
+   "extra": "none",
+   "pos_weight": 1.0,
+   "params": {
+    "total": 3753602,
+    "trainable": 3753602,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 28225
+   },
+   "first_conv": [
+    32,
+    10,
+    7,
+    7
+   ],
+   "extra_channel_weight_absmax": null,
+   "extra_channel_weight_is_zero": false,
+   "image_shape": [
+    64,
+    10,
+    128,
+    128
+   ],
+   "loss": 0.799288,
+   "peak_alloc_mib": 4648.6
+  },
+  "dem": {
+   "config": "configs/segformer/official_single/segformer_b0_latedetail_officialsplit_dem_s1234.yaml",
+   "n_train": 3012,
+   "n_val": 758,
+   "protocol": {
+    "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\manifests\\official_single_geo\\protocol_dem.json",
+    "sha256": "a3652ec8fdc2846141746957e616c838d766064f4c98f7e60693ec0b010184d6",
+    "n_fit": 3012,
+    "n_train": 3012,
+    "n_dev": 758
+   },
+   "in_chans": 11,
+   "extra": "dem",
+   "pos_weight": 1.0,
+   "params": {
+    "total": 3755202,
+    "trainable": 3755202,
+    "encoder": 3331936,
+    "decoder": 395009,
+    "new": 28257
+   },
+   "first_conv": [
+    32,
+    11,
+    7,
+    7
+   ],
+   "extra_channel_weight_absmax": 0.0,
+   "extra_channel_weight_is_zero": true,
+   "image_shape": [
+    64,
+    11,
+    128,
+    128
+   ],
+   "loss": 0.799288,
+   "peak_alloc_mib": 4733.4
+  },
+  "slope": {
+   "config": "configs/segformer/official_single/segformer_b0_latedetail_officialsplit_slope_s1234.yaml",
+   "n_train": 3012,
+   "n_val": 758,
+   "protocol": {
+    "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\manifests\\official_single_geo\\protocol_slope.json",
+    "sha256": "1a5a682587dcdb2d2d835a35a6fea38b76023b1b8f5ecf13e99bbe10beb596b4",
+    "n_fit": 3012,
+    "n_train": 3012,
+    "n_dev": 758
+   },
+   "in_chans": 11,
+   "extra": "slope",
+   "pos_weight": 1.0,
+   "params": {
+    "total": 3755202,
+    "trainable": 3755202,
+    "encoder": 3331936,
+    "decoder": 395009,
+    "new": 28257
+   },
+   "first_conv": [
+    32,
+    11,
+    7,
+    7
+   ],
+   "extra_channel_weight_absmax": 0.0,
+   "extra_channel_weight_is_zero": true,
+   "image_shape": [
+    64,
+    11,
+    128,
+    128
+   ],
+   "loss": 0.799288,
+   "peak_alloc_mib": 4797.3
+  },
+  "pw5": {
+   "config": "configs/segformer/official_single/segformer_b0_latedetail_officialsplit_pw5_s1234.yaml",
+   "n_train": 3012,
+   "n_val": 758,
+   "protocol": {
+    "path": "N:\\Users\\yzh\\Disater\\landslide-seg\\manifests\\official_single\\protocol.json",
+    "sha256": "16bbd71d1b8dfb9da959b9155e87844003daffdf2d1aa6d287ae385025b01044",
+    "n_fit": 3012,
+    "n_train": 3012,
+    "n_dev": 758
+   },
+   "in_chans": 10,
+   "extra": "none",
+   "pos_weight": 5.0,
+   "params": {
+    "total": 3753602,
+    "trainable": 3753602,
+    "encoder": 3330368,
+    "decoder": 395009,
+    "new": 28225
+   },
+   "first_conv": [
+    32,
+    10,
+    7,
+    7
+   ],
+   "extra_channel_weight_absmax": null,
+   "extra_channel_weight_is_zero": false,
+   "image_shape": [
+    64,
+    10,
+    128,
+    128
+   ],
+   "loss": 0.839002,
+   "peak_alloc_mib": 4856.6
+  }
+ },
+ "gates": [
+  {
+   "arm": "baseline",
+   "check": "protocol 通过",
+   "ok": true,
+   "detail": {
+    "n_train": 3012,
+    "n_val": 758
+   }
+  },
+  {
+   "arm": "baseline",
+   "check": "样本数与基线一致",
+   "ok": true,
+   "detail": {
+    "train": 3012,
+    "val": 758
+   }
+  },
+  {
+   "arm": "baseline",
+   "check": "首层通道数正确",
+   "ok": true,
+   "detail": [
+    32,
+    10,
+    7,
+    7
+   ]
+  },
+  {
+   "arm": "baseline",
+   "check": "数据集通道数正确",
+   "ok": true,
+   "detail": [
+    64,
+    10,
+    128,
+    128
+   ]
+  },
+  {
+   "arm": "baseline",
+   "check": "标签与基线同块一致",
+   "ok": true,
+   "detail": {
+    "n": 64
+   }
+  },
+  {
+   "arm": "baseline",
+   "check": "前反向梯度有限",
+   "ok": true,
+   "detail": {
+    "loss": 0.799288,
+    "n_grad": 215,
+    "peak_mib": 4648.6
+   }
+  },
+  {
+   "arm": "dem",
+   "check": "protocol 通过",
+   "ok": true,
+   "detail": {
+    "n_train": 3012,
+    "n_val": 758
+   }
+  },
+  {
+   "arm": "dem",
+   "check": "样本数与基线一致",
+   "ok": true,
+   "detail": {
+    "train": 3012,
+    "val": 758
+   }
+  },
+  {
+   "arm": "dem",
+   "check": "首层通道数正确",
+   "ok": true,
+   "detail": [
+    32,
+    11,
+    7,
+    7
+   ]
+  },
+  {
+   "arm": "dem",
+   "check": "新增通道权重零初始化",
+   "ok": true,
+   "detail": {
+    "absmax": 0.0
+   }
+  },
+  {
+   "arm": "dem",
+   "check": "STEM 通道数跟随",
+   "ok": true,
+   "detail": [
+    32,
+    11,
+    1,
+    1
+   ]
+  },
+  {
+   "arm": "dem",
+   "check": "数据集通道数正确",
+   "ok": true,
+   "detail": [
+    64,
+    11,
+    128,
+    128
+   ]
+  },
+  {
+   "arm": "dem",
+   "check": "附加通道按正确统计标准化（逐像素核对）",
+   "ok": true,
+   "detail": {
+    "max_abs_diff": 1.1920928955078125e-07,
+    "mean": 733.643,
+    "std": 628.033,
+    "batch_std": 0.399
+   }
+  },
+  {
+   "arm": "dem",
+   "check": "标签与基线同块一致",
+   "ok": true,
+   "detail": {
+    "n": 64
+   }
+  },
+  {
+   "arm": "dem",
+   "check": "前反向梯度有限",
+   "ok": true,
+   "detail": {
+    "loss": 0.799288,
+    "n_grad": 215,
+    "peak_mib": 4733.4
+   }
+  },
+  {
+   "arm": "slope",
+   "check": "protocol 通过",
+   "ok": true,
+   "detail": {
+    "n_train": 3012,
+    "n_val": 758
+   }
+  },
+  {
+   "arm": "slope",
+   "check": "样本数与基线一致",
+   "ok": true,
+   "detail": {
+    "train": 3012,
+    "val": 758
+   }
+  },
+  {
+   "arm": "slope",
+   "check": "首层通道数正确",
+   "ok": true,
+   "detail": [
+    32,
+    11,
+    7,
+    7
+   ]
+  },
+  {
+   "arm": "slope",
+   "check": "新增通道权重零初始化",
+   "ok": true,
+   "detail": {
+    "absmax": 0.0
+   }
+  },
+  {
+   "arm": "slope",
+   "check": "STEM 通道数跟随",
+   "ok": true,
+   "detail": [
+    32,
+    11,
+    1,
+    1
+   ]
+  },
+  {
+   "arm": "slope",
+   "check": "数据集通道数正确",
+   "ok": true,
+   "detail": [
+    64,
+    11,
+    128,
+    128
+   ]
+  },
+  {
+   "arm": "slope",
+   "check": "附加通道按正确统计标准化（逐像素核对）",
+   "ok": true,
+   "detail": {
+    "max_abs_diff": 2.384185791015625e-07,
+    "mean": 2077.205,
+    "std": 1466.424,
+    "batch_std": 0.952
+   }
+  },
+  {
+   "arm": "slope",
+   "check": "标签与基线同块一致",
+   "ok": true,
+   "detail": {
+    "n": 64
+   }
+  },
+  {
+   "arm": "slope",
+   "check": "前反向梯度有限",
+   "ok": true,
+   "detail": {
+    "loss": 0.799288,
+    "n_grad": 215,
+    "peak_mib": 4797.3
+   }
+  },
+  {
+   "arm": "pw5",
+   "check": "protocol 通过",
+   "ok": true,
+   "detail": {
+    "n_train": 3012,
+    "n_val": 758
+   }
+  },
+  {
+   "arm": "pw5",
+   "check": "样本数与基线一致",
+   "ok": true,
+   "detail": {
+    "train": 3012,
+    "val": 758
+   }
+  },
+  {
+   "arm": "pw5",
+   "check": "首层通道数正确",
+   "ok": true,
+   "detail": [
+    32,
+    10,
+    7,
+    7
+   ]
+  },
+  {
+   "arm": "pw5",
+   "check": "数据集通道数正确",
+   "ok": true,
+   "detail": [
+    64,
+    10,
+    128,
+    128
+   ]
+  },
+  {
+   "arm": "pw5",
+   "check": "标签与基线同块一致",
+   "ok": true,
+   "detail": {
+    "n": 64
+   }
+  },
+  {
+   "arm": "pw5",
+   "check": "前反向梯度有限",
+   "ok": true,
+   "detail": {
+    "loss": 0.839002,
+    "n_grad": 215,
+    "peak_mib": 4856.6
+   }
+  },
+  {
+   "arm": "pw5",
+   "check": "pos_weight 生效（同批数据 pw5 loss 更高）",
+   "ok": true,
+   "detail": {
+    "loss_pw1": 0.870437,
+    "loss_pw5": 0.898754,
+    "ratio": 1.0325
+   }
+  }
+ ],
+ "all_pass": true
+}
