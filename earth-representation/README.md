@@ -64,7 +64,7 @@ python -I scripts/run_v3_h.py check --config configs/config_v3_h_mae_v1.json --m
 python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/hierarchical','tests/encoder_v3/shared_mae','-o','pythonpath=src','-q']))"
 ```
 
-`train`必须提供绑定新架构/代码/配置/冻结成员的authorization与readiness。首段已按用户新要求安全暂停在165次更新（约0.709Epoch），先补齐完整加速及计划符合性验收，再讨论恢复试验。旧发布`outputs/encoder_v3/hierarchical/release_mae_v1`的冻结源码、检查点和原验收保留；原readiness不能放行新加速候选。[实时状态](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/status.json)和[更新记录](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/updates.jsonl)记录原运行事实。Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`，Hybrid尚未正式启动。
+`train`必须提供绑定架构/代码/配置/冻结成员的authorization与readiness。用户明确“开始训练”后，加速版已从165次更新续跑并产生第166次真实更新，总预算仍为10 Epoch/2330次更新。冻结源码为`outputs/encoder_v3/hierarchical/release_mae_accelerated_v1/runtime`，实际配置、授权、验收和运行位于上级`execution_gpu1`；0号卡驱动初始化异常，改用同型号1号卡并显式选择默认设备，换卡后的最大A/B1和完整状态恢复已通过。模型/成员/QA/优化目标不变，Hybrid未启动。新[实时状态](outputs/encoder_v3/hierarchical/release_mae_accelerated_v1/execution_gpu1/formal_run/status.json)与[更新记录](outputs/encoder_v3/hierarchical/release_mae_accelerated_v1/execution_gpu1/formal_run/updates.jsonl)为准，Viewer Run ID `cd7c5ee4fa22441c844bfb93586c1d2b`；原`release_mae_v1`及其STOPPED165记录保留，来源与权重/AdamW/scheduler/RNG/游标迁移见新运行的`migration_lineage.json`。
 
 加速证据统一在`outputs/encoder_v3/hierarchical/performance`：同卡paired数值/梯度对照及相同前183批无更新回放已证明实际加速。均批18.27→13.54秒（约1.35倍），含3次完整383VAL及检查点总耗时减少约26.88%；两张5090并行共享CPU/I/O，保留此测量条件。用户明确无需等待完整Epoch，两条长回放已停止；有效同批前缀可以验收速度，不冒称完整Epoch耗时。候选47项CPU测试、最大完整原生场景A/B1容量通过；失败轨迹及各版本证据不混用，详见[V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md#22-加速候选的验收与继续顺序)。
 

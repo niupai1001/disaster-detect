@@ -25,7 +25,7 @@
 
 原文档阶段只提交两份文档与索引；当前用户已授权推进下列代码阶段、工程检查及训练。新实现使用独立hierarchical目录与新运行身份，不改变旧冻结源码、成员或已停止预算。
 
-正式训练遵循后续用户授权；当前因加速与一致性复核暂停在165次更新，不能凭旧发布门禁直接恢复候选源码。
+正式训练遵循后续用户授权；加速和恢复验收后，用户明确“开始训练”，当前已在新绑定发布中从165次更新续跑，原发布门禁不用于直接放行新源码。
 
 ## 2. 开工检查
 
@@ -863,7 +863,7 @@ P0中的2/4倍原生尺度、邻域半径、标量条件通道融合和JEPA查�
 | recovery_final_v1/report.json | 当前候选8次真实工程更新，保存恢复后下一步model/optimizer/scheduler/runner/RNG/modes/EMA逐项完全一致；不计正式Epoch |
 | all_modules_final_v1.json | 当前身份EnMAP/L8/L9/S2×A/B1×λ_J=0/0.2共16项模块前后向检查PASS，含激活存储、几何/加载、optimizer及EMA成本；每项1次带钩子测量，不作为稳定速度统计、不累加重叠模块时间。临时optimizer/EMA检查后事务恢复，未写入正式训练 |
 
-两条长回放已按用户要求停止，已取得前缀足以支持“实际加速有效”，不再为证明加速重复完整Epoch。正式训练继续保持STOPPED165，直到候选容量与恢复检查通过并冻结新发布。
+两条长回放已按用户要求停止，已取得前缀足以支持“实际加速有效”，不再为证明加速重复完整Epoch。候选容量与恢复检查通过并冻结新发布后，用户明确“开始训练”，已新建身份续跑；原Run仍保持STOPPED165。
 
 后续依赖与执行顺序：
 
@@ -871,3 +871,9 @@ P0中的2/4倍原生尺度、邻域半径、标量条件通道融合和JEPA查�
 2. 已补齐当前身份的完整状态下一步恢复、四源模块成本及只读47项回归审查；D01—D11映射及未测边界保留。最大容量以最终v3记录绑定，不继承失败v1/v2。
 3. 提交源码/配置/测试/文档并冻结新发布，旧发布和旧Viewer Run保留。通过`prepare_migrated_run`新建身份/Run和lineage，迁移有效权重、AdamW、scheduler、RNG、游标及best/初始检查点；禁止直接修改旧Run执行身份。
 4. 按已授权MAE独立总计10 Epoch继续，再按匹配条件开展另身份Hybrid对照。正式评价另记RESULTS；工程回放和少量更新不作为表征收益。
+
+当前执行：加速源码提交`e659cccaca3c77271216921f8540e081a47fbbd5`，源码身份`b527b1ea5a5b426a47af0edbf1f9e71f6ef151ca9e9d6f51db60a7f8d587fb36`，168个依赖文件冻结于`release_mae_accelerated_v1/runtime`。首个0号卡启动在模型装入GPU时出现nvcuda64.dll访问异常，尚无optimizer更新；最小CUDA操作也复现。改用同型号空闲1号卡，唯一执行配置差异为`device=cuda:1`，另以`execution_gpu1/run.py`显式设置默认设备，防止同步或统计回到0号卡。未修改冻结模型源码。
+
+`performance/capacity_gpu1_v2/report.json`完整最大A/B1通过（约36.23/32.68秒，allocated约20.44/18.16GiB）；`recovery_gpu1_v1/report.json`8次工程更新后下一步model/optimizer/scheduler/runner/RNG/modes/EMA逐项一致。数据/QA/成员/模型/目标哈希不变，复用47项代码回归及模块证据；设备差异、包装器和配置哈希记录在`execution_gpu1/execution_manifest.json`，新readiness/authorization只绑定该实际执行身份。此前0号卡启动失败及未显式切默认卡的检查保留，不冒充PASS。
+
+当前正式目录`release_mae_accelerated_v1/execution_gpu1/formal_run`，Viewer Run ID `cd7c5ee4fa22441c844bfb93586c1d2b`，来源Run `16b8d41b69ec4224bbb01cc252564f23`。`migration_lineage.json`记录原last.pt哈希及165次继承更新；best、AdamW有效V动量、scheduler、RNG、采样游标、初始化VAL和最佳指标均继承，新Run从166步写入真实更新。总预算2330更新（10 Epoch），不是另加10 Epoch；L128、FP32、Batch32、A/B1权重及每轮4次完整VAL和回退停止条件不变。实时进度以status.json/updates.jsonl及真实checkpoint为准，当前运行不等于已完成预算或证明下游有效。

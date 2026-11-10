@@ -1,6 +1,6 @@
 # Encoder V3-H：层次化混合地表表征架构设计
 
-状态：核心约束为both / neighbor / parallel；实施候选已实现，完整加速与符合性仍在验收。首段按用户新要求安全停在165次更新，未完成Epoch。适用于`dev/encoder-v3-sensor-memory-v1`；配套依据：[实施计划](V3-H_IMPLEMENTATION_PLAN.md)。
+状态：核心约束为both / neighbor / parallel；实施候选已完成加速及工程检查。用户明确“开始训练”后，从165次更新在新冻结加速发布续跑独立MAE，总预算10 Epoch；同批前缀证明加速，不冒称完整Epoch或表征有效性。实际配置和迁移边界见[实施计划](V3-H_IMPLEMENTATION_PLAN.md)。适用于`dev/encoder-v3-sensor-memory-v1`。
 
 用户后续明确要求“继续完成试验进入训练”。原文档阶段的只读范围由此扩展为实现、工程试验及门禁后的训练；已停止的旧作业不恢复。首版P0细则见§14，未验收项不得作为正式结果。
 

@@ -55,9 +55,9 @@
 
 ### V3-H首段独立MAE
 
-用户先前选择独立MAE10 Epoch后再做Hybrid；随后明确要求先完成完整加速和实现符合性验收再试验。首段已安全STOPPED165，原源码提交`9929ca1`与`outputs/encoder_v3/hierarchical/release_mae_v1`保留不改，Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`。完整383VAL初始化2.1678077669 z²；当前没有完成Epoch或表征有效结论，Hybrid未正式启动。最新停止边界优先于旧authorization/readiness，不能凭旧文件自动恢复。
+用户先前选择独立MAE10 Epoch后再做Hybrid；加速验收后又明确“开始训练”。原源码提交`9929ca1`、`release_mae_v1`和Viewer Run `16b8d41b69ec4224bbb01cc252564f23`的STOPPED165记录保留不改；新冻结源码为加速提交`e659ccc`，发布位于`outputs/encoder_v3/hierarchical/release_mae_accelerated_v1`，执行目录`execution_gpu1/formal_run`，新Viewer Run `cd7c5ee4fa22441c844bfb93586c1d2b`。已迁移165更新及best/AdamW/scheduler/RNG/游标并产生第166次真实更新，预算仍总计10 Epoch/2330更新，Hybrid未启动。
 
-当前同一任务`encoder-v3-h-implementation-training`处于ACCELERATION_AND_PLAN_CONFORMANCE。用户明确不需要等待完整Epoch，两条长回放已停止；相同前183批及3次完整VAL的证据足以支持实际加速（训练约1.35倍）。候选补充Token支持率、分项梯度、完整状态比较和实际跨代码身份迁移CLI，独立47项CPU测试及最终最大原生A/B1容量通过。新源码仍须冻结发布并重新绑定验收；原冻结源码/权重/原Run日志不原地改动。跨代码身份续段需新Run及来源谱系，不能伪造旧Run同身份恢复；完整Epoch耗时和研究有效性不由前缀测速替代。
+同一任务`encoder-v3-h-implementation-training`进入ACCELERATED_MAE_TRAINING。相同前183批及3次完整VAL支持实际加速（训练约1.35倍），两条长回放已按用户要求停止。候选47项CPU测试、完整状态恢复和最大A/B1容量通过；启动时0号卡nvcuda驱动访问异常发生于更新前，改用同型号1号卡并通过该卡最大A/B1及逐项状态恢复，显式设备选择包装器、配置唯一device差异及哈希绑定到execution_manifest/readiness。新Run保留来源谱系，原Run日志不改；完整Epoch耗时和研究有效性不由前缀测速替代。
 
 ### 旧共享描述器MAE与历史暂停作业
 
