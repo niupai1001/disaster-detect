@@ -914,3 +914,13 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 固定四来源TRAIN、同A遮盖、64次独立工程更新的平均MSE为0.53569→0.14755，四来源跨波段预测RMS均保持非零（EnMAP/L8/L9/S2约0.115/0.196/0.061/0.209）；卷积与融合/输出Embedding均有非零梯度。S2和L9仍差于可见均值，不称颜色/光谱已解决。首版learning_v1因EnMAP含QA无效通道导致光谱交集为空，诊断FAILED保留；修正统计后learning_v2从相同随机初始化重跑，通过且损失逐步一致，原始数据/模型/目标不变。通过门禁的工程更新67次（pipeline3+learning64），含失败诊断重跑实际131次，均不进入正式权重或预算。
 
 正式短段已从0启动：Run dde013a749f5431abb20aea2a587eb6d，源码0ff7831d07b3aebd45875a17a8d6f7356090750b、174文件冻结于release_descriptor_free_v1/runtime，identity.code=5c160ad7…。初始参数SHA cf3da97b16f48b844d5a495c90c0cf8a56eeef793bd5be1572c6a99518082ac3与工程随机初始化一致，未加载任何checkpoint；完整383VAL初始2.1762696610，前5步已核验实际更新、仅A任务与checkpoint。实际预算233更新，训练开始不等于预算完成或验证通过；第一批10.78秒为冷态单批，不能外推一轮或套用有限热态速度比较。[启动证据](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/training_started.json)、[实时状态](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/formal_run/status.json)及[原配置](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/formal_run/config.json)保留身份。
+
+### 无物理描述器首轮短段完成结果
+
+本次已TRIAL_COMPLETE，233/233更新、1.0 Epoch、7442唯一TRAIN观测，末批18；未自动续训，不代表完成配置所保留的十轮学习率日程。第0/59/117/175/233步完整383VAL分别为2.1762696610/1.9905551796/0.7556552930/0.5537001927/0.4689640854；最佳为233步。原描述器同一首轮233步为0.4831257753，新段约低2.9%，这是单次整体替换对照，未建立统计显著性或单模块因果结论。
+
+同一VAL、遮盖、QA及归约的可见通道均值基线为0.2079677751，新模型358/383观测更差。S2模型0.4986466747对基线0.2100780918（316/335更差），L8模型0.2618043470对基线0.1932395235（42/48更差）。因此该首轮仍不构成有效重建质量验收；去掉物理描述器并未证明足以解决问题。首轮仅完成预热，不能据此断言最终优化已收敛，也不能把预算完成等同模型质量通过。
+
+相邻初始/首轮末完整VAL时间差为1178.351391秒，即19分38秒（19.639分钟）；更新计时1063.615269秒（17.727分钟）、验证/保存/日志等差额114.736122秒（1.912分钟），均批4.56487秒。原描述器首轮17.050分钟，本次墙钟约增加15.2%；原第二轮18.954分钟仅作资源波动背景，不用于挑选更有利参照。有限同批前后向约1.187倍的工程速度未转化为整轮加速，两个测量回答不同问题；跨运行资源/缓存条件未完全控制，不能把全部差额直接归因于某个算子或卷积结构。
+
+[完整覆盖、逐来源、验证节点与计时记录](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/trial_completion.json)、[best](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/formal_run/best.pt)、[last](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/formal_run/last.pt)保留本段结果。下一步需结合实际重建和上下文干预定位融合/读出与优化瓶颈，不自动增加训练预算。
