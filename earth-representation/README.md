@@ -140,3 +140,5 @@ python scripts/visualize_shared_mae.py --release outputs/encoder_v3/shared_mae/r
 用户已选择“原含描述器架构随机重训，排除EnMAP”。配置configs/config_v3_h_no_enmap_v1.json保留物理Memory、条件卷积、原波段融合、原层次Encoder和原Decoder；A=1/B1=0/JEPA=0，随机seed17，不加载任何旧或工程权重。exclude_enmap只为本次TRAIN选择原CombinedDataset的光学base，7395观测（S2 5349/L8 1522/L9 524）、232批尾3；VAL383不变。主入口、检查入口和双卡独立读取器都绑定相同配置，update拒绝意外EnMAP训练行；原始数据、统计和所有旧冻结运行不变。
 
 首段max_updates232仅一个完整Epoch，epochs10只保留当前2320步的学习率日程，预热232步，结束TRIAL_COMPLETE。相同随机种子作用于不同成员，洗牌顺序/批次与每轮日程步数随成员变化，因此单次结果不能直接证明EnMAP影响的唯一机制。工程门禁在outputs/encoder_v3/hierarchical/no_enmap；正式运行以release_no_enmap_v1/formal_run为准，不因实验完成自动重新启用EnMAP。
+
+排除EnMAP的正式短段已RUNNING：Run e5a83915eb97484ebb2081f20df44e50，源码e843a0f59bdbb40adda3d24cd34262ed35ac7a8f、175文件冻结于release_no_enmap_v1/runtime。随机初始参数0958271a…与原含EnMAP实验一致，初始383VAL同为2.1474302937；已核验真实A-only更新、checkpoint与已执行前缀零EnMAP输入。实际进度以release_no_enmap_v1/formal_run/status.json及training_started.json为准，max_updates232后TRIAL_COMPLETE，不将启动视为质量改善或因果结论。
