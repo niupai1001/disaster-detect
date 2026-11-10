@@ -99,7 +99,7 @@ enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用�
 
 主Agent负责简洁实现、L9定位、最终门禁绑定、冻结与实际启动；已有独立Agent只读复核mask/足迹/波段条件/学习证据、双卡容量/恢复及最终身份。正式从seed17随机初始化，Encoder和Decoder都训练；工程固定Encoder和128步权重不带入。TRAIN7442/VAL383，233批尾18、6990更新；来源L9/EnMAP日志属于TRAIN，不伪造独立验证。
 
-开训前必须核对cpu_final_v1、precision_final_v2、pipeline_v1、quality_final_v2及独立审查与最终identity一致，复核原初始化/成员与全部冻结文件SHA。首次epoch0上游梯度0属零末层预期，后续真实更新须检查；不得仅以IDW初值好看来宣称表征修复。后续按V3-H_IMPLEMENTATION_PLAN§26推进及维护固定文档，不续写旧冻结源码。
+开训前必须核对cpu_final_v1、precision_final_v2、pipeline_v1、quality_final_v2及独立审查与最终identity一致，复核原初始化/成员与全部冻结文件SHA。首次epoch0上游梯度0属零末层预期，后续真实更新须检查；不得仅以IDW初值好看来宣称表征修复。后续按V3-H_IMPLEMENTATION_PLAN§26推进及维护固定文档，不续写旧冻结源码。 新Run 465f4c87dc6c4882a740517b7a270a56已RUNNING，180文件冻结于release_simple_decoder_v1/runtime；源码d23a9cf…、随机初始23ae61c3…、383VAL初值.14418921195及真实前17步/EnMAP输入已核验，后续状态以formal_run为准。
 
 ### 排除EnMAP的随机原架构短段
 

@@ -1036,3 +1036,6 @@ L9旧示例obs_8d69627e3f5637470adc7041的CPU复核：A-only525/641及排EnMAP23
 ### 本次授权的正式训练
 
 配置config_v3_h_simple_decoder_v1.json：原含描述器Encoder与新Decoder均seed17随机初始化，工程权重丢弃；恢复47 EnMAP，7442 TRAIN/383 VAL，双卡Batch32，233批尾18。30 Epoch共6990更新，前50更新预热（首步2e-6、第50步1e-4）后余弦，每轮4次完整VAL、每批checkpoint；旧正式运行保持原状态。release_simple_decoder_v1只在最终门禁/初始化/冻结字节核对后启动，实际启动与进度以formal_run/status.json和training_started.json为准；此处不把授权或工程成绩写成30轮已完成。
+
+
+正式启动已核验：源码提交`d23a9cf904292b85ed248c1bdaa8a71764aba2d8`，tree `56eccea004dc9238da3630f4d4a92d75a01b801e`，180文件冻结，代码identity `c1aefc7b9d678d606196fe91da3f1a11203a6e255a5066d73658445ce7dfd63f`。新Run `465f4c87dc6c4882a740517b7a270a56`，初始完整383VAL .14418921195233844；实际best0参数SHA `23ae61c30568536a3d9b28b5c746d3e352cfb9bfa5805128a76492d33056f7ec`与门禁随机初始化一致。已核对前17个真实更新/544观测（S2 386、L8 114、L9 43、EnMAP 1）、spent=cursor、只有A任务、每批checkpoint；前17步学习率2e-6升至3.4e-5，符合50步预热，更新均批3.170秒仅为前缀，不是完整Epoch实测。[启动核验](../outputs/encoder_v3/hierarchical/release_simple_decoder_v1/training_started.json)、[实时状态](../outputs/encoder_v3/hierarchical/release_simple_decoder_v1/formal_run/status.json)与实际日志为准；未把零末层基线当学习成绩，30轮仍在执行。两次未启动的冻结工具路径失败已保留并禁用其授权，修复后冻结身份复核通过，不影响模型门禁或旧运行。
