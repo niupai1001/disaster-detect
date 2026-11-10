@@ -284,7 +284,7 @@ class Encoder(nn.Module):
 
 class HierarchicalMAE(nn.Module):
     def __init__(self, *, patch_metres, mask_ratio=.55, encoder_depth=2, lambda_jepa=0., ema_momentum=.996,
-                 frontend='physical_descriptor',channel_keys=None):
+                 frontend='physical_descriptor',channel_keys=None,residual_readout=False):
         super().__init__()
         if not 0<mask_ratio<1 or not 0<=ema_momentum<1 or lambda_jepa<0:
             raise ValueError('Invalid masking, EMA or JEPA weight')
@@ -309,6 +309,11 @@ class HierarchicalMAE(nn.Module):
         self.predictor_output = nn.ModuleList(nn.Linear(128,w) for w in WIDTHS)
         self.register_buffer('ema_updates',torch.zeros((),dtype=torch.long))
         self._layouts = OrderedDict()
+        if type(residual_readout) is not bool:raise ValueError('residual_readout must be boolean')
+        self.residual_readout=residual_readout
+        if residual_readout:
+            # Start from a legal visible-signal baseline; learn only its correction.
+            nn.init.zeros_(self.output[-1].weight);nn.init.zeros_(self.output[-1].bias)
 
     def train(self, mode=True):
         super().train(mode)
@@ -437,7 +442,8 @@ class HierarchicalMAE(nn.Module):
                     supported |= mapping[level].support(c.valid)>0
                 query_valid.append(supported)
             decoded=self.decode(encoded,valids,layout,query_valid)
-            channel_losses,predictions=[],[]
+            channel_losses,predictions,baseline_losses=[],[],[]
+            fallback_flags=[]
             target_flags=torch.stack([mask.any() for mask in targets]).tolist()
             for i,c in enumerate(sample.channels):
                 if not target_flags[i] and not return_predictions:
@@ -446,6 +452,14 @@ class HierarchicalMAE(nn.Module):
                 field=self.readout(decoded[0],conditions['output'][i])
                 predicted=layout[2][i][0].native(field).reshape(c.values.shape)
                 mask=targets[i]
+                if self.residual_readout:
+                    count=keeps[i].sum()
+                    baseline=torch.where(keeps[i],c.values,0.).sum()/count.clamp_min(1)
+                    predicted=predicted+baseline
+                    if target_flags[i]:
+                        baseline_error=torch.where(mask,baseline,0.)-torch.where(mask,c.values,0.)
+                        baseline_losses.append(baseline_error.square().sum()/mask.sum())
+                        fallback_flags.append(count==0)
                 if target_flags[i]:
                     error=torch.where(mask,predicted,0.)-torch.where(mask,c.values,0.)
                     channel_losses.append(error.square().sum()/mask.sum())
@@ -473,7 +487,10 @@ class HierarchicalMAE(nn.Module):
                 jepa=torch.stack(scale_losses).mean()
             loss=mae+self.lambda_jepa*jepa
             losses.append(loss)
-            scalars=torch.stack((mae.detach(),jepa.detach())).cpu().tolist()
+            scalar_values=[mae.detach(),jepa.detach()]
+            if self.residual_readout:
+                scalar_values.extend((torch.stack(baseline_losses).mean().detach(),torch.stack(fallback_flags).sum()))
+            scalars=torch.stack(scalar_values).cpu().tolist()
             visible_counts=torch.stack([v.sum() for v in valids]).tolist()
             target_count=int(torch.stack([t.sum() for t in targets]).sum())
             details.append(dict(id=sample.identifier,task=kind,mae=scalars[0],jepa=scalars[1],
@@ -482,6 +499,7 @@ class HierarchicalMAE(nn.Module):
                 attention_edges=[sum(chunk[2].shape[1] for chunk in e) for e in layout[3]],targets=target_count,
                 predictions=predictions if return_predictions else None,target_masks=targets if return_predictions else None,
                 online_features=encoded if return_predictions else None))
+            if self.residual_readout:details[-1].update(baseline_mae=scalars[2],baseline_fallback_channels=int(scalars[3]))
             if return_objectives:
                 details[-1]['objective_tensors']={'mae':mae,'jepa':jepa,**{f'jepa_scale_{i}':v for i,v in enumerate(scale_losses)}}
         return torch.stack(losses),details

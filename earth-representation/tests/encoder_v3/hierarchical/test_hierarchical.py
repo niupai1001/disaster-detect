@@ -14,6 +14,53 @@ torch.set_num_threads(2)
 torch.use_deterministic_algorithms(True)
 
 
+def test_twenty_update_warmup_preserves_cosine_budget():
+    from encoder_v3.hierarchical.train import warmup_updates,lr_multiplier
+    config={'warmup_steps':20,'warmup_epochs':1.}
+    assert warmup_updates(config,232,2320)==20
+    assert warmup_updates({'warmup_epochs':1.},232,2320)==232
+    parameter=torch.nn.Parameter(torch.zeros(()));opt=torch.optim.SGD([parameter],lr=1e-4)
+    schedule=torch.optim.lr_scheduler.LambdaLR(opt,lambda n:lr_multiplier(n,2320,20))
+    rates=[]
+    for _ in range(22):
+        rates.append(opt.param_groups[0]['lr']);opt.step();schedule.step()
+    assert rates[0]==pytest.approx(5e-6) and rates[19]==pytest.approx(1e-4)
+    assert rates[20]==pytest.approx(1e-4) and rates[21]<rates[20]
+    for invalid in (-1,True,20.5,2320):
+        with pytest.raises(ValueError):warmup_updates(dict(config,warmup_steps=invalid),232,2320)
+
+
+@pytest.mark.parametrize('kind',['A','B1'])
+def test_residual_initialization_is_visible_only_and_reports_baseline(kind):
+    torch.manual_seed(17);original=HierarchicalMAE(patch_metres=4.)
+    torch.manual_seed(17);model=HierarchicalMAE(patch_metres=4.,residual_readout=True)
+    for a,b in zip(original.online.parameters(),model.online.parameters()):assert torch.equal(a,b)
+    s=sample(side=12,channels=3);s.channels[0].valid[0,0]=False
+    loss,details=model([s],kind=kind,return_predictions=True)
+    d=details[0];keeps,targets,_=model.masks(s,model.layout(s),kind,17,0)
+    for c,keep,prediction in zip(s.channels,keeps,d['predictions']):
+        expected=torch.where(keep,c.values,0.).sum()/keep.sum().clamp_min(1)
+        torch.testing.assert_close(prediction,expected.expand_as(prediction),rtol=0,atol=0)
+    assert d['mae']==pytest.approx(d['baseline_mae'])
+    assert d['baseline_fallback_channels']==(sum(bool(mask.any()) for mask in targets) if kind=='B1' else 0)
+    changed=copy.deepcopy(s)
+    for c,mask in zip(changed.channels,targets):c.values[mask]+=100.
+    changed.channels[0].values[0,0]=float('nan')
+    after=model([changed],kind=kind,return_predictions=True)[1][0]['predictions']
+    for a,b in zip(d['predictions'],after):torch.testing.assert_close(a,b,rtol=0,atol=0)
+    opt=torch.optim.AdamW([p for p in model.parameters() if p.requires_grad],lr=1e-3)
+    loss.mean().backward();assert model.output[-1].weight.grad.abs().sum()>0
+    opt.step();opt.zero_grad(set_to_none=True)
+    before=[p.detach().clone() for p in model.online.parameters()]
+    observed=model([s],kind=kind,return_predictions=True)[1][0]['predictions']
+    poisoned=model([changed],kind=kind,return_predictions=True)[1][0]['predictions']
+    for a,b in zip(observed,poisoned):torch.testing.assert_close(a,b,rtol=0,atol=0)
+    model([s],kind=kind)[0].mean().backward()
+    assert any(p.grad is not None and bool(p.grad.abs().sum()>0) for p in model.online.parameters())
+    opt.step()
+    assert any(not torch.equal(a,b) for a,b in zip(before,model.online.parameters()))
+
+
 def test_enmap_exclusion_is_config_bound_and_train_only(monkeypatch):
     from types import SimpleNamespace
     from encoder_v3.hierarchical import train
@@ -82,7 +129,8 @@ def test_static_batched_convolution_matches_expanded_grouped_path():
     torch.testing.assert_close(a,b,atol=2e-6,rtol=1e-5)
 
 
-def test_descriptor_free_short_trial_stops_without_shortening_lr_schedule(tmp_path,monkeypatch):
+@pytest.mark.parametrize('residual',[False,True])
+def test_short_trial_stops_without_shortening_lr_schedule(tmp_path,monkeypatch,residual):
     import json,sys
     from encoder_v3.hierarchical import train
     class Dataset:
@@ -95,6 +143,7 @@ def test_descriptor_free_short_trial_stops_without_shortening_lr_schedule(tmp_pa
     monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:ds.samples[i])
     binding={'test':'descriptor-free-short'};monkeypatch.setattr(train,'identity',lambda *args:binding)
     config=json.loads(Path('configs/config_v3_h_descriptor_free_v1.json').read_text())
+    if residual:config.update(frontend='physical_descriptor',residual_readout=True,warmup_steps=20,epochs=11)
     config.pop('devices');config.update(device='cpu',patch_metres=4.,batch_size=2,max_updates=2,
         channel_keys=[['test','0'],['test','1']],viewer_root=str(tmp_path/'viewer'))
     cfg=tmp_path/'config.json';cfg.write_text(json.dumps(config))
@@ -103,7 +152,13 @@ def test_descriptor_free_short_trial_stops_without_shortening_lr_schedule(tmp_pa
     folder=tmp_path/'run';monkeypatch.setattr(sys,'argv',['train','--config',str(cfg),'--authorization',str(auth),'--readiness',str(gate),'--run-dir',str(folder)])
     train.main();payload=torch.load(folder/'last.pt',weights_only=False)
     assert payload['runner']['cursor']==2 and payload['runner']['status']=='TRIAL_COMPLETE'
-    assert payload['scheduler']['last_epoch']==2 and payload['optimizer']['param_groups'][0]['lr']==config['lr']
+    assert payload['scheduler']['last_epoch']==2
+    assert payload['optimizer']['param_groups'][0]['lr']==pytest.approx(config['lr']*(3/20 if residual else 1))
+    if residual:
+        result=json.loads((folder/'validation_2.json').read_text())
+        assert result['baseline_metric']==pytest.approx(result['members'][0]['tasks']['A']['baseline_mae'])
+        initial=json.loads((folder/'validation_0.json').read_text())
+        assert initial['metric']==pytest.approx(initial['baseline_metric'])
 
 
 @pytest.mark.parametrize('side,gsd,length',[(17,1.3,5.7),(19,2.1,12.8),(637,1.,128.)])

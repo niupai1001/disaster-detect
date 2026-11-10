@@ -254,7 +254,8 @@ def main():
     steps=sorted(k for k in validation if short_trial or k>=175)
     validation_view='固定验证：含初始化的完整短段' if short_trial else '固定验证：175步起的后段放大'
     axes[1].plot([plan.progress(k) for k in steps],[validation[k] for k in steps],'o-',ms=3,color='#dc2626',label='固定383VAL');axes[1].axhline(metric,color='#2563eb',ls='--',label=f'最佳{metric:.5f}');axes[1].set_title(validation_view);axes[1].legend(fontsize=8)
-    axes[2].plot(x,[r['lr'] for r in updates],color='#059669');axes[2].set_title('实际学习率：本段仅预热' if state['epoch']<=config['warmup_epochs'] else '实际学习率：预热＋余弦');axes[2].set_ylabel('学习率')
+    warmup=config.get('warmup_steps',round(config['warmup_epochs']*len(plan)))
+    axes[2].plot(x,[r['lr'] for r in updates],color='#059669');axes[2].set_title('实际学习率：本段仅预热' if state['cursor']<=warmup else '实际学习率：预热＋余弦');axes[2].set_ylabel('学习率')
     for ax in axes:ax.set_xlabel('Epoch进度');ax.grid(alpha=.2)
     for ax in axes[:2]:ax.set_ylabel('MSE / z²')
     context='运行快照' if args.live_source else ('短段已完成' if short_trial else ('已完成' if state['status']=='COMPLETE' else '已暂停'))

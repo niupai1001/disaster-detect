@@ -1,0 +1,40 @@
+{
+  "architecture": "hierarchical_v3_h",
+  "objective": "observation_equal",
+  "patch_metres": 128.0,
+  "scale_policy": "finest_loaded_native_gsd_xy_times_2_and_4_nested_at_L",
+  "mask_ratio": 0.55,
+  "encoder_depth": 2,
+  "lambda_jepa": 0.0,
+  "ema_momentum": 0.996,
+  "task_weights": {
+    "A": 1.0,
+    "B1": 0.0
+  },
+  "epochs": 10,
+  "batch_size": 32,
+  "micro_batch_observations": 1,
+  "micro_batch_pixels": 1048576,
+  "prefetch_observations": 2,
+  "seed": 17,
+  "validation_seed": 1729,
+  "device": "cuda:1",
+  "precision": "float32",
+  "deterministic": true,
+  "lr": 0.0001,
+  "weight_decay": 0.04,
+  "clip_norm": 3.0,
+  "warmup_epochs": 0.0,
+  "validations_per_epoch": 4,
+  "checkpoint_every_batches": 1,
+  "viewer_root": "N:/Users/yzh/Disater/earth-representation/training-runs",
+  "devices": [
+    "cuda:1",
+    "cuda:0"
+  ],
+  "frontend": "physical_descriptor",
+  "exclude_enmap": true,
+  "max_updates": 232,
+  "warmup_steps": 20,
+  "residual_readout": false
+}

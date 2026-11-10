@@ -956,6 +956,28 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 
 [汇总与约束](../outputs/encoder_v3/hierarchical/structure_diagnosis/summary.json)、[原Decoder](../outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_original_v1/report.json)、[目标波段调制](../outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_band_film_v1/report.json)、[不更新权重的输出分析](../outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_film_analysis_v3/report.json)及[上下文干预](../outputs/encoder_v3/hierarchical/structure_diagnosis/intervention_v1/report.json)保留证据。复现入口为.project/v3_h_frozen_encoder_decoder_probe.py和.project/v3_h_structure_probe.py。全部新增更新仅在独立工程副本，未恢复任何正式预算；当前候选尚未通过正式质量验收。首版地理Patch留出计算触发空集断言，分析在任何拟合前失败、无更新；v2改用确定性随机Patch留出后通过，失败目录保留。
 
+## 可见信号基线与信息路径诊断
+
+本节为无训练基线和机制诊断，不是新正式模型成绩。比较对象严格为下节排除EnMAP的原物理架构best232，沿用官方validation_232.json的383观测、A遮盖seed1729/epoch0、原生QA和冻结TRAIN逐通道统计。隐藏有效像元MSE先通道平均再观测平均；S2 335/L8 48，无EnMAP/L9独立VAL。
+
+| 方法 | 完整383 VAL | S2 | L8 |
+|---|---:|---:|---:|
+| 原物理模型232步 | 0.49616072 | 0.52802481 | 0.27377593 |
+| 同波段合法可见均值 | 0.20796777 | 0.21007809 | 0.19323952 |
+| 最近可见原生像元 | 0.17233384 | 0.17944688 | 0.12269074 |
+| 最近8点逆距离平方加权 | **0.14418921** | **0.15053470** | **0.09990300** |
+| 最近8点加权局部平面外推 | 0.78320368 | 0.86348471 | 0.22290902 |
+
+IDW8使用米制原生中心距离、只读同波段valid&visible值，权重和为1；nearest/IDW是可见值的固定线性映射。局部平面以查询为中心、相对坐标/minGSD，固定ridge diag(1e-8,.01,.01)，不拟合隐藏truth、不裁剪外推。A将同位置所有波段遮住，本次没有非法同位置光谱输入。无可见值退回标准化0；本面板无此fallback。383成员模型均值与官方metric精确核对，可见均值与独立旧诊断相差<1e-7。CPU两线程47.47秒，optimizer更新0、未用GPU，不构成训练速度比较。
+
+模型382/383观测差于IDW8（S2 334/335、L8 48/48），总体MSE约3.44倍。IDW8跨全场找最近8个合法像元，没有固定物理半径；124/383观测存在最近可见点远于256m的隐藏像元，最大单观测通道均值占比约2.064%。这支持“现模型没用好可见信号”，不支持“任意局部线性法都更好”“Token丢失全部信息”或“仅一轮预热已充分收敛”。局部平面外推失败也保留报告。
+
+![完整VAL可见信号基线](../outputs/encoder_v3/hierarchical/reconstruction_research/baseline_summary.png)
+
+[逐观测证据](../outputs/encoder_v3/hierarchical/reconstruction_research/native_baselines_v1/report.json)绑定冻结身份、脚本SHA和方法。复现入口为仓库.project/v3_h_native_baselines.py，绘图为.project/v3_h_reconstruction_research_summary.py。源权重和冻结runtime未修改。本面板已用于开发，后续最终泛化结论需独立评价，不能宣称未接触测试集。
+
+20步预热和可见均值输出残差已实现为可关闭候选，默认旧路径保留。48项层次模型CPU回归通过，含A/B1泄漏、QA无效、空支持回退、初始化Encoder一致、第二次反向上游梯度、真实短段入口/基线记录和LR日程；见reconstruction_research/cpu_v3.xml。此证据不包含新候选GPU容量、双卡等价、恢复、速度或正式训练；初始预测等于均值是零末层构造，不计学习收益。设计知识和待检验机制见[DESIGN](DESIGN.md#重建失败的信息路径与修正方向)。
+
 ## 原含描述器架构排除EnMAP的短段对照
 
 用户明确要求暂停EnMAP训练输入并选择原架构随机重训。新配置config_v3_h_no_enmap_v1.json：原物理Memory/条件卷积/波段融合/层次Encoder/Decoder，A-only、FP32、双卡Batch32，seed17、L128、mask0.55、原统计与QA不变。新TRAIN7395仅排除47条EnMAP，S2 5349/L8 1522/L9 524，VAL383成员和身份逐项不变；一轮232批、尾3、覆盖一次。初始参数SHA0958271abbe57a2c505f3716cbdcd1291e253e61d0880d430c43396678b84057与原含描述器A-only完全一致，不加载任何checkpoint。

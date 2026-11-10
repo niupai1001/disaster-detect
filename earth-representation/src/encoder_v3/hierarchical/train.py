@@ -39,7 +39,7 @@ def load_data(config=None):
 def build_model(config):
     validate_config(config)
     return HierarchicalMAE(**{k:config[k] for k in ('patch_metres','mask_ratio','encoder_depth','lambda_jepa','ema_momentum')},
-        frontend=config.get('frontend','physical_descriptor'),channel_keys=config.get('channel_keys'))
+        frontend=config.get('frontend','physical_descriptor'),channel_keys=config.get('channel_keys'),residual_readout=config.get('residual_readout',False))
 
 
 def sample_from_dataset(dataset,index,resolver,device):
@@ -57,6 +57,8 @@ def validate_config(config):
         raise ValueError('Unknown frontend')
     if 'max_updates' in config and (type(config['max_updates']) is not int or config['max_updates']<1):
         raise ValueError('Positive short-trial update limit required')
+    if 'warmup_steps' in config and (type(config['warmup_steps']) is not int or config['warmup_steps']<0):
+        raise ValueError('Nonnegative integer warmup_steps required')
     for key in ('epochs','batch_size','micro_batch_observations','micro_batch_pixels','encoder_depth','validations_per_epoch','checkpoint_every_batches'):
         if type(config.get(key)) is not int or config[key]<1:raise ValueError('Positive integer '+key+' required')
     if not 0<=config['warmup_epochs']<config['epochs']:raise ValueError('Invalid warmup')
@@ -74,6 +76,12 @@ def enabled_tasks(model,sample,config):
     kinds=[kind for kind in model.available_tasks(sample) if config['task_weights'][kind]>0]
     if not kinds:raise ValueError('No enabled task has valid context and targets')
     return kinds
+
+
+def warmup_updates(config,batches,total):
+    value=config.get('warmup_steps',round(config['warmup_epochs']*batches))
+    if type(value) is not int or not 0<=value<total:raise ValueError('Invalid warmup update count')
+    return value
 
 
 def identity(config,datasets,resolver):
@@ -186,7 +194,10 @@ def validate(model,dataset,resolver,optimizer,scheduler,state,config,rows=None,p
         if parallel is None:value,records=batch_loss(model,dataset,panel,resolver,fixed,epoch=0)
         else:value,records=parallel.evaluate(panel,fixed)
     if parallel is not None:parallel.broadcast()
-    return dict(metric=value,observations=len(records),members=records)
+    result=dict(metric=value,observations=len(records),members=records)
+    if config.get('residual_readout'):
+        result['baseline_metric']=sum(sum(v['task_weight']*v['baseline_mae'] for v in m['tasks'].values()) for m in records)/len(records)
+    return result
 
 
 def writer_for(config,binding,state,run_dir,resuming):
@@ -198,8 +209,11 @@ def writer_for(config,binding,state,run_dir,resuming):
         return RunWriter(state['viewer']['directory'],resume=True)
     names={'train_loss':'训练批次综合损失','val_loss':'完整验证综合损失','mae_loss':'原生重建MSE',
            'jepa_loss':'潜在预测损失','gradient_norm':'裁剪前梯度范数','learning_rate':'学习率','update_seconds':'批次耗时'}
+    if config.get('residual_readout'):names.update(baseline_loss='当前训练批可见均值基线',val_baseline_loss='固定验证可见均值基线')
     metrics={k:dict(label=v,unit='z²' if k=='mae_loss' else '',direction='min' if 'loss' in k else 'none',role='loss' if 'loss' in k else 'other') for k,v in names.items()}
-    if config.get('exclude_enmap'):variant_id,variant_name='mae-no-enmap','层次MAE · 排除EnMAP的A'
+    if config.get('residual_readout'):variant_id,variant_name='mae-visible-residual','层次MAE · 可见信号残差A'
+    elif config.get('warmup_steps')==20:variant_id,variant_name='mae-warmup20-control','层次MAE · 20步预热对照'
+    elif config.get('exclude_enmap'):variant_id,variant_name='mae-no-enmap','层次MAE · 排除EnMAP的A'
     elif config.get('frontend')=='shared_static_band_embedding':variant_id,variant_name='mae-no-descriptor','层次MAE · 无描述器A'
     elif config['task_weights']['B1']==0:variant_id,variant_name='mae-a-only','层次MAE · 仅空间重建A'
     elif config['lambda_jepa']==0:variant_id,variant_name='mae','层次MAE'
@@ -239,7 +253,8 @@ def main():
     plan=EpochPlan(datasets['TRAIN'].rows,config['seed'],config['batch_size'])
     runtime=dict(config,batches_per_epoch=len(plan),run_dir=str(args.run_dir));total=len(plan)*config['epochs']
     limit=min(total,config.get('max_updates',total))
-    scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda n:lr_multiplier(n,total,round(config['warmup_epochs']*len(plan))))
+    warmup=warmup_updates(config,len(plan),total)
+    scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda n:lr_multiplier(n,total,warmup))
     state=dict(cursor=0,spent_updates=0,status='RUNNING',best=None)
     if args.resume:resume(args.resume,model,optimizer,scheduler,state,binding);reconcile_logs(args.run_dir,state)
     parallel=None
@@ -258,7 +273,9 @@ def main():
                 state['initial_validation']=dict(metric=result['metric'],observations=result['observations'])
                 state['best']=result['metric'];state['validation_regressions']=0
                 write(args.run_dir/'validation_0.json',result)
-                writer.log(step=0,epoch=0.,values=dict(val_loss=result['metric']))
+                values=dict(val_loss=result['metric'])
+                if config.get('residual_readout'):values['val_baseline_loss']=result['baseline_metric']
+                writer.log(step=0,epoch=0.,values=values)
                 save(args.run_dir/'best.pt',model,optimizer,scheduler,state,binding)
                 save(args.run_dir/'last.pt',model,optimizer,scheduler,state,binding)
             state['phase']='TRAINING'
@@ -283,16 +300,20 @@ def main():
                         total=sum(config['task_weights'][k] for k in member['tasks'])
                         means.append(sum(config['task_weights'][k]*v[key] for k,v in member['tasks'].items())/total)
                     return sum(means)/len(means)
-                writer.log(step=state['cursor'],epoch=record['epoch'],values=dict(train_loss=record['loss'],
+                values=dict(train_loss=record['loss'],
                     mae_loss=term_mean('mae'),jepa_loss=term_mean('jepa'),
-                    gradient_norm=record['gradient_norm'],learning_rate=record['lr'],update_seconds=record['seconds']))
+                    gradient_norm=record['gradient_norm'],learning_rate=record['lr'],update_seconds=record['seconds'])
+                if config.get('residual_readout'):values['baseline_loss']=term_mean('baseline_mae')
+                writer.log(step=state['cursor'],epoch=record['epoch'],values=values)
                 due=plan.validation_due(state['cursor'],config['validations_per_epoch'])
                 if due:
                     result=validate(model,datasets['VAL'],resolver,optimizer,scheduler,state,runtime,parallel=parallel)
                     state['validation_regressions']=state.get('validation_regressions',0)+1 if result['metric']>state['best']*1.1 else 0
                     state['validation']=dict(metric=result['metric'],observations=result['observations'])
                     write(args.run_dir/f"validation_{state['cursor']}.json",result)
-                    writer.log(step=state['cursor'],epoch=record['epoch'],values=dict(val_loss=result['metric']))
+                    values=dict(val_loss=result['metric'])
+                    if config.get('residual_readout'):values['val_baseline_loss']=result['baseline_metric']
+                    writer.log(step=state['cursor'],epoch=record['epoch'],values=values)
                     if result['metric']<state['best']:
                         state['best']=result['metric'];save(args.run_dir/'best.pt',model,optimizer,scheduler,state,binding)
                 if due or state['cursor']%config['checkpoint_every_batches']==0:save(args.run_dir/'last.pt',model,optimizer,scheduler,state,binding)

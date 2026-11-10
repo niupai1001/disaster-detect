@@ -93,6 +93,12 @@ enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用�
 
 独立Agent只读复核，工程同样本对照不得替代完整VAL、图像质量或整轮成本验收；缓存Encoder特征的短段时间不能外推真实数据吞吐。两均匀/纹理TRAIN控制、输入与端口干预、目标已知或留Patch探针均注明各自因果边界；下一步继续限定Decoder，不自行删除物理Encoder或扩展正式预算。
 
+### 重建信息路径研究与候选实施职责
+
+当前排查由本聊天持有`encoder-v3-h-residual-short-warmup`：`.project/v3_h_native_baselines.py`、`.project/v3_h_reconstruction_research_summary.py`、hierarchical model/train及测试、两份warmup20/residual配置、可视化LR兼容、对应设计/结果与`outputs/encoder_v3/hierarchical/reconstruction_research`。阶段为研究/CPU候选验证完成，所有正式训练保持停止。已有独立Agent仅只读审查；不能把本研究认领解释为启用新的正式预算。
+
+后续按V3-H_IMPLEMENTATION_PLAN§26分阶段认领：先验证合法基线/信息定位，再做原Encoder冻结的原生位置Decoder，必要时再独立修改融合保留信息。不得把同位置隐藏光谱输入、全场IDW与限半径Decoder混为同口径；不得用新增原生值旁路的收益证明原Token已保留信息。候选未通过新身份GPU容量、双卡等价与恢复前，不冻结为正式发布或启动训练。
+
 ### 排除EnMAP的随机原架构短段
 
 用户在Decoder诊断后明确选择原含描述器架构随机重训、排除EnMAP。新任务encoder-v3-h-no-enmap-trial持有train/check/parallel配置传递、对应测试、config_v3_h_no_enmap_v1、.project/v3_h_no_enmap_gate.py、no_enmap/release_no_enmap_v1及可视化兼容。该任务不继承“冻结旧Encoder”的工程路径：原Encoder与原Decoder均随机初始化、均训练；Decoder工程候选只保留为独立诊断。

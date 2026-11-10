@@ -934,3 +934,22 @@ Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1
 质量门禁不能只比较固定TRAIN通道均值；需报告合法的可见通道均值基线，区分工程学习和正式VAL，关注跨波段归一化输出是否仍几乎相同。速度用同批同设备的原描述器A-only对照，记录原生Token/目标、并发条件、冷/热态与峰值显存；不依据参数量承诺加速、不用最大场景数字概括普通批次。
 
 本短段已启动：源码0ff7831d07b3aebd45875a17a8d6f7356090750b，174文件冻结，运行目录release_descriptor_free_v1/formal_run，Viewer dde013a749f5431abb20aea2a587eb6d。全部门禁identity与冻结运行相同，随机初始参数cf3da97b…、初始383VAL2.1762696610及前5次真实更新已核验。engineering权重未加载，旧A-only704与AB1312保持停止。现已完成max_updates233并标记TRIAL_COMPLETE，1Epoch完整覆盖；末态VAL0.468964仍差于可见均值0.207968，整轮19.639分钟，结果不构成质量通过或整轮加速。旧运行保持停止，后续预算依用户指令决定。
+
+## 26. 重建信息路径修正候选
+
+本段依据用户要求搜索、整理并解决重建失败；细则见主DESIGN“重建失败的信息路径与修正方向”与V3-H_DESIGN§16。全部正式运行保持停止。R0完成不意味着R1–R4完成，CPU候选不冒充训练就绪。后续实施必须逐条把本节设计映射到实际张量、调用方、配置、测试和产物。
+
+初始化分开：R1/R2的冻结Encoder定位使用release_no_enmap_v1的best232及原始哈希，只在独立工程副本优化Decoder，不续写正式Run；旧best641仅为历史证据。两份warmup20/residual配置则是全模型seed17随机初始化的另一组对照，不使用冻结Encoder缓存或任何工程权重。两类比较分别记账，不交叉归因或外推速度。
+
+| 阶段/依赖 | 可执行任务与责任 | 验收门禁 |
+|---|---|---|
+| R0，无依赖；已完成 | 主Agent检索MAE/MultiMAE/CrossMAE/AnySat/SatMAE/SpectralMAE/LIIF一手来源；复用冻结383VAL，补mean/nearest/IDW8/local affine基线和图；独立Agent只读复核 | QA/mask/统计/归约一致、禁止隐藏目标参与预测，官方模型metric复核、CPU无GPU无模型更新；382/383差于IDW8的限制完整记录 |
+| R1，依赖R0 | 诊断Agent职责：同一固定TRAIN缓存比较原Decoder、warmup20原Decoder、warmup20+残差；冻结原Encoder做原生位置Decoder的匹配工程对照。取融合前/后与不同深度合法可见特征做相同上下文读出探针，探针仅用TRAIN拟合 | 20步LR确为第1更新peak/20、第20更新peak，余弦仍用完整日程；zero head初始baseline不计学习收益；下一次有效更新有上游梯度/参数变化；隐藏/QA值污染不影响预测。当前48项CPU回归只覆盖已实现候选，不代表探针或新Decoder已完成 |
+| R2，依赖R1定位 | 实现Agent职责：保留原物理Encoder，增加band/位置/footprint查询；有界K读取可见F/M及Coarse，按Fine/band复用上下文、低维头逐原生位置输出；初次用冻结Encoder隔离Decoder | 所有查询来源合法、远程与空邻域回退明确、跨Fine足迹数值正确；目标mask/band/region分块与不分块值/梯度一致；原生值旁路如存在必须另命名、另消融，不能宣称旧Token充分 |
+| R3，依赖R2；条件分支 | 仅在融合前合法特征明显好于融合后时，实施Agent单独保留光谱组/逐band低维信息或乘法条件Value；同步设计和代码映射 | 与相同Decoder/预算/掩膜对照；不一次叠加多项融合替换；不把摘要数学碰撞当作真实图像因果证明。若R2已解决，不为完善架构强行改Encoder |
+| R4，依赖最终候选 | 性能与审查职责：真实代表批次和最大原生场景逐段profiling，检查前后向、双卡、恢复和全部身份；独立Agent复核隔离、足迹与成本证据 | 数据读入/几何/前端/主干/Decoder/反向/传输/保存分别计时；按实际像元/Token/边数记录，含autograd峰值、冷/热态；完整checkpoint下一步一致；不以参数数或分块推断加速，不预设Epoch门槛 |
+| R5，依赖R4与用户对应训练范围 | 最终候选冻结新源码/配置/成员身份；正式启动与工程权重分离，按当前授权预算执行，不自动扩到十轮/B1/Hybrid | 同固定面板总体及S2/L8分别超过合法IDW参照，并报告收益分布、物理MAE/光谱误差与隐藏区边缘误差；均匀/纹理病例均画统一尺度图。若只达均值或只改光度，不能标记修复。后续泛化另用独立评价 |
+
+R1的现有可选配置为config_v3_h_warmup20_control_v1.json和config_v3_h_residual_v1.json；不带resume、不载旧工程权重、A1/B0/JEPA0、排EnMAP、20步预热。候选尚缺新身份GPU容量/等价/恢复/性能，不能复用旧发布的门禁直接启动。baseline_loss与val_baseline_loss记录合法均值参照，必须同时报告相对更强IDW8的增量。B1若恢复，另做TRAIN拟合的光谱线性基线；A全部波段隐藏时禁止引入同位置光谱truth。
+
+实现核对清单：mask→keep/target权限；几何→动态分区、查询原生坐标/footprint及跨Fine组合；前端→物理描述器和Encoder冻结范围；上下文→可见F/M来源、K与fallback；读出→逐原生位置自由度；损失→同QA/TRAIN统计/像元通道观测归约；执行→实际20更新预热、短段上限、分块值/梯度与全状态恢复；评价→同面板baseline增量、图像/光谱/细节与真实耗时。每项引用代码函数、相应测试和绑定报告，不能仅勾选“代码完成”。
