@@ -27,7 +27,7 @@ def main():
     plan=EpochPlan(sets['TRAIN'].rows,17,32);assert len(plan)==233 and len(plan.batch(232))==18
     coverage=[r['id'] for i in range(len(plan)) for r in plan.batch(i)];assert len(coverage)==len(set(coverage))==7442
     counts={s:sum(r['sensor']==s for r in sets['TRAIN'].rows) for s in ('S2','L8','L9','EnMAP')};assert counts=={'S2':5349,'L8':1522,'L9':524,'EnMAP':47}
-    release=ROOT/'outputs/encoder_v3/hierarchical/release_simple_decoder_v1';runtime=release/'runtime';runtime.mkdir(parents=True,exist_ok=False)
+    release=(ROOT/'outputs/encoder_v3/hierarchical/release_simple_decoder_v1').resolve();runtime=release/'runtime';runtime.mkdir(parents=True,exist_ok=False)
     paths=subprocess.check_output(['git','ls-files','src/encoder_v3','configs','scripts/run_v3_h.py','scripts/visualize_v3_h.py','tests/encoder_v3/hierarchical','tests/encoder_v3/shared_mae'],cwd=ROOT,text=True).splitlines()
     manifest={}
     for name in paths:
