@@ -920,3 +920,5 @@ Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1
 取消B1的减负单列：相同候选代码/同Batch32，AB→A-only约11.58→4.89秒及6.78→4.46秒；这是任务工作量变化，不计入等价代码优化倍数。当前没有新完整Epoch耗时实测，不预设时间门槛。可训练参数和模型信息流不变，不能仅因参数少而保证高吞吐。
 
 顺序：提交当前源码/配置/测试和文档→冻结新身份并核验全部门禁绑定→签发本次用户明确授权（随机初始化A-only10 Epoch）→新Run不带resume启动→确认初始化383VAL和真实更新、每批checkpoint及A-only日志。旧Run保持STOPPED1312及原SHA。A-only VAL与旧综合0.4444不是同一指标，旧best932的A单项0.4156507235仅作相同固定面板开发参照。后续以A重建和RGB/光谱误差检查质量，不仅看平台，不静默启用B1或Hybrid。
+
+正式启动已执行：源码提交`8172965077e4b9f4d788dd4e7252da8cb4dd9a4c`、tree `1a163e4c4a59434bd27b2a61583da40a16fd996f`，release_a_only_v1/runtime冻结172文件，代码身份`332f0705bccc9fc6cb4baedfb6a2ebb2fe353ccf6d21b2143fcd34b40b5b90c5`。新Run `65525b250ad34747a6024a2cea636754`，从cursor0/spent0、不带resume启动；随机初始best0参数SHA `0958271abbe57a2c505f3716cbdcd1291e253e61d0880d430c43396678b84057`与门禁seed17一致。完整383VAL初值2.1474302937264502（A-only），已核验前28步只有A任务且checkpoint落盘；数据计划和实际状态见formal_run，不能把本启动前缀当作一轮实测或质量改善结论。

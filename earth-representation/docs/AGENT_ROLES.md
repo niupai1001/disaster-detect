@@ -67,6 +67,8 @@
 
 enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用任务，A-only光谱选择隐藏空间位置，不执行B1。几何门禁逐边对照旧归一化Chebyshev谓词（含nextafter半径/小数GSD/大图CSR），不扩大邻域。双卡VAL在worker内关闭梯度、使用独立数据适配器，事务恢复主/副模式。独立55项CPU审查、CUDA旧A对照、最大原生双卡容量、25批异步稳定与完整恢复通过后才新冻结启动。32次固定四源TRAIN工程学习只作可学习性/颜色诊断，不计正式预算；实际正式Run仍从0随机初始化。
 
+新任务已进入A_ONLY_TRAINING：release_a_only_v1/runtime冻结172文件、源码提交8172965，Viewer Run `65525b250ad34747a6024a2cea636754`，mae-a-only方案独立显示。初始化383VAL2.1474302937，best0参数哈希与随机seed17一致；前28步已核对只有A日志、实际optimizer更新及checkpoint，spent=cursor无旧成本继承。10 Epoch为本段新上限，旧AB任务仍paused_by_user/STOPPED1312。正式运行与工程35次独立更新分开；当前进度见新发布status.json，不由本页启动快照外推收敛或完整Epoch速度。
+
 ### 旧共享描述器MAE与历史暂停作业
 
 共享描述器与地理Patch MAE的首段正式训练已正常完成10Epoch、2330次更新，状态COMPLETE。最佳点为第10轮末，best与last模型权重一致；没有因查看结果、可视化或文档维护自动续训。旧LR第255步继续保持原暂停状态，旧冻结源码和检查点不改写。
