@@ -895,4 +895,8 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 
 典型S2/L8隐藏RGB物理MAE约0.01900/0.01463，但预测明显偏平滑、块状，田块边界没有恢复。所选9案例A-MSE均优于同目标TRAIN均值基线，不代表整个VAL所有场景均如此；极亮S2仍有约0.19898的隐藏RGB物理MAE。所选L8近红外和EnMAP TRAIN光谱存在明显幅度偏差，因此不能称颜色、光谱或细节恢复已解决。L9/EnMAP没有独立VAL，此处不作泛化结论。
 
+补充强基线核查揭示当前学习质量不合格：在同一固定A遮盖/QA/归一化目标上，每个波段只用该观测可见有效像元均值填充隐藏区域，完整383VAL MSE为0.2079677751；第525步模型0.4123939128，341/383个观测更差，第641步仍为0.4070717130、338/383更差。该基线不读取隐藏目标，沿用像元→通道→观测等权归约；S2/L8模型525分项0.4338678386/0.2625238057，对应可见均值0.2100780918/0.1932395235。此前固定TRAIN通道均值完整VAL为2.1986835618，是较弱基线，仅优于它不能证明模型有效利用了可见上下文。CPU复现入口为仓库.project/v3_h_a_only_diagnosis.py（--output指定新证据目录，不加载权重或执行模型forward）。原始逐观测及各节点对照见[完整可见均值基线](../outputs/encoder_v3/hierarchical/a_only/diagnosis_node_525_v3/full_val_visible_mean.json)。
+
+实现与冻结设计相符的一项限制是：每Fine分区、每波段先输出标量，再按真实面积回填，分区内像素没有独立输出自由度。但这不足以解释当前全部误差：六个VAL分位样本在相同目标上通过精确面积映射作逐通道目标已知的Fine标量拟合，已得到远小于模型的可达误差，例如典型S2模型0.15873、拟合0.00795，典型L8模型0.24686、拟合0.00365。拟合读取隐藏truth、各波段独立自由拟合，是面积回填表达能力诊断，不是可用预测器、整个神经网络表达能力证明或泛化成绩；LSQR停止码1/2/3，不能统一称严格全局最小误差。六例中5例模型还差于不使用目标的可见均值。证据见[输出表达诊断](../outputs/encoder_v3/hierarchical/a_only/diagnosis_node_525_v3/report.json)。当前有代表性Encoder非零梯度证据，未证明可见上下文被有效利用；需用隔离的小样本过拟合、可见上下文干预及各级特征/输出梯度检查区分优化、条件化和路由瓶颈，不能只靠延长Epoch或增加损失项下结论。
+
 [真实曲线](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/learning_curves.png)、[光谱](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/spectral_profiles.png)、[案例与推理核验](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/report.json)、[快照清单](../outputs/encoder_v3/hierarchical/a_only/validation_snapshot_525_v1/manifest.json)保留本次证据；曲线VAL面板从175步起放大，训练尖峰未删除。最新进度见[实时状态](../outputs/encoder_v3/hierarchical/release_a_only_v1/formal_run/status.json)，旧AB保持暂停。
