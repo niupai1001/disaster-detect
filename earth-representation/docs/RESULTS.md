@@ -934,3 +934,30 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 原图、可见输入、纯隐藏区预测、拼合图、误差依次排列；第四列可见部分是真值。原图/预测统一RGB反射率0—0.3、gamma2.2，误差0—0.15并标明溢出；最差S2另用0—1范围，原始物理误差未裁剪。所选S2/L8典型隐藏RGB物理MAE约0.01661/0.02040；仍是明显平滑色块，S2色偏、细节缺失，不能称已恢复纹理。最差S2的隐藏RGB物理MAE约0.37602，失败案例未排除。所选L8光谱能跟随部分谱形，S2及EnMAP TRAIN仍有明显幅度偏差。
 
 [原生光谱](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/spectral_profiles.png)、[训练/完整验证/学习率](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/learning_curves.png)、[案例指标](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/report.json)及[只读核验](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/verification.json)保留证据。光谱灰线为固定TRAIN通道均值参考，不是前节可见均值强基线。曲线展示含初始化的完整首轮验证节点，学习率本段仅完成预热。optimizer更新0、模型及原best/last/updates哈希不变，状态保持TRIAL_COMPLETE。
+
+## 固定原物理Encoder的Decoder工程排查（非正式成绩）
+
+用户限定固定原带物理描述器的Encoder，调整Decoder。此处使用原A-only best641/完整VAL0.4070717130作为只读初始化；物理Memory、卷积、融合与Encoder各层均冻结、eval、缓存no_grad特征。两对照仅训练Decoder/位置/mask/下传/输出；Encoder参数梯度逐步None，前后state SHA均为46b978de786223c70e536acaaa5fc80bbf5b1b72739a3365b0cd29d04b87e9be，源best/last/updates哈希不变，原运行仍STOPPED。
+
+工程控制为同仪器S2B、同波段和形状的两个TRAIN观测：既有均匀样本obs_9166ecc6864840338e294a70，及32个固定随机候选中选择的纹理样本obs_9f912ff58940f9eb94093fd1。选择方法和全部候选见structure_diagnosis/cohort.json；诊断排除极端辐射候选只是选择控制样本，不更改正式成员、QA、统计或目标。固定A种子17/epoch0、同初始化Decoder、同128步AdamW lr1e-3、零衰减、clip3，两卡独立运行不用于速度对照。
+
+| 工程固定TRAIN样本 | 原Decoder | 输出增加目标波段调制 |
+|---|---:|---:|
+| 均匀样本隐藏MSE | 0.0715352 | 0.00248327 |
+| 纹理样本隐藏MSE | 0.392120 | 0.384876 |
+
+候选在输出前对64维Fine特征使用按目标波段学习的乘法/加法调制，新增34176参数；零初始化γ/β使两组初始预测和损失一致。均匀样本误差约降28.8倍，纹理样本仅改善1.85%。该结果支持Decoder波段条件值得修正，不支持纹理/上下文已经解决或Encoder一定充分。均匀样本将空间特征替换成全图均值后误差反而为0.00153，提示其收益可能主要是波段均值校准；纹理样本同操作误差升至1.14762，说明空间特征确有作用，并非完全没有表达。γ-only/β-only是推理端移除，不是训练因果隔离。
+
+![固定Encoder的Decoder对照](../outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_control_summary.png)
+
+进一步用候选Decoder特征拟合逐波段仿射探针，按固定随机地理Patch留出约20%隐藏区域、其余拟合，在同两TRAIN观测的纹理留出区域得到MSE约0.27482（拟合区域0.24693）。同一留出区域的候选原输出头误差为0.36181，逐波段线性探针为0.27482；它不是独立VAL，仅提示共享输出头仍可能未充分读取现有空间特征，不能宣称该探针已经获得泛化改进。原Decoder对应纹理探针留出0.49595、拟合0.59156；两套特征对应不同工程权重。
+
+此前无描述器best233的六观测只读干预显示：可见输入加1z会使预测明显变化，清零Decoder直接接收的粗尺度端口会显著恶化，说明上下文路径存在；均匀场景的空间打乱效应很小，不能据此认定网络对全部纹理完全不敏感。Fine/Middle已接收过Coarse信息，单端口清零不是完整尺度隔离。其逐验证样本目标已知探针只用于表达能力诊断，不能作为合法预测成绩。融合value乘法单变量的128步对照也未优于原版，不继续扩大该路线。
+
+[汇总与约束](../outputs/encoder_v3/hierarchical/structure_diagnosis/summary.json)、[原Decoder](../outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_original_v1/report.json)、[目标波段调制](../outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_band_film_v1/report.json)、[不更新权重的输出分析](../outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_film_analysis_v3/report.json)及[上下文干预](../outputs/encoder_v3/hierarchical/structure_diagnosis/intervention_v1/report.json)保留证据。复现入口为.project/v3_h_frozen_encoder_decoder_probe.py和.project/v3_h_structure_probe.py。全部新增更新仅在独立工程副本，未恢复任何正式预算；当前候选尚未通过正式质量验收。首版地理Patch留出计算触发空集断言，分析在任何拟合前失败、无更新；v2改用确定性随机Patch留出后通过，失败目录保留。
+
+## 原含描述器架构排除EnMAP的短段对照
+
+用户明确要求暂停EnMAP训练输入并选择原架构随机重训。新配置config_v3_h_no_enmap_v1.json：原物理Memory/条件卷积/波段融合/层次Encoder/Decoder，A-only、FP32、双卡Batch32，seed17、L128、mask0.55、原统计与QA不变。新TRAIN7395仅排除47条EnMAP，S2 5349/L8 1522/L9 524，VAL383成员和身份逐项不变；一轮232批、尾3、覆盖一次。初始参数SHA0958271abbe57a2c505f3716cbdcd1291e253e61d0880d430c43396678b84057与原含描述器A-only完全一致，不加载任何checkpoint。
+
+实际短段上限232更新，epochs10仅形成2320步LR日程/预热232步，不自动训练十轮。与原含EnMAP的233批/预热233步相比，过滤成员也改变了同种子洗牌后的批次顺序和每轮步数。对照不能由单次结果直接推断EnMAP损害Encoder；224波段经过通道平均，并不自动获得224倍权重。所有旧正式运行继续停止或完成，不混入前述Decoder工程候选权重。

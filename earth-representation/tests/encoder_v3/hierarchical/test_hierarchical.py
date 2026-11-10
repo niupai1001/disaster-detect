@@ -14,6 +14,38 @@ torch.set_num_threads(2)
 torch.use_deterministic_algorithms(True)
 
 
+def test_enmap_exclusion_is_config_bound_and_train_only(monkeypatch):
+    from types import SimpleNamespace
+    from encoder_v3.hierarchical import train
+    from encoder_v3.latent_response.enmap_data import CombinedDataset
+    base=SimpleNamespace(rows=[{'id':'s','sensor':'S2'}],identities={'base':'frozen'})
+    enmap=SimpleNamespace(rows=[{'id':'e','sensor':'EnMAP'}],identities={'enmap':'frozen'})
+    original={'TRAIN':CombinedDataset(base,enmap),'VAL':SimpleNamespace(rows=[{'id':'v','sensor':'S2'}])}
+    monkeypatch.setattr(train,'base_load_data',lambda:(original,None))
+    selected,_=train.load_data({'exclude_enmap':True})
+    assert selected['TRAIN'] is base and selected['VAL'] is original['VAL']
+    assert [r['id'] for r in original['TRAIN'].rows]==['s','e']
+    assert train.load_data()[0]['TRAIN'] is original['TRAIN']
+    with pytest.raises(ValueError,match='boolean'):train.load_data({'exclude_enmap':'yes'})
+    with pytest.raises(ValueError,match='EnMAP TRAIN excluded'):
+        train.update(None,None,[{'id':'e','sensor':'EnMAP','role':'TRAIN'}],None,None,None,{}, {'exclude_enmap':True})
+
+
+def test_two_device_secondary_reader_excludes_enmap(monkeypatch):
+    from types import SimpleNamespace
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.parallel import TwoDeviceBatch
+    from encoder_v3.latent_response.enmap_data import CombinedDataset
+    base=SimpleNamespace(rows=[{'id':'s','sensor':'S2'}],identities={'data':'same'})
+    enmap=SimpleNamespace(rows=[{'id':'e','sensor':'EnMAP'}],identities={'data':'enmap'})
+    datasets={'TRAIN':CombinedDataset(base,enmap),'VAL':SimpleNamespace(rows=[])}
+    resolver=SimpleNamespace(catalog_sha='same')
+    monkeypatch.setattr(train,'base_load_data',lambda:(copy.deepcopy(datasets),resolver))
+    model=HierarchicalMAE(patch_metres=4.);worker=TwoDeviceBatch(model,base,resolver,{'devices':['cpu','cpu'],'exclude_enmap':True})
+    try:assert all([r['sensor'] for r in ds.rows]==['S2'] for ds in worker.datasets)
+    finally:worker.close()
+
+
 def test_descriptor_free_has_no_physical_path_and_distinguishes_bands():
     from encoder_v3.shared_mae.model import SharedMemory,ConditionalConvolution
     torch.manual_seed(17);s=sample(side=12);s.instrument='test'
@@ -59,7 +91,7 @@ def test_descriptor_free_short_trial_stops_without_shortening_lr_schedule(tmp_pa
             for s in self.samples:s.instrument='test'
             self.rows=[dict(id=s.identifier,role=role,sensor='S2',instrument='test',bands=[dict(shape=(8,8))]) for s in self.samples]
     datasets={'TRAIN':Dataset('TRAIN',3),'VAL':Dataset('VAL',1)}
-    monkeypatch.setattr(train,'load_data',lambda:(datasets,None))
+    monkeypatch.setattr(train,'load_data',lambda *args:(datasets,None))
     monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:ds.samples[i])
     binding={'test':'descriptor-free-short'};monkeypatch.setattr(train,'identity',lambda *args:binding)
     config=json.loads(Path('configs/config_v3_h_descriptor_free_v1.json').read_text())
@@ -561,7 +593,7 @@ def test_mid_run_cli_resume_matches_uninterrupted_state_and_viewer(tmp_path,monk
             self.samples=[sample(side=8,name=f'{role}_{i}') for i in range(count)]
             self.rows=[dict(id=s.identifier,role=role,sensor='S2',bands=[dict(shape=(8,8))]) for s in self.samples]
     datasets={'TRAIN':Dataset('TRAIN',3),'VAL':Dataset('VAL',1)}
-    monkeypatch.setattr(train,'load_data',lambda:(datasets,None))
+    monkeypatch.setattr(train,'load_data',lambda *args:(datasets,None))
     monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:ds.samples[i])
     binding={'test':'mid-run-cli'}
     monkeypatch.setattr(train,'identity',lambda *args:binding)
@@ -618,7 +650,7 @@ def test_new_identity_migration_cli_inherits_journal_and_starts_new_viewer_run(t
             self.samples=[sample(side=8,name=f'{role}_{i}') for i in range(count)]
             self.rows=[dict(id=s.identifier,role=role,sensor='S2',bands=[dict(shape=(8,8))]) for s in self.samples]
     datasets={'TRAIN':Dataset('TRAIN',3),'VAL':Dataset('VAL',1)}
-    monkeypatch.setattr(train,'load_data',lambda:(datasets,None))
+    monkeypatch.setattr(train,'load_data',lambda *args:(datasets,None))
     monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:ds.samples[i])
     phase={'identity':{'code':'legacy-synthetic'},'builder':legacy_builder}
     monkeypatch.setattr(train,'identity',lambda *args:phase['identity'])

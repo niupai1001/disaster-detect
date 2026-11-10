@@ -132,3 +132,11 @@ python scripts/visualize_shared_mae.py --release outputs/encoder_v3/shared_mae/r
 随机初始化、A=1/B1=0/JEPA=0、双卡Batch32；短段上限233次更新（一个完整Epoch），保留原2330更新的学习率日程和1轮预热，完成标记TRIAL_COMPLETE，不冒充10轮完成。旧AB STOPPED1312及原描述器A-only STOPPED704不自动恢复。58项CPU检查和只读独立审查通过；真实GPU容量、数值、恢复与速度证据在outputs/encoder_v3/hierarchical/descriptor_free，新Run已TRIAL_COMPLETE，233次更新/1Epoch/7442观测，Viewer `dde013a749f5431abb20aea2a587eb6d`，源码提交`0ff7831d07b3aebd45875a17a8d6f7356090750b`冻结174文件；随机初始参数SHA cf3da97b…已核实、无checkpoint加载，初始完整383VAL=2.1762696610，已核验前5步真实A-only更新及每批checkpoint。以[实时状态](outputs/encoder_v3/hierarchical/release_descriptor_free_v1/formal_run/status.json)与[启动核验](outputs/encoder_v3/hierarchical/release_descriptor_free_v1/training_started.json)为准，完整Epoch含验证/保存19.64分钟（更新17.73分钟、其余1.91分钟），末态完整VAL0.4689640854仍差于可见均值0.2079677751；不自动继续预算，详见[完成记录](outputs/encoder_v3/hierarchical/release_descriptor_free_v1/trial_completion.json)。
 
 无物理描述器短段第233步最佳权重的[只读重建图集](outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/index.html)已生成，含S2/L8独立VAL分位样本、L9/EnMAP TRAIN诊断、光谱与完整短段曲线；推理不恢复训练，细节与色偏限制见RESULTS。
+
+后续按用户要求固定原带物理描述器Encoder，仅做Decoder工程排查；[对照曲线](outputs/encoder_v3/hierarchical/structure_diagnosis/decoder_control_summary.png)、[汇总](outputs/encoder_v3/hierarchical/structure_diagnosis/summary.json)和[解释](docs/RESULTS.md#固定原物理encoder的decoder工程排查非正式成绩)已保存。工程复现入口为仓库.project/v3_h_frozen_encoder_decoder_probe.py，所有正式运行保持停止。
+
+## 排除EnMAP的原架构短段对照
+
+用户已选择“原含描述器架构随机重训，排除EnMAP”。配置configs/config_v3_h_no_enmap_v1.json保留物理Memory、条件卷积、原波段融合、原层次Encoder和原Decoder；A=1/B1=0/JEPA=0，随机seed17，不加载任何旧或工程权重。exclude_enmap只为本次TRAIN选择原CombinedDataset的光学base，7395观测（S2 5349/L8 1522/L9 524）、232批尾3；VAL383不变。主入口、检查入口和双卡独立读取器都绑定相同配置，update拒绝意外EnMAP训练行；原始数据、统计和所有旧冻结运行不变。
+
+首段max_updates232仅一个完整Epoch，epochs10只保留当前2320步的学习率日程，预热232步，结束TRIAL_COMPLETE。相同随机种子作用于不同成员，洗牌顺序/批次与每轮日程步数随成员变化，因此单次结果不能直接证明EnMAP影响的唯一机制。工程门禁在outputs/encoder_v3/hierarchical/no_enmap；正式运行以release_no_enmap_v1/formal_run为准，不因实验完成自动重新启用EnMAP。

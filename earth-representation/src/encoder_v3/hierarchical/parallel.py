@@ -47,7 +47,7 @@ class TwoDeviceBatch:
         self.replica=copy.deepcopy(model).to(self.devices[1])
         # Each reader owns its adapter, including EnMAP's mutable input LRU cache.
         if secondary_data is None:
-            datasets,second_resolver=load_data();second_dataset=datasets['TRAIN']
+            datasets,second_resolver=load_data(config);second_dataset=datasets['TRAIN']
             secondary_validation_dataset=datasets['VAL']
         else:second_dataset,second_resolver=secondary_data
         if [r['id'] for r in dataset.rows]!=[r['id'] for r in second_dataset.rows]:raise ValueError('Replica data membership mismatch')

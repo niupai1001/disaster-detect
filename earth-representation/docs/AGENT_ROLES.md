@@ -86,3 +86,15 @@ enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用�
 冷启动、小批次、稳定批次与完整Epoch成本分开记录。当前已获得完整10轮实测，旧25–30分钟估算不再作为实测结论。双卡同步未实现，Windows环境无NCCL；本段没有改变其他GPU作业。
 
 后续评价需保留原成员、QA、统计与固定评价遮盖，区分优化调度导致的平台、重建质量与Encoder迁移能力。没有独立EnMAP VAL，不宣称高光谱泛化。新增训练或实验按用户明确任务推进，本次维护不改变模型、数据、权重或已完成运行。
+
+### 固定物理Encoder的Decoder诊断职责
+
+用户最新限定固定原有带物理描述器Encoder、仅调整Decoder。本聊天持有.project/v3_h_structure_probe.py、.project/v3_h_frozen_encoder_decoder_probe.py及outputs/encoder_v3/hierarchical/structure_diagnosis。原物理A-only best641作为只读初始化，所有正式运行继续STOPPED或TRIAL_COMPLETE；工程优化只持有Decoder参数，必须验证Encoder state哈希不变、梯度None及源best/last/日志不改。目标波段FiLM候选只在工程副本，不覆盖正式模型。
+
+独立Agent只读复核，工程同样本对照不得替代完整VAL、图像质量或整轮成本验收；缓存Encoder特征的短段时间不能外推真实数据吞吐。两均匀/纹理TRAIN控制、输入与端口干预、目标已知或留Patch探针均注明各自因果边界；下一步继续限定Decoder，不自行删除物理Encoder或扩展正式预算。
+
+### 排除EnMAP的随机原架构短段
+
+用户在Decoder诊断后明确选择原含描述器架构随机重训、排除EnMAP。新任务encoder-v3-h-no-enmap-trial持有train/check/parallel配置传递、对应测试、config_v3_h_no_enmap_v1、.project/v3_h_no_enmap_gate.py、no_enmap/release_no_enmap_v1及可视化兼容。该任务不继承“冻结旧Encoder”的工程路径：原Encoder与原Decoder均随机初始化、均训练；Decoder工程候选只保留为独立诊断。
+
+开训必须核验主/副训练读取器都没有EnMAP、VAL身份不变、7395唯一覆盖/232批尾3、原初始参数hash0958271a相同、完整恢复与真实GPU门禁。实际max_updates232而非2320；TRIAL_COMPLETE结束，不自动续训或重新开启EnMAP。原始资源和旧冻结发布不改；后续统计或重建图使用本次过滤后的数据身份，不能把EnMAP TRAIN诊断偷偷混回新实验。

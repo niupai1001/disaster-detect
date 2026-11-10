@@ -48,7 +48,8 @@ def main():
     checkpoint_sha=hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
     source_hashes={} if args.live_source else {name:hashlib.sha256((run/name).read_bytes()).hexdigest() for name in ('best.pt','last.pt','updates.jsonl')}
     checkpoint=torch.load(checkpoint_path,map_location='cpu',weights_only=False)
-    datasets,resolver=load_data();assert identity(config,datasets,resolver)==checkpoint['identity']
+    datasets,resolver=load_data(config) if config.get('exclude_enmap') else load_data()
+    assert identity(config,datasets,resolver)==checkpoint['identity']
     plan=EpochPlan(datasets['TRAIN'].rows,config['seed'],config['batch_size'])
     best_epoch=plan.progress(checkpoint['runner']['cursor'])
     model=build_model(config).to(execution_device);model.load_state_dict(checkpoint['model']);model.eval()
@@ -178,6 +179,7 @@ def main():
 
     for sensor in ('L9','EnMAP'):
         candidates=sorted([r for r in datasets['TRAIN'].rows if r['sensor']==sensor],key=lambda r:(sum(np.prod(b['shape']) for b in r['bands']),r['id']))
+        if not candidates:continue
         row=candidates[len(candidates)//2];spectrum_ids[sensor]=('TRAIN',row['id'])
         fig,axes=plt.subplots(len(kinds),5,figsize=(17,3.5*len(kinds)),squeeze=False)
         for j,kind in enumerate(kinds):
@@ -196,8 +198,9 @@ def main():
     fig.tight_layout(rect=(0,.05,1,.94));fig.savefig(out/'extreme_S2_VAL.png',dpi=150);plt.close(fig)
     figures.append(('高影响S2验证观测：单独显示0—1范围', 'extreme_S2_VAL.png'))
 
-    fig,axes=plt.subplots(4,1,figsize=(13,13))
-    for ax,sensor in zip(axes,('S2','L8','L9','EnMAP')):
+    spectral_sources=[s for s in ('S2','L8','L9','EnMAP') if s in spectrum_ids]
+    fig,axes=plt.subplots(len(spectral_sources),1,figsize=(13,3.25*len(spectral_sources)),squeeze=False)
+    for ax,sensor in zip(axes[:,0],spectral_sources):
         role,identifier=spectrum_ids[sensor];ds=datasets[role];row=ds.rows[lookup[role][identifier]]
         sample=sample_from_dataset(ds,lookup[role][identifier],resolver,execution_device)
         spectrum_kind='B1' if 'B1' in kinds else 'A'

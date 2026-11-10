@@ -24,7 +24,7 @@ def main():
     torch.backends.cudnn.benchmark=False;torch.backends.cudnn.deterministic=True
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     torch.cuda.set_device(config['device'])
-    datasets,resolver=load_data();dataset=datasets['TRAIN'];binding=identity(config,datasets,resolver)
+    datasets,resolver=load_data(config);dataset=datasets['TRAIN'];binding=identity(config,datasets,resolver)
     model=build_model(config).to(config['device'])
     report=dict(mode=args.mode,identity=binding,status='RUNNING',updates=0,cases=[],torch=torch.__version__,device=torch.cuda.get_device_name(config['device']))
     write(args.output/'report.json',report)

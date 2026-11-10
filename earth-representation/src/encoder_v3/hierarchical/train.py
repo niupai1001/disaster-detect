@@ -15,13 +15,25 @@ from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import torch
-from encoder_v3.shared_mae.data import load_data,sample_from_dataset as base_sample_from_dataset,EpochPlan,identity as base_identity,ROOT
+from encoder_v3.shared_mae.data import load_data as base_load_data,sample_from_dataset as base_sample_from_dataset,EpochPlan,identity as base_identity,ROOT
 from encoder_v3.shared_mae.train import write,micro_batches,StopRequested
 from encoder_v3.latent_response.checkpoint import snapshot,restore,atomic_replace,digest,validation_transaction
 from encoder_v3.latent_response.run_control import append_event,lr_multiplier,reconcile_logs
 from encoder_v3.latent_response.tvlp_writer import RunWriter
 from .model import HierarchicalMAE
 from .verification import gradient_contributions
+
+
+def load_data(config=None):
+    exclude=(config or {}).get('exclude_enmap',False)
+    if type(exclude) is not bool:raise ValueError('exclude_enmap must be boolean')
+    datasets,resolver=base_load_data()
+    if exclude:
+        base,enmap=datasets['TRAIN'].datasets
+        if any(r['sensor']=='EnMAP' for r in base.rows) or any(r['sensor']!='EnMAP' for r in enmap.rows):
+            raise ValueError('Unexpected EnMAP training partition')
+        datasets=dict(datasets,TRAIN=base)
+    return datasets,resolver
 
 
 def build_model(config):
@@ -145,6 +157,7 @@ def batch_loss(model,dataset,rows,resolver,config,*,epoch=0,backward=False,stop_
 
 def update(model,dataset,rows,resolver,optimizer,scheduler,state,config,stop_requested=None,parallel=None):
     if any(r['role']!='TRAIN' for r in rows):raise ValueError('Non-TRAIN row in optimizer batch')
+    if config.get('exclude_enmap') and any(r['sensor']=='EnMAP' for r in rows):raise ValueError('EnMAP TRAIN excluded')
     optimizer.zero_grad(set_to_none=True)
     epoch=state['cursor']//config['batches_per_epoch']
     if parallel is None:value,records=batch_loss(model,dataset,rows,resolver,config,epoch=epoch,backward=True,stop_requested=stop_requested)
@@ -186,9 +199,14 @@ def writer_for(config,binding,state,run_dir,resuming):
     names={'train_loss':'训练批次综合损失','val_loss':'完整验证综合损失','mae_loss':'原生重建MSE',
            'jepa_loss':'潜在预测损失','gradient_norm':'裁剪前梯度范数','learning_rate':'学习率','update_seconds':'批次耗时'}
     metrics={k:dict(label=v,unit='z²' if k=='mae_loss' else '',direction='min' if 'loss' in k else 'none',role='loss' if 'loss' in k else 'other') for k,v in names.items()}
+    if config.get('exclude_enmap'):variant_id,variant_name='mae-no-enmap','层次MAE · 排除EnMAP的A'
+    elif config.get('frontend')=='shared_static_band_embedding':variant_id,variant_name='mae-no-descriptor','层次MAE · 无描述器A'
+    elif config['task_weights']['B1']==0:variant_id,variant_name='mae-a-only','层次MAE · 仅空间重建A'
+    elif config['lambda_jepa']==0:variant_id,variant_name='mae','层次MAE'
+    else:variant_id,variant_name='hybrid','层次MAE+JEPA'
     directory=Path(config['viewer_root'])/(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_'+uuid.uuid4().hex)
     writer=RunWriter(directory,experiment=dict(id='encoder-v3-h',name='Encoder V3-H · 层次化表征'),
-        variant=dict(id='mae-no-descriptor' if config.get('frontend')=='shared_static_band_embedding' else ('mae-a-only' if config['task_weights']['B1']==0 else ('mae' if config['lambda_jepa']==0 else 'hybrid')),name='层次MAE · 无描述器A' if config.get('frontend')=='shared_static_band_embedding' else ('层次MAE · 仅空间重建A' if config['task_weights']['B1']==0 else ('层次MAE' if config['lambda_jepa']==0 else '层次MAE+JEPA')),kind='modification',description='动态原生几何、并行三尺度、双向稀疏交互'),
+        variant=dict(id=variant_id,name=variant_name,kind='modification',description='动态原生几何、并行三尺度、双向稀疏交互'),
         metrics=metrics,charts=['train_loss','val_loss'],primary_metric='val_loss',numbers=['mae_loss','jepa_loss','gradient_norm','learning_rate'],
         config=dict(execution_identity=digest(binding),training_directory=str(run_dir),architecture='hierarchical_v3_h',task_weights=config['task_weights'],lambda_jepa=config['lambda_jepa'],
             source_run_id=state.get('source_viewer',{}).get('run_id'),source_checkpoint_cursor=state.get('migration_source_cursor')))
@@ -209,7 +227,7 @@ def main():
     torch.backends.cudnn.benchmark=False;torch.backends.cudnn.deterministic=True
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     if str(config['device']).startswith('cuda'):torch.cuda.set_device(config['device'])
-    datasets,resolver=load_data();binding=identity(config,datasets,resolver)
+    datasets,resolver=load_data(config);binding=identity(config,datasets,resolver)
     approval=json.loads(args.authorization.read_text());gate=json.loads(args.readiness.read_text())
     if approval.get('source')!='user_in_current_chat' or approval.get('identity')!=binding or approval.get('suspended'):raise PermissionError('Authorization identity mismatch')
     if gate.get('identity')!=binding or not gate.get('training_release_ready'):raise ValueError('V3-H engineering gate missing')
