@@ -4,7 +4,6 @@ from functools import lru_cache
 import math
 import numpy as np
 import torch
-from scipy.spatial import cKDTree
 from encoder_v3.shared_mae.geometry import metric_geometry
 
 
@@ -118,14 +117,35 @@ def area_map(grid, geo, part, device):
 
 
 def neighborhood(part, radius_xy, device):
-    """Sparse geometric neighbors, never a dense fine-token attention matrix."""
-    points = part.centers / np.array(radius_xy)
-    tree = cKDTree(points)
-    neighbors = tree.query_ball_point(points, 1., p=np.inf, return_sorted=True)
-    lengths = np.fromiter(map(len, neighbors), dtype=np.int64)
-    q = np.repeat(np.arange(len(part)), lengths)
-    k = np.concatenate(neighbors).astype(np.int64)
-    return sparse_edges(np.stack((q,k)),len(part),device)
+    """Exact Cartesian Chebyshev edges, built in bounded query chunks."""
+    nx,ny=len(part.x)-1,len(part.y)-1
+    if len(part)!=nx*ny or any(not math.isfinite(r) or r<=0 for r in radius_xy):raise ValueError('Cartesian partition and positive radii required')
+    x=part.centers[:nx,0]/radius_xy[0];y=part.centers[::nx,1]/radius_xy[1]
+    # Candidate bounds cover subtraction rounding; the final distance predicate stays exact.
+    ex=4*np.finfo(np.float64).eps*np.maximum(1.,np.abs(x));ey=4*np.finfo(np.float64).eps*np.maximum(1.,np.abs(y))
+    lx=np.searchsorted(x,x-1.-ex);hx=np.searchsorted(x,x+1.+ex,side='right')
+    ly=np.searchsorted(y,y-1.-ey);hy=np.searchsorted(y,y+1.+ey,side='right')
+    chunks=[]
+    for begin in range(0,len(part),4096):
+        end=min(len(part),begin+4096);query=np.arange(begin,end);ix=query%nx;iy=query//nx
+        widths=hx[ix]-lx[ix];counts=widths*(hy[iy]-ly[iy])
+        q=np.repeat(np.arange(end-begin),counts)
+        slot=np.arange(counts.sum())-np.repeat(np.cumsum(counts)-counts,counts)
+        kx=lx[ix[q]]+slot%widths[q];ky=ly[iy[q]]+slot//widths[q]
+        keep=(np.abs(x[kx]-x[ix[q]])<=1.) & (np.abs(y[ky]-y[iy[q]])<=1.)
+        chunks.append(edge_chunk(np.stack((q[keep],(ky*nx+kx)[keep])),begin,end,len(part),device))
+    return chunks
+
+
+def edge_chunk(local,begin,end,queries,device):
+    counts=np.bincount(local[0],minlength=end-begin)
+    capacity=max(1,int(counts.max()))
+    if queries>100000:return (begin,end,torch.tensor(local,device=device),None,capacity)
+    neighbors=np.zeros((end-begin,capacity),dtype=np.int64);present=np.zeros_like(neighbors,dtype=bool)
+    if len(local[0]):
+        slot=np.arange(len(local[0]))-np.repeat(np.cumsum(counts)-counts,counts)
+        neighbors[local[0],slot]=local[1];present[local[0],slot]=True
+    return begin,end,torch.tensor(local),torch.tensor(neighbors,device=device),torch.tensor(present,device=device)
 
 
 def sparse_edges(index, queries, device):
@@ -137,17 +157,5 @@ def sparse_edges(index, queries, device):
         lo,hi=np.searchsorted(index[0],[begin,end])
         local=index[:,lo:hi].copy()
         local[0]-=begin
-        counts=np.bincount(local[0],minlength=end-begin)
-        capacity=max(1,int(counts.max()))
-        if queries>100000:
-            chunks.append((begin,end,torch.tensor(local,device=device),None,capacity))
-            continue
-        neighbors=np.zeros((end-begin,capacity),dtype=np.int64)
-        present=np.zeros_like(neighbors,dtype=bool)
-        if len(local[0]):
-            slot=np.arange(len(local[0]))-np.repeat(np.cumsum(counts)-counts,counts)
-            neighbors[local[0],slot]=local[1]
-            present[local[0],slot]=True
-        # The CPU edge list is provenance; padded GPU neighbors avoid ragged mask synchronization.
-        chunks.append((begin,end,torch.tensor(local),torch.tensor(neighbors,device=device),torch.tensor(present,device=device)))
+        chunks.append(edge_chunk(local,begin,end,queries,device))
     return chunks

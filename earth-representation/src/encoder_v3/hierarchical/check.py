@@ -8,7 +8,7 @@ import torch
 from encoder_v3.latent_response.checkpoint import parameter_sha
 from encoder_v3.latent_response.checkpoint import snapshot
 from .verification import compare_snapshots
-from .train import load_data,sample_from_dataset,identity,build_model,write,batch_loss,save,resume,update
+from .train import load_data,sample_from_dataset,identity,build_model,write,batch_loss,save,resume,update,enabled_tasks
 
 
 def main():
@@ -23,6 +23,7 @@ def main():
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark=False;torch.backends.cudnn.deterministic=True
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
+    torch.cuda.set_device(config['device'])
     datasets,resolver=load_data();dataset=datasets['TRAIN'];binding=identity(config,datasets,resolver)
     model=build_model(config).to(config['device'])
     report=dict(mode=args.mode,identity=binding,status='RUNNING',updates=0,cases=[],torch=torch.__version__,device=torch.cuda.get_device_name(config['device']))
@@ -40,7 +41,7 @@ def main():
             before=parameter_sha(model)
             for row in rows:
                 sample=sample_from_dataset(dataset,lookup[row['id']],resolver,config['device'])
-                for kind in model.available_tasks(sample):
+                for kind in enabled_tasks(model,sample,config):
                     print('START',row['sensor'],row['id'],kind,pixels(row),flush=True)
                     torch.cuda.reset_peak_memory_stats();start=time.perf_counter()
                     model.zero_grad(set_to_none=True)

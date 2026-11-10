@@ -14,6 +14,69 @@ torch.set_num_threads(2)
 torch.use_deterministic_algorithms(True)
 
 
+@pytest.mark.parametrize('side,gsd,length',[(17,1.3,5.7),(19,2.1,12.8),(637,1.,128.)])
+def test_cartesian_neighborhood_exactly_matches_tree(side,gsd,length):
+    from scipy.spatial import cKDTree
+    s=sample(side=side,gsd=gsd,channels=1);_,parts,ref=partitions((s.channels[0].grid,),length)
+    for part in parts[:1] if side>100 else parts:
+        radii=((ref[0]*3,ref[1]*3),) if side>100 else ((ref[0]*3,ref[1]*3),(np.nextafter(length,0),np.nextafter(length,np.inf)))
+        for radius in radii:
+            points=part.centers/np.array(radius);neighbors=cKDTree(points).query_ball_point(points,1.,p=np.inf,return_sorted=True)
+            expected=np.stack((np.repeat(np.arange(len(part)),[len(n) for n in neighbors]),np.concatenate(neighbors)))
+            chunks=neighborhood(part,radius,'cpu');actual=np.concatenate([np.stack((c[2][0].numpy()+c[0],c[2][1].numpy())) for c in chunks],axis=1)
+            assert np.array_equal(actual,expected)
+
+
+def test_a_only_never_executes_disabled_task(monkeypatch):
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.verification import gradient_contributions
+    torch.manual_seed(51);model=HierarchicalMAE(patch_metres=4.);s=sample(side=12)
+    row=dict(id=s.identifier,sensor='S2',role='TRAIN',bands=[dict(shape=(12,12))]);ds=type('Dataset',(),{'rows':[row]})()
+    monkeypatch.setattr(train,'sample_from_dataset',lambda *args:s)
+    config=dict(device='cpu',precision='float32',seed=17,task_weights={'A':1.,'B1':0.},lambda_jepa=0.)
+    original=model.forward;calls=[]
+    def forward(*args,**kwargs):
+        calls.append(kwargs.get('kind','A'));assert calls[-1]=='A'
+        return original(*args,**kwargs)
+    monkeypatch.setattr(model,'forward',forward)
+    value,records=train.batch_loss(model,ds,[row],None,config,backward=True)
+    expected=original([s],kind='A',seed=17)[0].item();assert abs(value-expected)<1e-7
+    assert set(records[0]['tasks'])=={'A'} and records[0]['tasks']['A']['task_weight']==1.
+    diagnostics=gradient_contributions(model,s,config);assert set(diagnostics['tasks'])=={'A'} and calls==['A','A']
+    monkeypatch.setattr(model,'available_tasks',lambda sample:['B1'])
+    with pytest.raises(ValueError,match='No enabled'):train.enabled_tasks(model,s,config)
+
+
+def test_two_device_validation_disables_gradients_and_restores_state(monkeypatch):
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.parallel import TwoDeviceBatch
+    from encoder_v3.hierarchical.verification import compare_snapshots
+    from encoder_v3.latent_response.checkpoint import snapshot
+    torch.manual_seed(52)
+    samples=[sample(side=8,name=str(i)) for i in range(3)]
+    train_rows=[dict(id=s.identifier,sensor='S2',role='TRAIN',bands=[dict(shape=(8,8))]) for s in samples]
+    val_rows=[dict(r,role='VAL') for r in train_rows]
+    ds=type('Dataset',(),{'rows':train_rows})();val=type('Dataset',(),{'rows':val_rows})()
+    monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:samples[i])
+    config=dict(device='cpu',devices=['cpu','cpu'],precision='float32',seed=17,validation_seed=1729,task_weights={'A':1.,'B1':0.})
+    model=HierarchicalMAE(patch_metres=4.);worker=TwoDeviceBatch(model,ds,None,config,secondary_data=(copy.deepcopy(ds),None),validation_dataset=val,secondary_validation_dataset=copy.deepcopy(val))
+    opt=torch.optim.AdamW(model.parameters(),lr=1e-4);scheduler=torch.optim.lr_scheduler.StepLR(opt,5);state={'cursor':0}
+    calls=[]
+    def inspect(module,args):calls.append((torch.is_grad_enabled(),module.training))
+    handles=[m.register_forward_pre_hook(inspect) for m in (model,worker.replica)]
+    before=snapshot(model,opt,state,scheduler)
+    try:
+        expected=train.validate(model,val,None,opt,scheduler,state,config)
+        received=train.validate(model,val,None,opt,scheduler,state,config,parallel=worker)
+        assert abs(expected['metric']-received['metric'])<1e-7 and received['observations']==3
+        assert calls and all(not grad and not training for grad,training in calls)
+        assert all(compare_snapshots(before,snapshot(model,opt,state,scheduler)).values())
+        assert worker.replica.training==model.training
+    finally:
+        for handle in handles:handle.remove()
+        worker.close()
+
+
 def test_large_output_readout_matches_dense_values_and_gradients():
     torch.manual_seed(29)
     model=HierarchicalMAE(patch_metres=128.)

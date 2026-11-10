@@ -37,6 +37,7 @@ def main():
     run=release/'formal_run';state=json.loads((run/'status.json').read_text())
     assert state['status']=='STOPPED','Observe safe stop before visualization'
     config=json.loads((run/'config.json').read_text());torch.cuda.set_device(config['device'])
+    kinds=tuple(k for k in ('A','B1') if config['task_weights'][k]>0)
     source_hashes={name:hashlib.sha256((run/name).read_bytes()).hexdigest() for name in ('best.pt','last.pt','updates.jsonl')}
     checkpoint=torch.load(run/'best.pt',map_location='cpu',weights_only=False)
     datasets,resolver=load_data();assert identity(config,datasets,resolver)==checkpoint['identity']
@@ -57,7 +58,7 @@ def main():
     report={'status':'RUNNING','checkpoint':str(run/'best.pt'),'checkpoint_sha256':source_hashes['best.pt'],
         'identity':checkpoint['identity'],'paused_cursor':state['cursor'],'paused_epoch':state['epoch'],
         'best_cursor':checkpoint['runner']['cursor'],'best_epoch':best_epoch,'full_val_loss':metric,'full_val_members':len(records),
-        'optimizer_updates':0,'selection':'S2/L8: within-source weighted A/B1 full-VAL loss P25/P50/P90. L9/EnMAP: TRAIN native-pixel median, diagnostic only. S2 extreme: worst source VAL loss.',
+        'optimizer_updates':0,'enabled_tasks':list(kinds),'selection':'S2/L8: within-source configured-task-weighted full-VAL loss P25/P50/P90 (A-only when B1=0). L9/EnMAP: TRAIN native-pixel median, diagnostic only. S2 extreme: worst source VAL loss.',
         'full_val_records_reused_from':str(args.records.resolve()) if args.records else None,
         'display':'Truth and prediction use identical fixed physical-reflectance ranges. RGB0..0.3, singleband0..0.5, gamma2.2; hidden-only absolute error0..0.15. Extreme scene uses RGB0..1 and gray0..1. No independent image stretch. Visible truth in composite is not model prediction.',
         'cases':[],'spectra':[]}
@@ -133,7 +134,7 @@ def main():
         ranked=sorted([r for r in records if r['sensor']==sensor],key=lambda r:(r['loss'],r['id']))
         chosen=[ranked[round((len(ranked)-1)*q)] for q in (.25,.5,.9)]
         spectrum_ids[sensor]=('VAL',chosen[1]['id'])
-        for kind in ('A','B1'):
+        for kind in kinds:
             fig,axes=plt.subplots(3,5,figsize=(17,10),squeeze=False)
             for j,(record,label) in enumerate(zip(chosen,('P25 较低误差','P50 典型','P90 较高误差'))):
                 row=datasets['VAL'].rows[lookup['VAL'][record['id']]];images=evaluate('VAL',row,kind,label,record)
@@ -148,7 +149,7 @@ def main():
             fig.tight_layout(rect=(0,.04,1,.95));filename=f'{sensor}_{kind}.png';fig.savefig(out/filename,dpi=150);plt.close(fig)
             figures.append((f'{sensor} VAL {kind}：误差分位样本',filename));print('RENDERED',filename,flush=True)
 
-    for kind in ('A','B1'):
+    for kind in kinds:
         fig,axes=plt.subplots(2,5,figsize=(17,7),squeeze=False)
         for j,sensor in enumerate(('S2','L8')):
             draw(axes[j],examples[(sensor,kind)],kind)
@@ -161,8 +162,8 @@ def main():
     for sensor in ('L9','EnMAP'):
         candidates=sorted([r for r in datasets['TRAIN'].rows if r['sensor']==sensor],key=lambda r:(sum(np.prod(b['shape']) for b in r['bands']),r['id']))
         row=candidates[len(candidates)//2];spectrum_ids[sensor]=('TRAIN',row['id'])
-        fig,axes=plt.subplots(2,5,figsize=(17,7),squeeze=False)
-        for j,kind in enumerate(('A','B1')):
+        fig,axes=plt.subplots(len(kinds),5,figsize=(17,3.5*len(kinds)),squeeze=False)
+        for j,kind in enumerate(kinds):
             images=evaluate('TRAIN',row,kind,'原生像元数量中位观测（非独立验证）');draw(axes[j],images,kind)
             axes[j,0].text(0,-.08,f'{kind} / TRAIN诊断',transform=axes[j,0].transAxes,fontsize=10)
         fig.suptitle(f'{sensor} TRAIN重建诊断 / 当前无该来源独立VAL / 最佳权重第{best_epoch:g}轮',fontsize=14)
@@ -170,8 +171,8 @@ def main():
         figures.append((f'{sensor}：训练样本诊断，不代表泛化',filename));print('RENDERED',filename,flush=True)
 
     worst=max([r for r in records if r['sensor']=='S2'],key=lambda r:r['loss']);row=datasets['VAL'].rows[lookup['VAL'][worst['id']]]
-    fig,axes=plt.subplots(2,5,figsize=(17,7),squeeze=False)
-    for j,kind in enumerate(('A','B1')):
+    fig,axes=plt.subplots(len(kinds),5,figsize=(17,3.5*len(kinds)),squeeze=False)
+    for j,kind in enumerate(kinds):
         images=evaluate('VAL',row,kind,'S2最高综合误差观测',worst,extreme=True);draw(axes[j],images,kind)
         axes[j,0].text(0,-.08,f'{kind} / 统一反射率范围0—1',transform=axes[j,0].transAxes,fontsize=10)
     fig.suptitle('高影响S2验证观测：保留失败与极端样本 / '+worst['id'],fontsize=13)
@@ -182,12 +183,15 @@ def main():
     for ax,sensor in zip(axes,('S2','L8','L9','EnMAP')):
         role,identifier=spectrum_ids[sensor];ds=datasets[role];row=ds.rows[lookup[role][identifier]]
         sample=sample_from_dataset(ds,lookup[role][identifier],resolver,config['device'])
-        with torch.no_grad():_,details=model([sample],kind='B1',seed=config['validation_seed'],epoch=0,return_predictions=True)
+        spectrum_kind='B1' if 'B1' in kinds else 'A'
+        with torch.no_grad():_,details=model([sample],kind=spectrum_kind,seed=config['validation_seed'],epoch=0,return_predictions=True)
         groups={}
         for i,c in enumerate(sample.channels):groups.setdefault(c.grid,[]).append(i)
         indices=max(groups.values(),key=len);shape=sample.channels[indices[0]].values.shape
         coverage=np.stack([sample.channels[i].valid.cpu().numpy() for i in indices]).sum(0)
-        candidates=np.argwhere(coverage>=max(1,.9*coverage.max()));center=(np.array(shape)-1)/2
+        eligible=coverage>=max(1,.9*coverage.max())
+        if spectrum_kind=='A':eligible &= np.stack([details[0]['target_masks'][i].cpu().numpy() for i in indices]).any(0)
+        candidates=np.argwhere(eligible);center=(np.array(shape)-1)/2
         y,x=candidates[((candidates-center)**2).sum(-1).argmin()];waves=[];truth=[];baseline=[];prediction=[];hidden=[]
         for i in indices:
             c=sample.channels[i]
@@ -197,7 +201,7 @@ def main():
             prediction.append(float(details[0]['predictions'][i][y,x])*std+mu if is_hidden else np.nan);hidden.append(is_hidden)
         order=np.argsort(waves);waves=np.array(waves)[order];truth=np.array(truth)[order];baseline=np.array(baseline)[order];prediction=np.array(prediction)[order];hidden=np.array(hidden)[order];assert hidden.any()
         ax.plot(waves,truth,'o-',color='#111827',ms=3,label='真实光谱');ax.plot(waves,baseline,'--',color='#9ca3af',label='TRAIN通道均值基线')
-        ax.scatter(waves[hidden],prediction[hidden],color='#dc2626',s=20,label='模型预测：隐藏波段',zorder=4)
+        ax.scatter(waves[hidden],prediction[hidden],color='#dc2626',s=20,label='模型预测：隐藏波段' if spectrum_kind=='B1' else '模型预测：隐藏空间位置',zorder=4)
         ax.scatter(waves[~hidden],truth[~hidden],color='#2563eb',s=17,label='可见输入波段',zorder=3)
         ax.set_title(f'{sensor} / {role}'+('（非独立验证）' if role=='TRAIN' else '')+f' / 同一原生网格像元({y},{x})')
         ax.set_xlabel('中心波长 / nm');ax.set_ylabel('物理反射率');ax.grid(alpha=.2);ax.legend(fontsize=9,ncol=4)
@@ -232,7 +236,7 @@ def main():
     report.update(status='PASS',parameters_unchanged=True,source_artifacts_unchanged=True,script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),figures=figures)
     write(out/'report.json',report)
     sections=''.join(f'<section><h2>{html.escape(title)}</h2><a href="{filename}"><img src="{filename}" loading="lazy"></a></section>' for title,filename in figures)
-    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>V3-H最佳权重重建图集</title><style>body{font-family:Segoe UI,Microsoft YaHei,sans-serif;background:#f4f6f9;color:#172033;max-width:1500px;margin:30px auto;padding:0 20px}section{background:white;padding:20px;margin:24px 0;border-radius:12px}img{width:100%;height:auto}p{line-height:1.8}</style><h1>V3-H最佳权重重建图集</h1>'+f'<p>实验已暂停：{state["epoch"]:.3f} Epoch / {state["cursor"]}更新。最佳：第{best_epoch:g}轮 / {checkpoint["runner"]["cursor"]}步，完整383VAL={metric:.8f}。本次仅推理，optimizer更新0。</p><p>S2、L8按独立VAL误差分位选样；L9、EnMAP为TRAIN诊断。预测与原图固定同一物理显示范围，灰色为隐藏/无效；拼合图的可见部分来自原图。显示上限会截断亮区（L8 A P90约27.3%目标通道值超过0.3），应结合未截断误差/指标；误差色标顶部箭头表示超过0.15。验证曲线为175步起的后段放大。<a href="report.json">完整记录</a></p>'+sections+'</html>',encoding='utf-8')
+    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>V3-H最佳权重重建图集</title><style>body{font-family:Segoe UI,Microsoft YaHei,sans-serif;background:#f4f6f9;color:#172033;max-width:1500px;margin:30px auto;padding:0 20px}section{background:white;padding:20px;margin:24px 0;border-radius:12px}img{width:100%;height:auto}p{line-height:1.8}</style><h1>V3-H最佳权重重建图集</h1>'+f'<p>实验已暂停：{state["epoch"]:.3f} Epoch / {state["cursor"]}更新。最佳：第{best_epoch:g}轮 / {checkpoint["runner"]["cursor"]}步，完整383VAL={metric:.8f}。本次仅推理，optimizer更新0。启用任务：{", ".join(kinds)}。</p><p>S2、L8按独立VAL误差分位选样；L9、EnMAP为TRAIN诊断。预测与原图固定同一物理显示范围，灰色为隐藏/无效；拼合图的可见部分来自原图。显示上限可能截断亮区，各分位页给出实际截断比例，应结合未截断误差/指标；误差色标顶部箭头表示超过0.15。验证曲线为175步起的后段放大。<a href="report.json">完整记录</a></p>'+sections+'</html>',encoding='utf-8')
     print('VISUALIZATION_PASS',str(out),flush=True)
 
 

@@ -99,7 +99,8 @@ def prepare_migrated_run(source_run,source_checkpoint,destination,reference_mode
 
 def gradient_contributions(model,sample,config,*,epoch=0):
     """Per-observation raw/weighted objectives and actual shared-Encoder gradient norms."""
-    kinds=model.available_tasks(sample)
+    from .train import enabled_tasks
+    kinds=enabled_tasks(model,sample,config)
     denominator=sum(config['task_weights'][k] for k in kinds)
     names,parameters=zip(*model.online.named_parameters())
     result={'observation':sample.identifier,'normalization':'one observation; available task weights normalized; scale JEPA mean','tasks':{}}

@@ -40,7 +40,7 @@ def add_replica_gradients(model,replica):
 
 
 class TwoDeviceBatch:
-    def __init__(self,model,dataset,resolver,config,*,secondary_data=None):
+    def __init__(self,model,dataset,resolver,config,*,secondary_data=None,validation_dataset=None,secondary_validation_dataset=None):
         from .train import load_data
         self.model=model;self.config=config;self.devices=config['devices']
         if model._layouts:raise ValueError('Construct replicas before any geometry is cached')
@@ -48,11 +48,17 @@ class TwoDeviceBatch:
         # Each reader owns its adapter, including EnMAP's mutable input LRU cache.
         if secondary_data is None:
             datasets,second_resolver=load_data();second_dataset=datasets['TRAIN']
+            secondary_validation_dataset=datasets['VAL']
         else:second_dataset,second_resolver=secondary_data
         if [r['id'] for r in dataset.rows]!=[r['id'] for r in second_dataset.rows]:raise ValueError('Replica data membership mismatch')
         if getattr(dataset,'identities',None)!=getattr(second_dataset,'identities',None):raise ValueError('Replica data contract mismatch')
         if getattr(resolver,'catalog_sha',None)!=getattr(second_resolver,'catalog_sha',None):raise ValueError('Replica physical catalog mismatch')
         self.datasets=(dataset,second_dataset);self.resolvers=(resolver,second_resolver)
+        self.validation_datasets=None
+        if validation_dataset is not None:
+            if secondary_validation_dataset is None:raise ValueError('Independent secondary validation adapter required')
+            if [r['id'] for r in validation_dataset.rows]!=[r['id'] for r in secondary_validation_dataset.rows] or getattr(validation_dataset,'identities',None)!=getattr(secondary_validation_dataset,'identities',None):raise ValueError('Replica validation membership/contract mismatch')
+            self.validation_datasets=(validation_dataset,secondary_validation_dataset)
         self.pool=ThreadPoolExecutor(max_workers=2,thread_name_prefix='v3-h-gpu')
 
     @torch.no_grad()
@@ -62,24 +68,32 @@ class TwoDeviceBatch:
         synchronize(self.devices[1])
 
     def backward(self,rows,epoch,stop_requested=None):
+        return self.compute(rows,epoch,self.config,True,self.datasets,stop_requested)
+
+    def evaluate(self,rows,config):
+        if self.validation_datasets is None or any(r['role']!='VAL' for r in rows):raise ValueError('Bound VAL adapters required')
+        return self.compute(rows,0,config,False,self.validation_datasets)
+
+    def compute(self,rows,epoch,config,backward,datasets,stop_requested=None):
         from .train import batch_loss
         self.broadcast()
-        self.model.zero_grad(set_to_none=True);self.replica.zero_grad(set_to_none=True)
+        if backward:self.model.zero_grad(set_to_none=True);self.replica.zero_grad(set_to_none=True)
         shards=partition_rows(rows)
         def work(slot):
             if not shards[slot]:return 0.,[]
             model=(self.model,self.replica)[slot];device=self.devices[slot]
-            with device_context(device):
-                result=batch_loss(model,self.datasets[slot],shards[slot],self.resolvers[slot],
-                    dict(self.config,device=device),epoch=epoch,backward=True,
+            with device_context(device),torch.set_grad_enabled(backward):
+                result=batch_loss(model,datasets[slot],shards[slot],self.resolvers[slot],
+                    dict(config,device=device),epoch=epoch,backward=backward,
                     stop_requested=stop_requested,normalization_observations=len(rows))
                 synchronize(device)
                 return result
         futures=[self.pool.submit(work,i) for i in range(2)]
         wait(futures)  # Never mutate/save the master while another replica is still computing.
         results=[future.result() for future in futures]
-        add_replica_gradients(self.model,self.replica)
-        synchronize(self.devices[0])
+        if backward:
+            add_replica_gradients(self.model,self.replica)
+            synchronize(self.devices[0])
         records={r['id']:r for _,part in results for r in part}
         if len(records)!=len(rows):raise ValueError('Global batch must contain each observation exactly once')
         ordered=[records[r['id']] for r in rows]

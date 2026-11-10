@@ -37,14 +37,20 @@ def validate_config(config):
     for key in ('epochs','batch_size','micro_batch_observations','micro_batch_pixels','encoder_depth','validations_per_epoch','checkpoint_every_batches'):
         if type(config.get(key)) is not int or config[key]<1:raise ValueError('Positive integer '+key+' required')
     if not 0<=config['warmup_epochs']<config['epochs']:raise ValueError('Invalid warmup')
-    if set(config['task_weights'])!={'A','B1'} or any(not math.isfinite(v) or v<=0 for v in config['task_weights'].values()):
-        raise ValueError('Positive finite A/B1 weights required')
+    if set(config['task_weights'])!={'A','B1'} or any(not math.isfinite(v) or v<0 for v in config['task_weights'].values()) or sum(config['task_weights'].values())<=0:
+        raise ValueError('Nonnegative finite A/B1 weights with positive sum required')
     if config['precision'] not in ('float32','bfloat16'):raise ValueError('Invalid precision')
     if config.get('deterministic') is not True:raise ValueError('Deterministic V3-H execution required')
     if 'devices' in config:
         devices=config['devices']
         if not isinstance(devices,list) or len(devices)!=2 or len(set(devices))!=2 or devices[0]!=config['device'] or any(not str(d).startswith('cuda:') for d in devices):
             raise ValueError('Two distinct CUDA devices with primary first required')
+
+
+def enabled_tasks(model,sample,config):
+    kinds=[kind for kind in model.available_tasks(sample) if config['task_weights'][kind]>0]
+    if not kinds:raise ValueError('No enabled task has valid context and targets')
+    return kinds
 
 
 def identity(config,datasets,resolver):
@@ -108,7 +114,7 @@ def batch_loss(model,dataset,rows,resolver,config,*,epoch=0,backward=False,stop_
     # Process each observation before loading another GPU view; CPU prefetch never holds learned features.
     for sample,row in zip(native_samples(dataset,rows,lookup,resolver,config),rows):
         if stop_requested and stop_requested():raise StopRequested()
-        kinds=model.available_tasks(sample)
+        kinds=enabled_tasks(model,sample,config)
         total_weight=sum(config['task_weights'][k] for k in kinds)
         value=0.;task_info={}
         for kind in kinds:
@@ -147,12 +153,15 @@ def update(model,dataset,rows,resolver,optimizer,scheduler,state,config,stop_req
     return dict(loss=value,members=records,gradient_norm=float(norm),lr=lr,batch_size=len(rows),cursor=state['cursor'])
 
 
-def validate(model,dataset,resolver,optimizer,scheduler,state,config,rows=None):
+def validate(model,dataset,resolver,optimizer,scheduler,state,config,rows=None,parallel=None):
     panel=dataset.rows if rows is None else rows
     if any(r['role']!='VAL' for r in panel):raise ValueError('Validation requires VAL role')
     with validation_transaction(model,optimizer,state,scheduler),torch.no_grad():
         model.eval()
-        value,records=batch_loss(model,dataset,panel,resolver,dict(config,seed=config['validation_seed']),epoch=0)
+        fixed=dict(config,seed=config['validation_seed'])
+        if parallel is None:value,records=batch_loss(model,dataset,panel,resolver,fixed,epoch=0)
+        else:value,records=parallel.evaluate(panel,fixed)
+    if parallel is not None:parallel.broadcast()
     return dict(metric=value,observations=len(records),members=records)
 
 
@@ -168,7 +177,7 @@ def writer_for(config,binding,state,run_dir,resuming):
     metrics={k:dict(label=v,unit='z²' if k=='mae_loss' else '',direction='min' if 'loss' in k else 'none',role='loss' if 'loss' in k else 'other') for k,v in names.items()}
     directory=Path(config['viewer_root'])/(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_'+uuid.uuid4().hex)
     writer=RunWriter(directory,experiment=dict(id='encoder-v3-h',name='Encoder V3-H · 层次化表征'),
-        variant=dict(id='mae' if config['lambda_jepa']==0 else 'hybrid',name='层次MAE' if config['lambda_jepa']==0 else '层次MAE+JEPA',kind='modification',description='动态原生几何、并行三尺度、双向稀疏交互'),
+        variant=dict(id='mae-a-only' if config['task_weights']['B1']==0 else ('mae' if config['lambda_jepa']==0 else 'hybrid'),name='层次MAE · 仅空间重建A' if config['task_weights']['B1']==0 else ('层次MAE' if config['lambda_jepa']==0 else '层次MAE+JEPA'),kind='modification',description='动态原生几何、并行三尺度、双向稀疏交互'),
         metrics=metrics,charts=['train_loss','val_loss'],primary_metric='val_loss',numbers=['mae_loss','jepa_loss','gradient_norm','learning_rate'],
         config=dict(execution_identity=digest(binding),training_directory=str(run_dir),architecture='hierarchical_v3_h',task_weights=config['task_weights'],lambda_jepa=config['lambda_jepa'],
             source_run_id=state.get('source_viewer',{}).get('run_id'),source_checkpoint_cursor=state.get('migration_source_cursor')))
@@ -206,7 +215,7 @@ def main():
     parallel=None
     if config.get('devices'):
         from .parallel import TwoDeviceBatch
-        parallel=TwoDeviceBatch(model,datasets['TRAIN'],resolver,config)
+        parallel=TwoDeviceBatch(model,datasets['TRAIN'],resolver,config,validation_dataset=datasets['VAL'])
     state['status']='RUNNING'
     stop=threading.Event();signal.signal(signal.SIGINT,lambda *_:stop.set());signal.signal(signal.SIGTERM,lambda *_:stop.set())
     requested=lambda:stop.is_set() or (args.run_dir/'STOP_REQUESTED').exists()
@@ -215,7 +224,7 @@ def main():
             state['phase']='INITIAL_VALIDATION' if 'initial_validation' not in state else 'TRAINING'
             write(args.run_dir/'status.json',state)
             if 'initial_validation' not in state:
-                result=validate(model,datasets['VAL'],resolver,optimizer,scheduler,state,runtime)
+                result=validate(model,datasets['VAL'],resolver,optimizer,scheduler,state,runtime,parallel=parallel)
                 state['initial_validation']=dict(metric=result['metric'],observations=result['observations'])
                 state['best']=result['metric'];state['validation_regressions']=0
                 write(args.run_dir/'validation_0.json',result)
@@ -249,7 +258,7 @@ def main():
                     gradient_norm=record['gradient_norm'],learning_rate=record['lr'],update_seconds=record['seconds']))
                 due=plan.validation_due(state['cursor'],config['validations_per_epoch'])
                 if due:
-                    result=validate(model,datasets['VAL'],resolver,optimizer,scheduler,state,runtime)
+                    result=validate(model,datasets['VAL'],resolver,optimizer,scheduler,state,runtime,parallel=parallel)
                     state['validation_regressions']=state.get('validation_regressions',0)+1 if result['metric']>state['best']*1.1 else 0
                     state['validation']=dict(metric=result['metric'],observations=result['observations'])
                     write(args.run_dir/f"validation_{state['cursor']}.json",result)

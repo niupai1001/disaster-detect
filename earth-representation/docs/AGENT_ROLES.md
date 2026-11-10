@@ -61,6 +61,12 @@
 
 用户已明确暂停当前实验，phase为USER_PAUSED，STOPPED1312/5.632 Epoch、spent1320（含8重放），last1312、best932/第4轮末/完整383VAL0.4444412768，pause_record.json保留指令与检查点SHA。源码`8372d7a`仍冻结于`release_mae_dual_v1/runtime`，Viewer Run `3666b4153ea5457697c9b3188e8b5958`保持原身份，不移除STOP_REQUESTED，不自动续训或启动Hybrid。当前只读最佳权重可视化脚本为scripts/visualize_v3_h.py，图集reconstruction_best_v2；383VAL复算精确一致，18重建案例/4光谱，独立审查核对选样/掩膜/刻度/角色。协调者保留原任务与暂停预算，不接管其他GPU进程、旧LR或已完成共享MAE预算。
 
+### V3-H A-only独立训练
+
+用户另行授权“暂停B1，仅A；优化好加速后开始”，并明确选择“随机初始化，A-only独立训练10 Epoch”。新任务`encoder-v3-h-a-only-training`由本聊天持有hierarchical执行/几何、对应测试、config_v3_h_a_only_v1、独立a_only证据和release_a_only_v1；旧任务与STOPPED1312不恢复，旧检查点不能作为新初始化。新A-only指标与旧0.7A+0.3B1综合指标分开，Viewer方案标mae-a-only。
+
+enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用任务，A-only光谱选择隐藏空间位置，不执行B1。几何门禁逐边对照旧归一化Chebyshev谓词（含nextafter半径/小数GSD/大图CSR），不扩大邻域。双卡VAL在worker内关闭梯度、使用独立数据适配器，事务恢复主/副模式。独立55项CPU审查、CUDA旧A对照、最大原生双卡容量、25批异步稳定与完整恢复通过后才新冻结启动。32次固定四源TRAIN工程学习只作可学习性/颜色诊断，不计正式预算；实际正式Run仍从0随机初始化。
+
 ### 旧共享描述器MAE与历史暂停作业
 
 共享描述器与地理Patch MAE的首段正式训练已正常完成10Epoch、2330次更新，状态COMPLETE。最佳点为第10轮末，best与last模型权重一致；没有因查看结果、可视化或文档维护自动续训。旧LR第255步继续保持原暂停状态，旧冻结源码和检查点不改写。

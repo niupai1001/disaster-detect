@@ -68,7 +68,11 @@ python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/
 
 双卡采用单进程、两副本、独立数据读取缓存和几何缓存：一个原始Batch32按原生像元估算分工，每卡损失除实际全局观测数，梯度相加后由主卡统一clip/AdamW/scheduler/EMA一次并广播；尾批仍18。无需NCCL或未经同步的多进程。50项CPU测试、真实201/209批单/双卡损失与梯度、两大原生观测同时容量及双卡完整下一步恢复通过；短段中位加速约1.94倍，证据`performance/dual_gate_v1`。当前正式执行沿用`CUDA_LAUNCH_BLOCKING=1`及确定性FP32、每批保存；此前异步非法访存根因未确定，同步重放PASS不能证明异步缺陷已消失。
 
-当前实验已按用户要求安全暂停：STOPPED1312，约5.632 Epoch，spent_updates1320含8次重放；last保存1312，best为932步/第4轮末，完整383VAL=0.4444412768。Viewer Run ID为`3666b4153ea5457697c9b3188e8b5958`，不自动续训或开启Hybrid。冻结源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`，runtime内170个依赖文件不变。只读最佳权重图集见[重建可视化](outputs/encoder_v3/hierarchical/reconstruction_best_v2/index.html)及[结果说明](docs/RESULTS.md#encoder-v3-h-层次化mae暂停实验)；脚本`scripts/visualize_v3_h.py`独立导入冻结运行，不改模型或权重。
+旧A/B1实验已按用户要求安全暂停：STOPPED1312，约5.632 Epoch，spent_updates1320含8次重放；last保存1312，best为932步/第4轮末，完整383VAL=0.4444412768。Viewer Run ID为`3666b4153ea5457697c9b3188e8b5958`，不自动续训或开启Hybrid。冻结源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`，runtime内170个依赖文件不变。只读最佳权重图集见[重建可视化](outputs/encoder_v3/hierarchical/reconstruction_best_v2/index.html)及[结果说明](docs/RESULTS.md#encoder-v3-h-层次化mae暂停实验)；脚本`scripts/visualize_v3_h.py`独立导入冻结运行，不改模型或权重。
+
+用户随后选择随机初始化、A-only独立10 Epoch，配置`configs/config_v3_h_a_only_v1.json`为A=1/B1=0、JEPA=0，旧A/B1保持暂停。新训练/验证/梯度诊断/检查与可视化均过滤零权重任务，B1不执行；无可用A的成员明确拒绝，当前7442TRAIN和383VAL全部有A。双卡全局Batch32、L128、mask0.55、FP32、原生目标/QA/统计不变，新发布为`outputs/encoder_v3/hierarchical/release_a_only_v1`，全新Run从0开始，不加载旧best或last。
+
+本次加速用分块Cartesian精确邻接构造替代大图cKDTree邻居列表/全局排序，并行完整VAL，并在门禁通过后使用异步CUDA（CUDA_LAUNCH_BLOCKING=0）。55项CPU测试、原A路径损失/梯度/边/目标对照、双卡最大容量、完整恢复及25批异步短段通过。证据在`outputs/encoder_v3/hierarchical/a_only`：最大场景冷A前后向59.65→44.14秒（1.35倍），热态约31秒基本不变；普通样本热态约0.93—1.17倍有波动，不宣称普遍加速。单/双卡383VAL 23.87→16.65秒，结果相同；A-only普通Batch32约3—5秒。取消B1本身的减负另记，不混称等价代码优化；尚无新完整Epoch耗时或色差已解决结论。
 
 加速证据统一在`outputs/encoder_v3/hierarchical/performance`：同卡paired数值/梯度对照及相同前183批无更新回放已证明实际加速。均批18.27→13.54秒（约1.35倍），含3次完整383VAL及检查点总耗时减少约26.88%；两张5090并行共享CPU/I/O，保留此测量条件。用户明确无需等待完整Epoch，两条长回放已停止；有效同批前缀可以验收速度，不冒称完整Epoch耗时。候选47项CPU测试、最大完整原生场景A/B1容量通过；失败轨迹及各版本证据不混用，详见[V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md#22-加速候选的验收与继续顺序)。
 

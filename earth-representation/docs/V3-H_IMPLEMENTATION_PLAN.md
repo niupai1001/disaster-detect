@@ -1,6 +1,6 @@
 # Encoder V3-H：工程实施与代码验收计划
 
-状态：原文档阶段已提交为`73f6b80`，后续实现并完成单/双卡训练门禁。用户现明确暂停，正式运行STOPPED1312/5.632 Epoch，原10 Epoch上限未完成；best932/第4轮末/完整383VAL0.4444412768，只读重建见RESULTS。未经新指令不恢复或开启Hybrid。工程状态与边界以§20—23及实际证据为准。设计依据：[V3-H_DESIGN.md](V3-H_DESIGN.md)。
+状态：旧A/B1正式运行保持STOPPED1312/5.632 Epoch，best932/第4轮末/综合383VAL0.4444412768，图集见RESULTS。用户另选随机初始化A-only独立10 Epoch，先完成等价加速与门禁再新冻结启动；旧预算不恢复，Hybrid不启用。当前执行与验收见§24，历史边界保留。设计依据：[V3-H_DESIGN.md](V3-H_DESIGN.md)。
 
 ## 1. 实施目标
 
@@ -900,3 +900,23 @@ Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1
 双卡正式启动已执行：源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`、Git tree `149b5c5cfb0ce630a364f133daccaaf3e14dd92a`，170个依赖文件冻结，源码身份`262013c7aface18cfdee14398cf9fb065a62a93915b855a2cc018428df365b90`。正式目录`release_mae_dual_v1/formal_run`、Viewer Run `3666b4153ea5457697c9b3188e8b5958`已从检查点200写入201步真实更新（spent209）。首次loss0.12524238954283645与原对应批一致；每批检查点和恢复尝试归档正常。最新运行状态、实际cursor与原失败点复核见`training_started.json`及formal_run/status.json，不把启动通过写成全部10 Epoch完成。
 
 当前停止边界：用户明确“暂停当前实验……给我看看可视化的结果”，已请求STOP并保存last1312，状态STOPPED、5.632088Epoch、spent1320；best932/4Epoch，最近一次完整VAL为1282步0.4509382418，不将其归给未重评的last1312。pause_record.json记录检查点SHA与用户暂停指令，保留STOP_REQUESTED；历史authorization不能越过最新暂停指令。可视化仅从冻结最佳权重推理，完整383VAL复算精确一致，参数及原best/last/updates哈希不变。reconstruction_best_v1保留初版证据，v2补充显示截断及验证后段放大说明；无optimizer更新，不作为恢复训练。
+
+## 24. A-only独立消融与加速验收
+
+用户明确“暂停B1训练，仅进行A，优化好加速后开始”，并选择随机初始化、A-only独立10 Epoch。新任务encoder-v3-h-a-only-training，新配置config_v3_h_a_only_v1.json，新发布release_a_only_v1；不加载旧best/last，不继承旧Run/optimizer/游标或8次重放。全局Batch32、每轮7442观测/233批（尾批18）、10轮上限2330更新，VAL383/每轮4次，L128、mask0.55、FP32、lr/warmup/clip及原QA/归一化不变。A=1、B1=0、JEPA=0，零权重任务在train/validate/gradient_contributions/check中统一过滤；可视化也仅评估启用任务。无有效A任务的成员fail closed，旧日志已核验全部7442TRAIN/383VAL具有A，不筛掉高损失成员。
+
+等价工程优化：Cartesian分区直接用轴区间生成每4096 query的稀疏边，避免百万点cKDTree Python邻居列表与全局边排序。候选区间覆盖浮点减法消去误差，最终仍对原归一化坐标应用abs<=1，k保持原升序；generic parent/child sparse_edges仍排序。测试中发现初版一ULP范围不足，已修复并逐边通过。Fine/Middle/Coarse数量、原生面积、边/掩膜/目标和模型参数结构不改变。
+
+双卡完整验证沿用独立VAL适配器，在worker内关闭梯度，按全局成员数求均值，join和CUDA同步后恢复主模型/optimizer/scheduler/RNG/模式并broadcast恢复副本；不是两个shard均值直接平均。异步模式CUDA_LAUNCH_BLOCKING=0单独验收后使用，CUBLAS_WORKSPACE_CONFIG=:4096:8、确定性与TF32关闭不变，每批checkpoint保留。旧异步故障根因未确诊，本次门禁仅证明当前A-only路径在所测范围通过，不声称驱动已根治。
+
+| 证据（outputs/encoder_v3/hierarchical/a_only/） | 结果与范围 |
+|---|---|
+| unit_tests_v2.xml | 55项CPU回归及独立审查复跑通过，含小数GSD/nextafter半径/>100k CSR与旧树逐边一致、B1零前向、双卡VAL线程no-grad及全状态恢复 |
+| paired_async_v1/report.json | 四来源代表及最大34,491,294原生通道像元，旧A-only模型/几何与新A-only同初始化、同输入/掩膜/目标/边/损失/梯度通过；最大loss差0/gradient差0。最大冷A前后向59.65→44.14秒（1.35倍），热30.90→30.95秒无收益；普通热态0.93—1.17倍有波动，不能宣称全部更快 |
+| pipeline_async_v1/report.json | 25真实Batch32短回放含旧失败209、两个极大场景与后继通过，无更新回放中位约4.28秒；3次独立工程更新（含重放）的下一步model/optimizer/scheduler/runner/RNG/modes/EMA完全一致。单/双383VAL 23.87→16.65秒、metric2.1634566077精确一致；该指标来自工程副本，不是正式初始化分数 |
+| dual_capacity_async_v1.json | 双卡同时两个最大观测34,491,294/22,307,028像元仅A前后向PASS，约50.27秒，峰值allocated主约20.40/副约19.26GiB；无optimizer更新 |
+| color_learning_probe_v1/report.json | 随机初值固定四源TRAIN中位原生规模观测、32次独立工程更新，A均值0.5864→0.2182；所选RGB物理MAE下降，但L8全波段MSE0.1537→0.1860未改善。仅说明可学习性，不冒充已消除色差；正式初始化重新从相同seed17开始，不携带工程更新 |
+
+取消B1的减负单列：相同候选代码/同Batch32，AB→A-only约11.58→4.89秒及6.78→4.46秒；这是任务工作量变化，不计入等价代码优化倍数。当前没有新完整Epoch耗时实测，不预设时间门槛。可训练参数和模型信息流不变，不能仅因参数少而保证高吞吐。
+
+顺序：提交当前源码/配置/测试和文档→冻结新身份并核验全部门禁绑定→签发本次用户明确授权（随机初始化A-only10 Epoch）→新Run不带resume启动→确认初始化383VAL和真实更新、每批checkpoint及A-only日志。旧Run保持STOPPED1312及原SHA。A-only VAL与旧综合0.4444不是同一指标，旧best932的A单项0.4156507235仅作相同固定面板开发参照。后续以A重建和RGB/光谱误差检查质量，不仅看平台，不静默启用B1或Hybrid。
