@@ -47,11 +47,17 @@
 
 后续用户明确要求“继续完成试验进入训练”，当前任务`encoder-v3-h-implementation-training`由本聊天持有新hierarchical源码、对应测试、新配置/入口和独立输出目录。旧宽范围任务身份保留，本次不改旧shared_mae/latent_response或冻结作业；登记中的范围重叠由本轮具体授权说明，不能解释为接管全部Encoder V3。
 
-执行顺序：契约冻结→动态几何/并行Token→三主干→双向交互→Decoder/MAE→JEPA→Hybrid闭环→profiling/审查→工程交接。各阶段以设计ID、代码符号、测试及实测证据逐项对应验收；不能以输出形状或loss下降代替设计一致性。当前为同一Agent实现与分阶段自审，独立审查未完成时不冒称独立验收。
+执行顺序：契约冻结→动态几何/并行Token→三主干→双向交互→Decoder/MAE→JEPA→Hybrid闭环→profiling/审查→工程交接。各阶段以设计ID、代码符号、测试及实测证据逐项对应验收；不能以输出形状或loss下降代替设计一致性。本聊天负责实现，用户授权的`/root/v3_h_independent_review`负责只读独立审查，已在CPU回归及实际合成CLI恢复检查后放行当前MAE；不替代Hybrid容量或研究效果验收。
 
 后续任务仍在原`outputs/encoder_v3/agent_work.json`核对owner和具体范围，不抢占整个src/encoder_v3。实现、试验和新训练遵循本轮用户授权，首段独立MAE配置与门禁见实施计划§20；Hybrid真实训练另用配置和身份，不静默开启。已发现的OOM及非确定性恢复失败保留为工程证据，未解决前不能放行。
 
 ## 当前训练与执行状态
+
+### V3-H首段独立MAE
+
+用户已确认先独立MAE10 Epoch，通过后再做Hybrid对照。新源码提交`9929ca1`，发布为`outputs/encoder_v3/hierarchical/release_mae_v1`；readiness、authorization及源文件清单绑定新身份。正式目录为该发布下`formal_run`，Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`。完整383VAL初始化已完成（2.1678077669 z²），随后已观察到连续真实参数更新；实际阶段与更新数以`formal_run/status.json`为准。配置、独立审查、38项测试、最大场景/Batch32、精确CUDA恢复及成本证据见[V3-H实施计划§21](V3-H_IMPLEMENTATION_PLAN.md#21-实现与工程证据)。旧停止作业不恢复，Hybrid尚未正式启动，当前没有完成Epoch或表征有效结论。
+
+### 旧共享描述器MAE与历史暂停作业
 
 共享描述器与地理Patch MAE的首段正式训练已正常完成10Epoch、2330次更新，状态COMPLETE。最佳点为第10轮末，best与last模型权重一致；没有因查看结果、可视化或文档维护自动续训。旧LR第255步继续保持原暂停状态，旧冻结源码和检查点不改写。
 

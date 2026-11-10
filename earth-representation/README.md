@@ -64,7 +64,7 @@ python -I scripts/run_v3_h.py check --config configs/config_v3_h_mae_v1.json --m
 python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/hierarchical','tests/encoder_v3/shared_mae','-o','pythonpath=src','-q']))"
 ```
 
-`train`必须提供绑定新架构/代码/配置/冻结成员的authorization与readiness。用户当前授权完成试验后进入新V3-H训练；具体运行状态以`outputs/encoder_v3/hierarchical`下证据为准，命令示例不恢复旧训练。
+`train`必须提供绑定新架构/代码/配置/冻结成员的authorization与readiness。用户已确认先独立MAE10 Epoch，再做Hybrid对照。新发布位于`outputs/encoder_v3/hierarchical/release_mae_v1`，包含冻结runtime、source_manifest、readiness、authorization与formal_run；[实时状态](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/status.json)和[更新记录](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/updates.jsonl)记录实际推进。Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`；初始化完整VAL与真实参数更新分开，旧训练不恢复，Hybrid尚未正式启动。
 
 ## 当前共享描述器与全局MAE入口
 

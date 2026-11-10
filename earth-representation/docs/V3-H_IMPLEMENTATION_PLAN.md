@@ -775,7 +775,7 @@ P1→P8严格按依赖交付；独立验收可准备测试样例，但不提前�
 
 ## 19. 设计代码追踪矩阵
 
-以下为实施前映射，**所有V3-H新实现/测试/实测状态均待执行**。实际符号在每阶段提交时填写；不能仅填写目录后标为通过。
+以下保留实施前差异映射；实际符号和工程证据见§21。不能仅填写目录或输出形状后标为通过。
 
 | 设计ID / 文档节 | 当前基线定位 | 后续改动与证据要求 |
 |---|---|---|
@@ -804,3 +804,42 @@ P0的具体尺度、邻域、调度、Decoder查询及损失/EMA规则见设计�
 工程证据统一存`outputs/encoder_v3/hierarchical/engineering`，记录真实更新与无更新检查。首版最大场景在通道投影处OOM（真实更新0），保留`max_native_v1`失败证据；`max_native_v2`为无更新中止的分块诊断，不能当成通过。后续版本只调整等价分块和重计算，保留全部Token、空间边、原生像元和监督。容量、真实Batch32、固定原生学习、完整状态恢复、逐模块成本与审查未完成前，不签发readiness或启动正式训练。
 
 本页阶段表是职责规划，不表示独立审查已经完成。若本轮仅自审，必须明确标注验收来源，不冒称另一Agent或独立评价。工程通过也不等于表征有效，正式成绩待真实训练与评价后写RESULTS。
+
+## 21. 实现与工程证据
+
+首版实现已提交为`9929ca17f84af8d9ad9f6ae581098e2b35879cc0`，Git源文件树为`5a350aa2cf5aa49ec57f7aee45c7a7f908e64f4d`。源码身份为`31da41b2a8b5aa1f78152bbcc904b2168fde0db4e4e06d929d501c8ffbae93b6`。训练发布保存在`outputs/encoder_v3/hierarchical/release_mae_v1`，runtime内167个文件及设计合同单独冻结，加载后身份与最终工程证据相同。
+
+| 设计项 | 实际符号（hierarchical下） | 主要验证 |
+|---|---|---|
+| D01物理条件 | Encoder.memory/convolution，只读复用shared_mae类 | 元数据回归、共享参数、各分支梯度 |
+| D02几何 | geometry.partitions/edges/area_map | 不同L/GSD/各向异性/偏移/分数边界、常量场与原生面积往返 |
+| D03并行Token | Encoder.native/fuse/projection | 共享一份原生前端、三尺度直接面积聚合、融合分块输出及梯度等价 |
+| D04三主干 | SparseAttention、GlobalBlock、Encoder.branches/coarse | Fine邻窗正控制、远端直接边负控制、Coarse分块全局与整块数值对照、场景隔离 |
+| D05双向交互 | Encoder.cross | 四方向逐一源有效性/干预/梯度检查；F→M→C→M→F |
+| D06原生Decoder | HierarchicalMAE.decode/output、AreaMap.native | C→M→F梯度、D_output、面积回原生及隐藏值污染检查 |
+| D07 MAE | HierarchicalMAE.masks/available_tasks、train.batch_loss | A/B1权限、QA/NaN、单通道、可用任务权重与观测等权/微批次一致 |
+| D08 JEPA | target、predictor、predictor_output、update_ema | 初始化、停止梯度、EMA数值/状态、Online污染与Target可响应、三尺度真实样本目标与方差 |
+| D09闭环 | train.save/resume/update/main、writer_for | 精确CUDA下一步恢复、Viewer真实恢复身份、TRAIN角色门禁、原EpochPlan复用 |
+| D10成本 | check.py、.project/v3_h_profile.py | 最大原生场景、真实Batch32、模块CUDA事件/冷暖缓存；没有Epoch时间阈值 |
+| D11验收 | release_mae_v1与engineering证据 | 单元回归、独立审查与正式训练状态分开 |
+
+最终工程证据：
+
+| 证据 | 结果与含义 |
+|---|---|
+| engineering/unit_tests_v1.xml | 新旧相关38项全部通过；覆盖CPU数值、隔离、梯度、EMA、恢复及Viewer |
+| engineering/max_native_v4/report.json | 确定性FP32，最大34,491,294原生通道像元的完整A/B1前后向通过；Fine1,878,600、Middle613,994、Coarse38,626；约36.3/36.9秒，峰值allocated约28.66/23.86GiB；参数未更新 |
+| engineering/batch32_v2/report.json | 真实首Batch32，观测等权、微批次1，完整前后向约27.7秒，峰值约1.19GiB；没有裁图或减少目标，参数未更新 |
+| engineering/stability_v3/report.json | 8次真实工程更新（含保存恢复后的重放检查），固定8成员损失0.7082→0.5884；保存恢复后下一次更新模型状态逐位一致，不计正式Epoch |
+| engineering/module_profile_v1.json | S2/EnMAP各3次A前后向，按模块记录包含重计算的CUDA时间，数据/几何wall-clock与冷暖状态分开；不能累加重叠模块时间冒充总成本 |
+| engineering/hybrid_native_v1/report.json | EnMAP/L8/L9/S2代表样本A/B1混合路径无更新前后向通过；A的三尺度JEPA目标数与Target标准差均记录，不证明长期无坍塌或下游有效 |
+
+保留失败轨迹：max_native_v1为OOM，max_native_v2为中止诊断；stability_v1恢复逐位不一致，启用确定性计算后v2/v3通过。不删除这些记录，不将失败或预检称为正式成绩。工程更新总数24（v1/v2/v3各8），正式更新另以formal_run记录。
+
+用户已明确选择“先MAE独立训练10 Epoch，通过后再做Hybrid对照”，并授权一个只读独立审查Agent。首段λ_J=0，Hybrid正式训练未开始；其最大场景容量与长程稳定性仍须针对实际Hybrid发布另验收。旧共享MAE与本段还改变了mask、任务权重和容量，不能把两者差异直接归因为架构单因素；后续Hybrid须匹配本段数据、配置、初始化和评价条件。
+
+只读独立审查`/root/v3_h_independent_review`已放行当前MAE：独立复跑38项CPU测试，额外混合GSD/分数偏移隔离与面积检查，并实际走通合成数据完整CLI（初始VAL、weighted更新、journal、定期VAL、best/last、真实resume）。原审查记录为`engineering/independent_review_v1.json`，补充范围限制在`independent_review_supplement.json`。极粗输入（如GSD256m、L128m、单通道1×1）可能占多个Patch但遮盖后无原生可见上下文；未来扩大准入前须加强任务可用性判断，不能将本段验收外推到此情形。Viewer跨崩溃恢复可保留旧Session未checkpoint指标，重复cursor按Session和真实检查点解释。
+
+MAE-only的`readiness.json`和用户`authorization.json`已绑定同一冻结身份。新正式目录为`release_mae_v1/formal_run`，Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`。完整383VAL初始化已完成，初始损失2.1678077669 z²，随后已观察到连续真实参数更新；当前实时阶段、更新数、best与末态以`formal_run/status.json`、`updates.jsonl`和实际检查点为准。计划上限为10 Epoch，当前没有完成Epoch或下游有效性结论。
+
+完整Epoch成本尚未实测，后续由正式运行记录；上述模块/批次成本不作为Epoch速度承诺。无独立EnMAP VAL，尚无冻结Encoder下游或跨传感器泛化结论。
