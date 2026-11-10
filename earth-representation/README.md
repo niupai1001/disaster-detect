@@ -43,7 +43,7 @@ python -m pytest -q
 
 ## 文档入口
 
-重建失败排查已补齐[论文与结构分析](docs/DESIGN.md#重建失败的信息路径与修正方向)、[完整383VAL线性基线](docs/RESULTS.md#可见信号基线与信息路径诊断)和[修正实施顺序](docs/V3-H_IMPLEMENTATION_PLAN.md#26-重建信息路径修正候选)。全部正式训练保持停止。20步预热/可见均值残差是已通过CPU回归的候选，原生位置Decoder仍为待验证设计；不将候选配置当作正式启动许可。
+简洁Decoder已完成实现与质量/加速门禁：[机制与L9原因](docs/DESIGN.md#简洁原生残差decoder)、[工程结果](docs/RESULTS.md#简洁decoder与l9排查)、[实施顺序](docs/V3-H_IMPLEMENTATION_PLAN.md#26-简洁decoder实施与30轮训练)。新配置config_v3_h_simple_decoder_v1.json保留原物理Encoder，7316参数读出头，恢复EnMAP，随机初始化A-only双卡30 Epoch/6990更新、预热50步。正式状态以release_simple_decoder_v1/formal_run为准；工程权重丢弃，旧运行不恢复。
 
 - [项目方案与设计](docs/DESIGN.md)：研究目的、代际演变和模型思路。
 - [正式研究结果](docs/RESULTS.md)：完整比较及各方案解释。

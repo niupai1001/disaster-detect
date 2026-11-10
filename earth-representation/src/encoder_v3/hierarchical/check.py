@@ -22,7 +22,7 @@ def main():
     config=json.loads(args.config.read_text());torch.set_num_threads(2);torch.manual_seed(config['seed'])
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark=False;torch.backends.cudnn.deterministic=True
-    torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
+    torch.backends.cuda.matmul.allow_tf32=config.get('tf32_matmul',False);torch.backends.cudnn.allow_tf32=False
     torch.cuda.set_device(config['device'])
     datasets,resolver=load_data(config);dataset=datasets['TRAIN'];binding=identity(config,datasets,resolver)
     model=build_model(config).to(config['device'])

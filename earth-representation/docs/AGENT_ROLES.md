@@ -93,11 +93,13 @@ enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用�
 
 独立Agent只读复核，工程同样本对照不得替代完整VAL、图像质量或整轮成本验收；缓存Encoder特征的短段时间不能外推真实数据吞吐。两均匀/纹理TRAIN控制、输入与端口干预、目标已知或留Patch探针均注明各自因果边界；下一步继续限定Decoder，不自行删除物理Encoder或扩展正式预算。
 
-### 重建信息路径研究与候选实施职责
+### 简洁Decoder与30轮训练职责
 
-当前排查由本聊天持有`encoder-v3-h-residual-short-warmup`：`.project/v3_h_native_baselines.py`、`.project/v3_h_reconstruction_research_summary.py`、hierarchical model/train及测试、两份warmup20/residual配置、可视化LR兼容、对应设计/结果与`outputs/encoder_v3/hierarchical/reconstruction_research`。阶段为研究/CPU候选验证完成，所有正式训练保持停止。已有独立Agent仅只读审查；不能把本研究认领解释为启用新的正式预算。
+本聊天持有任务encoder-v3-h-simple-decoder-30epoch：hierarchical源码与测试、simple_decoder配置、.project/v3_h_simple_decoder_gate.py、v3_h_simple_decoder_quality.py、v3_h_simple_decoder_release.py、对应五份正文及V3-H两份用户指定规格、simple_decoder/release_simple_decoder_v1独立产物。旧研究候选任务完成，旧正式运行保持停止/完成；本轮用户授权恢复EnMAP并训练30 Epoch、预热50更新。
 
-后续按V3-H_IMPLEMENTATION_PLAN§26分阶段认领：先验证合法基线/信息定位，再做原Encoder冻结的原生位置Decoder，必要时再独立修改融合保留信息。不得把同位置隐藏光谱输入、全场IDW与限半径Decoder混为同口径；不得用新增原生值旁路的收益证明原Token已保留信息。候选未通过新身份GPU容量、双卡等价与恢复前，不冻结为正式发布或启动训练。
+主Agent负责简洁实现、L9定位、最终门禁绑定、冻结与实际启动；已有独立Agent只读复核mask/足迹/波段条件/学习证据、双卡容量/恢复及最终身份。正式从seed17随机初始化，Encoder和Decoder都训练；工程固定Encoder和128步权重不带入。TRAIN7442/VAL383，233批尾18、6990更新；来源L9/EnMAP日志属于TRAIN，不伪造独立验证。
+
+开训前必须核对cpu_final_v1、precision_final_v2、pipeline_v1、quality_final_v2及独立审查与最终identity一致，复核原初始化/成员与全部冻结文件SHA。首次epoch0上游梯度0属零末层预期，后续真实更新须检查；不得仅以IDW初值好看来宣称表征修复。后续按V3-H_IMPLEMENTATION_PLAN§26推进及维护固定文档，不续写旧冻结源码。
 
 ### 排除EnMAP的随机原架构短段
 

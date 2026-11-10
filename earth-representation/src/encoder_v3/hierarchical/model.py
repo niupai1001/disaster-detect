@@ -15,6 +15,21 @@ from .geometry import partitions, area_map, neighborhood, sparse_edges, metric_g
 WIDTHS = (64, 96, 128)
 
 
+def mask_sums(masks):
+    groups={};result=torch.zeros(len(masks),dtype=torch.long,device=masks[0].device)
+    for i,mask in enumerate(masks):groups.setdefault(mask.shape,[]).append(i)
+    for indices in groups.values():result[indices]=torch.stack([masks[i] for i in indices]).flatten(1).sum(1)
+    return result
+
+
+def occupied_regions(sample,layout):
+    groups={}
+    for c,maps in zip(sample.channels,layout[2]):groups.setdefault(c.grid,[]).append((c.valid,maps[2]))
+    occupied=torch.zeros(len(layout[1][2]),dtype=torch.bool,device=sample.channels[0].values.device)
+    for entries in groups.values():occupied|=entries[0][1].support(torch.stack([v for v,_ in entries]).any(0))>0
+    return occupied
+
+
 @dataclass
 class ScaleTokens:
     features: torch.Tensor
@@ -39,6 +54,8 @@ class EncoderOutput:
 
 
 def execute(function,*args,large=False):
+    # Coarse attention already checkpoints its queries; sparse blocks retain their outer memory bound.
+    if isinstance(function,GlobalBlock):return function(*args)
     return checkpoint(function,*args,use_reentrant=False) if torch.is_grad_enabled() and large else function(*args)
 
 
@@ -57,6 +74,7 @@ def masked_softmax(scores,mask,dimension):
 
 
 class SparseAttention(nn.Module):
+    compact_threshold=4096
     def __init__(self, width, context_width=None):
         super().__init__()
         self.heads, self.width = 4, width
@@ -70,21 +88,30 @@ class SparseAttention(nn.Module):
         qi, ki = edges
         allowed = valid[qi] & context_valid[ki]
         qi, ki = qi[allowed], ki[allowed]
-        score = (q[qi]*k[ki]).sum(-1)/math.sqrt(self.width/4)
+        score = (q[qi].float()*k[ki].float()).sum(-1)/math.sqrt(self.width/4)
         index = qi[:,None].expand(-1,4)
         maximum = score.new_full((len(q),4),-torch.inf)
         maximum.scatter_reduce_(0,index,score.detach(),reduce='amax',include_self=True)
         weight = (score-maximum[qi]).exp()
         denominator = weight.new_zeros(len(q),4).index_add_(0,qi,weight)
         weight = weight/denominator[qi].clamp_min(1e-12)
-        return v.new_zeros(len(q),4,self.width//4).index_add_(0,qi,weight[...,None]*v[ki]).flatten(1)
+        return weight.new_zeros(len(q),4,self.width//4).index_add_(0,qi,weight[...,None]*v[ki].float()).flatten(1)
 
     def forward(self, x, context, edges, valid, context_valid):
         same=x is context and valid is context_valid
         x=torch.where(valid[:,None],x,0.)
         context=x if same else torch.where(context_valid[:,None],context,0.)
-        q = self.q(self.norm(x)).reshape(len(x),4,-1)
-        k,v = self.kv(context).reshape(len(context),2,4,-1).unbind(1)
+        compact=len(x)>self.compact_threshold
+        if compact:
+            active=valid.nonzero().flatten();sources=active if same else context_valid.nonzero().flatten()
+            selected_q=self.q(self.norm(x[active])).reshape(-1,4,self.width//4)
+            q=selected_q.new_zeros(len(x),4,self.width//4).index_copy(0,active,selected_q)
+            projected=self.kv(context[sources]).reshape(-1,2,4,self.width//4)
+            projected=projected.new_zeros(len(context),2,4,self.width//4).index_copy(0,sources,projected)
+            k,v=projected.unbind(1)
+        else:
+            q = self.q(self.norm(x)).reshape(len(x),4,-1)
+            k,v = self.kv(context).reshape(len(context),2,4,-1).unbind(1)
         outputs=[]
         large=sum(c[2].shape[1] for c in edges)*self.width*12>128*1024**2
         for begin,end,index,neighbors,present in edges:
@@ -94,7 +121,11 @@ class SparseAttention(nn.Module):
             else:
                 args=(q[begin:end],k,v,neighbors,present,valid[begin:end],context_valid)
                 outputs.append(execute(self.padded_attend,*args,large=large))
-        x = x+self.out(torch.cat(outputs))
+        attended=torch.cat(outputs)
+        if compact:
+            value=x[active]+self.out(attended[active]);value=value+self.ff(value)
+            return torch.zeros_like(x).index_copy(0,active,value)
+        x = x+self.out(attended)
         x = x+self.ff(x)
         return torch.where(valid[:,None],x,0.)
 
@@ -133,12 +164,13 @@ class GlobalBlock(nn.Module):
             args=(q[:,begin:begin+512],k,v)
             outputs.append(execute(attention,*args,large=len(ids)**2*16>64*1024**2))
         value=selected+self.out(torch.cat(outputs,1).transpose(0,1).flatten(1))
-        value=value+self.ff(value)
+        value=value+execute(self.ff,value,large=len(ids)>2048)
         return torch.zeros_like(x).index_copy(0,ids,value)
 
 
 class ParentAttention(nn.Module):
     """Exact one-key attention: softmax is one, so Q/K and query normalization are dead."""
+    compact_threshold=4096
     def __init__(self,width,context_width):
         super().__init__()
         original=SparseAttention(width,context_width)
@@ -159,6 +191,10 @@ class ParentAttention(nn.Module):
             if any(c[3].shape[1]!=1 for c in edges):raise ValueError('Unique geometric parent required')
             parents=torch.cat([c[3][:,0] for c in edges])
             present=torch.cat([c[4][:,0] for c in edges]) & context_valid[parents] & valid
+        if len(x)>self.compact_threshold:
+            active=valid.nonzero().flatten()
+            result=x[active]+self.out(torch.where(present[active,None],values[parents[active]],0.))
+            return torch.zeros_like(x).index_copy(0,active,result+self.ff(result))
         result=x+self.out(torch.where(present[:,None],values[parents],0.))
         result=result+self.ff(result)
         return torch.where(valid[:,None],result,0.)
@@ -179,6 +215,7 @@ def canonical_weights(state):
 
 
 class Encoder(nn.Module):
+    compact_threshold=4096
     def __init__(self, depth=2):
         super().__init__()
         self.memory, self.convolution = SharedMemory(), ConditionalConvolution()
@@ -228,7 +265,7 @@ class Encoder(nn.Module):
         summaries = [[],[],[]]
         supports = [[],[],[]]
         groups={}
-        active=torch.stack([keep.any() for keep in keeps]).tolist()
+        active=(mask_sums(keeps)>0).tolist()
         order=[]
         for i,c in enumerate(sample.channels):
             if active[i]:groups.setdefault(c.grid,[]).append(i)
@@ -248,15 +285,18 @@ class Encoder(nn.Module):
         features,valids,metadata = [],[],[]
         for level,part in enumerate(parts):
             support = torch.stack(supports[level])
-            chunks=[]
-            for start in range(0,len(part),4096):
-                summary=torch.stack([v[start:start+4096] for v in summaries[level]])
-                def fuse(a,b,c,level=level):return self.fuse(a,b,c,level)
-                args=(summary,support[:,start:start+4096],conditions['fusion'][order])
-                chunks.append(execute(fuse,*args,large=len(part)*len(order)*WIDTHS[level]*12>128*1024**2))
-            x=torch.cat(chunks)
-            # Validity is support union (any), never a sum of overlapping channel areas.
             valid = (support>0).any(0)
+            active=valid.nonzero().flatten() if len(part)>self.compact_threshold else None
+            chunks=[]
+            selections=active.split(4096) if active is not None else [slice(start,start+4096) for start in range(0,len(part),4096)]
+            for selected in selections:
+                summary=torch.stack([v[selected] for v in summaries[level]])
+                def fuse(a,b,c,level=level):return self.fuse(a,b,c,level)
+                args=(summary,support[:,selected],conditions['fusion'][order])
+                chunks.append(execute(fuse,*args,large=len(part)*len(order)*WIDTHS[level]*12>128*1024**2))
+            x=torch.cat(chunks) if chunks else support.new_zeros(0,WIDTHS[level])
+            if active is not None:x=x.new_zeros(len(part),WIDTHS[level]).index_copy(0,active,x)
+            # Validity is support union (any), never a sum of overlapping channel areas.
             centers = torch.tensor(part.centers,device=x.device)+torch.tensor(geo.origin,device=x.device,dtype=torch.float64)
             x = x+self.position[level](position_features(centers,geo))
             features.append(torch.where(valid[:,None],x,0.));valids.append(valid)
@@ -284,7 +324,7 @@ class Encoder(nn.Module):
 
 class HierarchicalMAE(nn.Module):
     def __init__(self, *, patch_metres, mask_ratio=.55, encoder_depth=2, lambda_jepa=0., ema_momentum=.996,
-                 frontend='physical_descriptor',channel_keys=None,residual_readout=False):
+                 frontend='physical_descriptor',channel_keys=None,residual_readout=False,decoder_type='hierarchical'):
         super().__init__()
         if not 0<mask_ratio<1 or not 0<=ema_momentum<1 or lambda_jepa<0:
             raise ValueError('Invalid masking, EMA or JEPA weight')
@@ -297,11 +337,18 @@ class HierarchicalMAE(nn.Module):
         else:raise ValueError('Unknown frontend')
         self.target = copy.deepcopy(self.online).requires_grad_(False)
         self.target.eval()
-        self.decoder = nn.ModuleList([SparseAttention(w) for w in WIDTHS[:2]]+[GlobalBlock()])
-        self.decoder_position = nn.ModuleList(nn.Linear(50,w) for w in WIDTHS)
-        self.mask_tokens = nn.ParameterList(nn.Parameter(torch.randn(w)*.02) for w in WIDTHS)
-        self.topdown = nn.ModuleList((nn.Linear(96,64),nn.Linear(128,96)))
-        self.output = nn.Sequential(nn.Linear(96,64),nn.GELU(),nn.Linear(64,1))
+        if decoder_type not in ('hierarchical','native_residual'):raise ValueError('Unknown decoder_type')
+        if decoder_type=='native_residual':
+            if frontend!='physical_descriptor' or not residual_readout:raise ValueError('Native residual decoder requires physical metadata and residual_readout')
+            from .simple_decoder import NativeResidualDecoder
+            self.decoder=NativeResidualDecoder()
+        else:
+            self.decoder = nn.ModuleList([SparseAttention(w) for w in WIDTHS[:2]]+[GlobalBlock()])
+            self.decoder_position = nn.ModuleList(nn.Linear(50,w) for w in WIDTHS)
+            self.mask_tokens = nn.ParameterList(nn.Parameter(torch.randn(w)*.02) for w in WIDTHS)
+            self.topdown = nn.ModuleList((nn.Linear(96,64),nn.Linear(128,96)))
+            self.output = nn.Sequential(nn.Linear(96,64),nn.GELU(),nn.Linear(64,1))
+        self.decoder_type=decoder_type
         self.predictor_context = nn.Linear(128,128)
         self.predictor_position = nn.Linear(50,128)
         self.predictor_scale = nn.Embedding(3,128)
@@ -311,7 +358,7 @@ class HierarchicalMAE(nn.Module):
         self._layouts = OrderedDict()
         if type(residual_readout) is not bool:raise ValueError('residual_readout must be boolean')
         self.residual_readout=residual_readout
-        if residual_readout:
+        if residual_readout and decoder_type=='hierarchical':
             # Start from a legal visible-signal baseline; learn only its correction.
             nn.init.zeros_(self.output[-1].weight);nn.init.zeros_(self.output[-1].bias)
 
@@ -366,11 +413,8 @@ class HierarchicalMAE(nn.Module):
 
     def available_tasks(self,sample):
         layout=self.layout(sample)
-        occupied=torch.zeros(len(layout[1][2]),device=sample.channels[0].values.device,dtype=torch.bool)
-        for c,maps in zip(sample.channels,layout[2]):
-            support=maps[2].support(c.valid)
-            occupied |= support>0
-        valid_count=int(torch.stack([c.valid.any() for c in sample.channels]).sum())
+        occupied=occupied_regions(sample,layout)
+        valid_count=int((mask_sums([c.valid for c in sample.channels])>0).sum())
         kinds=(['A'] if int(occupied.sum())>=2 else [])+(['B1'] if valid_count>=2 else [])
         if not kinds:
             raise ValueError('No valid reconstruction context')
@@ -380,12 +424,10 @@ class HierarchicalMAE(nn.Module):
         geo,parts,maps,_,_=layout
         device=sample.channels[0].values.device
         patch_mask=torch.zeros(len(parts[2]),device=device,dtype=torch.bool)
-        eligible=[i for i,present in enumerate(torch.stack([c.valid.any() for c in sample.channels]).tolist()) if present]
+        eligible=[i for i,present in enumerate((mask_sums([c.valid for c in sample.channels])>0).tolist()) if present]
         hidden_bands=set()
         if kind=='A':
-            occupied=torch.zeros_like(patch_mask)
-            for c,mapping in zip(sample.channels,maps):
-                occupied |= mapping[2].support(c.valid)>0
+            occupied=occupied_regions(sample,layout)
             ids=occupied.nonzero().flatten()
             if len(ids)<2:raise ValueError('A requires two occupied patches')
             count=min(len(ids)-1,max(1,round(len(ids)*self.mask_ratio)))
@@ -435,17 +477,20 @@ class HierarchicalMAE(nn.Module):
             layout=self.layout(sample)
             keeps,targets,patch_mask=self.masks(sample,layout,kind,seed,epoch)
             encoded,valids,conditions=self.online(sample,layout,keeps)
-            query_valid=[]
-            for level,part in enumerate(layout[1]):
-                supported=torch.zeros(len(part),device=encoded[0].device,dtype=torch.bool)
-                for c,mapping in zip(sample.channels,layout[2]):
-                    supported |= mapping[level].support(c.valid)>0
-                query_valid.append(supported)
-            decoded=self.decode(encoded,valids,layout,query_valid)
-            channel_losses,predictions,baseline_losses=[],[],[]
-            fallback_flags=[]
-            target_flags=torch.stack([mask.any() for mask in targets]).tolist()
-            for i,c in enumerate(sample.channels):
+            if self.decoder_type=='native_residual':
+                predictions,channel_losses,baseline_losses,native_fallback=self.decoder(sample,encoded,valids,conditions,layout,keeps,targets,return_predictions)
+            else:
+                query_valid=[]
+                for level,part in enumerate(layout[1]):
+                    supported=torch.zeros(len(part),device=encoded[0].device,dtype=torch.bool)
+                    for c,mapping in zip(sample.channels,layout[2]):
+                        supported |= mapping[level].support(c.valid)>0
+                    query_valid.append(supported)
+                decoded=self.decode(encoded,valids,layout,query_valid)
+            if self.decoder_type=='hierarchical':channel_losses,predictions,baseline_losses=[],[],[]
+            fallback_flags=[encoded[0].new_tensor(native_fallback)] if self.decoder_type=='native_residual' else []
+            target_flags=(mask_sums(targets)>0).tolist() if self.decoder_type=='hierarchical' else []
+            for i,c in ([] if self.decoder_type=='native_residual' else enumerate(sample.channels)):
                 if not target_flags[i] and not return_predictions:
                     predictions.append(None)
                     continue
@@ -492,7 +537,7 @@ class HierarchicalMAE(nn.Module):
                 scalar_values.extend((torch.stack(baseline_losses).mean().detach(),torch.stack(fallback_flags).sum()))
             scalars=torch.stack(scalar_values).cpu().tolist()
             visible_counts=torch.stack([v.sum() for v in valids]).tolist()
-            target_count=int(torch.stack([t.sum() for t in targets]).sum())
+            target_count=int(mask_sums(targets).sum())
             details.append(dict(id=sample.identifier,task=kind,mae=scalars[0],jepa=scalars[1],
                 jepa_scales=[float(v.detach()) for v in scale_losses],jepa_counts=scale_counts,target_std=target_variance,
                 tokens=[len(p) for p in layout[1]],visible_tokens=visible_counts,

@@ -485,12 +485,14 @@ MAE对原生有效目标先像元均值、通道均值，再按可用任务A:B1=
 
 这是首版物理条件路径的独立消融，不覆盖旧规格。共享普通1→32的3×3卷积替代条件核；同网格波段合批，保持遮盖安全替换及support校正。每个TRAIN登记instrument/band有直接学习的32维fusion和32维output身份Embedding；不查询物理Memory、不生成动态卷积。每级融合继续内容+身份的标量注意力及value投影后加权求和，输出接收目标身份。未登记键拒绝，原生L/GSD/位置/面积/QA与主干不变。该整体替换同时改变conv、fusion、output条件来源，不能把效果全部归因于卷积；仍有波段汇总信息损失与Fine标量读出上限待检验。短段预算及验收见实施计划，旧运行保持停止。
 
-## 16. 重建信息路径修正候选（尚未冻结）
+## 16. 简洁原生残差Decoder
 
-§14的Fine标量读出是当前实现，不能把它误称MAE必须采用的Token输出。383VAL合法线性基线和一手文献的知识整理见[DESIGN](DESIGN.md#重建失败的信息路径与修正方向)，实测见[RESULTS](RESULTS.md#可见信号基线与信息路径诊断)。当前模型没有有效利用可见信息，但旧探针不支持“全部信息已丢失”。优先调整Decoder，融合信息保留另做单变量诊断。
+此规格替代§14用于新实验的Fine单标量读出，旧冻结运行不改变。完整机制/知识依据见[DESIGN](DESIGN.md#简洁原生残差decoder)，工程证据见[RESULTS](RESULTS.md#简洁decoder与l9排查)。不固定8×8或16+4+1，动态L/GSD/原生足迹、both/neighbor/parallel及原物理Encoder保留。
 
-候选保留显式L、加载通道GSD/原生几何动态分区、both/neighbor/parallel和Coarse每地理Patch一个Token，保持原物理描述器Encoder。新增带波段身份、位置、相对位移及原生footprint的查询，直接读取有界数量的合法可见F/M特征及Coarse上下文；按Fine/目标band复用上下文，再按原生像元位置输出，解除每Fine单标量的局部自由度限制。跨Fine原生footprint使用真实交叠组合；连续子区头须声明面积求积近似及误差检查。不能将中心归属加像元大小默称原精确面积映射。
+Encoder三级输出独立投影到16维并经父索引相加；隐藏Fine用最近8个合法可见Fine的固定IDW上下文，无Decoder注意力。目标条件为Memory32+物理numeric12+可见均值/logstd2，经46→32→32 MLP生成16维FiLM；16→4读出区域双线性系数。以真实矩形交叠重心计算各项面积平均，跨Fine相加，保留原生测量意义。原生监督范围、QA与像元→通道→任务→观测归约不变。
 
-实现需目标mask驱动、按band/region分块、共享K/V投影与几何索引，不物化全场Fine×band上下文；有界K不等于有界物理半径。限半径或空邻域查询须定义回退并记录比例，不能读取隐藏truth。若另加原生可见值旁路，标明新增输入并单独消融。Encoder融合若需改为分组/逐波段低维保留，另作设计变更，不混为等价加速。全局Coarse平方成本仍需profiling，不因局部Decoder有界就宣称整模型线性复杂度。
+输出为合法原生IDW8加可见变化缩放的学习残差；非空gain=σ²/(1+σ)，空支持baseline0/gain1，平坦或单可见值时修正0。末层零初始化，初值等于基线是构造结果，不算学习。原生旁路属于新增信息路径；不能由此宣称旧Token充分。所有统计只读keep，不读隐藏truth或VAL拟合参数。
 
-已实现的可关闭候选仅为20个optimizer更新预热与输出可见均值残差：`z_hat=visible_mean_c+delta_theta`；同band无可见支持时均值取标准化0。末层零初始化，初始等于基线是构造事实，不是学习效果；首步上游梯度0预期，下一次有效更新后须验证上游学习。默认residual_readout=false保持旧路径。两份候选配置均物理描述器、排EnMAP、A-only，max_updates232与epochs10的2320步日程分开；不是已获新发布门禁的正式实验。旧冻结runtime与预算保持原状态。
+同grid同keep/target的band合批、按needed Fine和band分块；不一次构建Fine×band高维特征库。GPU几何/原生误差FP32，TF32矩阵乘需最终身份门禁，BF16未通过而不使用。当前Decoder7316参数，未知物理条件仍依准入契约，不引入每传感器新Decoder。
+
+正式配置A-only/λJEPA0，随机seed17、不加载旧或工程权重，Encoder与Decoder都训练；恢复EnMAP，TRAIN7442/VAL383。30 Epoch=6990更新，前50更新预热（第1更新LR=peak/50，第50更新达到peak），其后完整日程余弦。工程冻结Encoder只为定位；旧20步预热和均值残差配置保留历史候选含义。

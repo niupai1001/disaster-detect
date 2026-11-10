@@ -101,11 +101,13 @@ def area_map(grid, geo, part, device):
     highy = np.searchsorted(part.y, top-1e-8, side='left')-1
     nx, ny = highx-lowx+1, highy-lowy+1
     lengths = nx*ny
-    if np.any(lengths < 1) or lengths.max() > 4096:
+    if np.any(nx<1) or np.any(ny<1) or np.any(lengths < 1) or lengths.max() > 4096:
         raise ValueError('Unsupported footprint expansion')
     source = np.repeat(np.arange(h*w), lengths)
     offset = np.arange(lengths.sum())-np.repeat(np.cumsum(lengths)-lengths, lengths)
     ix, iy = lowx[source]+offset % nx[source], lowy[source]+offset // nx[source]
+    if min(ix.min(),iy.min())<0 or ix.max()>=len(part.x)-1 or iy.max()>=len(part.y)-1:
+        raise ValueError(f'Native overlap indices outside partition: ix={ix.min(),ix.max()} iy={iy.min(),iy.max()} shape={len(part.y)-1,len(part.x)-1} expansion={nx.min(),nx.max(),ny.min(),ny.max()} offset={offset.min(),offset.max()}')
     if min(ix.min(), iy.min()) < 0 or ix.max() >= len(part.x)-1 or iy.max() >= len(part.y)-1:
         raise ValueError('Native support outside immutable partition')
     area = np.maximum(0., np.minimum(right[source],part.x[ix+1])-np.maximum(left[source],part.x[ix]))

@@ -14,6 +14,101 @@ torch.set_num_threads(2)
 torch.use_deterministic_algorithms(True)
 
 
+def test_compact_encoder_matches_dense_features_and_parameter_gradients():
+    from encoder_v3.hierarchical.model import Encoder,ParentAttention
+    torch.manual_seed(83);m=HierarchicalMAE(patch_metres=4.);s=sample(side=12)
+    layout=m.layout(s);keeps,_,_=m.masks(s,layout,'A',17,0)
+    dense=m.online;compact=copy.deepcopy(dense)
+    for network,threshold in ((dense,10**9),(compact,0)):
+        for module in network.modules():
+            if isinstance(module,(Encoder,SparseAttention,ParentAttention)):module.compact_threshold=threshold
+    a=dense(s,layout,keeps);b=compact(s,layout,keeps)
+    for x,y in zip(a.features,b.features):torch.testing.assert_close(x,y,atol=3e-6,rtol=1e-5)
+    weights=[torch.randn_like(x) for x in a.features]
+    sum((x*w).mean() for x,w in zip(a.features,weights)).backward()
+    sum((x*w).mean() for x,w in zip(b.features,weights)).backward()
+    for p,q in zip(dense.parameters(),compact.parameters()):
+        if p.grad is None:assert q.grad is None
+        else:torch.testing.assert_close(p.grad,q.grad,atol=3e-6,rtol=2e-4)
+
+
+def test_compact_attention_matches_dense_values_and_all_gradients():
+    torch.manual_seed(71);s=sample(side=12);m=HierarchicalMAE(patch_metres=4.)
+    edges=m.layout(s)[3][0];x=torch.randn(len(m.layout(s)[1][0]),64);valid=torch.rand(len(x))>.55
+    dense=SparseAttention(64);dense.compact_threshold=10**9
+    compact=copy.deepcopy(dense);compact.compact_threshold=0
+    a=x.clone().requires_grad_();b=x.clone().requires_grad_()
+    ya=dense(a,a,edges,valid,valid);yb=compact(b,b,edges,valid,valid)
+    torch.testing.assert_close(ya,yb,atol=2e-6,rtol=1e-5)
+    ya.square().mean().backward();yb.square().mean().backward()
+    torch.testing.assert_close(a.grad,b.grad,atol=2e-6,rtol=1e-4)
+    for p,q in zip(dense.parameters(),compact.parameters()):torch.testing.assert_close(p.grad,q.grad,atol=2e-6,rtol=1e-4)
+
+
+def test_batched_mask_counts_and_qa_union_match_per_channel_reference():
+    from encoder_v3.hierarchical.model import mask_sums,occupied_regions
+    torch.manual_seed(91);s=sample(side=12,channels=3)
+    c=s.channels[2];c.grid=NativeGrid((1.7,0.,100.9,0.,-2.3,201.1),(7,9),'EPSG:32631')
+    c.values=torch.randn(7,9);c.valid=torch.rand(7,9)>.3
+    s.channels[1].valid.zero_();s.channels[0].valid=torch.rand(12,12)>.4
+    masks=[c.valid for c in s.channels]
+    torch.testing.assert_close(mask_sums(masks),torch.tensor([int(v.sum()) for v in masks]))
+    layout=HierarchicalMAE(patch_metres=4.).layout(s);expected=torch.zeros(len(layout[1][2]),dtype=torch.bool)
+    for c,maps in zip(s.channels,layout[2]):expected|=maps[2].support(c.valid)>0
+    assert torch.equal(occupied_regions(s,layout),expected)
+
+
+def test_visible_condition_constant_one_pixel_and_empty_support():
+    from encoder_v3.hierarchical.simple_decoder import visible_condition
+    for keep,empty in ((torch.ones(2,2,dtype=torch.bool),False),(torch.tensor([[True,False],[False,False]]),False),(torch.zeros(2,2,dtype=torch.bool),True)):
+        truth=torch.full((1,2,2),.3,requires_grad=True)
+        condition,scale=visible_condition(torch.zeros(1,32),torch.zeros(1,12),truth,keep,empty)
+        assert scale.item()==(1. if empty else 0.) and bool(torch.isfinite(condition).all())
+        condition.sum().backward();assert bool(torch.isfinite(truth.grad).all())
+
+
+def test_native_decoder_exact_bilinear_footprint_and_gradients():
+    from encoder_v3.hierarchical.simple_decoder import NativeResidualDecoder
+    fine=NativeGrid((1.,0.,100.3,0.,-1.,220.7),(16,16),'EPSG:32631')
+    coarse=NativeGrid((3.7,0.,100.6,0.,-3.7,220.4),(4,4),'EPSG:32631')
+    geo,parts,_=partitions((fine,coarse),5.7);part=parts[0];mapping=area_map(coarse,geo,part,'cpu')
+    cx,cy=part.centers.T;width=np.diff(part.x)[np.arange(len(part))%(len(part.x)-1)];height=np.diff(part.y)[np.arange(len(part))//(len(part.x)-1)]
+    coeff=torch.tensor(np.column_stack((1+cx*.2+cy*.3+cx*cy*.02,(.2+.02*cy)*width,(.3+.02*cx)*height,.02*width*height)),dtype=torch.float32,requires_grad=True)
+    target=torch.ones(coarse.shape,dtype=torch.bool)
+    actual=NativeResidualDecoder.integrate(coeff,mapping,coarse,geo,part,target)
+    yy,xx=np.meshgrid(np.arange(4),np.arange(4),indexing='ij');x=(coarse.affine[2]-geo.origin[0])+(xx+.5)*3.7;y=(coarse.affine[5]-geo.origin[1])-(yy+.5)*3.7
+    expected=torch.tensor(1+x*.2+y*.3+x*y*.02,dtype=torch.float32)
+    torch.testing.assert_close(actual,expected,atol=3e-5,rtol=3e-6)
+    actual.sum().backward();assert bool(torch.isfinite(coeff.grad).all()) and coeff.grad[:,0].sum()==pytest.approx(16.)
+
+
+@pytest.mark.parametrize('kind',['A','B1'])
+def test_native_decoder_baseline_is_legal_and_learns_band_conditions(kind):
+    from encoder_v3.hierarchical.simple_decoder import native_stencil
+    torch.manual_seed(17);m=HierarchicalMAE(patch_metres=4.,residual_readout=True,decoder_type='native_residual')
+    s=sample(side=12,channels=3);s.channels[0].valid[0,0]=False
+    loss,detail=m([s],kind=kind,return_predictions=True);d=detail[0]
+    keeps,targets,_=m.masks(s,m.layout(s),kind,17,0)
+    assert d['mae']==pytest.approx(d['baseline_mae'])
+    for c,keep,target,pred in zip(s.channels,keeps,targets,d['predictions']):
+        if not bool(target.any()):continue
+        query,source,weight=native_stencil(c.grid,keep.numpy(),target.numpy(),'cpu')
+        expected=torch.zeros(len(query)) if source is None else (c.values.flatten()[source]*weight).sum(1)
+        torch.testing.assert_close(pred.flatten()[query],expected,rtol=0,atol=0)
+    opt=torch.optim.AdamW([p for p in m.parameters() if p.requires_grad],lr=1e-3)
+    loss.mean().backward();opt.step();opt.zero_grad(set_to_none=True)
+    changed=copy.deepcopy(s)
+    for c,mask in zip(changed.channels,targets):c.values[mask]+=100
+    changed.channels[0].values[0,0]=float('nan')
+    first=m([s],kind=kind,return_predictions=True)[1][0]['predictions']
+    poisoned=m([changed],kind=kind,return_predictions=True)[1][0]['predictions']
+    for a,b in zip(first,poisoned):torch.testing.assert_close(a,b,rtol=0,atol=0)
+    m([s],kind=kind)[0].mean().backward()
+    assert any(p.grad is not None and bool(p.grad.abs().sum()>0) for p in m.online.parameters())
+    numeric=torch.tensor([c.physical.encoded()[0] for c in s.channels]);condition=torch.cat((torch.zeros(3,32),numeric,torch.zeros(3,2)),-1)
+    assert (m.decoder.condition(condition)[0]-m.decoder.condition(condition)[2]).norm()>.001
+
+
 def test_twenty_update_warmup_preserves_cosine_budget():
     from encoder_v3.hierarchical.train import warmup_updates,lr_multiplier
     config={'warmup_steps':20,'warmup_epochs':1.}
@@ -129,7 +224,7 @@ def test_static_batched_convolution_matches_expanded_grouped_path():
     torch.testing.assert_close(a,b,atol=2e-6,rtol=1e-5)
 
 
-@pytest.mark.parametrize('residual',[False,True])
+@pytest.mark.parametrize('residual',[False,True,'native'])
 def test_short_trial_stops_without_shortening_lr_schedule(tmp_path,monkeypatch,residual):
     import json,sys
     from encoder_v3.hierarchical import train
@@ -144,6 +239,7 @@ def test_short_trial_stops_without_shortening_lr_schedule(tmp_path,monkeypatch,r
     binding={'test':'descriptor-free-short'};monkeypatch.setattr(train,'identity',lambda *args:binding)
     config=json.loads(Path('configs/config_v3_h_descriptor_free_v1.json').read_text())
     if residual:config.update(frontend='physical_descriptor',residual_readout=True,warmup_steps=20,epochs=11)
+    if residual=='native':config.update(decoder_type='native_residual',warmup_steps=50,epochs=31)
     config.pop('devices');config.update(device='cpu',patch_metres=4.,batch_size=2,max_updates=2,
         channel_keys=[['test','0'],['test','1']],viewer_root=str(tmp_path/'viewer'))
     cfg=tmp_path/'config.json';cfg.write_text(json.dumps(config))
@@ -153,7 +249,7 @@ def test_short_trial_stops_without_shortening_lr_schedule(tmp_path,monkeypatch,r
     train.main();payload=torch.load(folder/'last.pt',weights_only=False)
     assert payload['runner']['cursor']==2 and payload['runner']['status']=='TRIAL_COMPLETE'
     assert payload['scheduler']['last_epoch']==2
-    assert payload['optimizer']['param_groups'][0]['lr']==pytest.approx(config['lr']*(3/20 if residual else 1))
+    assert payload['optimizer']['param_groups'][0]['lr']==pytest.approx(config['lr']*(3/config['warmup_steps'] if residual else 1))
     if residual:
         result=json.loads((folder/'validation_2.json').read_text())
         assert result['baseline_metric']==pytest.approx(result['members'][0]['tasks']['A']['baseline_mae'])

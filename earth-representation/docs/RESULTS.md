@@ -997,3 +997,42 @@ IDW8使用米制原生中心距离、只读同波段valid&visible值，权重和
 ![排除EnMAP后的A重建](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/overview_A.png)
 
 隐藏区仍为平滑块状，田块纹理和边界没有恢复，所选S2/L8典型隐藏RGB物理MAE约0.01798/0.02208，最差S2约0.41152。光谱能跟随部分变化，但不能由少数所选像元推断整体重建已好。[光谱](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/spectral_profiles.png)、[完整短段曲线](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/learning_curves.png)与[只读核验](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/verification.json)可追溯；曲线明确本段仅预热，参数/best/last/updates不变，optimizer更新0。
+
+
+## 简洁Decoder与L9排查
+
+L9旧示例obs_8d69627e3f5637470adc7041的CPU复核：A-only525/641及排EnMAP232的A-MSE约.03401803/.03292175/.03482958，各band预测最大差仅7.15e-7/7.75e-7/4.77e-7 z。同band可见均值基线.00109823；强制所有band共用一张z图的理论最佳谱差.03114762，占641实际误差94.6%。641的Memory输出band最大距离2.55e-5，8 slots有效数约7.9999；由实际输出头权重可界定band输出差≤7.82e-6 z，说明近常量条件造成实际读出瓶颈。未发现524条L9/1522条L8缓存的定标、索引或冻结μ/σ错配；未独立重建原始QA_PIXEL/RADSAT，且L9无独立VAL，不声称整个L9来源必然最差。
+
+新Decoder机制见DESIGN：原物理Encoder保留，16维局部上下文、46维波段与可见统计条件、4项双线性系数，共7316参数；原生IDW8加变化幅度缩放残差。同grid/mask合批、实际矩形交叠积分，不新增Decoder注意力。恢复全部7442 TRAIN，A-only/JEPA0，不修改定标、QA、归一化统计或观测等权MSE。
+
+### 工程质量：基线与学习增量分开
+
+5个固定TRAIN工程样本，前64更新冻结seed17原Encoder，后64全部解冻并用50更新升至1e-4；前段Decoder LR1e-3。不是正式Epoch、不带入正式权重，不以固定样本代表VAL。初始输出严格等于合法IDW8；实际学习增量如下，CPU最终源码重算与GPU记录相符。
+
+| TRAIN病例 | IDW8基线MSE | 工程最终MSE |
+|---|---:|---:|
+| 平坦S2 | .0002011703 | .0002011828 |
+| L8 | .0524061583 | .0508444868 |
+| 既有L9示例 | .0010228793 | .0010210061 |
+| EnMAP | .4246728718 | .3292402625 |
+| 纹理S2 | .7635538578 | .3817565739 |
+
+门槛明确为非平凡L8/EnMAP/纹理S2均改善、总体改善、每例不得退化超过1%+1e-7数值余量；平坦S2仅增加1.26e-8（约.0063%），不声称每例严格下降。L9真实指定ID的学习系数band跨度.31877；Encoder前半段hash不变、后半段实际参数delta L2约1.0174，不能用一个新随机Encoder冒充初始对照。此前learning_v1–3均保留FAILED：大幅修正污染平坦场景，随后用keep-only变化幅度衰减及直接可见统计解决；v4才通过。该开发选择不能当作独立泛化证据。
+
+![简洁Decoder工程重建](../outputs/encoder_v3/hierarchical/simple_decoder/quality_final_v2/reconstruction.png)
+
+[最终源码只读重算](../outputs/encoder_v3/hierarchical/simple_decoder/quality_final_v2/report.json)、[GPU工程记录](../outputs/encoder_v3/hierarchical/simple_decoder/learning_v4/report.json)绑定来源。图中原图/基线/预测使用同一物理反射率0—0.3、gamma2.2，误差0—.05并标溢出；拼合图可见部分是真图。纹理仍有限，不由MSE改善宣称隐藏真实细节全部恢复。
+
+### 最终执行门禁与速度
+
+72项CPU通过，含新正式入口的50步预热/尾批/基线日志、QA污染、flat/one/none、跨Fine双线性面积、紧凑Encoder旧值/梯度、同grid QA union及双卡恢复。precision_final_v2、pipeline_v1、quality_final_v2与最终源码identity完全相同，独立只读审查通过。
+
+非零输出头下，32/18尾批单/双卡loss差0，梯度相对L2差1.72e-7/7.03e-8；两个最大观测34,491,294与22,307,028原生通道像元并发44.60秒、峰值allocated15.37/16.45GB。保存恢复后的下一步model/AdamW/scheduler/runner/RNG/modes/EMA全部一致。工程3次更新后383VAL .1441891134、IDW基线.1441892120；该微小差异不计有意义学习，初值基线好看来自构造。11真实批回放含旧失败209、两最大批与后继，全部通过。
+
+同一个真实Batch32、各3次回放：旧冻结FP32热2.474/2.512秒，新FP32状态+TF32矩阵乘热2.136/2.148秒，中位1.164倍；不把模型改变称为等价执行，也不把此批外推为整轮实测。最大TF32非零头精度对照通过，所有来源最大loss差约2.98e-7、梯度相对差≤.000872。BF16最大场景梯度差约57.7%，拒绝。全部去除Sparse外层checkpoint导致27.5GB峰值且更慢，回退为Sparse保留外层、Global仅分块/FF checkpoint。samples_v2曾出现一次最大场景面积索引异常，失败保留；增加索引范围前置检查，CPU连续3次及最终最大/后继回放通过，未把单次根因写成已确诊。
+
+算子采样索引写入self CUDA约61%，矩阵mm约2%；算子与子kernel百分比不能相加。200k索引小基准index_select/embedding反而慢于原高级索引，未替换。说明剩余开销与原生稀疏几何/索引及CPU发射有关，不能由参数少推断训练应成比例更快。[完整执行报告](../outputs/encoder_v3/hierarchical/simple_decoder/pipeline_v1/report.json)、[算子表](../outputs/encoder_v3/hierarchical/simple_decoder/pipeline_v1/operator_profile.txt)、[最终精度](../outputs/encoder_v3/hierarchical/simple_decoder/precision_final_v2/report.json)、[独立审查](../outputs/encoder_v3/hierarchical/simple_decoder/independent_review.json)保存范围与限制。
+
+### 本次授权的正式训练
+
+配置config_v3_h_simple_decoder_v1.json：原含描述器Encoder与新Decoder均seed17随机初始化，工程权重丢弃；恢复47 EnMAP，7442 TRAIN/383 VAL，双卡Batch32，233批尾18。30 Epoch共6990更新，前50更新预热（首步2e-6、第50步1e-4）后余弦，每轮4次完整VAL、每批checkpoint；旧正式运行保持原状态。release_simple_decoder_v1只在最终门禁/初始化/冻结字节核对后启动，实际启动与进度以formal_run/status.json和training_started.json为准；此处不把授权或工程成绩写成30轮已完成。

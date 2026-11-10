@@ -43,6 +43,7 @@ def main():
         assert args.checkpoint is not None and args.records is not None
         assert args.checkpoint.resolve() not in ((run/'best.pt').resolve(),(run/'last.pt').resolve()),'Live checkpoints must be copied first'
     config=json.loads((run/'config.json').read_text());execution_device=args.device or config['device'];torch.cuda.set_device(execution_device)
+    torch.backends.cuda.matmul.allow_tf32=config.get('tf32_matmul',False)
     kinds=tuple(k for k in ('A','B1') if config['task_weights'][k]>0)
     checkpoint_path=(args.checkpoint or run/'best.pt').resolve()
     checkpoint_sha=hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
