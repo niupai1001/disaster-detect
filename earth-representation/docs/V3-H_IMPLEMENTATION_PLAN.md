@@ -896,3 +896,5 @@ Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1
 配置`config_v3_h_dual_v1.json`只在上一段MAE配置上增加devices、每批checkpoint；科学参数和Epoch计划不变。正式启动沿用实测的`CUDA_LAUNCH_BLOCKING=1`、`CUBLAS_WORKSPACE_CONFIG=:4096:8`，不以同步门禁签发异步运行。旧0号卡初始化故障当时真实复现，目前两卡基础CUDA及双卡真实门禁通过；不擅自重启驱动或其他进程。
 
 继续顺序为：当前代码/配置/测试/文档提交→独立冻结`release_mae_dual_v1`→`prepare_execution_continuation`迁移last200与best175到新身份/新Viewer Run→正式入口核对绑定并reconcile复制的日志→确认实际更新越过原失败209批。原201—208日志在恢复证据中留存，原Run不改；spent_updates保留原208次durable尝试，重放8次成本不被抹去。终点仍为2330个逻辑批次/10个完整数据Epoch，完整覆盖与额外恢复成本分开报告，不因异常重启另加10 Epoch。若再次发生CUDA异常，不在失效CUDA上下文中盲目重试。
+
+双卡正式启动已执行：源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`、Git tree `149b5c5cfb0ce630a364f133daccaaf3e14dd92a`，170个依赖文件冻结，源码身份`262013c7aface18cfdee14398cf9fb065a62a93915b855a2cc018428df365b90`。正式目录`release_mae_dual_v1/formal_run`、Viewer Run `3666b4153ea5457697c9b3188e8b5958`已从检查点200写入201步真实更新（spent209）。首次loss0.12524238954283645与原对应批一致；每批检查点和恢复尝试归档正常。最新运行状态、实际cursor与原失败点复核见`training_started.json`及formal_run/status.json，不把启动通过写成全部10 Epoch完成。
