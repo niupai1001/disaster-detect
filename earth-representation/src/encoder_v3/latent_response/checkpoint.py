@@ -6,8 +6,20 @@ import json
 import os
 import random
 import tempfile
+import time
 import numpy as np
 import torch
+
+
+def atomic_replace(source,target):
+    # Windows readers can briefly deny replacement even after the writer closes its file.
+    for attempt in range(6):
+        try:
+            os.replace(source,target)
+            return
+        except PermissionError:
+            if attempt == 5:raise
+            time.sleep(.02*2**attempt)
 
 
 def digest(value):
@@ -69,7 +81,7 @@ def save_checkpoint(path,model,optimizer,state,identity,scheduler=None):
     path.parent.mkdir(parents=True,exist_ok=True)
     fd,temp=tempfile.mkstemp(dir=path.parent,suffix='.tmp'); os.close(fd)
     try:
-        torch.save(payload,temp); os.replace(temp,path)
+        torch.save(payload,temp); atomic_replace(temp,path)
     finally:
         if os.path.exists(temp):os.remove(temp)
 

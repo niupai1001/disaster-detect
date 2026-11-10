@@ -258,7 +258,7 @@ USE的全参数与buffer在各次验证及best/last重载中哈希一致，优�
 
 六行沿用旧阶段已经固定的案例清单：前四行来自广岛，后两行来自特里苏尔；不是根据本轮预测重新挑选。从左到右为固定缩放RGB、原标注，以及原十波段SegFormer参照、同一冻结USE 32→10桥接 SegFormer＋细节分支、同一冻结USE 32→3适配 RGB规格SegFormer＋细节分支、同一冻结USE 32输入新首层 SegFormer＋细节分支、同一冻结USE 多尺度适配 新FPN、同一冻结USE 32维直接输入 可训练U-Net的前景概率。紫色对应接近0，黄色对应接近1；红框定位同一个真值对象，白线标示0.5预测边界。每窗48×48原始像素，放大不增加10米原生细节。
 
-案例规则见[共同案例与结论边界](#共同案例与结论边界)。本图只读最佳概率，真值/有效区核验通过；[案例证据](../../landslide-seg/outputs/use_independent_frozen/common_use_case_provenance.json)。
+案例选择与真值/有效区核验见[固定案例证据](../../landslide-seg/outputs/use_independent_frozen/common_use_case_provenance.json)。本图只读最佳概率。
 
 
 #### 无标签跨波段诊断与随机身份对照的限制
@@ -796,6 +796,47 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 配置、原成员和统计保持原路径；[机器结果与SHA256](../outputs/observation_model/encoder_v2/G5_native_bank/final_results.json)、[实际配置](../outputs/observation_model/encoder_v2/G5_native_bank/config.json)、[最佳权重](../outputs/observation_model/encoder_v2/G5_native_bank/best.pt)、[完整末态](../outputs/observation_model/encoder_v2/G5_native_bank/last.pt)、[原始源码清单](../outputs/observation_model/encoder_v2/G5_native_bank/source_manifest.json)、[实际加速/50步保存版本](../src/observation_model/g5_detached_worker.py)及acceleration目录。单卡cuda:1，曾有控制台关闭退出、设备重启和异常减速，均影响实际成本；减速/系统故障的硬件根因未查明。Viewer保留只读： http://127.0.0.1:8766/?scheduled=1#/runs/encoder_v2_G5_scheduled_live 。关闭标记CLOSED_BY_USER.json和已禁用任务防止误续；未经新授权不得移除。
 
 
-## Encoder V3 潜在响应与传感器记忆
+## Encoder V3 共享描述器与地理Patch MAE
 
-本代尚无正式训练结果。参与率聚合与潜在响应的工程检查不列为模型成绩；待正式实验验收后在本节追加方案、完整结果与解释。
+### 首段10轮结果与条件
+
+正式运行使用全局Encoder128维4层、全局MAE Decoder64维2层、共享物理描述器，L=128m、内部8×8布局、单GPU FP32、Batch32、AdamW。峰值学习率1e-4、weight decay 0.04、梯度裁剪3；预热1Epoch后余弦下降至本段末期。空间注意力均为4头，总可训练参数1,309,056。每轮全部7442个TRAIN观测一次，观测等权；A随机遮盖约75%空间patch，B随机隐藏整波段。评价固定383个VAL与固定遮盖，每轮完整验证4次，10轮共40次，另有1次初始化基线；EnMAP47个窗口只属TRAIN，来自一个场景，无独立EnMAP VAL。
+
+10Epoch、2330次更新正常完成，最佳点为第10轮末，best与last模型权重一致。完整VAL原生标准化MSE由2.27519958降至0.65100189 z²（下降71.4%）；最终S2为0.69784390、Landsat为0.32408365。第10轮TRAIN均值0.25816144。后两轮VAL从0.65208639降至0.65100189，改善约0.17%；末次更新学习率约5.61×10⁻¹¹，平台不能独自证明充分收敛或最优性。
+
+下表为每轮末的完整VAL快照与本轮TRAIN均值，MSE单位均为z²，越低越好。TRAIN均值来自轮内不断更新的权重和随机遮盖，VAL来自轮末固定权重与固定遮盖；TRAIN还包含EnMAP，不能将两列差值直接解释为过拟合。
+
+| Epoch | TRAIN均值 | 完整VAL | S2 VAL | Landsat VAL | 含验证耗时/分钟 |
+|---|---:|---:|---:|---:|---:|
+| 1 | 1.0072 | 1.5375 | 1.6977 | 0.4191 | 26.06 |
+| 2 | 0.4372 | 0.8841 | 0.9632 | 0.3316 | 17.77 |
+| 3 | 0.3131 | 0.7677 | 0.8284 | 0.3448 | 14.22 |
+| 4 | 0.2861 | 0.7165 | 0.7712 | 0.3347 | 19.32 |
+| 5 | 0.2760 | 0.6926 | 0.7450 | 0.3275 | 22.18 |
+| 6 | 0.2769 | 0.6757 | 0.7245 | 0.3351 | 19.41 |
+| 7 | 0.2707 | 0.6593 | 0.7071 | 0.3259 | 16.16 |
+| 8 | 0.2630 | 0.6521 | 0.6990 | 0.3244 | 14.36 |
+| 9 | 0.2653 | 0.6513 | 0.6983 | 0.3228 | 12.45 |
+| 10 | 0.2582 | 0.6510 | 0.6978 | 0.3241 | 12.58 |
+
+![实际损失与学习率](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/learning_curves.png)
+
+### 原生重建可视化与限制
+
+最佳权重无更新复核完整383成员，复现MSE=0.6510018875；模型参数前后哈希不变。各来源按观测A/B综合误差选择P25/P50/P90，不按图像外观挑选。图像从原生数组生成，不插值真实标签；RGB固定反射率0–0.3、单波段0–0.5并统一gamma显示，误差在未裁剪物理值上计算，色标统一0–0.15。第三列是仅隐藏区预测，第四列包含原图可见部分，不能将其整体当模型预测。
+
+![空间遮盖重建](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/overview_A.png)
+
+![随机隐藏波段重建](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/overview_B1.png)
+
+所示Landsat隐藏波段能恢复部分区域结构，但细节明显平滑；空间大面积遮盖的结果更接近粗略区域统计。S2所示隐藏近红外样本存在明显反射率偏差，典型样本B08物理MAE约0.0756。个别RGB样本原始动态范围很窄，分位拉伸会放大小偏差，正式展示采用固定物理范围。整体MSE下降不能代替逐波段、逐场景质量检查，也不能证明Encoder下游迁移有效。EnMAP光谱图仅是训练示例，不计作独立验证结果。
+
+![光谱曲线与TRAIN均值基线](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/spectral_profiles.png)
+
+### 成本与追溯
+
+训练含验证及保存总计约174.5分钟，平均17.45分钟/轮；首轮26.06分钟、最后一轮12.58分钟。各轮资源与缓存状态不同，不将最快一轮作为固定速度承诺。原先25–30分钟为早期部分轮次估算，以上为完整10轮实测。
+
+本次Run ID为`5657138b41b3411c9253ddf08e8abfb5`。原配置、代码/数据/成员/统计身份在[identity.json](../outputs/encoder_v3/shared_mae/release_L128_v4/formal_run/identity.json)中，TVLP实测曲线与完成事件位于[运行日志目录](../training-runs/20261109T180047Z_cf36016d3b7a4cdc994b3ce0f268e6b1)。完整VAL改善是同一固定评价集合内相对初始化的变化；不同代方案的数据、遮盖和权重不同，不把历史分数直接用于架构排名。本次为单次正式运行，尚无重复实验显著性结论。
+
+[原生重建图集](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/index.html)、[可视化身份与样本](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/report.json)、[全部VAL逐观测记录](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/val_members.json)、[实际运行状态](../outputs/encoder_v3/shared_mae/release_L128_v4/formal_run/status.json)、[最佳权重](../outputs/encoder_v3/shared_mae/release_L128_v4/formal_run/best.pt)、[冻结配置](../outputs/encoder_v3/shared_mae/release_L128_v4/runtime/configs/config_shared_mae_v1.json)保留原路径；原冻结运行和历史记录不改写。

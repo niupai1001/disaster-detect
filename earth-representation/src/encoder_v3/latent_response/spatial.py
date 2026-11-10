@@ -42,16 +42,17 @@ class SpatialBackbone(nn.Module):
         rows = int(windows[:, 1].max())+1 if chunk_rows is None else chunk_rows
         if type(rows) is not int or rows<1:
             raise ValueError('Positive window chunk rows required')
-        processed = torch.zeros_like(padded)
+        results=[];result_indices=[];local_peak_pairs=0
         # Pass 1: whole windows (including a window-row halo) share the immutable grid.
         for start in range(int(windows[:, 1].min()), int(windows[:, 1].max())+1, rows):
             core = (windows[:, 1]>=start)&(windows[:, 1]<start+rows)
-            halo = (windows[:, 1]>=start-1)&(windows[:, 1]<start+rows+1)
-            selected = halo.nonzero().flatten()
-            def run(z, m):
-                return self.local(z, src_key_padding_mask=m)
-            result = checkpoint(run, padded[selected], mask[selected], use_reentrant=False) if torch.is_grad_enabled() else run(padded[selected], mask[selected])
-            processed = processed.index_copy(0, selected[core[selected]], result[core[selected]])
+            selected=core.nonzero().flatten()
+            def run(z,m):return self.local(z,src_key_padding_mask=m)
+            # Unshifted windows are independent; halo windows cannot affect core outputs.
+            result=checkpoint(run,padded[selected],mask[selected],use_reentrant=False) if torch.is_grad_enabled() else run(padded[selected],mask[selected])
+            results.append(result);result_indices.append(selected)
+            local_peak_pairs=max(local_peak_pairs,len(selected)*64*64)
+        processed=padded.new_zeros(padded.shape).index_copy(0,torch.cat(result_indices),torch.cat(results))
         fine = processed[inverse, slots]
         coarse_index, coarse_inverse = torch.unique(torch.div(index, 4, rounding_mode='floor'), dim=0, return_inverse=True)
         counts = torch.bincount(coarse_inverse, minlength=len(coarse_index))
@@ -75,4 +76,5 @@ class SpatialBackbone(nn.Module):
         latent = self.spectral(latent, fine[found.clamp_min(0)], ~allowed)
         latent = torch.where(latent_valid[..., None], latent, 0)
         return fine, latent, global_latent, dict(fine=len(fine), local_latent=int(latent_valid.sum()), coarse=len(coarse), global_tokens=32,
-            max_attention_pairs=max(64*64, 32*len(coarse), 32*block), full_scene_attention=False)
+            max_attention_pairs=max(local_peak_pairs,32*len(coarse),32*min(block,len(fine)),len(fine)*latent.shape[1]*9),
+            attention_pair_unit='per head across batch',full_scene_attention=False)

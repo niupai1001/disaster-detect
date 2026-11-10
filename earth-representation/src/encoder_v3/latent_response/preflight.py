@@ -12,7 +12,7 @@ from .data import LRDataset,load_catalogs,make_view,pool_recipe
 from .geometry import FullGeometry
 from .model import LatentResponseModel
 from .execution import view_loss
-from .checkpoint import parameter_sha,digest
+from .checkpoint import parameter_sha,digest,atomic_replace
 
 ROOT=Path(__file__).resolve().parents[3]
 
@@ -20,15 +20,28 @@ ROOT=Path(__file__).resolve().parents[3]
 def write(path,document):
     temporary=path.with_suffix('.tmp')
     temporary.write_text(json.dumps(document,ensure_ascii=False,indent=2),encoding='utf-8')
-    temporary.replace(path)
+    atomic_replace(temporary,path)
+
+
+def configure_fp32():
+    # Match the controlled equivalence/resource checks, rather than implicit TF32 defaults.
+    torch.backends.cuda.matmul.allow_tf32=False
+    torch.backends.cudnn.allow_tf32=False
 
 
 def build_inputs():
+    configure_fp32()
     config=json.loads((ROOT/'configs/config_lr_e0_v1.json').read_text())
     legacy=json.loads((ROOT/'src/encoder_v3/config_optical_selfsup_v1.json').read_text())['data']
     catalog_path=ROOT/'outputs/encoder_v3/latent_response/channel_catalog_frozen.json'
     catalogs=load_catalogs(catalog_path)
     datasets={role:LRDataset(legacy['release'],legacy['contracts'],role=role,catalogs=catalogs) for role in ('TRAIN','VAL')}
+    if config.get('enmap_release'):
+        from .enmap_data import KEY,NativeEnmapDataset,CombinedDataset
+        from .registry import ChannelCatalog
+        catalogs[KEY]=ChannelCatalog.from_ordered([f'B{i:03d}' for i in range(1,225)])
+        enmap=NativeEnmapDataset(config['enmap_release'],catalogs)
+        datasets['TRAIN']=CombinedDataset(datasets['TRAIN'],enmap)
     recipe=pool_recipe(datasets['TRAIN'].rows)
     model=LatentResponseModel(catalogs,seed=config['seed'])
     code={str(p.relative_to(ROOT)):sha256(p) for folder in ('latent_response',) for p in (ROOT/'src/encoder_v3'/folder).glob('*.py')}
@@ -36,7 +49,7 @@ def build_inputs():
     for name in ('data.py','tasks.py','model.py'):
         p=ROOT/'src/encoder_v3'/name;code[str(p.relative_to(ROOT))]=sha256(p)
     identity=dict(code=digest(code),code_files=code,config=digest(config),registry=model.registry.identity_sha256(),
-                  catalog=sha256(catalog_path),data=datasets['TRAIN'].identities,sampling=digest(recipe),
+                  catalog=digest({key.uid:value.as_dict() for key,value in catalogs.items()}),catalog_file=sha256(catalog_path),data=datasets['TRAIN'].identities,sampling=digest(recipe),
                   interfaces=sha256(ROOT/'src/encoder_v3/latent_response/interface_confirmation.json'))
     return config,datasets,recipe,model,identity
 
@@ -55,6 +68,11 @@ def cases(datasets):
         rows=[r for r in datasets['TRAIN'].rows if r['sensor']==sensor and len(r['bands'])==count and (area(r)>16384 if sensor=='S2' else True)]
         row=min(rows,key=lambda r:(area(r),r['id']))
         selected.append(dict(role='TRAIN',id=row['id'],sensor=sensor,bands=count,area=area(row),scope='engineering_complete_A_B1'))
+    enmap_rows=[row for row in datasets['TRAIN'].rows if row['sensor']=='EnMAP']
+    if enmap_rows:
+        chosen={min(enmap_rows,key=area)['id'],max(enmap_rows,key=area)['id']}
+        for row in enmap_rows:
+            if row['id'] in chosen:selected.append(dict(role='TRAIN',id=row['id'],sensor='EnMAP',bands=len(row['bands']),area=area(row),scope='engineering_complete_A_B1'))
     maximum=max(datasets['TRAIN'].rows,key=area)
     selected.append(dict(role='TRAIN',id=maximum['id'],sensor=maximum['sensor'],bands=len(maximum['bands']),area=area(maximum),scope='maximum_complete_encoder_forward'))
     return selected

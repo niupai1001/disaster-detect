@@ -1,0 +1,33 @@
+{
+  "phase": "E3",
+  "epochs": 10,
+  "batch_size": 32,
+  "objective": "observation_equal",
+  "seed": 17,
+  "device": "cuda:0",
+  "lr": 0.0001,
+  "weight_decay": 0.04,
+  "clip_norm": 3.0,
+  "warmup_epochs": 1.0,
+  "validations_per_epoch": 4,
+  "checkpoint_every_batches": 10,
+  "tile_rows": 128,
+  "chunk_rows": 2,
+  "chunk_pixels": 16384,
+  "enmap_required": true,
+  "preflight": "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\latent_response\\epoch_training\\e1_release\\readiness.json",
+  "e2_receipt": "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\latent_response\\epoch_training\\e2_gate.json",
+  "viewer": {
+    "experiment": {
+      "id": "encoder-v3-lr-observation-equal-epochs",
+      "name": "Encoder V3 · 完整Epoch训练"
+    },
+    "variant": {
+      "id": "lr-joint309-epoch-b32-observation-mean",
+      "name": "完整Epoch · Batch 32 · 观测等权",
+      "kind": "modification",
+      "description": "每轮完整遍历TRAIN观测并打乱；Batch 32按观测平均梯度、末批保留；完整VAL观测均值选模；保留原生网格和309维架构及等价计算加速。训练与验证使用同一遮盖规则，验证随机状态固定。"
+    }
+  },
+  "validation_seed": 1729
+}

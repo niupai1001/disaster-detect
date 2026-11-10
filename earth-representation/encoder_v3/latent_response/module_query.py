@@ -47,3 +47,16 @@ class ModuleQuery(nn.Module):
         if kind not in KINDS:
             raise ValueError(f'Unknown module kind {kind!r}; expected one of {KINDS}')
         return self.seed[kind] + self.project(self.encode(meta, gsd_xy))
+
+
+    def forward_many(self,kind,metas,gsds):
+        if kind not in KINDS or not metas or len(metas)!=len(gsds):raise ValueError('Aligned typed metadata required')
+        encoded=[]
+        for meta,(gx,gy) in zip(metas,gsds):
+            if not isinstance(meta,ChannelMeta) or not all(math.isfinite(v) and v>0 for v in (gx,gy)):
+                raise ValueError('Typed metadata and positive finite GSD required')
+            encoded.append(((meta.canonical_ordinal+.5)/meta.catalog_total_channels,math.log(gx),math.log(gy)))
+        data=self.frequencies.new_tensor(encoded)
+        phase=data[:,:1]*self.frequencies[None]*(2*math.pi)
+        features=torch.cat((phase.sin(),phase.cos(),data[:,1:]),-1)
+        return self.seed[kind]+self.project(features)

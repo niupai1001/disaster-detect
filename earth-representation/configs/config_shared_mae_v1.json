@@ -1,0 +1,38 @@
+{
+  "architecture": "shared_physical_mae",
+  "patch_metres": 128.0,
+  "patch_rule": "p_x=L/g_x, p_y=L/g_y; N=ceil(W*g_x/L)*ceil(H*g_y/L); L is explicit and is not fixed to 80m",
+  "width": 128,
+  "layout": 8,
+  "encoder_depth": 4,
+  "decoder_depth": 2,
+  "mask_ratio": 0.75,
+  "objective": "observation_equal",
+  "epochs": 10,
+  "batch_size": 32,
+  "micro_batch_observations": 4,
+  "micro_batch_pixels": 1048576,
+  "seed": 17,
+  "validation_seed": 1729,
+  "device": "cuda:0",
+  "lr": 0.0001,
+  "weight_decay": 0.04,
+  "clip_norm": 3.0,
+  "warmup_epochs": 1.0,
+  "validations_per_epoch": 4,
+  "checkpoint_every_batches": 10,
+  "viewer": {
+    "experiment": {
+      "id": "encoder-v3-shared-physical-mae",
+      "name": "Encoder V3 · 共享描述器与地理Patch MAE"
+    },
+    "variant": {
+      "id": "shared-kv-physical-query-learned-patch-mae",
+      "name": "共享KV · 物理Query · 单Token MAE",
+      "kind": "modification",
+      "description": "共享可训练描述器；物理元数据Query；条件卷积权重和偏置；学习式Patch Embedding与单Token通道融合；仅可见Token编码，轻量全局MAE解码，无逐像元近邻与局部/全局旁支。"
+    }
+  },
+  "decoder_width": 64,
+  "precision": "float32"
+}

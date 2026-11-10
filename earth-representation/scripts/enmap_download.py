@@ -35,15 +35,21 @@ def totp(secret, period=30, digits=6):
 
 
 def forms(html):
-    out = []
-    for m in re.finditer(r"<form[^>]*id=\"([^\"]*)\"[^>]*action=\"([^\"]*)\"(.*?)</form>",
-                         html, re.S | re.I):
-        fields = dict(re.findall(r'<input[^>]*name="([^"]+)"[^>]*value="([^"]*)"', m.group(3)))
-        for n in re.findall(r'<input[^>]*name="([^"]+)"', m.group(3)):
-            fields.setdefault(n, "")
-        out.append({"id": m.group(1), "action": m.group(2).replace("&amp;", "&"),
-                    "fields": fields})
-    return out
+    """Parse all input attributes independent of ordering and HTML escaping."""
+    from html.parser import HTMLParser
+    class Parser(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True);self.forms=[];self.current=None
+        def handle_starttag(self,tag,attrs):
+            fields=dict(attrs)
+            if tag=='form':
+                self.current=dict(id=fields.get('id',''),action=fields.get('action',''),fields={})
+                self.forms.append(self.current)
+            elif tag=='input' and self.current is not None and fields.get('name') and 'disabled' not in fields:
+                self.current['fields'][fields['name']]=fields.get('value','')
+        def handle_endtag(self,tag):
+            if tag=='form':self.current=None
+    parser=Parser();parser.feed(html);return parser.forms
 
 
 def login(session, href, user, password, otp=None, secret=None):

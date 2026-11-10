@@ -1,6 +1,7 @@
 """Read-only bridge to hash-bound native optical caches; no data downloads."""
 from dataclasses import dataclass
 import hashlib
+import io
 import json
 from pathlib import Path
 import numpy as np
@@ -82,7 +83,9 @@ class NativeOpticalDataset:
             raise ValueError('Missing acquisition/calibration contract')
         checked_file(row['cache'],row['cache_sha256'],self.verified_files)
         band_contracts={b['band_key']:b for b in contract['bands']}; bands=[]
-        with np.load(row['cache'],allow_pickle=False) as arrays:
+        # Optional sequential read avoids repeated small seeks on mapped/network drives.
+        cache = io.BytesIO(Path(row['cache']).read_bytes()) if getattr(self,'buffered_npz',False) else row['cache']
+        with np.load(cache,allow_pickle=False) as arrays:
             for item in row['bands']:
                 key=item['band_key']; physical=band_contracts[key]; grid=physical['grid']
                 if tuple(grid['shape'])!=tuple(item['shape']) or tuple(grid['affine_transform'])!=tuple(item['transform']) or grid['crs']!=item['crs']:

@@ -42,6 +42,28 @@ def channel_front(values, keep, kernel, bias, channel, geometry, embed, tile_row
     return embed(u, support), support
 
 
+def grouped_channel_front(values,keep,kernels,bias,plans,geometry,embed,tile_rows):
+    """Same exact area integral as channel_front, batched over a common native grid."""
+    group,height,width=values.shape;patches=geometry.shape[0]*geometry.shape[1]
+    total=values.new_zeros(group,patches*16,32);support=values.new_zeros(group,patches*16)
+    finite=torch.ones((),device=values.device,dtype=torch.bool)
+    for begin,plan in zip(range(0,height,tile_rows),plans):
+        end=min(begin+tile_rows,height);low,high=max(0,begin-1),min(height,end+1)
+        feature=masked_native_conv(values[:,low:high],keep[:,low:high],kernels,bias)
+        feature=feature[:,:,begin-low:end-low].permute(0,2,3,1).reshape(group,-1,32)
+        visible=keep[:,begin:end].reshape(group,-1)
+        clean=torch.where(visible[...,None],feature,0)
+        finite=finite & torch.isfinite(clean).all()
+        source,destination=plan['source'],plan['destination']
+        area=plan['area'].to(values.dtype)[None]*visible[:,source]
+        total=total.index_add(1,destination,clean[:,source]*area[...,None])
+        support=support.index_add(1,destination,area)
+    if not bool(finite):raise ValueError('Nonfinite visible native feature')
+    u=(total/support.clamp_min(torch.finfo(values.dtype).tiny)[...,None]).reshape(group,patches,16,32)
+    support=support.reshape(group,patches,16)/(geometry.patch_size/4)**2
+    return embed(u,support),support
+
+
 class ChannelFusion(nn.Module):
     def __init__(self):
         super().__init__()

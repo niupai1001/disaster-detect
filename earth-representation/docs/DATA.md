@@ -10,7 +10,7 @@
 | Sentinel-2额外观测 | 官方L2A产品，Earth Search／COG窗口读取 | 集成入口中的s2及data下原始缓存 | 可见、近红外、短波红外；完整来源与scale/offset逐资产记录 |
 | Landsat 8/9 | Landsat Collection 2 L2与已整理缓存 | data/optical/landsat/native及集成入口 | 原资源登记2892份原生窗口；另有6309份共同网格缓存，二者可能重叠，不相加 |
 | HLS | NASA Harmonized Landsat Sentinel-2 | data/optical/hls、data/optical/counterparts | S30/L30共同网格产品，作为跨源协调参照 |
-| EnMAP | 本地高光谱L2A场景与窗口 | data/optical/enmap/reference_scene、data/optical/enmap/paired_windows | 已核验2景原生影像及1689份派生窗口；224波段，当前未准入LR训练池 |
+| EnMAP | 本地高光谱L2A场景与窗口 | data/optical/enmap/reference_scene、data/optical/enmap/paired_windows | 已核验2景原生影像及1689份旧派生窗口；其中47个可追溯窗口已重建为原生30m观测并准入原生光学训练池，来自1个场景 |
 | SAR与高分辨率影像 | 同地点四源包，原产品来源逐资产保留 | 集成入口中的s1与hr | SAR为VV/VH线性gamma0；HR为四通道摄影DN，均不冒充光学反射率 |
 | 地表与灾害标签 | Sen12Landslides人工滑坡标注、ESA WorldCover地图 | 滑坡工程及对应评价清单 | 只在相应下游监督/评价中使用；地图一致性不等同独立人工真值 |
 | 传感器资料 | 传感器SRF及物理属性目录 | data/physics | 波长、原生GSD、SRF/PSF资料及其来源；缺失项不伪装为实测响应 |
@@ -34,6 +34,21 @@
 
 图中按传感器分别显示训练、验证与隔离观测；各柱使用相同的观测记录单位，HR和SAR没有混算成光学样本。
 
+## 正式原生光学训练采用的冻结子集
+
+上表是更广的资源集成登记口径；本段已完成训练使用另一份原生光学冻结清单，来源、质量门槛与处理缓存不同，数量不相加，也不由上表直接推算。以下按资源列出实际成员：
+
+| 资源 | TRAIN观测 | VAL观测 | 输入通道记录 |
+|---|---:|---:|---|
+| Sentinel-2 | 5349 | 335 | TRAIN：四波段4755、十波段594；VAL：四波段237、十波段98 |
+| Landsat 8/9 | 2046 | 48 | TRAIN：L8六波段1351、七波段171，L9六波段524；VAL：L8七波段48 |
+| EnMAP | 47 | 0 | 每窗口224个波段位置，其中219个有有效观测；来自1个原始场景 |
+| 合计 | 7442 | 383 | 观测数，不等于独立地点或卫星整景数 |
+
+角色、成员、QA、定标和TRAIN-only统计在首段10轮中保持冻结。L=128m与内部8×8布局属于模型配置，不改变本表的原生像元和分辨率，也不产生额外真值。SAR、HR及HLS未作为本段新增训练观测；配对资源数量不计入这个单观测训练池。
+
+实际成员、统计与物理目录身份见[正式运行身份](../outputs/encoder_v3/shared_mae/release_L128_v4/formal_run/identity.json)；[全成员几何与通道计数](../outputs/encoder_v3/shared_mae/scales_global_v2/census.json)可核对上述数量。[可视化图集](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/index.html)是从原生数组生成的预测展示，光谱图中的EnMAP为TRAIN示例，不是新增验证成员。
+
 ## 波段、单位和空间配置
 
 | 输入 | 原生采样及通道 | 数值与质量配置 |
@@ -47,6 +62,14 @@
 ![波段与原生采样距离](assets/data/bands_and_gsd.png)
 
 此图展示主要光学反射率通道及其原生采样距离。它是输入配置示意，不是SRF曲线；插值到更细网格不会增加真实细节。
+
+## 共享描述器的物理元数据输入
+
+当前共享MAE训练使用7442个TRAIN、383个VAL，沿用既有角色、原生像元、QA、定标与TRAIN统计。元数据解析已覆盖50199条通道记录，无缺失关键物理身份；这不是对新架构训练有效性的验收。
+
+光学需要GSD与波长，FWHM可缺失且有独立缺失标志。优先使用显式产品channel_metadata；EnMAP必须使用本产品XML目录及其哈希，不从其他场景全局表借用；S2和Landsat可由波段身份查询data/physics/sensor_physics.json。图像不必自带波长，但必须有可追溯的外部物理身份，不用整数波段序号冒充波长。
+
+SAR接口使用物理量、频率、极化及可用入射角；高分辨率光学仍需明确波段物理身份。当前S1与高分影像尚未纳入本轮新训练池，不把接口单元测试视为数据准入。
 
 ## 真实观测示例
 
@@ -64,6 +87,6 @@ S2 L1C曾有质量资产被误登记为波段的情况，该资产不能当光�
 
 ### EnMAP当前准入结果
 
-已逐块扫描两景224波段、30m原生影像，并读取1689个派生窗口的全部头信息。两景产品B131–B135整景为NoData，需要明确坏波段规则；两景缺配套像元质量掩码，2026-11-04景另缺匹配XML。2023-05-05景XML给出的反射率增益为0.0001、偏移0，不能沿用旧物理登记的scale=1。派生窗口均声明30m重采样至10m，且缺完整CRS/仿射/时间合同，不作为原生观测准入。
+已补齐官方QA与XML，并根据用户确认，将可追溯原窗口按30m原生网格重建为47个完整观测窗口，不插值到10m；来源为1个原始场景，全部TRAIN，无独立EnMAP VAL。224通道原始顺位保留，B131–B135无有效观测，不产生内容或目标、也不拟造均值/标准差；其余219通道使用窗口TRAIN-only统计。反射率按产品XML的GainOfBand及OffsetOfBand转换。
 
-因此当前EnMAP训练成员数为0，未拟合其TRAIN统计、未改旧冻结release。准入需补齐原始QA及对应XML，完成坏波段/质量规则、谱系及角色隔离、TRAIN-only统计，再生成独立数据身份与E1证据。当前LR不读取实测SRF，未把旧路径的实测SRF门槛直接套用到本次准入。证据：outputs/encoder_v3/latent_response/plan_execution/enmap/admission.json。
+逐像元QA与逐波段缺陷掩码均检查；新版本为outputs/encoder_v3/latent_response/training_preparation/enmap_native_windows_v1。旧冻结release及原像元不改。旧1689个重采样窗口没有整体准入，其余缺来源或不完整覆盖的记录仍待修。新训练池共7442个观测。47个窗口不能当作47个独立场景，也没有EnMAP独立验证成绩。
