@@ -963,3 +963,15 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 实际短段上限232更新，epochs10仅形成2320步LR日程/预热232步，不自动训练十轮。与原含EnMAP的233批/预热233步相比，过滤成员也改变了同种子洗牌后的批次顺序和每轮步数。对照不能由单次结果直接推断EnMAP损害Encoder；224波段经过通道平均，并不自动获得224倍权重。所有旧正式运行继续停止或完成，不混入前述Decoder工程候选权重。
 
 排除EnMAP的正式短段已RUNNING：Run e5a83915eb97484ebb2081f20df44e50，源码e843a0f59bdbb40adda3d24cd34262ed35ac7a8f、175文件冻结于release_no_enmap_v1/runtime。随机初始参数0958271a…与原含EnMAP实验一致，初始383VAL同为2.1474302937；已核验真实A-only更新、checkpoint与已执行前缀零EnMAP输入。实际进度以release_no_enmap_v1/formal_run/status.json及training_started.json为准，max_updates232后TRIAL_COMPLETE，不将启动视为质量改善或因果结论。
+
+### 排除EnMAP首轮完成与重建图集
+
+该段已TRIAL_COMPLETE232/1Epoch，7395唯一观测，尾3、实际训练EnMAP为0，未自动续训。完整383VAL第0/58/116/174/232步分别2.1474302937/1.9857621691/0.7589630577/0.5583775819/0.4961607213；best232。原含EnMAP首轮0.4831257753，本次未见改善；单次仅完成一轮预热、成员改变同时影响洗牌和日程步数，不能据此判定EnMAP完全无影响或模型充分收敛。
+
+整轮墙钟1036.455525秒（17分16秒），更新924.898689秒（15.415分钟）、验证/保存/日志等差额111.556836秒（1.859分钟），均批3.98663秒。原含EnMAP首轮17.050分钟与本轮17.274分钟相近，不构成明显整轮加速。相同固定VAL上的可见均值基线0.2079677751，347/383观测模型更差。[覆盖/计时/验证节点](../outputs/encoder_v3/hierarchical/release_no_enmap_v1/trial_completion.json)保留实际记录。
+
+[图集](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/index.html)来自best232，复用绑定该检查点的官方383VAL记录，选中VAL案例再次推理匹配原损失；8案例、3原生光谱、7张图，未输入或绘制EnMAP。S2/L8独立VAL按本段A误差P25/P50/P90选样，L9是TRAIN诊断；保留最差S2，分位选样不保证跨实验同一观测，不能当成配对因果证据。原图/预测统一RGB0—0.3/gamma2.2，误差0—0.15标溢出，原始物理误差不裁剪，拼合图可见部分来自原图。
+
+![排除EnMAP后的A重建](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/overview_A.png)
+
+隐藏区仍为平滑块状，田块纹理和边界没有恢复，所选S2/L8典型隐藏RGB物理MAE约0.01798/0.02208，最差S2约0.41152。光谱能跟随部分变化，但不能由少数所选像元推断整体重建已好。[光谱](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/spectral_profiles.png)、[完整短段曲线](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/learning_curves.png)与[只读核验](../outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/verification.json)可追溯；曲线明确本段仅预热，参数/best/last/updates不变，optimizer更新0。

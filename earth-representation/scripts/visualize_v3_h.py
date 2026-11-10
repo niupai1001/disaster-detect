@@ -74,7 +74,7 @@ def main():
         'identity':checkpoint['identity'],'frontend':config.get('frontend','physical_descriptor'),'source_status':state['status'],'live_source':args.live_source,'inference_device':execution_device,
         'observed_cursor':state['cursor'],'observed_epoch':state['epoch'],'paused_cursor':state['cursor'] if state['status']=='STOPPED' else None,'paused_epoch':state['epoch'] if state['status']=='STOPPED' else None,
         'best_cursor':checkpoint['runner']['cursor'],'best_epoch':best_epoch,'full_val_loss':metric,'full_val_members':len(records),
-        'optimizer_updates':0,'enabled_tasks':list(kinds),'selection':'S2/L8: within-source configured-task-weighted full-VAL loss P25/P50/P90 (A-only when B1=0). L9/EnMAP: TRAIN native-pixel median, diagnostic only. S2 extreme: worst source VAL loss.',
+        'optimizer_updates':0,'enabled_tasks':list(kinds),'excluded_training_sources':['EnMAP'] if config.get('exclude_enmap') else [],'selection':'S2/L8: within-source configured-task-weighted full-VAL loss P25/P50/P90 (A-only when B1=0). L9/EnMAP when present in active TRAIN: native-pixel median, diagnostic only. S2 extreme: worst source VAL loss.',
         'full_val_records_reused_from':str(args.records.resolve()) if args.records else None,
         'display':'Truth and prediction use identical fixed physical-reflectance ranges. RGB0..0.3, singleband0..0.5, gamma2.2; hidden-only absolute error0..0.15. Extreme scene uses RGB0..1 and gray0..1. No independent image stretch. Visible truth in composite is not model prediction.',
         'cases':[],'spectra':[]}
@@ -254,7 +254,7 @@ def main():
     steps=sorted(k for k in validation if short_trial or k>=175)
     validation_view='固定验证：含初始化的完整短段' if short_trial else '固定验证：175步起的后段放大'
     axes[1].plot([plan.progress(k) for k in steps],[validation[k] for k in steps],'o-',ms=3,color='#dc2626',label='固定383VAL');axes[1].axhline(metric,color='#2563eb',ls='--',label=f'最佳{metric:.5f}');axes[1].set_title(validation_view);axes[1].legend(fontsize=8)
-    axes[2].plot(x,[r['lr'] for r in updates],color='#059669');axes[2].set_title('实际学习率：预热＋余弦');axes[2].set_ylabel('学习率')
+    axes[2].plot(x,[r['lr'] for r in updates],color='#059669');axes[2].set_title('实际学习率：本段仅预热' if state['epoch']<=config['warmup_epochs'] else '实际学习率：预热＋余弦');axes[2].set_ylabel('学习率')
     for ax in axes:ax.set_xlabel('Epoch进度');ax.grid(alpha=.2)
     for ax in axes[:2]:ax.set_ylabel('MSE / z²')
     context='运行快照' if args.live_source else ('短段已完成' if short_trial else ('已完成' if state['status']=='COMPLETE' else '已暂停'))
@@ -268,7 +268,7 @@ def main():
         checkpoint_snapshot_unchanged=True,training_modified_by_visualizer=False,script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),figures=figures)
     write(out/'report.json',report)
     sections=''.join(f'<section><h2>{html.escape(title)}</h2><a href="{filename}"><img src="{filename}" loading="lazy"></a></section>' for title,filename in figures)
-    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>V3-H最佳权重重建图集</title><style>body{font-family:Segoe UI,Microsoft YaHei,sans-serif;background:#f4f6f9;color:#172033;max-width:1500px;margin:30px auto;padding:0 20px}section{background:white;padding:20px;margin:24px 0;border-radius:12px}img{width:100%;height:auto}p{line-height:1.8}</style><h1>V3-H最佳权重重建图集</h1>'+f'<p>{context}：{state["epoch"]:.3f} Epoch / {state["cursor"]}更新。最佳：第{best_epoch:g}轮 / {checkpoint["runner"]["cursor"]}步，完整383VAL={metric:.8f}。本次仅推理，optimizer更新0。启用任务：{", ".join(kinds)}。</p><p>S2、L8按独立VAL误差分位选样；L9、EnMAP为TRAIN诊断。预测与原图固定同一物理显示范围，灰色为隐藏/无效；拼合图的可见部分来自原图。显示上限可能截断亮区，各分位页给出实际截断比例，应结合未截断误差/指标；误差色标顶部箭头表示超过0.15。{validation_view}。<a href="report.json">完整记录</a></p>'+sections+'</html>',encoding='utf-8')
+    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>V3-H最佳权重重建图集</title><style>body{font-family:Segoe UI,Microsoft YaHei,sans-serif;background:#f4f6f9;color:#172033;max-width:1500px;margin:30px auto;padding:0 20px}section{background:white;padding:20px;margin:24px 0;border-radius:12px}img{width:100%;height:auto}p{line-height:1.8}</style><h1>V3-H最佳权重重建图集</h1>'+f'<p>{context}：{state["epoch"]:.3f} Epoch / {state["cursor"]}更新。最佳：第{best_epoch:g}轮 / {checkpoint["runner"]["cursor"]}步，完整383VAL={metric:.8f}。本次仅推理，optimizer更新0。启用任务：{", ".join(kinds)}。</p><p>S2、L8按独立VAL误差分位选样；TRAIN诊断仅显示本次训练中存在的来源。预测与原图固定同一物理显示范围，灰色为隐藏/无效；拼合图的可见部分来自原图。显示上限可能截断亮区，各分位页给出实际截断比例，应结合未截断误差/指标；误差色标顶部箭头表示超过0.15。{validation_view}。<a href="report.json">完整记录</a></p>'+sections+'</html>',encoding='utf-8')
     print('VISUALIZATION_PASS',str(out),flush=True)
 
 
