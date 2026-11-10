@@ -875,3 +875,24 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 双卡正式段第2—4轮含训练、每轮4次完整验证及保存等开销为46.30/45.44/45.83分钟，平均45.85分钟；训练约40.53分钟/轮，均批10.44秒。仍有逐观测计算、同步CUDA、CPU梯度中转及单卡验证开销，参数少不等同于计算少（最大约188万Fine Token、4945万Middle边）；未完成精确CPU/GPU等待分解，不宣称效率优化充分。
 
 冻结源码为`release_mae_dual_v1/runtime`，源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`；[暂停记录](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/pause_record.json)、[实时末态](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/status.json)、[best](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/best.pt)、[last](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/last.pt)保留来源谱系。旧共享MAE与本段同时改变架构、遮盖比例、任务权重和预算，不直接将0.6510与0.4444差异归因为架构单因素；尚无冻结Encoder的下游或留传感器评价。当前暂停预算不自动恢复。
+
+## Encoder V3-H A-only运行中诊断
+
+本段为用户授权的随机初始化、A=1/B1=0、JEPA=0独立10 Epoch上限，双卡Batch32、FP32，L128及原生像元、成员、QA、统计不变。正式Run `65525b250ad34747a6024a2cea636754`仍在训练；以下是第525步验证节点快照，不是完整10轮成绩，也不继承旧AB权重。固定383VAL初始2.1474302937，第233/466/525步分别0.4831257753/0.4155511077/0.4123939128，单位为归一化MSE z²。旧AB综合0.4444不是同一损失；旧best的A单项0.4156507235仅作开发面板参照，不能据此建立独立架构排名。
+
+| 完整Epoch | 训练更新计时 / 分钟 | 验证、保存、日志等差额 / 分钟 | 总墙钟 / 分钟 |
+|---|---:|---:|---:|
+| 1 | 15.40 | 1.65 | 17.05 |
+| 2 | 17.03 | 1.93 | 18.95 |
+
+两轮均完整覆盖7442观测、233批，均值约18.00分钟/Epoch。总墙钟采用相邻轮末完整VAL日志时间差；更新计时包含执行路径中的CPU/GPU工作与等待，并非纯GPU算子时间。差额不是纯验证耗时。第2轮结束早于本次可视化，因此这两个完整轮次未受图集推理竞争影响。相较旧AB约45.85分钟减少约61%，同时包含取消B1和执行优化，不能全归因为等价代码加速。原始分解见[timing.json](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/timing.json)。
+
+参数约176万不代表少量运算：最大观测有34,491,294原生通道像元、1,878,600 Fine/613,994 Middle/38,626 Coarse，Fine/Middle邻接约2026万/4945万。Coarse仍是场景全局注意力，几何上限38,626²×4约59.68亿个分数项/块（实际按有效Token计算）；512查询分块和重计算限制显存，不消除二次计算。该数字属于最大场景，不能套用到每个观测。普通批仍有逐观测/逐通道执行、小算子、CPU中转梯度及副本同步。尚无完整算子级端到端profiling，不能断言总时长主要耗在GPU数学、I/O或Python等待，也不能称加速已经充分完成。
+
+![A-only所选验证节点重建](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/overview_A.png)
+
+[图集](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/index.html)使用第525步/2.2537 Epoch快照（SHA256 `248c4715fa73449ed41e9ea85d9ee0181974e8a3ca54feaf705a77a365058ea3`），复用对应官方完整VAL逐观测记录并核对身份、成员与指标，选中VAL案例再次推理与其记录一致。S2/L8各取A损失P25/P50/P90，L9/EnMAP为TRAIN原生像元数量中位诊断，另保留最差S2，共9案例、4组光谱、8张图。工作树可视化入口新增`--live-source --checkpoint <不可变副本> --records <对应官方验证文件> --device cuda:0`；不编辑冻结runtime，模型参数与快照SHA不变、optimizer更新0，正式训练继续。原图/预测固定RGB0—0.3、gamma2.2，误差0—0.15并标明溢出，拼合图可见部分仍是真值。
+
+典型S2/L8隐藏RGB物理MAE约0.01900/0.01463，但预测明显偏平滑、块状，田块边界没有恢复。所选9案例A-MSE均优于同目标TRAIN均值基线，不代表整个VAL所有场景均如此；极亮S2仍有约0.19898的隐藏RGB物理MAE。所选L8近红外和EnMAP TRAIN光谱存在明显幅度偏差，因此不能称颜色、光谱或细节恢复已解决。L9/EnMAP没有独立VAL，此处不作泛化结论。
+
+[真实曲线](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/learning_curves.png)、[光谱](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/spectral_profiles.png)、[案例与推理核验](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/report.json)、[快照清单](../outputs/encoder_v3/hierarchical/a_only/validation_snapshot_525_v1/manifest.json)保留本次证据；曲线VAL面板从175步起放大，训练尖峰未删除。最新进度见[实时状态](../outputs/encoder_v3/hierarchical/release_a_only_v1/formal_run/status.json)，旧AB保持暂停。

@@ -22,6 +22,9 @@ def main():
     parser.add_argument('--release',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--records',type=Path,help='Reuse full-VAL records already reproduced from this exact checkpoint')
+    parser.add_argument('--checkpoint',type=Path,help='Immutable checkpoint copy for a live-source evaluation')
+    parser.add_argument('--live-source',action='store_true',help='Render an immutable checkpoint copy without stopping training')
+    parser.add_argument('--device',help='Inference-only device override; source execution identity stays unchanged')
     args=parser.parse_args();release=args.release.resolve();out=args.output.resolve()
     out.mkdir(parents=True,exist_ok=False)
     sys.path.insert(0,str(release/'runtime/src'))
@@ -35,34 +38,46 @@ def main():
         font_manager.fontManager.addfont(str(font));plt.rcParams['font.family']=font_manager.FontProperties(fname=str(font)).get_name()
     plt.rcParams['axes.unicode_minus']=False
     run=release/'formal_run';state=json.loads((run/'status.json').read_text())
-    assert state['status']=='STOPPED','Observe safe stop before visualization'
-    config=json.loads((run/'config.json').read_text());torch.cuda.set_device(config['device'])
+    if not args.live_source:assert state['status']=='STOPPED','Observe safe stop or explicitly use a checkpoint snapshot'
+    if args.live_source:
+        assert args.checkpoint is not None and args.records is not None
+        assert args.checkpoint.resolve() not in ((run/'best.pt').resolve(),(run/'last.pt').resolve()),'Live checkpoints must be copied first'
+    config=json.loads((run/'config.json').read_text());execution_device=args.device or config['device'];torch.cuda.set_device(execution_device)
     kinds=tuple(k for k in ('A','B1') if config['task_weights'][k]>0)
-    source_hashes={name:hashlib.sha256((run/name).read_bytes()).hexdigest() for name in ('best.pt','last.pt','updates.jsonl')}
-    checkpoint=torch.load(run/'best.pt',map_location='cpu',weights_only=False)
+    checkpoint_path=(args.checkpoint or run/'best.pt').resolve()
+    checkpoint_sha=hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
+    source_hashes={} if args.live_source else {name:hashlib.sha256((run/name).read_bytes()).hexdigest() for name in ('best.pt','last.pt','updates.jsonl')}
+    checkpoint=torch.load(checkpoint_path,map_location='cpu',weights_only=False)
     datasets,resolver=load_data();assert identity(config,datasets,resolver)==checkpoint['identity']
     plan=EpochPlan(datasets['TRAIN'].rows,config['seed'],config['batch_size'])
     best_epoch=plan.progress(checkpoint['runner']['cursor'])
-    model=build_model(config).to(config['device']);model.load_state_dict(checkpoint['model']);model.eval()
+    model=build_model(config).to(execution_device);model.load_state_dict(checkpoint['model']);model.eval()
     before=parameter_sha(model)
     if args.records:
-        previous=json.loads((args.records.parent/'report.json').read_text())
-        assert previous['status']=='PASS' and previous['checkpoint_sha256']==source_hashes['best.pt'] and previous['identity']==checkpoint['identity']
-        records=json.loads(args.records.read_text())
+        raw=json.loads(args.records.read_text())
+        if isinstance(raw,dict):
+            assert args.records.resolve()==(run/f"validation_{checkpoint['runner']['cursor']}.json").resolve()
+            assert raw['metric']==checkpoint['runner']['validation']['metric'] and raw['observations']==len(datasets['VAL'].rows)
+            records=raw['members']
+        else:
+            previous=json.loads((args.records.parent/'report.json').read_text())
+            assert previous['status']=='PASS' and previous['checkpoint_sha256']==checkpoint_sha and previous['identity']==checkpoint['identity']
+            records=raw
         assert len(records)==len(datasets['VAL'].rows) and {r['id'] for r in records}=={r['id'] for r in datasets['VAL'].rows}
         metric=sum(r['loss'] for r in records)/len(records)
     else:
-        with torch.no_grad():metric,records=batch_loss(model,datasets['VAL'],datasets['VAL'].rows,resolver,dict(config,seed=config['validation_seed']),epoch=0)
+        with torch.no_grad():metric,records=batch_loss(model,datasets['VAL'],datasets['VAL'].rows,resolver,dict(config,device=execution_device,seed=config['validation_seed']),epoch=0)
     expected=checkpoint['runner']['validation']['metric'];assert abs(metric-expected)<1e-6,(metric,expected)
     write(out/'val_members.json',records)
-    report={'status':'RUNNING','checkpoint':str(run/'best.pt'),'checkpoint_sha256':source_hashes['best.pt'],
-        'identity':checkpoint['identity'],'paused_cursor':state['cursor'],'paused_epoch':state['epoch'],
+    report={'status':'RUNNING','checkpoint':str(checkpoint_path),'checkpoint_sha256':checkpoint_sha,
+        'identity':checkpoint['identity'],'source_status':state['status'],'live_source':args.live_source,'inference_device':execution_device,
+        'observed_cursor':state['cursor'],'observed_epoch':state['epoch'],'paused_cursor':state['cursor'] if state['status']=='STOPPED' else None,'paused_epoch':state['epoch'] if state['status']=='STOPPED' else None,
         'best_cursor':checkpoint['runner']['cursor'],'best_epoch':best_epoch,'full_val_loss':metric,'full_val_members':len(records),
         'optimizer_updates':0,'enabled_tasks':list(kinds),'selection':'S2/L8: within-source configured-task-weighted full-VAL loss P25/P50/P90 (A-only when B1=0). L9/EnMAP: TRAIN native-pixel median, diagnostic only. S2 extreme: worst source VAL loss.',
         'full_val_records_reused_from':str(args.records.resolve()) if args.records else None,
         'display':'Truth and prediction use identical fixed physical-reflectance ranges. RGB0..0.3, singleband0..0.5, gamma2.2; hidden-only absolute error0..0.15. Extreme scene uses RGB0..1 and gray0..1. No independent image stretch. Visible truth in composite is not model prediction.',
         'cases':[],'spectra':[]}
-    write(out/'report.json',report);print('FULL_VAL_REPRODUCED',metric,flush=True)
+    write(out/'report.json',report);print('FULL_VAL_VERIFIED',metric,flush=True)
     lookup={role:{r['id']:i for i,r in enumerate(ds.rows)} for role,ds in datasets.items()}
     examples={};spectrum_ids={};figures=[]
     canonical=lambda name:re.sub(r'^B0+(\d)',r'B\1',name.removeprefix('SR_'))
@@ -117,7 +132,7 @@ def main():
             ax.set_title('该目标波段输入（隐藏）' if kind=='B1' and k==1 else titles[k],fontsize=10);ax.axis('off')
 
     def evaluate(role,row,kind,label,record=None,extreme=False):
-        ds=datasets[role];sample=sample_from_dataset(ds,lookup[role][row['id']],resolver,config['device'])
+        ds=datasets[role];sample=sample_from_dataset(ds,lookup[role][row['id']],resolver,execution_device)
         with torch.no_grad():loss,details=model([sample],kind=kind,seed=config['validation_seed'],epoch=0,return_predictions=True)
         detail=details[0];value=float(loss[0]);assert np.isfinite(value)
         if record is not None:assert abs(value-record['tasks'][kind]['mae'])<1e-5
@@ -144,7 +159,9 @@ def main():
                 if j==1:examples[(sensor,kind)]=images
             fig.suptitle(f'{sensor} 独立VAL / {kind}重建 / 最佳检查点：第{best_epoch:g}轮',fontsize=15)
             clipped=[c['display_target_fraction_above_upper'] for c in report['cases'] if c['source']==sensor and c['task']==kind and c['role']=='VAL']
-            fig.text(.5,.019,'统一物理反射率显示，灰色为隐藏或无效；B1仅展示一个隐藏波段，其他可见波段未画出。',ha='center',fontsize=9)
+            footer='统一物理反射率显示，灰色为隐藏或无效。'
+            if kind=='B1':footer+='B1仅展示一个隐藏波段，其他可见波段未画出。'
+            fig.text(.5,.019,footer,ha='center',fontsize=9)
             fig.text(.5,.003,'P25/P50/P90目标通道值超过显示上限：'+' / '.join(f'{v:.1%}' for v in clipped)+'；仅显示截断，误差和指标使用未截断值。',ha='center',fontsize=9)
             fig.tight_layout(rect=(0,.04,1,.95));filename=f'{sensor}_{kind}.png';fig.savefig(out/filename,dpi=150);plt.close(fig)
             figures.append((f'{sensor} VAL {kind}：误差分位样本',filename));print('RENDERED',filename,flush=True)
@@ -182,7 +199,7 @@ def main():
     fig,axes=plt.subplots(4,1,figsize=(13,13))
     for ax,sensor in zip(axes,('S2','L8','L9','EnMAP')):
         role,identifier=spectrum_ids[sensor];ds=datasets[role];row=ds.rows[lookup[role][identifier]]
-        sample=sample_from_dataset(ds,lookup[role][identifier],resolver,config['device'])
+        sample=sample_from_dataset(ds,lookup[role][identifier],resolver,execution_device)
         spectrum_kind='B1' if 'B1' in kinds else 'A'
         with torch.no_grad():_,details=model([sample],kind=spectrum_kind,seed=config['validation_seed'],epoch=0,return_predictions=True)
         groups={}
@@ -206,9 +223,15 @@ def main():
         ax.set_title(f'{sensor} / {role}'+('（非独立验证）' if role=='TRAIN' else '')+f' / 同一原生网格像元({y},{x})')
         ax.set_xlabel('中心波长 / nm');ax.set_ylabel('物理反射率');ax.grid(alpha=.2);ax.legend(fontsize=9,ncol=4)
         report['spectra'].append({'id':identifier,'role':role,'source':sensor,'pixel':[int(y),int(x)],'wavelength_nm':waves.tolist(),'truth':truth.tolist(),'baseline':baseline.tolist(),'hidden_prediction':[float(v) if np.isfinite(v) else None for v in prediction]})
-    fig.tight_layout();fig.savefig(out/'spectral_profiles.png',dpi=150);plt.close(fig);figures.append(('原生像元光谱：仅隐藏波段画预测', 'spectral_profiles.png'))
+    fig.tight_layout();fig.savefig(out/'spectral_profiles.png',dpi=150);plt.close(fig)
+    figures.append(('原生像元光谱：'+('仅隐藏波段画预测' if spectrum_kind=='B1' else '隐藏空间位置的各波段预测'), 'spectral_profiles.png'))
 
-    updates=[json.loads(line) for line in (run/'updates.jsonl').read_text().splitlines()];validation={}
+    updates=[]
+    for line in (run/'updates.jsonl').read_text().splitlines():
+        try:record=json.loads(line)
+        except json.JSONDecodeError:continue
+        if record['cursor']<=state['cursor']:updates.append(record)
+    validation={}
     directory=run
     while True:
         for p in directory.glob('validation_*.json'):
@@ -228,15 +251,18 @@ def main():
     axes[2].plot(x,[r['lr'] for r in updates],color='#059669');axes[2].set_title('实际学习率：预热＋余弦');axes[2].set_ylabel('学习率')
     for ax in axes:ax.set_xlabel('Epoch进度');ax.grid(alpha=.2)
     for ax in axes[:2]:ax.set_ylabel('MSE / z²')
-    fig.suptitle(f'已暂停于{state["epoch"]:.3f} Epoch；最佳检查点{best_epoch:g} Epoch（非10轮完成）')
-    fig.savefig(out/'learning_curves.png',dpi=150);plt.close(fig);figures.insert(0,('暂停实验的真实训练/验证/学习率', 'learning_curves.png'))
+    context='运行快照' if args.live_source else '已暂停'
+    fig.suptitle(f'{context}：{state["epoch"]:.3f} Epoch；所选验证检查点{best_epoch:g} Epoch（非10轮完成）')
+    fig.savefig(out/'learning_curves.png',dpi=150);plt.close(fig);figures.insert(0,('真实训练/验证/学习率', 'learning_curves.png'))
     assert parameter_sha(model)==before
     for name,value in source_hashes.items():assert hashlib.sha256((run/name).read_bytes()).hexdigest()==value
-    assert json.loads((run/'status.json').read_text())['status']=='STOPPED'
-    report.update(status='PASS',parameters_unchanged=True,source_artifacts_unchanged=True,script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),figures=figures)
+    if not args.live_source:assert json.loads((run/'status.json').read_text())['status']=='STOPPED'
+    assert hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()==checkpoint_sha
+    report.update(status='PASS',parameters_unchanged=True,source_artifacts_unchanged=True if not args.live_source else None,
+        checkpoint_snapshot_unchanged=True,training_modified_by_visualizer=False,script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),figures=figures)
     write(out/'report.json',report)
     sections=''.join(f'<section><h2>{html.escape(title)}</h2><a href="{filename}"><img src="{filename}" loading="lazy"></a></section>' for title,filename in figures)
-    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>V3-H最佳权重重建图集</title><style>body{font-family:Segoe UI,Microsoft YaHei,sans-serif;background:#f4f6f9;color:#172033;max-width:1500px;margin:30px auto;padding:0 20px}section{background:white;padding:20px;margin:24px 0;border-radius:12px}img{width:100%;height:auto}p{line-height:1.8}</style><h1>V3-H最佳权重重建图集</h1>'+f'<p>实验已暂停：{state["epoch"]:.3f} Epoch / {state["cursor"]}更新。最佳：第{best_epoch:g}轮 / {checkpoint["runner"]["cursor"]}步，完整383VAL={metric:.8f}。本次仅推理，optimizer更新0。启用任务：{", ".join(kinds)}。</p><p>S2、L8按独立VAL误差分位选样；L9、EnMAP为TRAIN诊断。预测与原图固定同一物理显示范围，灰色为隐藏/无效；拼合图的可见部分来自原图。显示上限可能截断亮区，各分位页给出实际截断比例，应结合未截断误差/指标；误差色标顶部箭头表示超过0.15。验证曲线为175步起的后段放大。<a href="report.json">完整记录</a></p>'+sections+'</html>',encoding='utf-8')
+    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>V3-H最佳权重重建图集</title><style>body{font-family:Segoe UI,Microsoft YaHei,sans-serif;background:#f4f6f9;color:#172033;max-width:1500px;margin:30px auto;padding:0 20px}section{background:white;padding:20px;margin:24px 0;border-radius:12px}img{width:100%;height:auto}p{line-height:1.8}</style><h1>V3-H最佳权重重建图集</h1>'+f'<p>{context}：{state["epoch"]:.3f} Epoch / {state["cursor"]}更新。最佳：第{best_epoch:g}轮 / {checkpoint["runner"]["cursor"]}步，完整383VAL={metric:.8f}。本次仅推理，optimizer更新0。启用任务：{", ".join(kinds)}。</p><p>S2、L8按独立VAL误差分位选样；L9、EnMAP为TRAIN诊断。预测与原图固定同一物理显示范围，灰色为隐藏/无效；拼合图的可见部分来自原图。显示上限可能截断亮区，各分位页给出实际截断比例，应结合未截断误差/指标；误差色标顶部箭头表示超过0.15。验证曲线为175步起的后段放大。<a href="report.json">完整记录</a></p>'+sections+'</html>',encoding='utf-8')
     print('VISUALIZATION_PASS',str(out),flush=True)
 
 

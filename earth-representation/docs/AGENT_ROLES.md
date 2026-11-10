@@ -67,7 +67,7 @@
 
 enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用任务，A-only光谱选择隐藏空间位置，不执行B1。几何门禁逐边对照旧归一化Chebyshev谓词（含nextafter半径/小数GSD/大图CSR），不扩大邻域。双卡VAL在worker内关闭梯度、使用独立数据适配器，事务恢复主/副模式。独立55项CPU审查、CUDA旧A对照、最大原生双卡容量、25批异步稳定与完整恢复通过后才新冻结启动。32次固定四源TRAIN工程学习只作可学习性/颜色诊断，不计正式预算；实际正式Run仍从0随机初始化。
 
-新任务已进入A_ONLY_TRAINING：release_a_only_v1/runtime冻结172文件、源码提交8172965，Viewer Run `65525b250ad34747a6024a2cea636754`，mae-a-only方案独立显示。初始化383VAL2.1474302937，best0参数哈希与随机seed17一致；前28步已核对只有A日志、实际optimizer更新及checkpoint，spent=cursor无旧成本继承。10 Epoch为本段新上限，旧AB任务仍paused_by_user/STOPPED1312。正式运行与工程35次独立更新分开；当前进度见新发布status.json，不由本页启动快照外推收敛或完整Epoch速度。
+新任务已进入A_ONLY_TRAINING：release_a_only_v1/runtime冻结172文件、源码提交8172965，Viewer Run `65525b250ad34747a6024a2cea636754`，mae-a-only方案独立显示。初始化383VAL2.1474302937，best0参数哈希与随机seed17一致；前28步已核对只有A日志、实际optimizer更新及checkpoint，spent=cursor无旧成本继承。10 Epoch为本段新上限，旧AB任务仍paused_by_user/STOPPED1312。正式运行与工程35次独立更新分开；当前进度见新发布status.json；前两完整Epoch实测17.05/18.95分钟，结果与限制归RESULTS。用户请求运行中可视化时，仅复制已验证检查点，在独立进程中推理并核验对应完整VAL记录；不修改在跑runtime、权重或optimizer。当前第525步图集a_only/reconstruction_node_525_v2，独立审查只读，训练继续，不据此外推收敛或完整预算完成。
 
 ### 旧共享描述器MAE与历史暂停作业
 
