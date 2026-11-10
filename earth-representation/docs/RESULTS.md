@@ -840,3 +840,38 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 本次Run ID为`5657138b41b3411c9253ddf08e8abfb5`。原配置、代码/数据/成员/统计身份在[identity.json](../outputs/encoder_v3/shared_mae/release_L128_v4/formal_run/identity.json)中，TVLP实测曲线与完成事件位于[运行日志目录](../training-runs/20261109T180047Z_cf36016d3b7a4cdc994b3ce0f268e6b1)。完整VAL改善是同一固定评价集合内相对初始化的变化；不同代方案的数据、遮盖和权重不同，不把历史分数直接用于架构排名。本次为单次正式运行，尚无重复实验显著性结论。
 
 [原生重建图集](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/index.html)、[可视化身份与样本](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/report.json)、[全部VAL逐观测记录](../outputs/encoder_v3/shared_mae/reconstruction_best_v2/val_members.json)、[实际运行状态](../outputs/encoder_v3/shared_mae/release_L128_v4/formal_run/status.json)、[最佳权重](../outputs/encoder_v3/shared_mae/release_L128_v4/formal_run/best.pt)、[冻结配置](../outputs/encoder_v3/shared_mae/release_L128_v4/runtime/configs/config_shared_mae_v1.json)保留原路径；原冻结运行和历史记录不改写。
+
+## Encoder V3-H 层次化MAE暂停实验
+
+### 实验条件与停止边界
+
+用户主动要求暂停，实际状态STOPPED1312、5.632088 Epoch（41,914次观测曝光），durable spent_updates1320含8次异常恢复重放；原10 Epoch/2330逻辑批次上限未完成，Hybrid未启动。本段为随机初始化独立MAE，显式L128m、动态Fine/Middle/Coarse、both/neighbor/parallel、64/96/128维各2层4头；A遮盖比例0.55，A/B1权重0.7/0.3，JEPA=0，FP32、全局Batch32、AdamW峰值lr1e-4、预热1轮后余弦。TRAIN7442（S2 5349、L8 1522、L9 524、EnMAP47），固定VAL383（S2 335、L8 48）；当前无L9/EnMAP独立VAL。
+
+| 检查点或记录 | 更新/轮次 | 完整固定VAL MSE / z² |
+|---|---:|---:|
+| 初始化 | 0 | 2.1678077669 |
+| best | 932 / 第4轮末 | 0.4444412768 |
+| 停止前最近完整VAL | 1282 / 第6轮内 | 0.4509382418 |
+| last | 1312 / 5.632088轮 | 未对末态重评，不沿用1282分数 |
+
+第2—5轮TRAIN观测平均损失为0.2443、0.2363、0.2302、0.2221，对应轮末VAL为0.4876、0.4650、0.4444、0.4458。整体训练均值下降、验证进入平台，不据此声称充分收敛、下游有效或统计显著。个别高亮S2观测显著影响MSE；一次932→1049验证回升0.03111，单个观测贡献+0.03373，其余382观测平均反而下降0.00263。该观测归一化蓝波段中位数约15.34σ，源SCL独立检查为允许的水体类别6，尚未确认QA或辐射校准错误，不能因高loss删样本。诊断见[原始分解](../outputs/encoder_v3/hierarchical/performance/training_curve_diagnosis_v1/report.json)。
+
+### 最佳权重原生重建
+
+[完整图集](../outputs/encoder_v3/hierarchical/reconstruction_best_v2/index.html)从best932推理，完整383VAL复算精确得到0.44444127676559564；仅只读推理，optimizer更新0，模型及原best/last/updates哈希均不变。v1保存完整复算证据，v2复用该绑定检查点的逐观测记录，补充显示截断与验证后段放大说明。S2/L8分别按观测综合误差0.7A+0.3B1选择P25/P50/P90，分位不是单项任务排序；另含最差S2观测。L9/EnMAP按原生像元数量中位选TRAIN样本，明确不代表独立泛化。共18个重建案例、4组同一原生网格像元光谱。
+
+![空间遮盖重建](../outputs/encoder_v3/hierarchical/reconstruction_best_v2/overview_A.png)
+
+![波段遮盖重建](../outputs/encoder_v3/hierarchical/reconstruction_best_v2/overview_B1.png)
+
+图像依次为原图、可见输入、仅隐藏区域的模型预测、真值可见区域与预测的拼合、隐藏区绝对误差。拼合图的可见部分来自原图。原图/预测固定同一物理反射率显示：RGB0—0.3、单波段0—0.5、gamma2.2，误差色标0—0.15；极亮S2另用0—1范围。显示会截断高亮值（L8 A P90约27.25%目标通道值超过0.3），未裁剪误差和物理指标保留，误差色条顶部箭头表示超过0.15。
+
+典型Landsat观测的整体色调较接近，隐藏区细节仍平滑、呈块状；典型S2可见色偏，B1隐藏近红外明显偏亮，该显示波段的隐藏区物理MAE约0.10536。极亮S2 A/B1案例的显示通道物理MAE约0.20046/0.33348，重建明显不足。EnMAP TRAIN光谱能跟随部分谱形，但NIR/SWIR仍有系统偏差，不能推断独立高光谱泛化。少数所选任务未优于相同目标上的TRAIN通道均值基线，因此不把综合损失下降概括成所有波段、场景都恢复良好。
+
+[光谱对照](../outputs/encoder_v3/hierarchical/reconstruction_best_v2/spectral_profiles.png)、[极亮验证观测](../outputs/encoder_v3/hierarchical/reconstruction_best_v2/extreme_S2_VAL.png)、[实际训练/验证/学习率](../outputs/encoder_v3/hierarchical/reconstruction_best_v2/learning_curves.png)及[机器记录](../outputs/encoder_v3/hierarchical/reconstruction_best_v2/report.json)保留未美化的预测和失败案例。验证曲线面板为175步起的后段放大，并非初始化全轨迹。
+
+### 成本、比较限制与产物
+
+双卡正式段第2—4轮含训练、每轮4次完整验证及保存等开销为46.30/45.44/45.83分钟，平均45.85分钟；训练约40.53分钟/轮，均批10.44秒。仍有逐观测计算、同步CUDA、CPU梯度中转及单卡验证开销，参数少不等同于计算少（最大约188万Fine Token、4945万Middle边）；未完成精确CPU/GPU等待分解，不宣称效率优化充分。
+
+冻结源码为`release_mae_dual_v1/runtime`，源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`；[暂停记录](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/pause_record.json)、[实时末态](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/status.json)、[best](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/best.pt)、[last](../outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/last.pt)保留来源谱系。旧共享MAE与本段同时改变架构、遮盖比例、任务权重和预算，不直接将0.6510与0.4444差异归因为架构单因素；尚无冻结Encoder的下游或留传感器评价。当前暂停预算不自动恢复。

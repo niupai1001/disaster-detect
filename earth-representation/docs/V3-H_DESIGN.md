@@ -1,6 +1,6 @@
 # Encoder V3-H：层次化混合地表表征架构设计
 
-状态：核心约束为both / neighbor / parallel；实施候选已完成加速及工程检查。单卡续段完成208更新后CUDA异常，用户要求恢复并优先可用双卡；当前两副本同步执行已通过损失/梯度、容量与完整状态恢复验收，从last200恢复，总数据覆盖10 Epoch。该执行改变不改变模型信息流，异步错误根因未确定。实际配置和迁移边界见[实施计划](V3-H_IMPLEMENTATION_PLAN.md)。适用于`dev/encoder-v3-sensor-memory-v1`。
+状态：核心约束为both / neighbor / parallel；实施候选完成加速与双卡工程检查后实际训练，现按用户要求暂停于1312更新/5.632 Epoch，原10 Epoch上限未完成。最佳932更新/第4轮末，固定383VAL0.4444412768；图集与限制见[RESULTS](RESULTS.md#encoder-v3-h-层次化mae暂停实验)。执行改变不改变模型信息流，异步错误根因未确定；不自动续训或启动Hybrid。配置和迁移边界见[实施计划](V3-H_IMPLEMENTATION_PLAN.md)。适用于`dev/encoder-v3-sensor-memory-v1`。
 
 用户后续明确要求“继续完成试验进入训练”。原文档阶段的只读范围由此扩展为实现、工程试验及门禁后的训练；已停止的旧作业不恢复。首版P0细则见§14，未验收项不得作为正式结果。
 

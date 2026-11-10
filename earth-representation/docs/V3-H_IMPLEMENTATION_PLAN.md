@@ -1,6 +1,6 @@
 # Encoder V3-H：工程实施与代码验收计划
 
-状态：原文档阶段已提交为`73f6b80`。用户随后明确要求“继续完成试验进入训练”，本轮授权实现、工程试验及门禁后的新V3-H训练；旧作业不恢复。工程状态与未通过项以§20和实际证据为准。设计依据：[V3-H_DESIGN.md](V3-H_DESIGN.md)。
+状态：原文档阶段已提交为`73f6b80`，后续实现并完成单/双卡训练门禁。用户现明确暂停，正式运行STOPPED1312/5.632 Epoch，原10 Epoch上限未完成；best932/第4轮末/完整383VAL0.4444412768，只读重建见RESULTS。未经新指令不恢复或开启Hybrid。工程状态与边界以§20—23及实际证据为准。设计依据：[V3-H_DESIGN.md](V3-H_DESIGN.md)。
 
 ## 1. 实施目标
 
@@ -898,3 +898,5 @@ Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1
 继续顺序为：当前代码/配置/测试/文档提交→独立冻结`release_mae_dual_v1`→`prepare_execution_continuation`迁移last200与best175到新身份/新Viewer Run→正式入口核对绑定并reconcile复制的日志→确认实际更新越过原失败209批。原201—208日志在恢复证据中留存，原Run不改；spent_updates保留原208次durable尝试，重放8次成本不被抹去。终点仍为2330个逻辑批次/10个完整数据Epoch，完整覆盖与额外恢复成本分开报告，不因异常重启另加10 Epoch。若再次发生CUDA异常，不在失效CUDA上下文中盲目重试。
 
 双卡正式启动已执行：源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`、Git tree `149b5c5cfb0ce630a364f133daccaaf3e14dd92a`，170个依赖文件冻结，源码身份`262013c7aface18cfdee14398cf9fb065a62a93915b855a2cc018428df365b90`。正式目录`release_mae_dual_v1/formal_run`、Viewer Run `3666b4153ea5457697c9b3188e8b5958`已从检查点200写入201步真实更新（spent209）。首次loss0.12524238954283645与原对应批一致；每批检查点和恢复尝试归档正常。最新运行状态、实际cursor与原失败点复核见`training_started.json`及formal_run/status.json，不把启动通过写成全部10 Epoch完成。
+
+当前停止边界：用户明确“暂停当前实验……给我看看可视化的结果”，已请求STOP并保存last1312，状态STOPPED、5.632088Epoch、spent1320；best932/4Epoch，最近一次完整VAL为1282步0.4509382418，不将其归给未重评的last1312。pause_record.json记录检查点SHA与用户暂停指令，保留STOP_REQUESTED；历史authorization不能越过最新暂停指令。可视化仅从冻结最佳权重推理，完整383VAL复算精确一致，参数及原best/last/updates哈希不变。reconstruction_best_v1保留初版证据，v2补充显示截断及验证后段放大说明；无optimizer更新，不作为恢复训练。

@@ -59,7 +59,7 @@
 
 同一任务`encoder-v3-h-implementation-training`负责双卡门禁和恢复。`parallel.TwoDeviceBatch`两个worker各有独立TRAIN适配器及物理catalog，避免EnMAP LRU共享；全局观测均值梯度相加，单次clip/optimizer/scheduler/EMA后广播，任一worker失败本批不更新。50项CPU回归、201/209真实批次配对、两最大原生观测并发容量及双卡完整状态下一步恢复通过，短段中位加速1.94倍。运行使用与门禁相同的同步CUDA、确定性FP32，每批保存；此前异步非法访存仍未确定根因，不宣称已根治。审查只读，改动不触碰旧冻结模型或原始数据。
 
-双卡正式运行已开始，phase为DUAL_GPU_MAE_TRAINING，源码提交`8372d7a`冻结于`release_mae_dual_v1/runtime`，Viewer Run ID `3666b4153ea5457697c9b3188e8b5958`。已验证首次更新cursor201/spent209及每批检查点；当前进度由该发布formal_run/status.json及updates.jsonl给出。协调者继续持有原任务，不接管其他GPU进程、旧LR或已完成共享MAE预算。
+用户已明确暂停当前实验，phase为USER_PAUSED，STOPPED1312/5.632 Epoch、spent1320（含8重放），last1312、best932/第4轮末/完整383VAL0.4444412768，pause_record.json保留指令与检查点SHA。源码`8372d7a`仍冻结于`release_mae_dual_v1/runtime`，Viewer Run `3666b4153ea5457697c9b3188e8b5958`保持原身份，不移除STOP_REQUESTED，不自动续训或启动Hybrid。当前只读最佳权重可视化脚本为scripts/visualize_v3_h.py，图集reconstruction_best_v2；383VAL复算精确一致，18重建案例/4光谱，独立审查核对选样/掩膜/刻度/角色。协调者保留原任务与暂停预算，不接管其他GPU进程、旧LR或已完成共享MAE预算。
 
 ### 旧共享描述器MAE与历史暂停作业
 

@@ -68,7 +68,7 @@ python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/
 
 双卡采用单进程、两副本、独立数据读取缓存和几何缓存：一个原始Batch32按原生像元估算分工，每卡损失除实际全局观测数，梯度相加后由主卡统一clip/AdamW/scheduler/EMA一次并广播；尾批仍18。无需NCCL或未经同步的多进程。50项CPU测试、真实201/209批单/双卡损失与梯度、两大原生观测同时容量及双卡完整下一步恢复通过；短段中位加速约1.94倍，证据`performance/dual_gate_v1`。当前正式执行沿用`CUDA_LAUNCH_BLOCKING=1`及确定性FP32、每批保存；此前异步非法访存根因未确定，同步重放PASS不能证明异步缺陷已消失。
 
-当前双卡正式运行已产生201步及后续真实更新，Viewer Run ID为`3666b4153ea5457697c9b3188e8b5958`。冻结源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`，`release_mae_dual_v1/runtime`内170个依赖文件保持不变，源码身份`262013c7aface18cfdee14398cf9fb065a62a93915b855a2cc018428df365b90`。授权、验收、迁移、启动和源文件哈希在该发布根目录；最新状态优先于本页记录的启动进度。
+当前实验已按用户要求安全暂停：STOPPED1312，约5.632 Epoch，spent_updates1320含8次重放；last保存1312，best为932步/第4轮末，完整383VAL=0.4444412768。Viewer Run ID为`3666b4153ea5457697c9b3188e8b5958`，不自动续训或开启Hybrid。冻结源码提交`8372d7aabf9ec25af35181fda1bb90a2689cca95`，runtime内170个依赖文件不变。只读最佳权重图集见[重建可视化](outputs/encoder_v3/hierarchical/reconstruction_best_v2/index.html)及[结果说明](docs/RESULTS.md#encoder-v3-h-层次化mae暂停实验)；脚本`scripts/visualize_v3_h.py`独立导入冻结运行，不改模型或权重。
 
 加速证据统一在`outputs/encoder_v3/hierarchical/performance`：同卡paired数值/梯度对照及相同前183批无更新回放已证明实际加速。均批18.27→13.54秒（约1.35倍），含3次完整383VAL及检查点总耗时减少约26.88%；两张5090并行共享CPU/I/O，保留此测量条件。用户明确无需等待完整Epoch，两条长回放已停止；有效同批前缀可以验收速度，不冒称完整Epoch耗时。候选47项CPU测试、最大完整原生场景A/B1容量通过；失败轨迹及各版本证据不混用，详见[V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md#22-加速候选的验收与继续顺序)。
 
