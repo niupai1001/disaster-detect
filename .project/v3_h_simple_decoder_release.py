@@ -3,7 +3,7 @@ import ssl,os
 from pathlib import Path
 import argparse,json,subprocess,hashlib,sys,shutil,xml.etree.ElementTree as ET
 import torch
-ROOT=Path(__file__).resolve().parents[1]/'earth-representation';sys.path.insert(0,str(ROOT/'src'))
+ROOT=Path(__file__).resolve().parents[1]/'earth-representation';sys.path.insert(0,str(ROOT/'src'));sys.path.insert(0,str(Path(__file__).parent))
 from encoder_v3.hierarchical.train import load_data,build_model,identity,EpochPlan,write
 from encoder_v3.hierarchical.verification import fingerprint
 from encoder_v3.latent_response.checkpoint import parameter_sha
