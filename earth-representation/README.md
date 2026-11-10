@@ -74,7 +74,7 @@ python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/
 
 本次加速用分块Cartesian精确邻接构造替代大图cKDTree邻居列表/全局排序，并行完整VAL，并在门禁通过后使用异步CUDA（CUDA_LAUNCH_BLOCKING=0）。55项CPU测试、原A路径损失/梯度/边/目标对照、双卡最大容量、完整恢复及25批异步短段通过。证据在`outputs/encoder_v3/hierarchical/a_only`：最大场景冷A前后向59.65→44.14秒（1.35倍），热态约31秒基本不变；普通样本热态约0.93—1.17倍有波动，不宣称普遍加速。单/双卡383VAL 23.87→16.65秒，结果相同；A-only普通Batch32约3—5秒。取消B1本身的减负另记，不混称等价代码优化；前两完整Epoch含验证/保存实测17.05/18.95分钟，不能据此声称效率优化充分或色差已解决。
 
-A-only正式运行现为RUNNING，Viewer Run `65525b250ad34747a6024a2cea636754`，源码提交`8172965077e4b9f4d788dd4e7252da8cb4dd9a4c`冻结于release_a_only_v1/runtime（172文件，含可视化入口）。已验证随机初始化参数hash0958271a…、未加载checkpoint，初始383VAL A-MSE=2.1474302937。当前[状态](outputs/encoder_v3/hierarchical/release_a_only_v1/formal_run/status.json)和[更新](outputs/encoder_v3/hierarchical/release_a_only_v1/formal_run/updates.jsonl)优先；第525步/2.254 Epoch完整VAL=0.4123939128的[快照图集](outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/index.html)在训练继续时独立推理生成，说明见[结果](docs/RESULTS.md#encoder-v3-h-a-only运行中诊断)。A-only新指标不与旧综合VAL混画。
+原描述器A-only现已按新试验切换要求安全停止在704步/3.0215 Epoch，Viewer Run `65525b250ad34747a6024a2cea636754`，源码提交`8172965077e4b9f4d788dd4e7252da8cb4dd9a4c`冻结于release_a_only_v1/runtime（172文件，含可视化入口）。已验证随机初始化参数hash0958271a…、未加载checkpoint，初始383VAL A-MSE=2.1474302937。当前[状态](outputs/encoder_v3/hierarchical/release_a_only_v1/formal_run/status.json)和[更新](outputs/encoder_v3/hierarchical/release_a_only_v1/formal_run/updates.jsonl)优先；第525步/2.254 Epoch完整VAL=0.4123939128的[快照图集](outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/index.html)在训练继续时独立推理生成，说明见[结果](docs/RESULTS.md#encoder-v3-h-a-only运行中诊断)。A-only新指标不与旧综合VAL混画。
 
 加速证据统一在`outputs/encoder_v3/hierarchical/performance`：同卡paired数值/梯度对照及相同前183批无更新回放已证明实际加速。均批18.27→13.54秒（约1.35倍），含3次完整383VAL及检查点总耗时减少约26.88%；两张5090并行共享CPU/I/O，保留此测量条件。用户明确无需等待完整Epoch，两条长回放已停止；有效同批前缀可以验收速度，不冒称完整Epoch耗时。候选47项CPU测试、最大完整原生场景A/B1容量通过；失败轨迹及各版本证据不混用，详见[V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md#22-加速候选的验收与继续顺序)。
 
@@ -124,3 +124,9 @@ python scripts/visualize_shared_mae.py --release outputs/encoder_v3/shared_mae/r
 当前MAE方案默认曲线为训练批次平均损失、完整验证集平均损失，均按观测等权，单位z²、越低越好、角色loss。辅助数字为学习率、裁剪前梯度范数、S2验证损失、Landsat验证损失。另记录整轮训练均值、批次观测数、累计观测数和耗时。旧运行保留旧元数据和归约口径。
 
 日志只来自实际循环，step保留参数更新计数，epoch为累计处理观测数除以7,442。只有真正加载原检查点才恢复原Run并开启新Session；新的观测等权训练必须使用新方案身份。上下文管理器记录完成或异常，写入只限主进程；这不代表已实现分布式训练。Epoch入口的尾批、覆盖、恢复和TVLP日志均有自动化检查。
+
+## 无物理描述器的A-only短段对照
+
+用户要求考虑计算效率并暂时训练无描述器架构。配置为configs/config_v3_h_descriptor_free_v1.json：共享普通1→32的3×3卷积，同原生网格波段作为batch处理；融合和输出改为TRAIN预先登记的267个instrument/band身份Embedding，移除物理Memory、物理查询与动态卷积生成。面积加权波段融合及层次主干保留，因此这不是仅卷积单因素消融。L/GSD/原生几何与QA不变，数据适配器仍验证物理元数据，模型不读取物理描述器。
+
+随机初始化、A=1/B1=0/JEPA=0、双卡Batch32；短段上限233次更新（一个完整Epoch），保留原2330更新的学习率日程和1轮预热，完成标记TRIAL_COMPLETE，不冒充10轮完成。旧AB STOPPED1312及原描述器A-only STOPPED704不自动恢复。58项CPU检查和只读独立审查通过；真实GPU容量、数值、恢复与速度证据在outputs/encoder_v3/hierarchical/descriptor_free，正式状态将以release_descriptor_free_v1/formal_run为准。

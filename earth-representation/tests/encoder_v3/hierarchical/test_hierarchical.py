@@ -14,6 +14,66 @@ torch.set_num_threads(2)
 torch.use_deterministic_algorithms(True)
 
 
+def test_descriptor_free_has_no_physical_path_and_distinguishes_bands():
+    from encoder_v3.shared_mae.model import SharedMemory,ConditionalConvolution
+    torch.manual_seed(17);s=sample(side=12);s.instrument='test'
+    keys=[('test',c.name) for c in s.channels]
+    m=HierarchicalMAE(patch_metres=4.,frontend='shared_static_band_embedding',channel_keys=keys)
+    assert not any(isinstance(layer,(SharedMemory,ConditionalConvolution)) for layer in m.modules())
+    for c in s.channels:c.physical=None
+    loss,details=m([s],return_predictions=True)
+    conditions=m.online.conditions(s)
+    assert float((conditions['output'][0]-conditions['output'][1]).detach().norm())>1.
+    preds=details[0]['predictions'];assert float((preds[0]-preds[1]).detach().abs().max())>1e-4
+    loss.mean().backward()
+    for p in (m.online.convolution.weight,m.online.memory.fusion.weight,m.online.memory.output.weight):
+        assert p.grad is not None and float(p.grad.norm())>0
+    original=[p.detach().clone() for p in preds]
+    targets=details[0]['target_masks']
+    for c,mask in zip(s.channels,targets):c.values[mask]+=100
+    changed=m([s],return_predictions=True)[1][0]['predictions']
+    for a,b in zip(original,changed):torch.testing.assert_close(a,b)
+    s.instrument='unknown'
+    with pytest.raises(ValueError,match='Untrained'):m([s])
+
+
+def test_static_batched_convolution_matches_expanded_grouped_path():
+    from encoder_v3.hierarchical.descriptor_free import DescriptorFreeEncoder
+    from encoder_v3.hierarchical.model import Encoder
+    torch.manual_seed(7);m=DescriptorFreeEncoder(1,[('test','b')])
+    values=torch.randn(3,8,8);keep=torch.rand(3,8,8)>.3
+    kernel,bias=m.convolution(torch.zeros(3,32));clean=torch.where(keep,values,0.)
+    expected=Encoder.convolve(m,clean,kernel);actual=m.convolve(clean,kernel)
+    torch.testing.assert_close(actual,expected,atol=2e-6,rtol=1e-5)
+    a=torch.autograd.grad(actual.square().mean(),m.convolution.weight,retain_graph=True)[0]
+    b=torch.autograd.grad(expected.square().mean(),m.convolution.weight)[0]
+    torch.testing.assert_close(a,b,atol=2e-6,rtol=1e-5)
+
+
+def test_descriptor_free_short_trial_stops_without_shortening_lr_schedule(tmp_path,monkeypatch):
+    import json,sys
+    from encoder_v3.hierarchical import train
+    class Dataset:
+        def __init__(self,role,count):
+            self.samples=[sample(side=8,name=f'{role}{i}') for i in range(count)]
+            for s in self.samples:s.instrument='test'
+            self.rows=[dict(id=s.identifier,role=role,sensor='S2',instrument='test',bands=[dict(shape=(8,8))]) for s in self.samples]
+    datasets={'TRAIN':Dataset('TRAIN',3),'VAL':Dataset('VAL',1)}
+    monkeypatch.setattr(train,'load_data',lambda:(datasets,None))
+    monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:ds.samples[i])
+    binding={'test':'descriptor-free-short'};monkeypatch.setattr(train,'identity',lambda *args:binding)
+    config=json.loads(Path('configs/config_v3_h_descriptor_free_v1.json').read_text())
+    config.pop('devices');config.update(device='cpu',patch_metres=4.,batch_size=2,max_updates=2,
+        channel_keys=[['test','0'],['test','1']],viewer_root=str(tmp_path/'viewer'))
+    cfg=tmp_path/'config.json';cfg.write_text(json.dumps(config))
+    auth=tmp_path/'auth.json';auth.write_text(json.dumps({'source':'user_in_current_chat','identity':binding}))
+    gate=tmp_path/'gate.json';gate.write_text(json.dumps({'identity':binding,'training_release_ready':True}))
+    folder=tmp_path/'run';monkeypatch.setattr(sys,'argv',['train','--config',str(cfg),'--authorization',str(auth),'--readiness',str(gate),'--run-dir',str(folder)])
+    train.main();payload=torch.load(folder/'last.pt',weights_only=False)
+    assert payload['runner']['cursor']==2 and payload['runner']['status']=='TRIAL_COMPLETE'
+    assert payload['scheduler']['last_epoch']==2 and payload['optimizer']['param_groups'][0]['lr']==config['lr']
+
+
 @pytest.mark.parametrize('side,gsd,length',[(17,1.3,5.7),(19,2.1,12.8),(637,1.,128.)])
 def test_cartesian_neighborhood_exactly_matches_tree(side,gsd,length):
     from scipy.spatial import cKDTree

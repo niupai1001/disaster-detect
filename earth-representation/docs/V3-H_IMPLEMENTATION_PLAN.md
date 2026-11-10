@@ -924,3 +924,11 @@ Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1
 正式启动已执行：源码提交`8172965077e4b9f4d788dd4e7252da8cb4dd9a4c`、tree `1a163e4c4a59434bd27b2a61583da40a16fd996f`，release_a_only_v1/runtime冻结172文件，代码身份`332f0705bccc9fc6cb4baedfb6a2ebb2fe353ccf6d21b2143fcd34b40b5b90c5`。新Run `65525b250ad34747a6024a2cea636754`，从cursor0/spent0、不带resume启动；随机初始best0参数SHA `0958271abbe57a2c505f3716cbdcd1291e253e61d0880d430c43396678b84057`与门禁seed17一致。完整383VAL初值2.1474302937264502（A-only），已核验前28步只有A任务且checkpoint落盘；数据计划和实际状态见formal_run，不能把本启动前缀当作一轮实测或质量改善结论。
 
 第525步验证节点快照：完整383VAL A-MSE0.4123939128、2.2537 Epoch，图集a_only/reconstruction_node_525_v2从不可变selected.pt与对应官方validation_525记录生成，选中VAL案例再次推理相符。新增live-source可视化只修改工作树入口，不改冻结训练runtime、参数或optimizer；训练继续，旧AB保持STOPPED。隐藏区仍平滑、光谱有偏差，不能把损失下降称为色差已解决；本段尚无完整算子级CPU/GPU耗时分解。
+
+## 25. 无物理描述器短段实施
+
+用户明确要求考虑计算效率并暂时训练无描述器架构。顺序：安全停止并哈希保存旧A-only704 → 共享普通卷积及显式TRAIN波段Embedding实现 → 验证无物理条件路径、隐藏目标隔离、同网格合批卷积值/梯度、未知键拒绝及短段状态 → 真实双卡最大容量/单双梯度/恢复/速度和固定TRAIN可学习性 → 冻结代码/配置/成员身份 → 按本次授权随机初始化启动一个完整Epoch → 比较完整383VAL的可见均值基线与RGB/光谱、波段区分及实测成本。
+
+58项CPU测试及独立只读审查通过；267仪器/波段键恰来自TRAIN，VAL全部覆盖。配置epochs10只保持2330更新的原学习率日程，max_updates233才是本段绝对预算上限；退出TRIAL_COMPLETE，不能解释为完成十轮或自动继续。保留Batch32、FP32、每批checkpoint及每轮4次完整VAL，A-only、不加载旧权重，不启用B1/Hybrid。
+
+质量门禁不能只比较固定TRAIN通道均值；需报告合法的可见通道均值基线，区分工程学习和正式VAL，关注跨波段归一化输出是否仍几乎相同。速度用同批同设备的原描述器A-only对照，记录原生Token/目标、并发条件、冷/热态与峰值显存；不依据参数量承诺加速、不用最大场景数字概括普通批次。

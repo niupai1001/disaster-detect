@@ -69,6 +69,12 @@ enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用�
 
 新任务已进入A_ONLY_TRAINING：release_a_only_v1/runtime冻结172文件、源码提交8172965，Viewer Run `65525b250ad34747a6024a2cea636754`，mae-a-only方案独立显示。初始化383VAL2.1474302937，best0参数哈希与随机seed17一致；前28步已核对只有A日志、实际optimizer更新及checkpoint，spent=cursor无旧成本继承。10 Epoch为本段新上限，旧AB任务仍paused_by_user/STOPPED1312。正式运行与工程35次独立更新分开；当前进度见新发布status.json；前两完整Epoch实测17.05/18.95分钟，结果与限制归RESULTS。用户请求运行中可视化时，仅复制已验证检查点，在独立进程中推理并核验对应完整VAL记录；不修改在跑runtime、权重或optimizer。当前第525步图集a_only/reconstruction_node_525_v2，独立审查只读，训练继续，不据此外推收敛或完整预算完成。
 
+### 无物理描述器短段对照
+
+用户已授权暂时训练无描述器架构并考虑计算效率，新任务encoder-v3-h-descriptor-free-trial持有hierarchical/descriptor_free.py、对应model/train入口、测试、config_v3_h_descriptor_free_v1、.project/v3_h_descriptor_free_gate.py及独立descriptor_free/release_descriptor_free_v1产物。旧A-only安全停止704/3.0215Epoch，best641，原AB仍STOPPED1312；两者权重及日志不改写，不续入新初始化。
+
+本段明确保留直接学习的波段身份，移除的是物理描述器/Memory/动态卷积。CPU真实入口必须验证max_updates233与2330步LR日程分离、TRIAL_COMPLETE状态；独立审查只读。双卡容量、梯度对照、完整恢复、性能及固定TRAIN学习门禁通过后才能冻结新身份并按本次用户授权启动；工程权重丢弃。新正式短段仅233步上限，后续预算另依据用户要求，不能因epochs10字段自动跑满十轮。
+
 ### 旧共享描述器MAE与历史暂停作业
 
 共享描述器与地理Patch MAE的首段正式训练已正常完成10Epoch、2330次更新，状态COMPLETE。最佳点为第10轮末，best与last模型权重一致；没有因查看结果、可视化或文档维护自动续训。旧LR第255步继续保持原暂停状态，旧冻结源码和检查点不改写。

@@ -878,7 +878,7 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 
 ## Encoder V3-H A-only运行中诊断
 
-本段为用户授权的随机初始化、A=1/B1=0、JEPA=0独立10 Epoch上限，双卡Batch32、FP32，L128及原生像元、成员、QA、统计不变。正式Run `65525b250ad34747a6024a2cea636754`仍在训练；以下是第525步验证节点快照，不是完整10轮成绩，也不继承旧AB权重。固定383VAL初始2.1474302937，第233/466/525步分别0.4831257753/0.4155511077/0.4123939128，单位为归一化MSE z²。旧AB综合0.4444不是同一损失；旧best的A单项0.4156507235仅作开发面板参照，不能据此建立独立架构排名。
+本段为用户授权的随机初始化、A=1/B1=0、JEPA=0独立10 Epoch上限，双卡Batch32、FP32，L128及原生像元、成员、QA、统计不变。正式Run `65525b250ad34747a6024a2cea636754`已因用户要求切换无描述器对照而安全停止704步/3.0215 Epoch，best641/0.4070717130，最近完整VAL699/0.4109829278，last704未重评；以下是第525步验证节点快照，不是完整10轮成绩，也不继承旧AB权重。固定383VAL初始2.1474302937，第233/466/525步分别0.4831257753/0.4155511077/0.4123939128，单位为归一化MSE z²。旧AB综合0.4444不是同一损失；旧best的A单项0.4156507235仅作开发面板参照，不能据此建立独立架构排名。
 
 | 完整Epoch | 训练更新计时 / 分钟 | 验证、保存、日志等差额 / 分钟 | 总墙钟 / 分钟 |
 |---|---:|---:|---:|
@@ -900,3 +900,15 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 实现与冻结设计相符的一项限制是：每Fine分区、每波段先输出标量，再按真实面积回填，分区内像素没有独立输出自由度。但这不足以解释当前全部误差：六个VAL分位样本在相同目标上通过精确面积映射作逐通道目标已知的Fine标量拟合，已得到远小于模型的可达误差，例如典型S2模型0.15873、拟合0.00795，典型L8模型0.24686、拟合0.00365。拟合读取隐藏truth、各波段独立自由拟合，是面积回填表达能力诊断，不是可用预测器、整个神经网络表达能力证明或泛化成绩；LSQR停止码1/2/3，不能统一称严格全局最小误差。六例中5例模型还差于不使用目标的可见均值。证据见[输出表达诊断](../outputs/encoder_v3/hierarchical/a_only/diagnosis_node_525_v3/report.json)。当前有代表性Encoder非零梯度证据，未证明可见上下文被有效利用；需用隔离的小样本过拟合、可见上下文干预及各级特征/输出梯度检查区分优化、条件化和路由瓶颈，不能只靠延长Epoch或增加损失项下结论。
 
 [真实曲线](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/learning_curves.png)、[光谱](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/spectral_profiles.png)、[案例与推理核验](../outputs/encoder_v3/hierarchical/a_only/reconstruction_node_525_v2/report.json)、[快照清单](../outputs/encoder_v3/hierarchical/a_only/validation_snapshot_525_v1/manifest.json)保留本次证据；曲线VAL面板从175步起放大，训练尖峰未删除。最新进度见[实时状态](../outputs/encoder_v3/hierarchical/release_a_only_v1/formal_run/status.json)，旧AB保持暂停。
+
+## V3-H无物理描述器短段对照
+
+用户授权暂时训练无描述器并考虑计算效率。共享普通3×3卷积替代条件核，同原生网格波段作为batch执行；融合/输出使用TRAIN登记的267个仪器—波段身份Embedding。移除物理查询/Memory/动态卷积，保留身份条件、面积加权波段融合、L/GSD几何与层次主干，因此不是只替换卷积的单因素实验。旧描述器A-only停止704，旧AB停止1312，权重和日志保留。
+
+正式短段配置config_v3_h_descriptor_free_v1：全新seed17、A-only、FP32、双卡Batch32、原成员/QA/归一化/目标；max_updates233仅一个Epoch预算，原2330步学习率日程和一轮预热保留，结束TRIAL_COMPLETE。不得从epochs10字段自动执行十轮，不从工程学习或旧实验继承权重。
+
+工程验收与正式成绩分开：58项CPU测试、独立只读审查、两个最大完整原生观测的双卡容量（约82.10秒冷态）、单/双梯度（相对L2约1.41e-7）、model/optimizer/scheduler/runner/RNG/modes/EMA完整下一步恢复、383VAL状态恢复均通过。工程副本VAL2.19228不是正式初始化值。相同Batch32三次计时原描述器10.09/9.25/8.47秒、新架构5.23/7.72/7.21秒，后两次中位对照约1.187倍，仅覆盖该普通批次，不能外推完整Epoch。参数1764388可训练、3002087总量，参数增量不是速度结论。
+
+一个额外普通批次的算子采样中，主要索引内核占所采CUDA自耗时约84%（2.705/3.220秒），说明索引与聚合需要进一步剖析；采样有开销，CUDA累积计时不是墙钟或整个Epoch时间占比，双卡工作线程采集也不能作为完整CPU等待分解。原始门禁与采样见[工程报告](../outputs/encoder_v3/hierarchical/descriptor_free/pipeline_v1/report.json)和[算子表](../outputs/encoder_v3/hierarchical/descriptor_free/pipeline_v1/operator_profile.txt)。四来源固定TRAIN学习证据另列，不冒称正式VAL、充分收敛或颜色问题已解决。正式状态将以release_descriptor_free_v1/formal_run为准。
+
+固定四来源TRAIN、同A遮盖、64次独立工程更新的平均MSE为0.53569→0.14755，四来源跨波段预测RMS均保持非零（EnMAP/L8/L9/S2约0.115/0.196/0.061/0.209）；卷积与融合/输出Embedding均有非零梯度。S2和L9仍差于可见均值，不称颜色/光谱已解决。首版learning_v1因EnMAP含QA无效通道导致光谱交集为空，诊断FAILED保留；修正统计后learning_v2从相同随机初始化重跑，通过且损失逐步一致，原始数据/模型/目标不变。通过门禁的工程更新67次（pipeline3+learning64），含失败诊断重跑实际131次，均不进入正式权重或预算。

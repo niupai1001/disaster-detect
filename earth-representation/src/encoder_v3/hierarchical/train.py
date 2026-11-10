@@ -15,7 +15,7 @@ from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import torch
-from encoder_v3.shared_mae.data import load_data,sample_from_dataset,EpochPlan,identity as base_identity,ROOT
+from encoder_v3.shared_mae.data import load_data,sample_from_dataset as base_sample_from_dataset,EpochPlan,identity as base_identity,ROOT
 from encoder_v3.shared_mae.train import write,micro_batches,StopRequested
 from encoder_v3.latent_response.checkpoint import snapshot,restore,atomic_replace,digest,validation_transaction
 from encoder_v3.latent_response.run_control import append_event,lr_multiplier,reconcile_logs
@@ -26,7 +26,14 @@ from .verification import gradient_contributions
 
 def build_model(config):
     validate_config(config)
-    return HierarchicalMAE(**{k:config[k] for k in ('patch_metres','mask_ratio','encoder_depth','lambda_jepa','ema_momentum')})
+    return HierarchicalMAE(**{k:config[k] for k in ('patch_metres','mask_ratio','encoder_depth','lambda_jepa','ema_momentum')},
+        frontend=config.get('frontend','physical_descriptor'),channel_keys=config.get('channel_keys'))
+
+
+def sample_from_dataset(dataset,index,resolver,device):
+    sample=base_sample_from_dataset(dataset,index,resolver,device)
+    sample.instrument=dataset.rows[index]['instrument']
+    return sample
 
 
 def validate_config(config):
@@ -34,6 +41,10 @@ def validate_config(config):
         raise ValueError('Explicit V3-H observation-equal configuration required')
     if config.get('scale_policy')!='finest_loaded_native_gsd_xy_times_2_and_4_nested_at_L':
         raise ValueError('Unknown dynamic scale policy')
+    if config.get('frontend','physical_descriptor') not in ('physical_descriptor','shared_static_band_embedding'):
+        raise ValueError('Unknown frontend')
+    if 'max_updates' in config and (type(config['max_updates']) is not int or config['max_updates']<1):
+        raise ValueError('Positive short-trial update limit required')
     for key in ('epochs','batch_size','micro_batch_observations','micro_batch_pixels','encoder_depth','validations_per_epoch','checkpoint_every_batches'):
         if type(config.get(key)) is not int or config[key]<1:raise ValueError('Positive integer '+key+' required')
     if not 0<=config['warmup_epochs']<config['epochs']:raise ValueError('Invalid warmup')
@@ -177,7 +188,7 @@ def writer_for(config,binding,state,run_dir,resuming):
     metrics={k:dict(label=v,unit='z²' if k=='mae_loss' else '',direction='min' if 'loss' in k else 'none',role='loss' if 'loss' in k else 'other') for k,v in names.items()}
     directory=Path(config['viewer_root'])/(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_'+uuid.uuid4().hex)
     writer=RunWriter(directory,experiment=dict(id='encoder-v3-h',name='Encoder V3-H · 层次化表征'),
-        variant=dict(id='mae-a-only' if config['task_weights']['B1']==0 else ('mae' if config['lambda_jepa']==0 else 'hybrid'),name='层次MAE · 仅空间重建A' if config['task_weights']['B1']==0 else ('层次MAE' if config['lambda_jepa']==0 else '层次MAE+JEPA'),kind='modification',description='动态原生几何、并行三尺度、双向稀疏交互'),
+        variant=dict(id='mae-no-descriptor' if config.get('frontend')=='shared_static_band_embedding' else ('mae-a-only' if config['task_weights']['B1']==0 else ('mae' if config['lambda_jepa']==0 else 'hybrid')),name='层次MAE · 无描述器A' if config.get('frontend')=='shared_static_band_embedding' else ('层次MAE · 仅空间重建A' if config['task_weights']['B1']==0 else ('层次MAE' if config['lambda_jepa']==0 else '层次MAE+JEPA')),kind='modification',description='动态原生几何、并行三尺度、双向稀疏交互'),
         metrics=metrics,charts=['train_loss','val_loss'],primary_metric='val_loss',numbers=['mae_loss','jepa_loss','gradient_norm','learning_rate'],
         config=dict(execution_identity=digest(binding),training_directory=str(run_dir),architecture='hierarchical_v3_h',task_weights=config['task_weights'],lambda_jepa=config['lambda_jepa'],
             source_run_id=state.get('source_viewer',{}).get('run_id'),source_checkpoint_cursor=state.get('migration_source_cursor')))
@@ -209,6 +220,7 @@ def main():
     optimizer=torch.optim.AdamW([p for p in model.parameters() if p.requires_grad],lr=config['lr'],weight_decay=config['weight_decay'])
     plan=EpochPlan(datasets['TRAIN'].rows,config['seed'],config['batch_size'])
     runtime=dict(config,batches_per_epoch=len(plan),run_dir=str(args.run_dir));total=len(plan)*config['epochs']
+    limit=min(total,config.get('max_updates',total))
     scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda n:lr_multiplier(n,total,round(config['warmup_epochs']*len(plan))))
     state=dict(cursor=0,spent_updates=0,status='RUNNING',best=None)
     if args.resume:resume(args.resume,model,optimizer,scheduler,state,binding);reconcile_logs(args.run_dir,state)
@@ -232,7 +244,7 @@ def main():
                 save(args.run_dir/'best.pt',model,optimizer,scheduler,state,binding)
                 save(args.run_dir/'last.pt',model,optimizer,scheduler,state,binding)
             state['phase']='TRAINING'
-            while state['cursor']<total:
+            while state['cursor']<limit:
                 if requested():raise StopRequested()
                 diagnostic_epoch=state['cursor']//len(plan)
                 if state.get('gradient_diagnostic_epoch')!=diagnostic_epoch:
@@ -270,7 +282,7 @@ def main():
                 write(args.run_dir/'status.json',state)
                 print('epoch',record['epoch'],'batch',state['cursor'],'loss',record['loss'],flush=True)
                 if state.get('validation_regressions',0)>=2:raise StopRequested()
-            state['status']='COMPLETE'
+            state['status']='TRIAL_COMPLETE' if limit<total else 'COMPLETE'
             save(args.run_dir/'last.pt',model,optimizer,scheduler,state,binding);write(args.run_dir/'status.json',state)
     except StopRequested:
         state['status']='STOPPED';save(args.run_dir/'last.pt',model,optimizer,scheduler,state,binding);write(args.run_dir/'status.json',state)

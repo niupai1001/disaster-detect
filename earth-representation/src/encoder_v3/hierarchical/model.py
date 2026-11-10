@@ -192,6 +192,13 @@ class Encoder(nn.Module):
             ('f_to_m',1,0),('m_to_f',0,1),('m_to_c',2,1),('c_to_m',1,2))})
         self.norms = nn.ModuleList(nn.LayerNorm(w) for w in WIDTHS)
 
+    def conditions(self,sample):
+        return self.memory([c.physical for c in sample.channels])
+
+    def convolve(self,clean,kernel):
+        count,height,width=clean.shape
+        return F.conv2d(clean.reshape(1,count,height,width),kernel.reshape(count*32,1,3,3),padding=1,groups=count).reshape(count,32,height,width)
+
     def native(self, values, keep, kernel, bias, maps):
         if values.ndim==2:
             result=self.native(values[None],keep[None],kernel[None],bias[None],maps)
@@ -200,8 +207,8 @@ class Encoder(nn.Module):
         clean = torch.where(keep,values,0.)
         # One convolution per channel/view, reused by all three independent aggregations.
         support = F.conv2d(keep[:,None].float(),values.new_ones(1,1,3,3),padding=1)
-        feature=F.conv2d(clean.reshape(1,count,height,width),kernel.reshape(count*32,1,3,3),padding=1,groups=count)
-        feature=F.gelu(feature.reshape(count,32,height,width)*9/support.clamp_min(1)+bias[:,:,None,None])
+        feature=self.convolve(clean,kernel)
+        feature=F.gelu(feature*9/support.clamp_min(1)+bias[:,:,None,None])
         feature=feature.permute(0,2,3,1).reshape(count,-1,32)
         feature=torch.where(keep.flatten(1)[...,None],feature,0.)
         return tuple(value for mapping in maps for value in mapping.aggregate(feature,keep))
@@ -216,7 +223,7 @@ class Encoder(nn.Module):
 
     def forward(self, sample, layout, keeps):
         geo,parts,maps,edges,relations = layout
-        conditions = self.memory([c.physical for c in sample.channels])
+        conditions = self.conditions(sample)
         kernels,biases = self.convolution(conditions['conv'])
         summaries = [[],[],[]]
         supports = [[],[],[]]
@@ -276,13 +283,18 @@ class Encoder(nn.Module):
 
 
 class HierarchicalMAE(nn.Module):
-    def __init__(self, *, patch_metres, mask_ratio=.55, encoder_depth=2, lambda_jepa=0., ema_momentum=.996):
+    def __init__(self, *, patch_metres, mask_ratio=.55, encoder_depth=2, lambda_jepa=0., ema_momentum=.996,
+                 frontend='physical_descriptor',channel_keys=None):
         super().__init__()
         if not 0<mask_ratio<1 or not 0<=ema_momentum<1 or lambda_jepa<0:
             raise ValueError('Invalid masking, EMA or JEPA weight')
         self.patch_metres,self.mask_ratio = patch_metres,mask_ratio
         self.lambda_jepa,self.ema_momentum = lambda_jepa,ema_momentum
-        self.online = Encoder(encoder_depth)
+        if frontend=='physical_descriptor':self.online = Encoder(encoder_depth)
+        elif frontend=='shared_static_band_embedding':
+            from .descriptor_free import DescriptorFreeEncoder
+            self.online = DescriptorFreeEncoder(encoder_depth,channel_keys)
+        else:raise ValueError('Unknown frontend')
         self.target = copy.deepcopy(self.online).requires_grad_(False)
         self.target.eval()
         self.decoder = nn.ModuleList([SparseAttention(w) for w in WIDTHS[:2]]+[GlobalBlock()])
