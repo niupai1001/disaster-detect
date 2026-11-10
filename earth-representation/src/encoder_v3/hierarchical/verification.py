@@ -123,3 +123,46 @@ def gradient_contributions(model,sample,config,*,epoch=0):
                 'encoder_group_gradient_norms':{name:float(v.sqrt()) for name,v in squares.items()}}
         result['tasks'][kind]={'terms':metrics,'native_target_count':info['targets'],'jepa_target_counts':info['jepa_counts']}
     return result
+
+
+def prepare_execution_continuation(source_run,source_checkpoint,destination,model,optimizer,binding):
+    """Preserve a failed Run and its durable attempts while creating a new execution identity."""
+    import shutil
+    source_run=Path(source_run).resolve();destination=Path(destination).resolve()
+    if destination==source_run or destination.is_relative_to(source_run):raise ValueError('New continuation directory required')
+    live=json.loads((source_run/'status.json').read_text(encoding='utf-8'))
+    if live['status'] not in ('FAILED','STOPPED','COMPLETE'):raise ValueError('Source process must be stopped')
+    payload=torch.load(source_checkpoint,map_location='cpu',weights_only=False)
+    if payload.get('schema')!='v3_h_checkpoint_v1':raise ValueError('V3-H checkpoint required')
+    for key in ('data','members','physical_catalog','architecture'):
+        if payload['identity'][key]!=binding[key]:raise ValueError('Continuation changes '+key)
+    cursor=payload['runner']['cursor'];viewer=payload['runner']['viewer']
+    if live['cursor']<cursor or live['viewer']!=viewer:raise ValueError('Source checkpoint/status mismatch')
+    rows=[json.loads(line) for line in (source_run/'updates.jsonl').read_text().splitlines() if line.strip()]
+    if [r['cursor'] for r in rows if r['cursor']<=cursor]!=list(range(1,cursor+1)):raise ValueError('Source checkpoint/journal mismatch')
+    model.load_state_dict(payload['model'],strict=True);optimizer.load_state_dict(payload['optimizer'])
+    destination.mkdir(parents=True,exist_ok=False)
+    for name in ('updates.jsonl','optimizer_attempts.jsonl'):
+        records=[json.loads(line) for line in (source_run/name).read_text().splitlines() if line.strip()]
+        for record in records:record.setdefault('inherited_from_run_id',viewer['run_id'])
+        (destination/name).write_text(''.join(json.dumps(r)+'\n' for r in records),encoding='utf-8')
+    def convert(value):
+        result=copy.deepcopy(value);result['identity']=binding
+        old=result['runner'].pop('viewer')
+        result['runner'].setdefault('source_viewer_history',[]).append(result['runner'].get('source_viewer'))
+        result['runner'].update(source_viewer=old,migration_source_cursor=value['runner']['cursor'])
+        return result
+    if (source_run/'best.pt').exists():
+        best=torch.load(source_run/'best.pt',map_location='cpu',weights_only=False)
+        if best['identity']!=payload['identity'] or best['runner']['cursor']>cursor:raise ValueError('Source best mismatch')
+        torch.save(convert(best),destination/'best.pt')
+    for path in source_run.glob('validation_*.json'):
+        if int(path.stem.split('_')[-1])<=cursor:shutil.copy2(path,destination/path.name)
+    checkpoint=destination/'initial_checkpoint.pt';torch.save(convert(payload),checkpoint)
+    lineage={'source_run':str(source_run),'source_run_id':viewer['run_id'],'source_checkpoint':str(Path(source_checkpoint).resolve()),
+        'source_checkpoint_sha256':hashlib.sha256(Path(source_checkpoint).read_bytes()).hexdigest(),'source_identity':payload['identity'],
+        'destination_identity':binding,'inherited_cursor':cursor,'source_completed_cursor':live['cursor'],'new_viewer_run':True,
+        'uncheckpointed_updates_to_replay':live['cursor']-cursor,'durable_attempts_preserved':True,
+        'reason':'Execution-only continuation; model, optimizer, scheduler and RNG unchanged. New Run reconciles copied journals and charges replay attempts separately.'}
+    (destination/'migration_lineage.json').write_text(json.dumps(lineage,indent=2)+'\n',encoding='utf-8')
+    return checkpoint

@@ -41,6 +41,10 @@ def validate_config(config):
         raise ValueError('Positive finite A/B1 weights required')
     if config['precision'] not in ('float32','bfloat16'):raise ValueError('Invalid precision')
     if config.get('deterministic') is not True:raise ValueError('Deterministic V3-H execution required')
+    if 'devices' in config:
+        devices=config['devices']
+        if not isinstance(devices,list) or len(devices)!=2 or len(set(devices))!=2 or devices[0]!=config['device'] or any(not str(d).startswith('cuda:') for d in devices):
+            raise ValueError('Two distinct CUDA devices with primary first required')
 
 
 def identity(config,datasets,resolver):
@@ -98,7 +102,7 @@ def native_samples(dataset,rows,lookup,resolver,config):
             yield sample
 
 
-def batch_loss(model,dataset,rows,resolver,config,*,epoch=0,backward=False,stop_requested=None):
+def batch_loss(model,dataset,rows,resolver,config,*,epoch=0,backward=False,stop_requested=None,normalization_observations=None):
     lookup={r['id']:i for i,r in enumerate(dataset.rows)}
     records=[]
     # Process each observation before loading another GPU view; CPU prefetch never holds learned features.
@@ -111,7 +115,7 @@ def batch_loss(model,dataset,rows,resolver,config,*,epoch=0,backward=False,stop_
             weight=config['task_weights'][kind]/total_weight
             with torch.autocast('cuda',dtype=torch.bfloat16,enabled=config['precision']=='bfloat16'):
                 losses,details=model([sample],kind=kind,seed=config['seed'],epoch=epoch)
-                objective=losses.sum()*weight/len(rows)
+                objective=losses.sum()*weight/(len(rows) if normalization_observations is None else normalization_observations)
             if not bool(torch.isfinite(objective)):raise ValueError('Nonfinite objective')
             if backward:objective.backward()
             value+=float(losses.detach().sum())*weight
@@ -122,10 +126,12 @@ def batch_loss(model,dataset,rows,resolver,config,*,epoch=0,backward=False,stop_
     return sum(r['loss'] for r in records)/len(records),records
 
 
-def update(model,dataset,rows,resolver,optimizer,scheduler,state,config,stop_requested=None):
+def update(model,dataset,rows,resolver,optimizer,scheduler,state,config,stop_requested=None,parallel=None):
     if any(r['role']!='TRAIN' for r in rows):raise ValueError('Non-TRAIN row in optimizer batch')
     optimizer.zero_grad(set_to_none=True)
-    value,records=batch_loss(model,dataset,rows,resolver,config,epoch=state['cursor']//config['batches_per_epoch'],backward=True,stop_requested=stop_requested)
+    epoch=state['cursor']//config['batches_per_epoch']
+    if parallel is None:value,records=batch_loss(model,dataset,rows,resolver,config,epoch=epoch,backward=True,stop_requested=stop_requested)
+    else:value,records=parallel.backward(rows,epoch,stop_requested)
     norm=torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad],config['clip_norm'],error_if_nonfinite=True)
     if stop_requested and stop_requested():raise StopRequested()
     lr=optimizer.param_groups[0]['lr']
@@ -136,6 +142,7 @@ def update(model,dataset,rows,resolver,optimizer,scheduler,state,config,stop_req
     optimizer.step()
     if journal:append_event(journal,dict(event='applied',sequence=sequence,cursor=state['cursor']+1))
     if model.lambda_jepa>0:model.update_ema()
+    if parallel is not None:parallel.broadcast()
     scheduler.step();state['cursor']+=1
     return dict(loss=value,members=records,gradient_norm=float(norm),lr=lr,batch_size=len(rows),cursor=state['cursor'])
 
@@ -181,6 +188,7 @@ def main():
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark=False;torch.backends.cudnn.deterministic=True
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
+    if str(config['device']).startswith('cuda'):torch.cuda.set_device(config['device'])
     datasets,resolver=load_data();binding=identity(config,datasets,resolver)
     approval=json.loads(args.authorization.read_text());gate=json.loads(args.readiness.read_text())
     if approval.get('source')!='user_in_current_chat' or approval.get('identity')!=binding or approval.get('suspended'):raise PermissionError('Authorization identity mismatch')
@@ -195,6 +203,10 @@ def main():
     scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda n:lr_multiplier(n,total,round(config['warmup_epochs']*len(plan))))
     state=dict(cursor=0,spent_updates=0,status='RUNNING',best=None)
     if args.resume:resume(args.resume,model,optimizer,scheduler,state,binding);reconcile_logs(args.run_dir,state)
+    parallel=None
+    if config.get('devices'):
+        from .parallel import TwoDeviceBatch
+        parallel=TwoDeviceBatch(model,datasets['TRAIN'],resolver,config)
     state['status']='RUNNING'
     stop=threading.Event();signal.signal(signal.SIGINT,lambda *_:stop.set());signal.signal(signal.SIGTERM,lambda *_:stop.set())
     requested=lambda:stop.is_set() or (args.run_dir/'STOP_REQUESTED').exists()
@@ -223,7 +235,7 @@ def main():
                     write(args.run_dir/f'gradient_epoch_{diagnostic_epoch}.json',diagnostics)
                     state['gradient_diagnostic_epoch']=diagnostic_epoch
                 start=time.perf_counter();rows=plan.batch(state['cursor'])
-                record=update(model,datasets['TRAIN'],rows,resolver,optimizer,scheduler,state,runtime,requested)
+                record=update(model,datasets['TRAIN'],rows,resolver,optimizer,scheduler,state,runtime,requested,parallel)
                 record['seconds']=time.perf_counter()-start;record['epoch']=plan.progress(state['cursor'])
                 append_event(args.run_dir/'updates.jsonl',record)
                 def term_mean(key):
@@ -255,6 +267,8 @@ def main():
         state['status']='STOPPED';save(args.run_dir/'last.pt',model,optimizer,scheduler,state,binding);write(args.run_dir/'status.json',state)
     except Exception as exc:
         write(args.run_dir/'status.json',dict(state,status='FAILED',error=repr(exc)));raise
+    finally:
+        if parallel is not None:parallel.close()
 
 
 if __name__=='__main__':main()

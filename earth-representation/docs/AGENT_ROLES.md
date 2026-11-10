@@ -55,9 +55,9 @@
 
 ### V3-H首段独立MAE
 
-用户先前选择独立MAE10 Epoch后再做Hybrid；加速验收后又明确“开始训练”。原源码提交`9929ca1`、`release_mae_v1`和Viewer Run `16b8d41b69ec4224bbb01cc252564f23`的STOPPED165记录保留不改；新冻结源码为加速提交`e659ccc`，发布位于`outputs/encoder_v3/hierarchical/release_mae_accelerated_v1`，执行目录`execution_gpu1/formal_run`，新Viewer Run `cd7c5ee4fa22441c844bfb93586c1d2b`。已迁移165更新及best/AdamW/scheduler/RNG/游标并产生第166次真实更新，预算仍总计10 Epoch/2330更新，Hybrid未启动。
+用户选择独立MAE10 Epoch后再做Hybrid。原`release_mae_v1`/Run `16b8d41b69ec4224bbb01cc252564f23`保留STOPPED165；加速`e659ccc`/`release_mae_accelerated_v1/execution_gpu1`/Run `cd7c5ee4fa22441c844bfb93586c1d2b`完成208更新后计算209批CUDA非法访存，保留FAILED与last200/best175。用户要求再次开始训练并优先双卡；从200迁移到独立`release_mae_dual_v1`执行身份，原Run不改。仍以10个完整Epoch/2330逻辑批次为数据覆盖，8次未checkpoint更新的重放在spent_updates另计，Hybrid未启动。
 
-同一任务`encoder-v3-h-implementation-training`进入ACCELERATED_MAE_TRAINING。相同前183批及3次完整VAL支持实际加速（训练约1.35倍），两条长回放已按用户要求停止。候选47项CPU测试、完整状态恢复和最大A/B1容量通过；启动时0号卡nvcuda驱动访问异常发生于更新前，改用同型号1号卡并通过该卡最大A/B1及逐项状态恢复，显式设备选择包装器、配置唯一device差异及哈希绑定到execution_manifest/readiness。新Run保留来源谱系，原Run日志不改；完整Epoch耗时和研究有效性不由前缀测速替代。
+同一任务`encoder-v3-h-implementation-training`负责双卡门禁和恢复。`parallel.TwoDeviceBatch`两个worker各有独立TRAIN适配器及物理catalog，避免EnMAP LRU共享；全局观测均值梯度相加，单次clip/optimizer/scheduler/EMA后广播，任一worker失败本批不更新。50项CPU回归、201/209真实批次配对、两最大原生观测并发容量及双卡完整状态下一步恢复通过，短段中位加速1.94倍。运行使用与门禁相同的同步CUDA、确定性FP32，每批保存；此前异步非法访存仍未确定根因，不宣称已根治。审查只读，改动不触碰旧冻结模型或原始数据。
 
 ### 旧共享描述器MAE与历史暂停作业
 

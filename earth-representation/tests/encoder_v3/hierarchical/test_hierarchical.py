@@ -28,6 +28,91 @@ def test_large_output_readout_matches_dense_values_and_gradients():
     for a,b in zip(received,expected):torch.testing.assert_close(a,b,atol=1e-6,rtol=1e-5)
 
 
+def test_two_device_observation_mean_tail_ema_and_exact_recovery(monkeypatch,tmp_path):
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.parallel import TwoDeviceBatch,partition_rows
+    from encoder_v3.hierarchical.verification import compare_snapshots
+    from encoder_v3.latent_response.checkpoint import snapshot
+    torch.manual_seed(38)
+    samples=[sample(side=8,name='a',channels=1),sample(side=12,name='b'),sample(side=8,name='c')]
+    rows=[dict(id=s.identifier,sensor='S2',role='TRAIN',bands=[dict(shape=c.grid.shape) for c in s.channels]) for s in samples]
+    ds=type('Dataset',(),{'rows':rows})();second=copy.deepcopy(ds)
+    monkeypatch.setattr(train,'sample_from_dataset',lambda dataset,i,resolver,device:samples[i])
+    config=dict(device='cpu',devices=['cpu','cpu'],precision='float32',seed=17,task_weights={'A':.7,'B1':.3},clip_norm=3.,batches_per_epoch=100)
+    serial=HierarchicalMAE(patch_metres=4.,lambda_jepa=.2);parallel_model=copy.deepcopy(serial)
+    worker=TwoDeviceBatch(parallel_model,ds,None,config,secondary_data=(second,None))
+    shards=partition_rows(rows);assert sorted(r['id'] for part in shards for r in part)==['a','b','c']
+    try:
+        expected,records=train.batch_loss(serial,ds,rows,None,config,backward=True)
+        value,actual=worker.backward(rows,0)
+        assert abs(expected-value)<1e-7 and [r['id'] for r in actual]==[r['id'] for r in records]
+        for a,b in zip(serial.parameters(),parallel_model.parameters()):
+            assert (a.grad is None)==(b.grad is None)
+            if a.grad is not None:torch.testing.assert_close(a.grad,b.grad,atol=2e-6,rtol=1e-4)
+        optimizers=[torch.optim.AdamW([p for p in m.parameters() if p.requires_grad],lr=1e-4) for m in (serial,parallel_model)]
+        schedulers=[torch.optim.lr_scheduler.StepLR(o,10,.5) for o in optimizers];states=[dict(cursor=0),dict(cursor=0)]
+        for cohort in (rows,rows[:1]):
+            train.update(serial,ds,cohort,None,optimizers[0],schedulers[0],states[0],config)
+            train.update(parallel_model,ds,cohort,None,optimizers[1],schedulers[1],states[1],config,parallel=worker)
+            for a,b in zip(serial.parameters(),parallel_model.parameters()):torch.testing.assert_close(a,b,atol=3e-6,rtol=1e-4)
+            for name,value in parallel_model.state_dict().items():assert torch.equal(value,worker.replica.state_dict()[name])
+        assert int(parallel_model.ema_updates)==2 and states[1]['cursor']==2
+        opt=optimizers[1];scheduler=schedulers[1];state=states[1];binding={'test':'two-device'}
+        train.save(tmp_path/'checkpoint.pt',parallel_model,opt,scheduler,state,binding)
+        train.update(parallel_model,ds,rows,None,opt,scheduler,state,config,parallel=worker)
+        expected=snapshot(parallel_model,opt,state,scheduler)
+        train.resume(tmp_path/'checkpoint.pt',parallel_model,opt,scheduler,state,binding)
+        train.update(parallel_model,ds,rows,None,opt,scheduler,state,config,parallel=worker)
+        assert all(compare_snapshots(expected,snapshot(parallel_model,opt,state,scheduler)).values())
+    finally:worker.close()
+
+
+def test_two_device_worker_failure_cannot_apply_optimizer(monkeypatch):
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.parallel import TwoDeviceBatch
+    from encoder_v3.hierarchical.verification import fingerprint
+    rows=[dict(id=str(i),sensor='S2',role='TRAIN',bands=[dict(shape=(8,8))]) for i in range(2)]
+    ds=type('Dataset',(),{'rows':rows})();second=copy.deepcopy(ds)
+    config=dict(device='cpu',devices=['cpu','cpu'],clip_norm=3.,batches_per_epoch=100)
+    model=HierarchicalMAE(patch_metres=4.);worker=TwoDeviceBatch(model,ds,None,config,secondary_data=(second,None))
+    def fail(*args,**kwargs):raise RuntimeError('simulated worker failure')
+    monkeypatch.setattr(train,'batch_loss',fail)
+    opt=torch.optim.AdamW(model.parameters(),lr=1e-4);scheduler=torch.optim.lr_scheduler.StepLR(opt,10);state={'cursor':0}
+    before=fingerprint(model.state_dict())
+    try:
+        with pytest.raises(RuntimeError,match='simulated worker'):
+            train.update(model,ds,rows,None,opt,scheduler,state,config,parallel=worker)
+        assert state=={'cursor':0} and not opt.state and fingerprint(model.state_dict())==before
+    finally:worker.close()
+
+
+def test_failed_execution_continuation_preserves_budget_and_source(tmp_path):
+    import json,shutil,hashlib
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.verification import prepare_execution_continuation,fingerprint
+    from encoder_v3.latent_response.run_control import reconcile_logs
+    source=tmp_path/'source';source.mkdir();viewer={'run_id':'old','directory':'source-viewer'}
+    model=torch.nn.Linear(2,1);opt=torch.optim.AdamW(model.parameters(),lr=1e-4)
+    scheduler=torch.optim.lr_scheduler.StepLR(opt,5);state={'cursor':1,'spent_updates':1,'status':'RUNNING','viewer':viewer,'best':.5}
+    old={'data':{'TRAIN':'a'},'members':{'TRAIN':'b'},'physical_catalog':'c','architecture':'hierarchical_v3_h','code':'old','config':'single'}
+    new=dict(old,code='new',config='dual')
+    model(torch.ones(1,2)).sum().backward();opt.step();scheduler.step()
+    train.save(source/'last.pt',model,opt,scheduler,state,old);shutil.copy2(source/'last.pt',source/'best.pt')
+    (source/'status.json').write_text(json.dumps(dict(state,status='FAILED',cursor=2,spent_updates=2)))
+    (source/'updates.jsonl').write_text(''.join(json.dumps({'cursor':i})+'\n' for i in (1,2)))
+    (source/'optimizer_attempts.jsonl').write_text(''.join(json.dumps({'event':event,'sequence':i,'cursor':i})+'\n' for i in (1,2) for event in ('intent','applied')))
+    before=hashlib.sha256((source/'last.pt').read_bytes()).hexdigest()
+    checkpoint=prepare_execution_continuation(source,source/'last.pt',tmp_path/'new',model,opt,new)
+    old_payload=torch.load(source/'last.pt',weights_only=False);payload=torch.load(checkpoint,weights_only=False)
+    for key in ('model','optimizer','scheduler','rng','modes'):assert fingerprint(old_payload[key])==fingerprint(payload[key])
+    assert payload['identity']==new and payload['runner']['source_viewer']==viewer and 'viewer' not in payload['runner']
+    state=payload['runner'];evidence=reconcile_logs(tmp_path/'new',state)
+    assert state['cursor']==1 and state['spent_updates']==2 and evidence['uncommitted']==1
+    assert (tmp_path/'new/best.pt').exists() and hashlib.sha256((source/'last.pt').read_bytes()).hexdigest()==before
+    with pytest.raises(ValueError,match='changes members'):
+        prepare_execution_continuation(source,source/'last.pt',tmp_path/'bad',model,opt,dict(new,members={}))
+
+
 def sample(side=16,gsd=1.,channels=2,name='synthetic'):
     grid=NativeGrid((gsd,0.,100.3,0.,-gsd,200.7),(side,side),'EPSG:32631')
     return Sample(name,'TRAIN',[NativeChannel(torch.rand(side,side),torch.ones(side,side,dtype=torch.bool),grid,

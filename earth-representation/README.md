@@ -64,7 +64,9 @@ python -I scripts/run_v3_h.py check --config configs/config_v3_h_mae_v1.json --m
 python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/hierarchical','tests/encoder_v3/shared_mae','-o','pythonpath=src','-q']))"
 ```
 
-`train`必须提供绑定架构/代码/配置/冻结成员的authorization与readiness。用户明确“开始训练”后，加速版已从165次更新续跑并产生第166次真实更新，总预算仍为10 Epoch/2330次更新。冻结源码为`outputs/encoder_v3/hierarchical/release_mae_accelerated_v1/runtime`，实际配置、授权、验收和运行位于上级`execution_gpu1`；0号卡驱动初始化异常，改用同型号1号卡并显式选择默认设备，换卡后的最大A/B1和完整状态恢复已通过。模型/成员/QA/优化目标不变，Hybrid未启动。新[实时状态](outputs/encoder_v3/hierarchical/release_mae_accelerated_v1/execution_gpu1/formal_run/status.json)与[更新记录](outputs/encoder_v3/hierarchical/release_mae_accelerated_v1/execution_gpu1/formal_run/updates.jsonl)为准，Viewer Run ID `cd7c5ee4fa22441c844bfb93586c1d2b`；原`release_mae_v1`及其STOPPED165记录保留，来源与权重/AdamW/scheduler/RNG/游标迁移见新运行的`migration_lineage.json`。
+`train`必须提供绑定架构/代码/配置/冻结成员的authorization与readiness。单卡加速段在完成208次更新后、计算209批时CUDA非法访存退出；该Run `cd7c5ee4fa22441c844bfb93586c1d2b`及last200/best175保留。用户再次要求开始训练并优先可用双卡；新配置为`configs/config_v3_h_dual_v1.json`，双卡门禁通过后从200步在`outputs/encoder_v3/hierarchical/release_mae_dual_v1`新身份恢复，来源谱系与重放记录保留。总数据覆盖仍为10 Epoch/2330个逻辑批次，201—208的8次重放成本在durable spent_updates中另计，不能抹去已执行成本。新[实时状态](outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/status.json)及[更新记录](outputs/encoder_v3/hierarchical/release_mae_dual_v1/formal_run/updates.jsonl)为准，Hybrid未开启。
+
+双卡采用单进程、两副本、独立数据读取缓存和几何缓存：一个原始Batch32按原生像元估算分工，每卡损失除实际全局观测数，梯度相加后由主卡统一clip/AdamW/scheduler/EMA一次并广播；尾批仍18。无需NCCL或未经同步的多进程。50项CPU测试、真实201/209批单/双卡损失与梯度、两大原生观测同时容量及双卡完整下一步恢复通过；短段中位加速约1.94倍，证据`performance/dual_gate_v1`。当前正式执行沿用`CUDA_LAUNCH_BLOCKING=1`及确定性FP32、每批保存；此前异步非法访存根因未确定，同步重放PASS不能证明异步缺陷已消失。
 
 加速证据统一在`outputs/encoder_v3/hierarchical/performance`：同卡paired数值/梯度对照及相同前183批无更新回放已证明实际加速。均批18.27→13.54秒（约1.35倍），含3次完整383VAL及检查点总耗时减少约26.88%；两张5090并行共享CPU/I/O，保留此测量条件。用户明确无需等待完整Epoch，两条长回放已停止；有效同批前缀可以验收速度，不冒称完整Epoch耗时。候选47项CPU测试、最大完整原生场景A/B1容量通过；失败轨迹及各版本证据不混用，详见[V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md#22-加速候选的验收与继续顺序)。
 

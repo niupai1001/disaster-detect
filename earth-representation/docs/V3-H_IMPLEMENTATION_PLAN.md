@@ -877,3 +877,22 @@ P0中的2/4倍原生尺度、邻域半径、标量条件通道融合和JEPA查�
 `performance/capacity_gpu1_v2/report.json`完整最大A/B1通过（约36.23/32.68秒，allocated约20.44/18.16GiB）；`recovery_gpu1_v1/report.json`8次工程更新后下一步model/optimizer/scheduler/runner/RNG/modes/EMA逐项一致。数据/QA/成员/模型/目标哈希不变，复用47项代码回归及模块证据；设备差异、包装器和配置哈希记录在`execution_gpu1/execution_manifest.json`，新readiness/authorization只绑定该实际执行身份。此前0号卡启动失败及未显式切默认卡的检查保留，不冒充PASS。
 
 当前正式目录`release_mae_accelerated_v1/execution_gpu1/formal_run`，Viewer Run ID `cd7c5ee4fa22441c844bfb93586c1d2b`，来源Run `16b8d41b69ec4224bbb01cc252564f23`。`migration_lineage.json`记录原last.pt哈希及165次继承更新；best、AdamW有效V动量、scheduler、RNG、采样游标、初始化VAL和最佳指标均继承，新Run从166步写入真实更新。总预算2330更新（10 Epoch），不是另加10 Epoch；L128、FP32、Batch32、A/B1权重及每轮4次完整VAL和回退停止条件不变。实时进度以status.json/updates.jsonl及真实checkpoint为准，当前运行不等于已完成预算或证明下游有效。
+
+## 23. CUDA异常后的双卡续段
+
+上一段已完成208更新（0.894 Epoch），计算209批时CUDA非法访存退出；保存的last在200、best在175（完整383VAL损失0.6147162990），不是已完成首轮。旧状态、曲线、日志和权重保留。用户明确“开始训练，如果能使用双卡则使用双卡训练”，因此本段允许门禁后恢复并优先双卡，不改变MAE/Hybrid顺序。
+
+Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1。新增`parallel.TwoDeviceBatch`使用单进程两副本：主卡cuda:1、副卡cuda:0，原Batch32按原生像元成本分工；每观测内部A/B1可用任务权重归一，shard梯度除实际全局观测数（尾批18），两卡梯度求和后主卡统一clip、一次AdamW、一次scheduler、一次EMA并广播全部参数/buffer。两个worker拥有独立数据适配器/EnMAP输入LRU/catalog及模型几何缓存；每批两边清梯度，等待两worker和两卡完成后才更新/保存，失败不应用本批optimizer。完整VAL与梯度诊断仍在主卡，两卡此时无并发训练。
+
+| 门禁证据（performance/） | 结果及边界 |
+|---|---|
+| failed_batch209_sync_v1.json | 原失败批32观测全部64个A/B1在同步CUDA下前后向PASS，无optimizer更新；不能证明异步错误根因已修复 |
+| dual_cpu_tests_v2.xml | 50项相关回归PASS，包含双shard全局loss/梯度、尾批/空shard、EMA广播、worker失败禁止更新、完整下一步恢复、新身份迁移与重放记账 |
+| dual_gate_v1/report.json | 真实201/209两批各2次单/双卡配对，loss差0、梯度相对L2约1.30—1.45e-7；吞吐1.85—2.27倍，中位1.941倍。同步CUDA、FP32/确定性/TF32关闭，短段非整Epoch速度 |
+| 同上：capacity | 34,491,294和22,307,028原生通道像元两个最大观测同时A/B1前后向PASS，峰值allocated主卡约20.69、副卡约19.34GiB，保留原Token/原生像元/目标；该冷几何容量检查耗时约128.8秒，不套用普通批次速度 |
+| 同上：recovery | 3次独立工程更新（含重放）后，双卡自身保存恢复的下一步model/optimizer/scheduler/runner/RNG/modes/EMA完全一致，副本权重精确同步，不计正式Epoch |
+| dual_gate_v1/final_source_delta.json | 测量后仅增加两适配器身份检查及未参与热路径的续段迁移helper；重建测量源码SHA逐项匹配，单独绑定最终源码，不混淆旧报告身份 |
+
+配置`config_v3_h_dual_v1.json`只在上一段MAE配置上增加devices、每批checkpoint；科学参数和Epoch计划不变。正式启动沿用实测的`CUDA_LAUNCH_BLOCKING=1`、`CUBLAS_WORKSPACE_CONFIG=:4096:8`，不以同步门禁签发异步运行。旧0号卡初始化故障当时真实复现，目前两卡基础CUDA及双卡真实门禁通过；不擅自重启驱动或其他进程。
+
+继续顺序为：当前代码/配置/测试/文档提交→独立冻结`release_mae_dual_v1`→`prepare_execution_continuation`迁移last200与best175到新身份/新Viewer Run→正式入口核对绑定并reconcile复制的日志→确认实际更新越过原失败209批。原201—208日志在恢复证据中留存，原Run不改；spent_updates保留原208次durable尝试，重放8次成本不被抹去。终点仍为2330个逻辑批次/10个完整数据Epoch，完整覆盖与额外恢复成本分开报告，不因异常重启另加10 Epoch。若再次发生CUDA异常，不在失效CUDA上下文中盲目重试。
