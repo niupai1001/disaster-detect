@@ -924,3 +924,13 @@ G1验收的是已有真实波段的定标、QA、网格和SRF，不能替代完�
 相邻初始/首轮末完整VAL时间差为1178.351391秒，即19分38秒（19.639分钟）；更新计时1063.615269秒（17.727分钟）、验证/保存/日志等差额114.736122秒（1.912分钟），均批4.56487秒。原描述器首轮17.050分钟，本次墙钟约增加15.2%；原第二轮18.954分钟仅作资源波动背景，不用于挑选更有利参照。有限同批前后向约1.187倍的工程速度未转化为整轮加速，两个测量回答不同问题；跨运行资源/缓存条件未完全控制，不能把全部差额直接归因于某个算子或卷积结构。
 
 [完整覆盖、逐来源、验证节点与计时记录](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/trial_completion.json)、[best](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/formal_run/best.pt)、[last](../outputs/encoder_v3/hierarchical/release_descriptor_free_v1/formal_run/last.pt)保留本段结果。下一步需结合实际重建和上下文干预定位融合/读出与优化瓶颈，不自动增加训练预算。
+
+### 无物理描述器短段最佳权重可视化
+
+[图集](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/index.html)来自best233/第1轮末/完整VAL0.4689640854，官方完整383VAL记录绑定到相同检查点，选中VAL案例再次前向与原损失一致。9个重建案例、4组原生网格光谱、8张图；S2/L8按本段A损失P25/P50/P90选样，另保留最差S2，L9/EnMAP仅TRAIN诊断，不代表独立泛化。不同实验各自分位选样不保证是同一观测，不能直接作为成对改进证据。
+
+![无物理描述器A重建](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/overview_A.png)
+
+原图、可见输入、纯隐藏区预测、拼合图、误差依次排列；第四列可见部分是真值。原图/预测统一RGB反射率0—0.3、gamma2.2，误差0—0.15并标明溢出；最差S2另用0—1范围，原始物理误差未裁剪。所选S2/L8典型隐藏RGB物理MAE约0.01661/0.02040；仍是明显平滑色块，S2色偏、细节缺失，不能称已恢复纹理。最差S2的隐藏RGB物理MAE约0.37602，失败案例未排除。所选L8光谱能跟随部分谱形，S2及EnMAP TRAIN仍有明显幅度偏差。
+
+[原生光谱](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/spectral_profiles.png)、[训练/完整验证/学习率](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/learning_curves.png)、[案例指标](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/report.json)及[只读核验](../outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1/verification.json)保留证据。光谱灰线为固定TRAIN通道均值参考，不是前节可见均值强基线。曲线展示含初始化的完整首轮验证节点，学习率本段仅完成预热。optimizer更新0、模型及原best/last/updates哈希不变，状态保持TRIAL_COMPLETE。
