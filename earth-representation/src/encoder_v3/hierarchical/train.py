@@ -11,6 +11,8 @@ import signal
 import time
 import uuid
 import math
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import torch
 from encoder_v3.shared_mae.data import load_data,sample_from_dataset,EpochPlan,identity as base_identity,ROOT
@@ -19,6 +21,7 @@ from encoder_v3.latent_response.checkpoint import snapshot,restore,atomic_replac
 from encoder_v3.latent_response.run_control import append_event,lr_multiplier,reconcile_logs
 from encoder_v3.latent_response.tvlp_writer import RunWriter
 from .model import HierarchicalMAE
+from .verification import gradient_contributions
 
 
 def build_model(config):
@@ -71,26 +74,51 @@ def resume(path,model,optimizer,scheduler,state,binding):
         restore(live,model,optimizer,state,scheduler);raise
 
 
+def native_samples(dataset,rows,lookup,resolver,config):
+    """One bounded CPU reader; all admission/QA/normalization checks remain in the adapter."""
+    capacity=config.get('prefetch_observations',2) if str(config['device']).startswith('cuda') else 0
+    if not capacity:
+        for row in rows:yield sample_from_dataset(dataset,lookup[row['id']],resolver,config['device'])
+        return
+    def load(row):
+        sample=sample_from_dataset(dataset,lookup[row['id']],resolver,'cpu')
+        for channel in sample.channels:
+            channel.values=channel.values.pin_memory();channel.valid=channel.valid.pin_memory()
+        return sample
+    with ThreadPoolExecutor(max_workers=1,thread_name_prefix='v3-h-native-reader') as reader:
+        remaining=iter(rows);pending=deque()
+        for _ in range(min(capacity,len(rows))):pending.append(reader.submit(load,next(remaining)))
+        while pending:
+            sample=pending.popleft().result()
+            row=next(remaining,None)
+            if row is not None:pending.append(reader.submit(load,row))
+            for channel in sample.channels:
+                channel.values=channel.values.to(config['device'],non_blocking=True)
+                channel.valid=channel.valid.to(config['device'],non_blocking=True)
+            yield sample
+
+
 def batch_loss(model,dataset,rows,resolver,config,*,epoch=0,backward=False,stop_requested=None):
     lookup={r['id']:i for i,r in enumerate(dataset.rows)}
     records=[]
-    for group in micro_batches(rows,config):
+    # Process each observation before loading another GPU view; CPU prefetch never holds learned features.
+    for sample,row in zip(native_samples(dataset,rows,lookup,resolver,config),rows):
         if stop_requested and stop_requested():raise StopRequested()
-        samples=[sample_from_dataset(dataset,lookup[r['id']],resolver,config['device']) for r in group]
-        for sample,row in zip(samples,group):
-            kinds=model.available_tasks(sample)
-            total_weight=sum(config['task_weights'][k] for k in kinds)
-            value=0.;task_info={}
-            for kind in kinds:
-                weight=config['task_weights'][kind]/total_weight
-                with torch.autocast('cuda',dtype=torch.bfloat16,enabled=config['precision']=='bfloat16'):
-                    losses,details=model([sample],kind=kind,seed=config['seed'],epoch=epoch)
-                    objective=losses.sum()*weight/len(rows)
-                if not bool(torch.isfinite(objective)):raise ValueError('Nonfinite objective')
-                if backward:objective.backward()
-                value+=float(losses.detach().sum())*weight
-                task_info[kind]={k:v for k,v in details[0].items() if k not in ('predictions','target_masks','online_features')}
-            records.append(dict(id=row['id'],sensor=row['sensor'],loss=value,tasks=task_info))
+        kinds=model.available_tasks(sample)
+        total_weight=sum(config['task_weights'][k] for k in kinds)
+        value=0.;task_info={}
+        for kind in kinds:
+            weight=config['task_weights'][kind]/total_weight
+            with torch.autocast('cuda',dtype=torch.bfloat16,enabled=config['precision']=='bfloat16'):
+                losses,details=model([sample],kind=kind,seed=config['seed'],epoch=epoch)
+                objective=losses.sum()*weight/len(rows)
+            if not bool(torch.isfinite(objective)):raise ValueError('Nonfinite objective')
+            if backward:objective.backward()
+            value+=float(losses.detach().sum())*weight
+            task_info[kind]={k:v for k,v in details[0].items() if k not in ('predictions','target_masks','online_features')}
+            task_info[kind].update(task_weight=weight,weighted_mae=details[0]['mae']*weight,
+                weighted_jepa=details[0]['jepa']*weight*model.lambda_jepa)
+        records.append(dict(id=row['id'],sensor=row['sensor'],loss=value,tasks=task_info))
     return sum(r['loss'] for r in records)/len(records),records
 
 
@@ -135,7 +163,8 @@ def writer_for(config,binding,state,run_dir,resuming):
     writer=RunWriter(directory,experiment=dict(id='encoder-v3-h',name='Encoder V3-H · 层次化表征'),
         variant=dict(id='mae' if config['lambda_jepa']==0 else 'hybrid',name='层次MAE' if config['lambda_jepa']==0 else '层次MAE+JEPA',kind='modification',description='动态原生几何、并行三尺度、双向稀疏交互'),
         metrics=metrics,charts=['train_loss','val_loss'],primary_metric='val_loss',numbers=['mae_loss','jepa_loss','gradient_norm','learning_rate'],
-        config=dict(execution_identity=digest(binding),training_directory=str(run_dir),architecture='hierarchical_v3_h',task_weights=config['task_weights'],lambda_jepa=config['lambda_jepa']))
+        config=dict(execution_identity=digest(binding),training_directory=str(run_dir),architecture='hierarchical_v3_h',task_weights=config['task_weights'],lambda_jepa=config['lambda_jepa'],
+            source_run_id=state.get('source_viewer',{}).get('run_id'),source_checkpoint_cursor=state.get('migration_source_cursor')))
     state['viewer']=dict(directory=str(writer.path),run_id=writer.meta['run_id'])
     return writer
 
@@ -184,6 +213,15 @@ def main():
             state['phase']='TRAINING'
             while state['cursor']<total:
                 if requested():raise StopRequested()
+                diagnostic_epoch=state['cursor']//len(plan)
+                if state.get('gradient_diagnostic_epoch')!=diagnostic_epoch:
+                    selected=plan.batch(state['cursor'])[0]
+                    index=next(i for i,row in enumerate(datasets['TRAIN'].rows) if row['id']==selected['id'])
+                    sample=sample_from_dataset(datasets['TRAIN'],index,resolver,config['device'])
+                    with validation_transaction(model,optimizer,state,scheduler):
+                        diagnostics=gradient_contributions(model,sample,config,epoch=diagnostic_epoch)
+                    write(args.run_dir/f'gradient_epoch_{diagnostic_epoch}.json',diagnostics)
+                    state['gradient_diagnostic_epoch']=diagnostic_epoch
                 start=time.perf_counter();rows=plan.batch(state['cursor'])
                 record=update(model,datasets['TRAIN'],rows,resolver,optimizer,scheduler,state,runtime,requested)
                 record['seconds']=time.perf_counter()-start;record['epoch']=plan.progress(state['cursor'])

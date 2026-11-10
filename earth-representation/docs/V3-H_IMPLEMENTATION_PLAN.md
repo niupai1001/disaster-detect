@@ -25,7 +25,7 @@
 
 原文档阶段只提交两份文档与索引；当前用户已授权推进下列代码阶段、工程检查及训练。新实现使用独立hierarchical目录与新运行身份，不改变旧冻结源码、成员或已停止预算。
 
-不启动正式训练。
+正式训练遵循后续用户授权；当前因加速与一致性复核暂停在165次更新，不能凭旧发布门禁直接恢复候选源码。
 
 ## 2. 开工检查
 
@@ -838,8 +838,36 @@ P0的具体尺度、邻域、调度、Decoder查询及损失/EMA规则见设计�
 
 用户已明确选择“先MAE独立训练10 Epoch，通过后再做Hybrid对照”，并授权一个只读独立审查Agent。首段λ_J=0，Hybrid正式训练未开始；其最大场景容量与长程稳定性仍须针对实际Hybrid发布另验收。旧共享MAE与本段还改变了mask、任务权重和容量，不能把两者差异直接归因为架构单因素；后续Hybrid须匹配本段数据、配置、初始化和评价条件。
 
-只读独立审查`/root/v3_h_independent_review`已放行当前MAE：独立复跑38项CPU测试，额外混合GSD/分数偏移隔离与面积检查，并实际走通合成数据完整CLI（初始VAL、weighted更新、journal、定期VAL、best/last、真实resume）。原审查记录为`engineering/independent_review_v1.json`，补充范围限制在`independent_review_supplement.json`。极粗输入（如GSD256m、L128m、单通道1×1）可能占多个Patch但遮盖后无原生可见上下文；未来扩大准入前须加强任务可用性判断，不能将本段验收外推到此情形。Viewer跨崩溃恢复可保留旧Session未checkpoint指标，重复cursor按Session和真实检查点解释。
+首版只读独立审查`/root/v3_h_independent_review`复跑38项CPU测试，额外检查混合GSD/分数偏移隔离与面积，并走通合成数据完整CLI（初始VAL、weighted更新、journal、定期VAL、best/last、真实resume）。原记录为`engineering/independent_review_v1.json`及`independent_review_supplement.json`。后续严格复核发现首版证据未完整覆盖计划要求的元数据契约、损失梯度分项、全部恢复状态及端到端成本，故不能把旧放行等同于完整计划验收，也不能放行后续候选源码。极粗输入（如GSD256m、L128m、单通道1×1）遮盖后可能无原生上下文；扩大准入前须加强任务可用性判断。Viewer跨崩溃恢复可能保留旧Session未checkpoint指标，重复cursor按Session和真实检查点解释。
 
-MAE-only的`readiness.json`和用户`authorization.json`已绑定同一冻结身份。新正式目录为`release_mae_v1/formal_run`，Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`。完整383VAL初始化已完成，初始损失2.1678077669 z²，随后已观察到连续真实参数更新；当前实时阶段、更新数、best与末态以`formal_run/status.json`、`updates.jsonl`和实际检查点为准。计划上限为10 Epoch，当前没有完成Epoch或下游有效性结论。
+首版MAE-only的`readiness.json`和用户`authorization.json`只绑定旧冻结身份。正式目录`release_mae_v1/formal_run`、Viewer Run ID `16b8d41b69ec4224bbb01cc252564f23`已安全停止在165次更新（0.70949 Epoch），保存last.pt；初始383VAL损失2.1678077669 z²，step117 best为0.8197413567。暂停预算保留，不修改旧冻结发布及日志。上限仍为总计10 Epoch，不能在更换代码后再追加10 Epoch，也没有完整Epoch或下游有效性结论。
 
 完整Epoch成本尚未实测，后续由正式运行记录；上述模块/批次成本不作为Epoch速度承诺。无独立EnMAP VAL，尚无冻结Encoder下游或跨传感器泛化结论。
+
+## 22. 加速候选的验收与继续顺序
+
+用户明确要求加速后再试验，并明确“不需要整轮完成”。**性能判断允许使用有代表性的同批次前缀，不要求等待完整Epoch，更不预设Epoch耗时门槛。** 性能、容量与研究效果分别验收；短前缀能证明速度收益，不能代替最大成员容量和恢复正确性。
+
+当前等价加速包括共享网格的原生通道分组、几何缓存、有界原始观测预取、小图邻域批量注意力、按激活大小选择重计算、跳过无目标输出，以及单父向下路径删除无效Q/K。保留原L/GSD/几何动态分区、三尺度直接聚合、全部原生像元、监督和邻域范围；没有将向下路径改成多父注意力。嵌套单父下softmax恒为1，V投影、残差和FF仍传递Coarse→Middle→Fine上下文；权重与AdamW动量按有效V参数迁移。
+
+P0中的2/4倍原生尺度、邻域半径、标量条件通道融合和JEPA查询规则是首版候选的具体实现选择，用户明确确认的是both/neighbor/parallel及动态几何，不能事后将所有实现选择写成用户已逐项冻结。当前标量通道融合也不等同于历史四头通道注意力。设计§14列出这些边界；λ_S仍为0，不冒称已实现未定义的空间损失。
+
+| 证据（performance/下） | 实测结论与限制 |
+|---|---|
+| paired_batch32_v1.json | 同卡真实32观测、A/B1输出/掩膜/Token/边数及梯度配对通过；64任务，2次重复。最大梯度相对L2约4.6e-5；不同传感器和冷暖状态收益不同，不宣称每成员都加速 |
+| matched_prefix_summary.json；baseline_full_cycle_v1.json；candidate_full_cycle_v2.json | 同检查点、同前183批/5856观测，无optimizer更新。训练3343.14→2478.52秒（均批18.2686→13.5438秒，1.34885倍）；含3次383成员完整VAL及检查点3598.96→2631.65秒（1.36757倍、减少26.88%）。最大对应批loss差2.14455e-7。两块同型号5090并行且共享CPU/I/O，不是独占同卡端到端测量；同卡配对证据补充支撑 |
+| snapshots/candidate_v2 | 固定长前缀对应源码。后续迁移工具/Viewer元数据不在测量热路径；大场景输出头修复另验容量，不把旧前缀当成该路径的测速 |
+| unit_tests_final_v1.xml | 47项CPU测试通过，独立审查亦复跑47项通过；包含全模型/optimizer/scheduler/EMA/RNG/游标逐项恢复、实际CLI同身份续跑与跨代码身份迁移、无效NaN和极小logit掩膜安全、100001-token输出头分块前向及features/condition/head梯度与dense对照 |
+| capacity_final_v1/report.json、capacity_final_v2/report.json | 最大34,491,294原生通道像元在输出头OOM，保留失败证据；Windows分配器不支持expandable_segments，不能将该环境变量当成修复 |
+| capacity_final_v3/report.json | 修复后最大完整A/B1均PASS：31.196/27.518秒，allocated峰值20.444/18.163GiB；Fine/Middle/Coarse仍为1,878,600/613,994/38,626，原生目标仍为20,191,594/24,951,356；参数未更新。该新大图路径成本单独记录，不套用旧前缀加速比 |
+| recovery_final_v1/report.json | 当前候选8次真实工程更新，保存恢复后下一步model/optimizer/scheduler/runner/RNG/modes/EMA逐项完全一致；不计正式Epoch |
+| all_modules_final_v1.json | 当前身份EnMAP/L8/L9/S2×A/B1×λ_J=0/0.2共16项模块前后向检查PASS，含激活存储、几何/加载、optimizer及EMA成本；每项1次带钩子测量，不作为稳定速度统计、不累加重叠模块时间。临时optimizer/EMA检查后事务恢复，未写入正式训练 |
+
+两条长回放已按用户要求停止，已取得前缀足以支持“实际加速有效”，不再为证明加速重复完整Epoch。正式训练继续保持STOPPED165，直到候选容量与恢复检查通过并冻结新发布。
+
+后续依赖与执行顺序：
+
+1. 已修复大场景输出头激活内存：分块重计算，原生读出与目标不变；最大A/B1及输出/梯度检查通过，不重复长回放。
+2. 已补齐当前身份的完整状态下一步恢复、四源模块成本及只读47项回归审查；D01—D11映射及未测边界保留。最大容量以最终v3记录绑定，不继承失败v1/v2。
+3. 提交源码/配置/测试/文档并冻结新发布，旧发布和旧Viewer Run保留。通过`prepare_migrated_run`新建身份/Run和lineage，迁移有效权重、AdamW、scheduler、RNG、游标及best/初始检查点；禁止直接修改旧Run执行身份。
+4. 按已授权MAE独立总计10 Epoch继续，再按匹配条件开展另身份Hybrid对照。正式评价另记RESULTS；工程回放和少量更新不作为表征收益。

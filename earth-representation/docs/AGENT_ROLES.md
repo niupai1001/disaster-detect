@@ -55,7 +55,9 @@
 
 ### V3-H首段独立MAE
 
-用户已确认先独立MAE10 Epoch，通过后再做Hybrid对照。新源码提交`9929ca1`，发布为`outputs/encoder_v3/hierarchical/release_mae_v1`；readiness、authorization及源文件清单绑定新身份。正式目录为该发布下`formal_run`，Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`。完整383VAL初始化已完成（2.1678077669 z²），随后已观察到连续真实参数更新；实际阶段与更新数以`formal_run/status.json`为准。配置、独立审查、38项测试、最大场景/Batch32、精确CUDA恢复及成本证据见[V3-H实施计划§21](V3-H_IMPLEMENTATION_PLAN.md#21-实现与工程证据)。旧停止作业不恢复，Hybrid尚未正式启动，当前没有完成Epoch或表征有效结论。
+用户先前选择独立MAE10 Epoch后再做Hybrid；随后明确要求先完成完整加速和实现符合性验收再试验。首段已安全STOPPED165，原源码提交`9929ca1`与`outputs/encoder_v3/hierarchical/release_mae_v1`保留不改，Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`。完整383VAL初始化2.1678077669 z²；当前没有完成Epoch或表征有效结论，Hybrid未正式启动。最新停止边界优先于旧authorization/readiness，不能凭旧文件自动恢复。
+
+当前同一任务`encoder-v3-h-implementation-training`处于ACCELERATION_AND_PLAN_CONFORMANCE。用户明确不需要等待完整Epoch，两条长回放已停止；相同前183批及3次完整VAL的证据足以支持实际加速（训练约1.35倍）。候选补充Token支持率、分项梯度、完整状态比较和实际跨代码身份迁移CLI，独立47项CPU测试及最终最大原生A/B1容量通过。新源码仍须冻结发布并重新绑定验收；原冻结源码/权重/原Run日志不原地改动。跨代码身份续段需新Run及来源谱系，不能伪造旧Run同身份恢复；完整Epoch耗时和研究有效性不由前缀测速替代。
 
 ### 旧共享描述器MAE与历史暂停作业
 

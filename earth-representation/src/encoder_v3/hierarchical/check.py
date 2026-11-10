@@ -6,6 +6,8 @@ from pathlib import Path
 import time
 import torch
 from encoder_v3.latent_response.checkpoint import parameter_sha
+from encoder_v3.latent_response.checkpoint import snapshot
+from .verification import compare_snapshots
 from .train import load_data,sample_from_dataset,identity,build_model,write,batch_loss,save,resume,update
 
 
@@ -79,9 +81,11 @@ def main():
                 save(args.output/'resume.pt',model,optimizer,scheduler,state,binding)
                 update(model,dataset,cohort,resolver,optimizer,scheduler,state,runtime);report['updates']+=1
                 expected=parameter_sha(model)
+                expected_state=snapshot(model,optimizer,state,scheduler)
                 resume(args.output/'resume.pt',model,optimizer,scheduler,state,binding)
                 update(model,dataset,cohort,resolver,optimizer,scheduler,state,runtime);report['updates']+=1
                 assert expected==parameter_sha(model)
+                report['complete_next_update_restored']=compare_snapshots(expected_state,snapshot(model,optimizer,state,scheduler))
                 report['exact_next_update_restored']=True
         report.update(status='PASS',parameters=sum(p.numel() for p in model.parameters()),trainable=sum(p.numel() for p in model.parameters() if p.requires_grad))
     except Exception as exc:

@@ -1,4 +1,5 @@
 from dataclasses import replace
+from pathlib import Path
 import copy
 import numpy as np
 import pytest
@@ -10,6 +11,21 @@ from encoder_v3.hierarchical.geometry import partitions,area_map,neighborhood,sp
 from encoder_v3.hierarchical.model import HierarchicalMAE,SparseAttention,GlobalBlock
 
 torch.set_num_threads(2)
+torch.use_deterministic_algorithms(True)
+
+
+def test_large_output_readout_matches_dense_values_and_gradients():
+    torch.manual_seed(29)
+    model=HierarchicalMAE(patch_metres=128.)
+    features=torch.randn(100001,64,requires_grad=True)
+    condition=torch.randn(32,requires_grad=True)
+    parameters=tuple(model.output.parameters())
+    dense=model.output(torch.cat((features,condition.expand(len(features),-1)),-1)).squeeze(-1)
+    expected=torch.autograd.grad(dense.square().mean(),(features,condition,*parameters))
+    actual=model.readout(features,condition)
+    received=torch.autograd.grad(actual.square().mean(),(features,condition,*parameters))
+    torch.testing.assert_close(actual,dense,atol=1e-6,rtol=1e-5)
+    for a,b in zip(received,expected):torch.testing.assert_close(a,b,atol=1e-6,rtol=1e-5)
 
 
 def sample(side=16,gsd=1.,channels=2,name='synthetic'):
@@ -118,6 +134,8 @@ def test_scene_isolation_and_single_channel():
 def test_jepa_target_ema_and_checkpoint_next_step(tmp_path):
     from encoder_v3.hierarchical.train import save,resume
     from encoder_v3.latent_response.checkpoint import parameter_sha
+    from encoder_v3.latent_response.checkpoint import snapshot
+    from encoder_v3.hierarchical.verification import compare_snapshots
     torch.manual_seed(9);m=HierarchicalMAE(patch_metres=4.,lambda_jepa=.2)
     for a,b in zip(m.online.parameters(),m.target.parameters()):torch.testing.assert_close(a,b,rtol=0,atol=0)
     s=sample();opt=torch.optim.AdamW([p for p in m.parameters() if p.requires_grad],lr=1e-4)
@@ -132,9 +150,114 @@ def test_jepa_target_ema_and_checkpoint_next_step(tmp_path):
         m.update_ema();torch.testing.assert_close(next(m.target.parameters()),expected)
         scheduler.step();state['cursor']+=1
     step();save(tmp_path/'last.pt',m,opt,scheduler,state,binding)
-    step();expected=parameter_sha(m)
+    step();expected=parameter_sha(m);full_expected=snapshot(m,opt,state,scheduler)
     resume(tmp_path/'last.pt',m,opt,scheduler,state,binding);step()
     assert parameter_sha(m)==expected and state['cursor']==2 and int(m.ema_updates)==2
+    assert all(compare_snapshots(full_expected,snapshot(m,opt,state,scheduler)).values())
+
+
+def test_explicit_token_support_and_gradient_contributions():
+    from encoder_v3.hierarchical.verification import gradient_contributions
+    torch.manual_seed(6);m=HierarchicalMAE(patch_metres=4.,lambda_jepa=.2);s=sample()
+    output=m.online(s,m.layout(s),[c.valid for c in s.channels])
+    assert len(output.tokens)==3
+    for t in output.tokens:
+        assert t.support_ratio.shape==(2,len(t.features)) and t.coordinates.shape==(len(t.features),2)
+        assert torch.all((t.support_ratio>=0)&(t.support_ratio<=1.00001))
+    report=gradient_contributions(m,s,{'seed':17,'task_weights':{'A':.7,'B1':.3},'lambda_jepa':.2})
+    assert report['tasks']['A']['terms']['mae']['encoder_gradient_norm']>0
+    assert report['tasks']['A']['terms']['jepa']['encoder_gradient_norm']>0
+    assert len([n for n in report['tasks']['A']['terms'] if n.startswith('jepa_scale_')])==3
+
+
+def test_relative_geometry_cache_keeps_absolute_positions_and_view_permissions():
+    from dataclasses import replace
+    m=HierarchicalMAE(patch_metres=4.);a=sample()
+    b=copy.deepcopy(a)
+    for c in b.channels:
+        affine=list(c.grid.affine);affine[2]+=100000.;affine[5]+=200000.
+        c.grid=replace(c.grid,affine=tuple(affine))
+    first=m.layout(a);second=m.layout(b)
+    assert first[0].origin!=second[0].origin
+    assert first[2][0][0] is second[2][0][0]
+    a_loss,_=m([a],kind='A');b_loss,_=m([b],kind='A')
+    assert len(m._layouts)==1 and torch.isfinite(a_loss).all() and torch.isfinite(b_loss).all()
+    torch.testing.assert_close(a_loss,b_loss,atol=1e-6,rtol=1e-5)
+
+
+def test_pruned_parent_attention_matches_one_key_attention_and_has_no_dead_qk():
+    from encoder_v3.hierarchical.model import ParentAttention
+    torch.manual_seed(17);original=SparseAttention(64,96)
+    torch.manual_seed(17);pruned=ParentAttention(64,96)
+    x=torch.randn(8,64);context=torch.randn(3,96)
+    index=np.stack((np.arange(8),np.arange(8)%3));edges=sparse_edges(index,8,'cpu')
+    valid=torch.ones(8,dtype=torch.bool);source_valid=torch.tensor([True,False,True])
+    torch.testing.assert_close(original(x,context,edges,valid,source_valid),pruned(x,context,edges,valid,source_valid),atol=1e-6,rtol=1e-6)
+    assert not any(name.startswith(('q.','norm.','kv.')) for name,_ in pruned.named_parameters())
+
+
+def test_equivalent_checkpoint_migration_preserves_active_adam_momenta():
+    from encoder_v3.hierarchical.model import canonical_weights
+    from encoder_v3.hierarchical.verification import migrate_single_parent_checkpoint
+    from encoder_v3.latent_response.checkpoint import snapshot,restore
+    torch.manual_seed(11);legacy=HierarchicalMAE(patch_metres=4.,lambda_jepa=.2)
+    legacy.online.cross['m_to_f']=SparseAttention(64,96)
+    legacy.online.cross['c_to_m']=SparseAttention(96,128)
+    legacy.target=copy.deepcopy(legacy.online).requires_grad_(False);legacy.target.eval()
+    legacy_opt=torch.optim.AdamW([p for p in legacy.parameters() if p.requires_grad],lr=1e-4)
+    old_scheduler=torch.optim.lr_scheduler.StepLR(legacy_opt,10,.5);old_state={'cursor':0}
+    s=sample()
+    def step(model,opt,scheduler,state):
+        opt.zero_grad(set_to_none=True);loss,_=model([s]);loss.mean().backward();opt.step();model.update_ema();scheduler.step();state['cursor']+=1
+    step(legacy,legacy_opt,old_scheduler,old_state)
+    payload=dict(schema='v3_h_checkpoint_v1',identity={'source':'synthetic'},**snapshot(legacy,legacy_opt,old_state,old_scheduler))
+    candidate=HierarchicalMAE(patch_metres=4.,lambda_jepa=.2)
+    candidate_opt=torch.optim.AdamW([p for p in candidate.parameters() if p.requires_grad],lr=1e-4)
+    scheduler=torch.optim.lr_scheduler.StepLR(candidate_opt,10,.5);state={}
+    migrated=migrate_single_parent_checkpoint(payload,legacy,candidate,candidate_opt,{'destination':'synthetic'})
+    restore(migrated,candidate,candidate_opt,state,scheduler)
+    assert state==old_state and scheduler.state_dict()==old_scheduler.state_dict()
+    old_names=[n for n,p in legacy.named_parameters() if p.requires_grad]
+    old_ids=dict(zip(old_names,payload['optimizer']['param_groups'][0]['params']))
+    for name,param in candidate.named_parameters():
+        if not param.requires_grad:continue
+        old_name=name;offset=None
+        if name.endswith(('value_weight','value_bias')) and '.cross.' in name:
+            prefix,tail=name.rsplit('.',1);old_name=prefix+('.kv.weight' if tail=='value_weight' else '.kv.bias')
+            offset=dict(legacy.named_parameters())[old_name].shape[0]//2
+        if old_ids[old_name] in payload['optimizer']['state']:
+            original=payload['optimizer']['state'][old_ids[old_name]]
+            expected=original['exp_avg'][offset:] if offset is not None else original['exp_avg']
+            torch.testing.assert_close(candidate_opt.state[param]['exp_avg'],expected,atol=0,rtol=0)
+    step(legacy,legacy_opt,old_scheduler,old_state);step(candidate,candidate_opt,scheduler,state)
+    expected=canonical_weights(legacy.state_dict())
+    for name,value in candidate.state_dict().items():torch.testing.assert_close(value,expected[name],atol=3e-6,rtol=3e-4)
+
+
+def test_padding_extreme_logits_and_invalid_nan_are_fully_ignored():
+    block=SparseAttention(4)
+    q=torch.ones(1,4,1,requires_grad=True)
+    k=torch.tensor([[[-1e10]]*4,[[float('nan')]]*4],requires_grad=True)
+    v=torch.tensor([[[1.]]*4,[[float('nan')]]*4],requires_grad=True)
+    neighbors=torch.tensor([[0,1]]);present=torch.tensor([[True,False]])
+    result=block.padded_attend(q,k,v,neighbors,present,torch.tensor([True]),torch.tensor([True,False]))
+    torch.testing.assert_close(result,torch.ones(1,4),atol=0,rtol=0)
+    result.sum().backward()
+    assert torch.isfinite(q.grad).all() and torch.isfinite(k.grad).all() and torch.isfinite(v.grad).all()
+    assert not k.grad[1].any() and not v.grad[1].any()
+    empty=block.padded_attend(q,k,v,neighbors,torch.zeros_like(present),torch.tensor([True]),torch.tensor([False,False]))
+    torch.testing.assert_close(empty,torch.zeros_like(empty),atol=0,rtol=0)
+
+
+def test_invalid_nan_context_has_finite_parameter_gradients():
+    block=SparseAttention(8)
+    x=torch.randn(3,8,requires_grad=True);context=torch.randn(3,8)
+    context[1]=float('nan');context.requires_grad_()
+    edges=sparse_edges(np.array([[0,0,1,2],[0,1,1,2]]),3,'cpu')
+    y=block(x,context,edges,torch.tensor([True,False,True]),torch.tensor([True,False,True]))
+    y.sum().backward()
+    assert torch.isfinite(y).all() and all(p.grad is None or torch.isfinite(p.grad).all() for p in block.parameters())
+    assert not context.grad[1].any()
 
 
 def test_task_weighting_microbatch_and_heldout_guard(monkeypatch):
@@ -219,3 +342,112 @@ def test_viewer_new_run_and_real_resume_identity(tmp_path):
         writer.log(step=1,epoch=.01,values={'train_loss':.9})
     assert state['viewer']==identity
     with pytest.raises(ValueError,match='identity'):writer_for(config,{'test':'other'},state,tmp_path/'train',True)
+
+
+def test_mid_run_cli_resume_matches_uninterrupted_state_and_viewer(tmp_path,monkeypatch):
+    import json,sys
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.verification import fingerprint
+    class Dataset:
+        def __init__(self,role,count):
+            self.samples=[sample(side=8,name=f'{role}_{i}') for i in range(count)]
+            self.rows=[dict(id=s.identifier,role=role,sensor='S2',bands=[dict(shape=(8,8))]) for s in self.samples]
+    datasets={'TRAIN':Dataset('TRAIN',3),'VAL':Dataset('VAL',1)}
+    monkeypatch.setattr(train,'load_data',lambda:(datasets,None))
+    monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:ds.samples[i])
+    binding={'test':'mid-run-cli'}
+    monkeypatch.setattr(train,'identity',lambda *args:binding)
+    config=dict(architecture='hierarchical_v3_h',objective='observation_equal',
+        scale_policy='finest_loaded_native_gsd_xy_times_2_and_4_nested_at_L',patch_metres=4.,mask_ratio=.55,encoder_depth=2,
+        lambda_jepa=.2,ema_momentum=.996,task_weights={'A':.7,'B1':.3},epochs=1,batch_size=2,micro_batch_observations=1,
+        micro_batch_pixels=99999,seed=17,validation_seed=1729,device='cpu',precision='float32',deterministic=True,lr=1e-4,
+        weight_decay=.04,clip_norm=3.,warmup_epochs=0.,validations_per_epoch=1,checkpoint_every_batches=1,viewer_root=str(tmp_path/'viewer'))
+    config_path=tmp_path/'config.json';config_path.write_text(json.dumps(config))
+    auth=tmp_path/'authorization.json';auth.write_text(json.dumps({'source':'user_in_current_chat','identity':binding}))
+    gate=tmp_path/'readiness.json';gate.write_text(json.dumps({'identity':binding,'training_release_ready':True}))
+    run=tmp_path/'interrupted';original_write=train.write;interrupted={'done':False}
+    def write(path,value):
+        original_write(path,value)
+        if Path(path)==run/'status.json' and value.get('cursor')==1 and not interrupted['done']:
+            (run/'STOP_REQUESTED').write_text('synthetic safe mid-run stop');interrupted['done']=True
+    monkeypatch.setattr(train,'write',write)
+    def launch(directory,resume_path=None):
+        args=['train','--config',str(config_path),'--authorization',str(auth),'--readiness',str(gate),'--run-dir',str(directory)]
+        if resume_path:args+=['--resume',str(resume_path)]
+        monkeypatch.setattr(sys,'argv',args);train.main()
+    launch(run)
+    first=torch.load(run/'last.pt',map_location='cpu',weights_only=False)
+    assert first['runner']['cursor']==1 and first['runner']['status']=='STOPPED'
+    viewer=copy.deepcopy(first['runner']['viewer']);(run/'STOP_REQUESTED').unlink()
+    launch(run,run/'last.pt')
+    restored=torch.load(run/'last.pt',map_location='cpu',weights_only=False)
+    assert restored['runner']['cursor']==2 and restored['runner']['status']=='COMPLETE'
+    assert restored['runner']['viewer']==viewer
+    events=[json.loads(line) for line in (Path(viewer['directory'])/'events.jsonl').read_text().splitlines()]
+    assert len({e['session_id'] for e in events if e['kind'] in ('started','resumed')})==2
+    records=[json.loads(line) for line in (run/'updates.jsonl').read_text().splitlines()]
+    assert [r['cursor'] for r in records]==[1,2]
+    launch(tmp_path/'control')
+    control=torch.load(tmp_path/'control/last.pt',map_location='cpu',weights_only=False)
+    for key in ('model','optimizer','scheduler','rng','modes'):
+        assert fingerprint(restored[key])==fingerprint(control[key]),key
+    for key in ('cursor','spent_updates','best','epoch','observations_seen'):
+        assert restored['runner'][key]==control['runner'][key]
+
+
+def test_new_identity_migration_cli_inherits_journal_and_starts_new_viewer_run(tmp_path,monkeypatch):
+    import json,sys,hashlib
+    from encoder_v3.hierarchical import train
+    from encoder_v3.hierarchical.verification import prepare_migrated_run
+    original_builder=train.build_model
+    def legacy_builder(config):
+        m=original_builder(config)
+        m.online.cross['m_to_f']=SparseAttention(64,96);m.online.cross['c_to_m']=SparseAttention(96,128)
+        m.target=copy.deepcopy(m.online).requires_grad_(False);m.target.eval()
+        return m
+    class Dataset:
+        def __init__(self,role,count):
+            self.samples=[sample(side=8,name=f'{role}_{i}') for i in range(count)]
+            self.rows=[dict(id=s.identifier,role=role,sensor='S2',bands=[dict(shape=(8,8))]) for s in self.samples]
+    datasets={'TRAIN':Dataset('TRAIN',3),'VAL':Dataset('VAL',1)}
+    monkeypatch.setattr(train,'load_data',lambda:(datasets,None))
+    monkeypatch.setattr(train,'sample_from_dataset',lambda ds,i,resolver,device:ds.samples[i])
+    phase={'identity':{'code':'legacy-synthetic'},'builder':legacy_builder}
+    monkeypatch.setattr(train,'identity',lambda *args:phase['identity'])
+    monkeypatch.setattr(train,'build_model',lambda config:phase['builder'](config))
+    config=dict(architecture='hierarchical_v3_h',objective='observation_equal',scale_policy='finest_loaded_native_gsd_xy_times_2_and_4_nested_at_L',
+        patch_metres=4.,mask_ratio=.55,encoder_depth=2,lambda_jepa=.2,ema_momentum=.996,task_weights={'A':.7,'B1':.3},
+        epochs=1,batch_size=2,micro_batch_observations=1,micro_batch_pixels=99999,seed=17,validation_seed=1729,
+        device='cpu',precision='float32',deterministic=True,lr=1e-4,weight_decay=.04,clip_norm=3.,warmup_epochs=0.,
+        validations_per_epoch=1,checkpoint_every_batches=1,viewer_root=str(tmp_path/'viewer'))
+    cfg=tmp_path/'config.json';cfg.write_text(json.dumps(config));auth=tmp_path/'auth.json';gate=tmp_path/'gate.json'
+    def permissions():
+        auth.write_text(json.dumps({'source':'user_in_current_chat','identity':phase['identity']}))
+        gate.write_text(json.dumps({'identity':phase['identity'],'training_release_ready':True}))
+    source=tmp_path/'source';write_original=train.write
+    def write(path,value):
+        write_original(path,value)
+        if Path(path)==source/'status.json' and value.get('cursor')==1 and value.get('status')=='RUNNING':
+            (source/'STOP_REQUESTED').write_text('synthetic migration test')
+    monkeypatch.setattr(train,'write',write)
+    def launch(folder,checkpoint=None):
+        args=['train','--config',str(cfg),'--authorization',str(auth),'--readiness',str(gate),'--run-dir',str(folder)]
+        if checkpoint:args+=['--resume',str(checkpoint)]
+        monkeypatch.setattr(sys,'argv',args);train.main()
+    permissions();launch(source)
+    old=torch.load(source/'last.pt',map_location='cpu',weights_only=False);old_viewer=old['runner']['viewer']
+    old_sha=hashlib.sha256((source/'last.pt').read_bytes()).hexdigest()
+    candidate=original_builder(config);opt=torch.optim.AdamW([p for p in candidate.parameters() if p.requires_grad],lr=1e-4)
+    phase.update(identity={'code':'optimized-synthetic'},builder=original_builder)
+    destination=tmp_path/'destination'
+    checkpoint=prepare_migrated_run(source,source/'last.pt',destination,legacy_builder(config),candidate,opt,phase['identity'])
+    permissions();launch(destination,checkpoint)
+    result=torch.load(destination/'last.pt',map_location='cpu',weights_only=False)
+    assert result['runner']['cursor']==2 and result['runner']['status']=='COMPLETE'
+    assert result['runner']['viewer']['run_id']!=old_viewer['run_id']
+    assert result['runner']['source_viewer']==old_viewer
+    metadata=json.loads((Path(result['runner']['viewer']['directory'])/'run.json').read_text())
+    assert metadata['config']['source_run_id']==old_viewer['run_id'] and metadata['config']['source_checkpoint_cursor']==1
+    records=[json.loads(line) for line in (destination/'updates.jsonl').read_text().splitlines()]
+    assert [r['cursor'] for r in records]==[1,2] and records[0]['inherited_from_run_id']==old_viewer['run_id']
+    assert (destination/'best.pt').exists() and hashlib.sha256((source/'last.pt').read_bytes()).hexdigest()==old_sha

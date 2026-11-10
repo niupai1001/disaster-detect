@@ -67,11 +67,18 @@ class AreaMap:
     pixel_area: float
 
     def aggregate(self, feature, keep):
-        weight = self.area * keep.flatten()[self.source]
-        total = feature.new_zeros(len(self.region_area), feature.shape[-1])
-        total.index_add_(0, self.destination, feature[self.source] * weight[:, None])
-        support = weight.new_zeros(len(self.region_area)).index_add_(0, self.destination, weight)
-        return total/support.clamp_min(1e-12)[:, None], support/self.region_area
+        if feature.ndim==2:
+            values,ratio=self.aggregate(feature[None],keep.flatten()[None])
+            return values[0],ratio[0]
+        weight = self.area[None] * keep.flatten(1)[:,self.source]
+        total = feature.new_zeros(feature.shape[0],len(self.region_area),feature.shape[-1])
+        total.index_add_(1,self.destination,feature[:,self.source]*weight[...,None])
+        support=weight.new_zeros(feature.shape[0],len(self.region_area)).index_add_(1,self.destination,weight)
+        return total/support.clamp_min(1e-12)[...,None],support/self.region_area
+
+    def support(self,keep):
+        weight=self.area*keep.flatten()[self.source]
+        return weight.new_zeros(len(self.region_area)).index_add_(0,self.destination,weight)/self.region_area
 
     def native(self, field):
         return field.new_zeros(self.pixels).index_add_(0, self.source, field[self.destination]*self.area/self.pixel_area)
@@ -130,5 +137,17 @@ def sparse_edges(index, queries, device):
         lo,hi=np.searchsorted(index[0],[begin,end])
         local=index[:,lo:hi].copy()
         local[0]-=begin
-        chunks.append((begin,end,torch.tensor(local,device=device)))
+        counts=np.bincount(local[0],minlength=end-begin)
+        capacity=max(1,int(counts.max()))
+        if queries>100000:
+            chunks.append((begin,end,torch.tensor(local,device=device),None,capacity))
+            continue
+        neighbors=np.zeros((end-begin,capacity),dtype=np.int64)
+        present=np.zeros_like(neighbors,dtype=bool)
+        if len(local[0]):
+            slot=np.arange(len(local[0]))-np.repeat(np.cumsum(counts)-counts,counts)
+            neighbors[local[0],slot]=local[1]
+            present[local[0],slot]=True
+        # The CPU edge list is provenance; padded GPU neighbors avoid ragged mask synchronization.
+        chunks.append((begin,end,torch.tensor(local),torch.tensor(neighbors,device=device),torch.tensor(present,device=device)))
     return chunks

@@ -64,7 +64,9 @@ python -I scripts/run_v3_h.py check --config configs/config_v3_h_mae_v1.json --m
 python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/hierarchical','tests/encoder_v3/shared_mae','-o','pythonpath=src','-q']))"
 ```
 
-`train`必须提供绑定新架构/代码/配置/冻结成员的authorization与readiness。用户已确认先独立MAE10 Epoch，再做Hybrid对照。新发布位于`outputs/encoder_v3/hierarchical/release_mae_v1`，包含冻结runtime、source_manifest、readiness、authorization与formal_run；[实时状态](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/status.json)和[更新记录](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/updates.jsonl)记录实际推进。Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`；初始化完整VAL与真实参数更新分开，旧训练不恢复，Hybrid尚未正式启动。
+`train`必须提供绑定新架构/代码/配置/冻结成员的authorization与readiness。首段已按用户新要求安全暂停在165次更新（约0.709Epoch），先补齐完整加速及计划符合性验收，再讨论恢复试验。旧发布`outputs/encoder_v3/hierarchical/release_mae_v1`的冻结源码、检查点和原验收保留；原readiness不能放行新加速候选。[实时状态](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/status.json)和[更新记录](outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/updates.jsonl)记录原运行事实。Viewer Run ID为`16b8d41b69ec4224bbb01cc252564f23`，Hybrid尚未正式启动。
+
+加速证据统一在`outputs/encoder_v3/hierarchical/performance`：同卡paired数值/梯度对照及相同前183批无更新回放已证明实际加速。均批18.27→13.54秒（约1.35倍），含3次完整383VAL及检查点总耗时减少约26.88%；两张5090并行共享CPU/I/O，保留此测量条件。用户明确无需等待完整Epoch，两条长回放已停止；有效同批前缀可以验收速度，不冒称完整Epoch耗时。候选47项CPU测试、最大完整原生场景A/B1容量通过；失败轨迹及各版本证据不混用，详见[V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md#22-加速候选的验收与继续顺序)。
 
 ## 当前共享描述器与全局MAE入口
 
