@@ -48,7 +48,23 @@ python -m pytest -q
 - [数据资源与输入](docs/DATA.md)：来源、数量、配置和图示。
 - [Agent职责](docs/AGENT_ROLES.md)：维护范围、交接和执行约束。
 - [V3-H架构设计](docs/V3-H_DESIGN.md)：Encoder V3下一阶段的几何驱动三尺度、both / neighbor / parallel及信息权限。
-- [V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md)：P0–P8依赖、Agent任务、门禁及设计—代码追踪矩阵；当前只提交文档，尚未实现或profiling。
+- [V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md)：P0–P8依赖、Agent任务、门禁及设计—代码追踪矩阵；独立hierarchical实现正在完成训练前门禁。
+
+## V3-H独立实现与工程检查
+
+新代码为`src/encoder_v3/hierarchical`，显式L和原生GSD驱动三尺度分区；配置为`configs/config_v3_h_mae_v1.json`。旧shared_mae源码、冻结发布与历史权重不变。
+
+```powershell
+python -I scripts/run_v3_h.py check --config configs/config_v3_h_mae_v1.json --mode samples --output outputs/encoder_v3/hierarchical/engineering/新的样本检查目录
+```
+
+`samples/capacity/batch`只做真实前后向、不更新参数；`stability`进行8次独立工程更新并核验保存恢复，不记作正式Epoch。入口预载标准库ssl，避免旧`src/ssl`包遮蔽标准库。测试使用已激活项目环境：
+
+```powershell
+python -I -c "import ssl,pytest;raise SystemExit(pytest.main(['tests/encoder_v3/hierarchical','tests/encoder_v3/shared_mae','-o','pythonpath=src','-q']))"
+```
+
+`train`必须提供绑定新架构/代码/配置/冻结成员的authorization与readiness。用户当前授权完成试验后进入新V3-H训练；具体运行状态以`outputs/encoder_v3/hierarchical`下证据为准，命令示例不恢复旧训练。
 
 ## 当前共享描述器与全局MAE入口
 

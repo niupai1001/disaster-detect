@@ -45,9 +45,11 @@
 
 本轮文档协调者为当前Codex聊天，范围仅README、DESIGN、AGENT_ROLES及两份V3-H Markdown。已查询原登记与工作树；本地主分支原有未提交DESIGN及登记增量保留，不覆盖、不自动纳入本次提交。阶段任务卡见[计划§18](V3-H_IMPLEMENTATION_PLAN.md#18-可执行任务依赖与门禁)，角色均待实际认领，不代表已派发或完成。
 
-后续顺序：契约冻结→动态几何/并行Token→三主干→双向交互→Decoder/MAE→JEPA→Hybrid闭环→profiling/独立审查→工程交接。各阶段以设计ID、代码符号、测试及实测证据逐项对应验收；不能以输出形状或loss下降代替设计一致性。
+后续用户明确要求“继续完成试验进入训练”，当前任务`encoder-v3-h-implementation-training`由本聊天持有新hierarchical源码、对应测试、新配置/入口和独立输出目录。旧宽范围任务身份保留，本次不改旧shared_mae/latent_response或冻结作业；登记中的范围重叠由本轮具体授权说明，不能解释为接管全部Encoder V3。
 
-未来代码任务先在原 `outputs/encoder_v3/agent_work.json` 核对owner并显式移交范围，保留旧active身份；不得抢占整个src/encoder_v3。协调者维护文档，几何/Encoder/Decoder/JEPA/集成职责按任务卡分配具体文件，验收者独立复核泄漏与恢复。当前不改模型、配置、权重或原登记，不启动训练或profiling；后续真实参数更新和正式研究另需相应授权。
+执行顺序：契约冻结→动态几何/并行Token→三主干→双向交互→Decoder/MAE→JEPA→Hybrid闭环→profiling/审查→工程交接。各阶段以设计ID、代码符号、测试及实测证据逐项对应验收；不能以输出形状或loss下降代替设计一致性。当前为同一Agent实现与分阶段自审，独立审查未完成时不冒称独立验收。
+
+后续任务仍在原`outputs/encoder_v3/agent_work.json`核对owner和具体范围，不抢占整个src/encoder_v3。实现、试验和新训练遵循本轮用户授权，首段独立MAE配置与门禁见实施计划§20；Hybrid真实训练另用配置和身份，不静默开启。已发现的OOM及非确定性恢复失败保留为工程证据，未解决前不能放行。
 
 ## 当前训练与执行状态
 
