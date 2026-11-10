@@ -47,6 +47,8 @@ python -m pytest -q
 - [正式研究结果](docs/RESULTS.md)：完整比较及各方案解释。
 - [数据资源与输入](docs/DATA.md)：来源、数量、配置和图示。
 - [Agent职责](docs/AGENT_ROLES.md)：维护范围、交接和执行约束。
+- [V3-H架构设计](docs/V3-H_DESIGN.md)：Encoder V3下一阶段的几何驱动三尺度、both / neighbor / parallel及信息权限。
+- [V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md)：P0–P8依赖、Agent任务、门禁及设计—代码追踪矩阵；当前只提交文档，尚未实现或profiling。
 
 ## 当前共享描述器与全局MAE入口
 
