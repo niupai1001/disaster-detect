@@ -73,7 +73,7 @@ enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用�
 
 用户已授权暂时训练无描述器架构并考虑计算效率，新任务encoder-v3-h-descriptor-free-trial持有hierarchical/descriptor_free.py、对应model/train入口、测试、config_v3_h_descriptor_free_v1、.project/v3_h_descriptor_free_gate.py及独立descriptor_free/release_descriptor_free_v1产物。旧A-only安全停止704/3.0215Epoch，best641，原AB仍STOPPED1312；两者权重及日志不改写，不续入新初始化。
 
-本段明确保留直接学习的波段身份，移除的是物理描述器/Memory/动态卷积。CPU真实入口必须验证max_updates233与2330步LR日程分离、TRIAL_COMPLETE状态；独立审查只读。双卡容量、梯度对照、完整恢复、性能及固定TRAIN学习门禁通过后才能冻结新身份并按本次用户授权启动；工程权重丢弃。新正式短段仅233步上限，后续预算另依据用户要求，不能因epochs10字段自动跑满十轮。
+本段明确保留直接学习的波段身份，移除的是物理描述器/Memory/动态卷积。CPU真实入口必须验证max_updates233与2330步LR日程分离、TRIAL_COMPLETE状态；独立审查只读。双卡容量、梯度对照、完整恢复、性能及固定TRAIN学习门禁通过后才能冻结新身份并按本次用户授权启动；工程权重丢弃。新正式短段仅233步上限，后续预算另依据用户要求，不能因epochs10字段自动跑满十轮。现已DESCRIPTOR_FREE_TRAINING，Viewer dde013a749f5431abb20aea2a587eb6d、源码0ff7831、174冻结文件，初始化cf3da97b…已核验，初始383VAL2.1762696610并已执行真实A-only更新。只读诊断和工程67次通过更新不续入正式权重；失败诊断重跑含在工程131次成本中。
 
 ### 旧共享描述器MAE与历史暂停作业
 

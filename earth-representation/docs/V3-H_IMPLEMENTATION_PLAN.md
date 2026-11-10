@@ -932,3 +932,5 @@ Windows当前无NCCL，现有多进程入口仍拒绝未经同步的WORLD_SIZE>1
 58项CPU测试及独立只读审查通过；267仪器/波段键恰来自TRAIN，VAL全部覆盖。配置epochs10只保持2330更新的原学习率日程，max_updates233才是本段绝对预算上限；退出TRIAL_COMPLETE，不能解释为完成十轮或自动继续。保留Batch32、FP32、每批checkpoint及每轮4次完整VAL，A-only、不加载旧权重，不启用B1/Hybrid。
 
 质量门禁不能只比较固定TRAIN通道均值；需报告合法的可见通道均值基线，区分工程学习和正式VAL，关注跨波段归一化输出是否仍几乎相同。速度用同批同设备的原描述器A-only对照，记录原生Token/目标、并发条件、冷/热态与峰值显存；不依据参数量承诺加速、不用最大场景数字概括普通批次。
+
+本短段已启动：源码0ff7831d07b3aebd45875a17a8d6f7356090750b，174文件冻结，运行目录release_descriptor_free_v1/formal_run，Viewer dde013a749f5431abb20aea2a587eb6d。全部门禁identity与冻结运行相同，随机初始参数cf3da97b…、初始383VAL2.1762696610及前5次真实更新已核验。engineering权重未加载，旧A-only704与AB1312保持停止。当前RUNNING不等于质量验收通过；实际max_updates233结束TRIAL_COMPLETE，后续依用户指令决定。
