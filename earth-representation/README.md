@@ -52,6 +52,10 @@ python -m pytest -q
 - [V3-H架构设计](docs/V3-H_DESIGN.md)：Encoder V3下一阶段的几何驱动三尺度、both / neighbor / parallel及信息权限。
 - [V3-H实施计划](docs/V3-H_IMPLEMENTATION_PLAN.md)：P0–P8依赖、Agent任务、门禁及设计—代码追踪矩阵；独立hierarchical实现正在完成训练前门禁。
 
+## V3-H-R 修订版
+
+原生逐通道 Fine 经 Middle 双路径逐级读取到 Regional 和固定 Global Latents。独立 A/B1 工程实现、配置与验证入口见 [修订设计](docs/V3-H_REVISED_DESIGN.md) 和 [实施与验收](docs/V3-H_REVISED_IMPLEMENTATION_PLAN.md)。[效率复审](outputs/encoder_v3/hierarchical_revised/efficiency_v2/AUDIT.md)区分数值等价修复、真实吞吐与计算量；效率限制保留在报告中。用户已确认[独立正式配置](configs/config_v3_h_revised_formal_epoch1.json)：逐像元基线、A+B1等权、单卡FP32、batch32、1 Epoch；[当前状态](outputs/encoder_v3/hierarchical_revised/formal_epoch1_v1/formal_run/status.json)。用户因耗时过长要求暂停：本轮已STOPPED于42/233次更新，完成1344/7442观测，耗时25.12分钟，尚未完成整轮或训练后完整VAL；检查点保留。原条件续训10轮安排同时暂停，不自动恢复。共享粗尺度候选未采用。
+
 ## V3-H独立实现与工程检查
 
 新代码为`src/encoder_v3/hierarchical`，显式L和原生GSD驱动三尺度分区；配置为`configs/config_v3_h_mae_v1.json`。旧shared_mae源码、冻结发布与历史权重不变。

@@ -659,7 +659,109 @@
         "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_detail_branch_v1\\dual_batch_cache\\report.json",
         "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_detail_branch_v1\\dual_batch_timing.csv"
       ]
+    },
+    {
+      "id": "encoder-v3-h-revised-a-b1-engineering",
+      "title": "Encoder V3-H-R 原生 A/B1 工程实现和验收",
+      "owner": "current Codex conversation",
+      "status": "completed",
+      "phase": "ENGINEERING_A_B1_VERIFIED",
+      "updated_at": "2026-11-11T11:21:14.072680-05:00",
+      "authorization": "用户明确授权按确认的工程基线实施 V3-H-R，正式训练关闭。",
+      "scopes": [
+        "src/encoder_v3/hierarchical_revised",
+        "tests/encoder_v3/hierarchical_revised",
+        "configs/config_v3_h_revised_engineering_v1.json",
+        "scripts/run_v3_h_revised.py",
+        "docs/V3-H_REVISED_DESIGN.md",
+        "docs/V3-H_REVISED_IMPLEMENTATION_PLAN.md",
+        "README.md",
+        "docs/DESIGN.md",
+        "outputs\\encoder_v3\\hierarchical_revised"
+      ],
+      "note": "89项测试、16个真实A/B1和2个合成CUDA视图通过。正式配置与预算仍为候选。历史任务、权重及数据发布保持原样。",
+      "evidence": [
+        "outputs\\encoder_v3\\hierarchical_revised\\engineering_v1\\PROFILE_REPORT.md",
+        "outputs\\encoder_v3\\hierarchical_revised\\engineering_v1\\candidate_budget.json",
+        "docs/V3-H_REVISED_IMPLEMENTATION_PLAN.md"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-revised-efficiency-review",
+      "owner": "current Codex conversation",
+      "status": "completed",
+      "phase": "REVIEW_COMPLETE_CANDIDATE_NOT_ADOPTED",
+      "updated_at": "2026-11-11T17:19:53.504708+00:00",
+      "authorization": "用户要求彻底审查并改进当前模型，在既定架构和任务约束内修复，正式训练保持关闭。 用户进一步明确允许独立共享粗尺度候选和质量消融，验证后再决定采用。",
+      "scopes": [
+        "src/encoder_v3/hierarchical_revised",
+        "tests/encoder_v3/hierarchical_revised",
+        "scripts/check_v3_h_revised_equivalence.py",
+        "configs/config_v3_h_revised_engineering_v1.json",
+        "docs/V3-H_REVISED_DESIGN.md",
+        "docs/V3-H_REVISED_IMPLEMENTATION_PLAN.md",
+        "outputs/encoder_v3/hierarchical_revised/efficiency_v2",
+        "scripts/ablate_v3_h_revised_coarse.py",
+        "configs/config_v3_h_revised_shared_coarse_candidate.json",
+        "outputs/encoder_v3/hierarchical_revised/shared_coarse_candidate_v1",
+        "README.md",
+        "docs/DESIGN.md"
+      ],
+      "note": "完成设计一致性复审、等价实现修复、共享粗尺度独立候选和三种子配对工程消融。102测试通过，最大S2耗时下降约13%，但小VAL面板A/B1误差相对基线增加1.13%/1.35%，且两版本短更新后均劣于初始化。候选未采用，整体效率与质量不放行，正式训练保持关闭。",
+      "evidence": [
+        "outputs/encoder_v3/hierarchical_revised/efficiency_v2/AUDIT.md",
+        "outputs/encoder_v3/hierarchical_revised/efficiency_v2/review_summary.json",
+        "outputs/encoder_v3/hierarchical_revised/shared_coarse_candidate_v1/paired_quality/report.json",
+        "outputs/encoder_v3/hierarchical_revised/shared_coarse_candidate_v1/regression_release.xml"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-revised-formal-epoch1",
+      "owner": "current Codex conversation",
+      "status": "paused",
+      "phase": "USER_PAUSED",
+      "updated_at": "2026-11-11T18:03:27.194319+00:00",
+      "authorization": "用户明确要求正式训练，并确认逐像元基线32/64/64、其余工程模型参数、随机初始化、A+B1等权、AdamW lr1e-4 wd0.04、batch32、FP32单卡、1 Epoch、12步预热后余弦至1e-5、完整VAL后停止。",
+      "scopes": [
+        "src/encoder_v3/hierarchical_revised/train.py",
+        "scripts/train_v3_h_revised.py",
+        "scripts/prepare_v3_h_revised_run.py",
+        "tests/encoder_v3/hierarchical_revised/test_training.py",
+        "configs/config_v3_h_revised_formal_epoch1.json",
+        "outputs/encoder_v3/hierarchical_revised/formal_epoch1_v1",
+        "README.md",
+        "docs/V3-H_REVISED_IMPLEMENTATION_PLAN.md"
+      ],
+      "note": "用户因耗时过长要求暂停；已安全STOPPED于42/233更新、1344/7442观测，墙钟1507.48秒。last.pt保留模型与AdamW，未完成整轮或训练后完整VAL，不自动恢复。",
+      "run_id": "099bc7001f58477f94618b3a372c37de",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical_revised\\formal_epoch1_v1\\training_started.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical_revised\\formal_epoch1_v1\\formal_run\\status.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical_revised\\formal_epoch1_v1\\preflight.json"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-revised-conditional-continue10",
+      "owner": "current Codex conversation",
+      "status": "paused",
+      "phase": "USER_PAUSED_BEFORE_ACCEPTANCE",
+      "updated_at": "2026-11-11T18:03:27.194319+00:00",
+      "authorization": "用户确认本轮验收通过后再续训10轮（累计11轮）、保留权重及AdamW、独立Run、12步预热1e-4余弦至1e-5；验收须全覆盖、有限值、恢复及完整VAL A/B1均优于相同掩码的初始权重，不通过停止。",
+      "scopes": [
+        "scripts/evaluate_v3_h_revised_checkpoint.py",
+        "scripts/verify_v3_h_revised_acceptance.py",
+        "scripts/prepare_v3_h_revised_continuation.py",
+        "src/encoder_v3/hierarchical_revised/train.py",
+        "tests/encoder_v3/hierarchical_revised/test_training.py",
+        "tests/encoder_v3/hierarchical_revised/test_acceptance.py",
+        "outputs/encoder_v3/hierarchical_revised/formal_continue10_v1",
+        "configs/config_v3_h_revised_continue10_v1.json",
+        "README.md",
+        "docs/V3-H_REVISED_IMPLEMENTATION_PLAN.md"
+      ],
+      "parent_run_id": "099bc7001f58477f94618b3a372c37de",
+      "note": "随用户暂停指令停止条件续训安排。父Run STOPPED42，尚未满足完整覆盖与训练后VAL验收；未创建10轮Run，不自动启动。保留已验证的验收与续训工具，恢复需新指令。"
     }
   ],
-  "updated_at": "2026-11-10T15:20:06.122651+00:00"
+  "updated_at": "2026-11-11T18:03:27.194319+00:00"
 }

@@ -1,0 +1,54 @@
+{
+  "architecture": "hierarchical_v3_h_revised",
+  "formal_training_authorized": true,
+  "decoder_variant": "per_pixel",
+  "model": {
+    "fine": 32,
+    "middle": 64,
+    "coarse": 64,
+    "descriptor": 32,
+    "bases": 8,
+    "spatial_queries": 2,
+    "joint_queries": 4,
+    "regional_queries": 4,
+    "global_queries": 8,
+    "depth": 1,
+    "heads": 4,
+    "ff_ratio": 2,
+    "channel_cap": 8,
+    "middle_metres": 128,
+    "regional_side": 4,
+    "decoder": 64,
+    "query_chunk": 4096,
+    "decoder_query_chunk": 32768,
+    "conv_tile_rows": 128,
+    "mask_patch_metres": 128,
+    "mask_ratio": 0.55
+  },
+  "training": {
+    "seed": 17,
+    "validation_seed": 17,
+    "epochs": 1,
+    "batch_size": 32,
+    "task_weights": {
+      "A": 0.5,
+      "B1": 0.5
+    },
+    "optimizer": "AdamW",
+    "lr": 0.0001,
+    "min_lr": 1e-05,
+    "weight_decay": 0.04,
+    "warmup_steps": 12,
+    "precision": "float32",
+    "device": "cuda:1",
+    "offload_native_values": 1000000,
+    "threads": 4
+  },
+  "viewer_root": "N:/Users/yzh/Disater/earth-representation/training-runs",
+  "geometry_cache": "N:/Users/yzh/Disater/earth-representation/outputs/encoder_v3/hierarchical_revised/engineering_v1/cache",
+  "authorization": {
+    "source": "user_in_current_chat",
+    "instruction": "采用这套参数，先正式训练1 Epoch",
+    "known_limits": "No full epoch timing yet; engineering quality/efficiency limits remain documented; shared coarse candidate is not adopted."
+  }
+}

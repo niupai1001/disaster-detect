@@ -1,0 +1,65 @@
+{
+  "architecture": "hierarchical_v3_h_revised",
+  "formal_training_authorized": false,
+  "model": {
+    "fine": 32,
+    "middle": 64,
+    "coarse": 64,
+    "descriptor": 32,
+    "bases": 8,
+    "spatial_queries": 2,
+    "joint_queries": 4,
+    "regional_queries": 4,
+    "global_queries": 8,
+    "depth": 1,
+    "heads": 4,
+    "ff_ratio": 2,
+    "channel_cap": 8,
+    "middle_metres": 128,
+    "regional_side": 4,
+    "decoder": 64,
+    "query_chunk": 4096,
+    "decoder_query_chunk": 32768,
+    "conv_tile_rows": 128,
+    "mask_patch_metres": 128,
+    "mask_ratio": 0.55
+  },
+  "engineering": {
+    "seed": 17,
+    "precision": "float32",
+    "optimizer": "AdamW",
+    "lr": 0.0001,
+    "weight_decay": 0.04
+  },
+  "experiment_candidates": {
+    "A_only": {
+      "A": 1,
+      "B1": 0
+    },
+    "B1_only": {
+      "A": 0,
+      "B1": 1
+    },
+    "A_plus_B1": {
+      "A": 0.5,
+      "B1": 0.5
+    }
+  },
+  "decoder_variant": "shared_coarse",
+  "candidate_only": true,
+  "ablation": {
+    "seeds": [
+      17,
+      29,
+      43
+    ],
+    "updates": 16,
+    "train_selection": "per-sensor native-size median in frozen TRAIN",
+    "validation_selection": "S2/L8 native-size quartiles in frozen VAL",
+    "tasks": [
+      "A",
+      "B1"
+    ],
+    "adoption": "pending quality and budget review"
+  }
+}
