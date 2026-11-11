@@ -241,7 +241,425 @@
       "evidence": [
         "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\documentation\\fixed_docs_encoder_v3\\verification.json"
       ]
+    },
+    {
+      "id": "encoder-v3-h-design-integration",
+      "title": "将V3-H整理为Encoder V3的下一阶段设计",
+      "owner": "codex-v3-h-documentation",
+      "scopes": [
+        "docs/design.md"
+      ],
+      "status": "completed",
+      "started_at": "2026-11-10T03:18:20.976500+00:00",
+      "updated_at": "2026-11-10T03:19:00.135566+00:00",
+      "evidence": [
+        "docs/DESIGN.md",
+        "N:/Users/yzh/Disater/.project/v3_h_design_integration/validation.json"
+      ],
+      "note": "V3-H并入Encoder V3下一阶段，补齐几何驱动并行三尺度、独立主干/双向交互、层次恢复、MAE+JEPA、计算与验收边界；原已完成MAE事实保留，候选参数与未定细节单列。仅文档及认领记录变更。"
+    },
+    {
+      "id": "encoder-v3-h-implementation-training",
+      "owner": "codex-current-v3-h-chat",
+      "status": "paused_by_user",
+      "title": "用户授权V3-H实现、试验并进入训练",
+      "scopes": [
+        "src/encoder_v3/hierarchical",
+        "tests/encoder_v3/hierarchical",
+        "configs/config_v3_h_mae_v1.json",
+        "scripts/run_v3_h.py",
+        "outputs/encoder_v3/hierarchical",
+        "configs/config_v3_h_dual_v1.json",
+        ".project/v3_h_dual_gate.py",
+        ".project/v3_h_recovery_probe.py",
+        "scripts/visualize_v3_h.py"
+      ],
+      "note": "用户明确暂停；STOPPED1312/5.632Epoch、spent1320，last1312已保存，best932/4Epoch/完整383VAL.4444412768。18案例/4光谱图集与383VAL精确复算、原权重/日志SHA不变、显示角色/刻度独立审查通过；代码文档提交3ca6260。保持STOP_REQUESTED，不自动恢复或开Hybrid。",
+      "evidence": [
+        "outputs/encoder_v3/hierarchical/release_mae_v1/source_manifest.json",
+        "outputs/encoder_v3/hierarchical/release_mae_v1/readiness.json",
+        "outputs/encoder_v3/hierarchical/release_mae_v1/authorization.json",
+        "outputs/encoder_v3/hierarchical/release_mae_v1/formal_run/status.json",
+        "outputs/encoder_v3/hierarchical/engineering/independent_review_v1.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\source_manifest.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\readiness.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\authorization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\migration_verification.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\execution_gpu1\\readiness.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\execution_gpu1\\authorization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\execution_gpu1\\training_started.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\execution_gpu1\\formal_run\\status.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_accelerated_v1\\execution_gpu1\\failure_report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_dual_v1\\source_manifest.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_dual_v1\\readiness.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_dual_v1\\authorization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_dual_v1\\training_started.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_dual_v1\\formal_run\\status.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\performance\\training_curve_diagnosis_v1\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\performance\\training_curve_diagnosis_v1\\curves.png",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_mae_dual_v1\\pause_record.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\reconstruction_best_v2\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\reconstruction_best_v2\\verification.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\reconstruction_best_v2\\index.html"
+      ],
+      "phase": "USER_PAUSED",
+      "source_commit": "8372d7aabf9ec25af35181fda1bb90a2689cca95",
+      "updated_at": "2026-11-10T13:01:27.040564+00:00"
+    },
+    {
+      "id": "encoder-v3-h-a-only-training",
+      "owner": "codex-current-v3-h-chat",
+      "status": "paused_by_user",
+      "phase": "SUPERSEDED_BY_DESCRIPTOR_FREE_TRIAL",
+      "title": "用户授权随机初始化A-only独立10Epoch，先加速后训练",
+      "scopes": [
+        "src/encoder_v3/hierarchical",
+        "tests/encoder_v3/hierarchical",
+        "configs/config_v3_h_a_only_v1.json",
+        ".project/v3_h_a_only_gate.py",
+        "outputs/encoder_v3/hierarchical/a_only",
+        "README.md",
+        "docs/DESIGN.md",
+        "docs/AGENT_ROLES.md",
+        "docs/V3-H_DESIGN.md",
+        "docs/V3-H_IMPLEMENTATION_PLAN.md",
+        "scripts/visualize_v3_h.py",
+        "docs/RESULTS.md",
+        ".project/v3_h_a_only_diagnosis.py"
+      ],
+      "note": "用户选择随机初始化A-only独立10Epoch。55CPU独立审查、旧A数值/梯度/边/目标等价、双卡异步最大容量/25批短段/恢复/完整VAL通过；新冻结172文件，从0开始，初始化hash核实，已真实更新，仅A日志与每批checkpoint。旧AB STOPPED1312不改。 用户请求当前Epoch成本与验证节点可视化；仅独立快照推理，训练继续，冻结runtime不改。 用户要求无描述器短段，已请求安全停止，保留检查点。",
+      "started_at": "2026-11-10T13:26:02.106084+00:00",
+      "updated_at": "2026-11-10T14:56:47.886691+00:00",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_a_only_v1\\source_manifest.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_a_only_v1\\readiness.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_a_only_v1\\authorization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_a_only_v1\\initialization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_a_only_v1\\training_started.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_a_only_v1\\formal_run\\status.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\reconstruction_node_525_v2\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\reconstruction_node_525_v2\\verification.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\reconstruction_node_525_v2\\index.html",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\reconstruction_node_525_v2\\timing.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\diagnosis_node_525_v1\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\diagnosis_node_525_v1\\full_val_visible_mean.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\diagnosis_node_525_v3\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\a_only\\diagnosis_node_525_v3\\full_val_visible_mean.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_a_only_v1\\pause_record.json"
+      ],
+      "source_commit": "8172965077e4b9f4d788dd4e7252da8cb4dd9a4c"
+    },
+    {
+      "id": "encoder-v3-h-descriptor-free-trial",
+      "owner": "codex-current-v3-h-chat",
+      "status": "complete",
+      "phase": "SHORT_TRIAL_COMPLETE",
+      "title": "用户授权无描述器架构短段训练，核验计算效率与波段输出区分",
+      "scopes": [
+        "src/encoder_v3/hierarchical",
+        "tests/encoder_v3/hierarchical",
+        "configs/config_v3_h_descriptor_free_v1.json",
+        ".project/v3_h_descriptor_free_gate.py",
+        "README.md",
+        "docs/DESIGN.md",
+        "docs/RESULTS.md",
+        "docs/AGENT_ROLES.md",
+        "docs/V3-H_DESIGN.md",
+        "docs/V3-H_IMPLEMENTATION_PLAN.md",
+        "outputs/encoder_v3/hierarchical/descriptor_free",
+        "outputs/encoder_v3/hierarchical/release_descriptor_free_v1"
+      ],
+      "started_at": "2026-11-10T15:20:06.122651+00:00",
+      "updated_at": "2026-11-10T16:10:09.342018+00:00",
+      "authorization": "不仅要考虑参数增量，还要考虑计算效率。暂时训练一下没有描述器的架构",
+      "note": "用户授权短段233更新已完成，TRIAL_COMPLETE/1Epoch/7442唯一观测，未自动续训。整轮19.639分钟、VAL.468964仍差于visible mean.207968，358/383更差；不构成模型质量通过或十轮完成。",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\source_manifest.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\identity.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\initialization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\readiness.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\authorization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\launch.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\formal_run\\status.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\training_started.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_descriptor_free_v1\\trial_completion.json"
+      ],
+      "source_commit": "0ff7831d07b3aebd45875a17a8d6f7356090750b"
+    },
+    {
+      "id": "encoder-v3-h-descriptor-free-visualization",
+      "owner": "codex-current-v3-h-chat",
+      "status": "complete",
+      "phase": "READ_ONLY_VISUALIZATION_COMPLETE",
+      "title": "用户请求无物理描述器短段最佳权重可视化",
+      "scopes": [
+        "scripts/visualize_v3_h.py",
+        "README.md",
+        "docs/RESULTS.md",
+        "outputs/encoder_v3/hierarchical/descriptor_free/reconstruction_best_v1"
+      ],
+      "started_at": "2026-11-10T16:12:33.312971+00:00",
+      "note": "仅读取已完成233步的冻结运行，训练不恢复；新增脚本支持TRIAL_COMPLETE和短段完整验证曲线。",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\descriptor_free\\reconstruction_best_v1\\index.html",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\descriptor_free\\reconstruction_best_v1\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\descriptor_free\\reconstruction_best_v1\\verification.json"
+      ],
+      "updated_at": "2026-11-10T16:14:31.242844+00:00"
+    },
+    {
+      "id": "encoder-v3-h-structure-diagnosis",
+      "owner": "codex-current-v3-h-chat",
+      "status": "complete",
+      "phase": "DECODER_DIAGNOSTICS_COMPLETE",
+      "title": "排查融合信息损失、隐藏区上下文与输出学习瓶颈",
+      "scopes": [
+        ".project/v3_h_structure_probe.py",
+        "outputs/encoder_v3/hierarchical/structure_diagnosis",
+        "docs/RESULTS.md",
+        "docs/DESIGN.md",
+        "docs/AGENT_ROLES.md",
+        "README.md",
+        ".project/v3_h_frozen_encoder_decoder_probe.py"
+      ],
+      "authorization": "可以说完全没有学习到该有的表达。而且基本与描述器无关，需要进一步排查",
+      "started_at": "2026-11-10T16:32:19.772219+00:00",
+      "note": "所有正式运行保持STOPPED/TRIAL_COMPLETE；仅不可变权重只读干预及独立固定TRAIN工程探针，不续训或覆盖权重。 用户最新限定固定原物理描述器Encoder，只调整Decoder。新探针严格从原best641加载、固定并哈希Encoder，原Decoder与零初始化目标波段FiLM对照；所有正式权重与预算保持停止。 完成冻结原物理Encoder的两组128步Decoder对照和无更新空间留出/端口分析；输出波段FiLM主要改善均匀校准，纹理仅1.85%，不标记质量已解决。正式预算均未恢复。",
+      "updated_at": "2026-11-10T16:50:02.044551+00:00",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\structure_diagnosis\\summary.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\structure_diagnosis\\decoder_control_summary.png",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\structure_diagnosis\\decoder_original_v1\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\structure_diagnosis\\decoder_band_film_v1\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\structure_diagnosis\\decoder_film_analysis_v2\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\structure_diagnosis\\intervention_v1\\report.json"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-no-enmap-trial",
+      "owner": "codex-current-v3-h-chat",
+      "status": "complete",
+      "phase": "SHORT_TRIAL_AND_VISUALIZATION_COMPLETE",
+      "title": "用户选择原含描述器架构随机重训、排除EnMAP",
+      "scopes": [
+        "src/encoder_v3/hierarchical/train.py",
+        "src/encoder_v3/hierarchical/check.py",
+        "tests/encoder_v3/hierarchical",
+        "configs/config_v3_h_no_enmap_v1.json",
+        ".project/v3_h_no_enmap_gate.py",
+        "README.md",
+        "docs/DESIGN.md",
+        "docs/RESULTS.md",
+        "docs/AGENT_ROLES.md",
+        "outputs/encoder_v3/hierarchical/no_enmap",
+        "outputs/encoder_v3/hierarchical/release_no_enmap_v1",
+        "src/encoder_v3/hierarchical/parallel.py",
+        "scripts/visualize_v3_h.py",
+        "docs/DATA.md",
+        "outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1"
+      ],
+      "authorization": "原含描述器架构随机重训，排除EnMAP（推荐，可检验Encoder影响）",
+      "started_at": "2026-11-10T16:54:28.106514+00:00",
+      "note": "原含物理描述器Encoder和原Decoder随机初始化；A-only；TRAIN7395/VAL383，先一完整Epoch232更新。旧所有运行保持停止；不删除原始数据、不加入Decoder工程候选。 已完成232更新/7395唯一覆盖，EnMAP输入0；VAL.4961607，墙钟17分16秒。只读图集8案例3光谱通过，未自动继续预算。",
+      "updated_at": "2026-11-10T17:34:37.664764+00:00",
+      "source_commit": "e843a0f59bdbb40adda3d24cd34262ed35ac7a8f",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\source_manifest.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\identity.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\initialization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\readiness.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\authorization.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\launch.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\formal_run\\status.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\training_started.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_no_enmap_v1\\trial_completion.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\no_enmap\\reconstruction_best_v1\\index.html",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\no_enmap\\reconstruction_best_v1\\verification.json"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-residual-short-warmup",
+      "owner": "codex-current-v3-h-chat",
+      "status": "complete",
+      "phase": "RESEARCH_AND_CPU_CANDIDATE_COMPLETE",
+      "title": "20步预热与可见信号输出残差对照",
+      "scopes": [
+        "src/encoder_v3/hierarchical",
+        "tests/encoder_v3/hierarchical",
+        "configs/config_v3_h_residual_v1.json",
+        "configs/config_v3_h_warmup20_control_v1.json",
+        ".project/v3_h_residual_gate.py",
+        "scripts/visualize_v3_h.py",
+        "README.md",
+        "docs/DESIGN.md",
+        "docs/RESULTS.md",
+        "docs/AGENT_ROLES.md",
+        "outputs/encoder_v3/hierarchical/residual",
+        "outputs/encoder_v3/hierarchical/release_residual_v1",
+        ".project/v3_h_native_baselines.py",
+        "outputs/encoder_v3/hierarchical/reconstruction_research",
+        ".project/v3_h_reconstruction_research_summary.py",
+        "docs/V3-H_DESIGN.md",
+        "docs/V3-H_IMPLEMENTATION_PLAN.md"
+      ],
+      "authorization": "预热调整为前20step，尝试加入残差结构来缓解",
+      "started_at": "2026-11-10T17:39:58.752523+00:00",
+      "note": "383VAL原生合法基线已完成：原模型.49616072/均值.20796777/nearest.17233384/IDW8.14418921/local plane.78320368，382例模型较差。七篇一手文献与信息路径修正方案已整理入DESIGN及V3-H两份规格；48项CPU候选回归通过，独立只读审查完成。原生位置Decoder尚未实现、新候选GPU门禁未运行，未启动正式训练；全部历史运行保持停止。",
+      "updated_at": "2026-11-10T18:02:02.136201+00:00",
+      "evidence": [
+        "outputs/encoder_v3/hierarchical/reconstruction_research/native_baselines_v1/report.json",
+        "outputs/encoder_v3/hierarchical/reconstruction_research/baseline_summary.png",
+        "outputs/encoder_v3/hierarchical/reconstruction_research/cpu_v3.xml"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-simple-decoder-30epoch",
+      "owner": "codex-current-v3-h-chat",
+      "status": "paused_by_user",
+      "phase": "STOPPED_AND_REVIEWED",
+      "started_at": "2026-11-10T18:17:19.469336+00:00",
+      "authorization": "用户要求简洁Decoder、实现质量与实际加速验收后训练30Epoch、预热50更新、恢复EnMAP并查L9；不续写旧正式作业。",
+      "scopes": [
+        "src/encoder_v3/hierarchical",
+        "tests/encoder_v3/hierarchical",
+        "configs/config_v3_h_simple_decoder_v1.json",
+        "scripts/visualize_v3_h.py",
+        ".project/v3_h_simple_decoder_gate.py",
+        ".project/v3_h_simple_decoder_release.py",
+        "README.md",
+        "docs/DESIGN.md",
+        "docs/RESULTS.md",
+        "docs/DATA.md",
+        "docs/AGENT_ROLES.md",
+        "docs/V3-H_DESIGN.md",
+        "docs/V3-H_IMPLEMENTATION_PLAN.md",
+        "outputs/encoder_v3/hierarchical/simple_decoder",
+        "outputs/encoder_v3/hierarchical/release_simple_decoder_v1",
+        ".project/v3_h_simple_decoder_quality.py"
+      ],
+      "note": "用户要求验证曲线趋稳后停止。6439步、27.636轮，余551步。训练期间最佳6000步0.13005198，停止权重完整复算0.13001195。IDW8基线0.14418921。保留两个检查点和审查图集。",
+      "updated_at": "2026-11-11T04:40:20.168994+00:00",
+      "source_commit": "d23a9cf904292b85ed248c1bdaa8a71764aba2d8",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_simple_decoder_v1\\training_started.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_simple_decoder_v1\\formal_run\\status.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_simple_decoder_v1\\readiness.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\release_simple_decoder_v1\\pause_record.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\stopped_review_6439\\audit.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\stopped_review_6439\\atlas\\index.html",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\stopped_last_6439_validation.json"
+      ]
+    },
+    {
+      "owner": "current Codex conversation",
+      "status": "completed",
+      "phase": "DIAGNOSIS_VERIFIED",
+      "started_at": "2026-11-11T05:26:31.428636+00:00",
+      "updated_at": "2026-11-11T05:36:55.811423+00:00",
+      "authorization": "User explicitly requested frozen reconstruction diagnostics and offline ridge heads, with the formal run paused.",
+      "scopes": [
+        "scripts/diagnose_v3_h_reconstruction.py",
+        "docs/RESULTS.md",
+        "outputs/encoder_v3/hierarchical/simple_decoder/reconstruction_bottleneck_v1"
+      ],
+      "id": "encoder-v3-h-reconstruction-bottleneck",
+      "note": "Frozen step 6000; all 383 VAL and 24 L9 TRAIN diagnostics completed. Gradient RMSE improvement 0.42% over IDW8; neither ridge nor model ring passes the detail gate. Selected a one-variable gradient objective comparison. Formal training remains stopped at step 6439.",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\reconstruction_bottleneck_v1\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\reconstruction_bottleneck_v1\\paired_gradient.csv",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\reconstruction_bottleneck_v1\\atlas\\index.html",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\reconstruction_bottleneck_v1\\atlas\\ring.html",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\reconstruction_bottleneck_v1\\verification.json"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-native-gradient-paired-trial",
+      "owner": "current Codex conversation",
+      "status": "completed",
+      "phase": "PAIRED_TRIAL_BELOW_GATE",
+      "started_at": "2026-11-11T05:47:53.666585+00:00",
+      "updated_at": "2026-11-11T05:53:57.047177+00:00",
+      "authorization": "Continue the explicitly scoped paired A-only native gradient short experiment; preserve the paused formal run.",
+      "scopes": [
+        "scripts/trial_v3_h_native_gradient.py",
+        "docs/RESULTS.md",
+        "outputs/encoder_v3/hierarchical/simple_decoder/native_gradient_trial_v1"
+      ],
+      "note": "Both arms completed 64 updates and the same 383 VAL. High-texture gradient RMSE reduction 0.00018%, below gate. Original formal run STOPPED at 6439.",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_gradient_trial_v1\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_gradient_trial_v1\\paired_metrics.csv",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_gradient_trial_v1\\atlas\\index.html",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_gradient_trial_v1\\comparison.png",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_gradient_trial_v1\\device_binding.json"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-native-affine-and-stage-profile",
+      "owner": "current Codex conversation",
+      "status": "completed",
+      "phase": "AFFINE_PROBE_AND_TIMING_VERIFIED",
+      "started_at": "2026-11-11T06:58:06.488622+00:00",
+      "updated_at": "2026-11-11T07:07:19.468908+00:00",
+      "authorization": "Continue encoder spatial/spectral diagnostics and training stage profiling while the formal run remains stopped.",
+      "scopes": [
+        "scripts/probe_v3_h_native_encoder.py",
+        "docs/RESULTS.md",
+        "outputs/encoder_v3/hierarchical/simple_decoder/native_encoder_probe_v1"
+      ],
+      "note": "Full 383-VAL native affine comparison and 19 real observation stage profiles completed. Fine underperforms native linear readout in held-band diagnosis; formal run remains stopped.",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_encoder_probe_v1\\complete_v2\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_encoder_probe_v1\\profile_verified\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_encoder_probe_v1\\formal_timing.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_encoder_probe_v1\\probe_metrics.csv",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_encoder_probe_v1\\probe_and_timing.png"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-spectral-stage-and-geometry-replay",
+      "owner": "current Codex conversation",
+      "status": "completed",
+      "phase": "SPECTRAL_STAGE_AND_GEOMETRY_VERIFIED",
+      "started_at": "2026-11-11T07:36:29.774189+00:00",
+      "updated_at": "2026-11-11T07:44:08.461427+00:00",
+      "authorization": "Continue the previously specified frozen spectral stage probes and geometry/sparse speed tests.",
+      "scopes": [
+        "scripts/probe_v3_h_spectral_stages.py",
+        "scripts/benchmark_v3_h_native_geometry.py",
+        "docs/RESULTS.md",
+        "outputs/encoder_v3/hierarchical/simple_decoder/spectral_stage_geometry_v1"
+      ],
+      "note": "383 VAL spectral stage comparisons, 6 exact-parity native geometry replays and 256 natural cache layouts completed; formal run still STOPPED at 6439.",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\spectral_stage_geometry_v1\\spectral_width_control\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\spectral_stage_geometry_v1\\benchmark\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\spectral_stage_geometry_v1\\natural_geometry_cache.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\spectral_stage_geometry_v1\\spectral_and_speed.png"
+      ]
+    },
+    {
+      "id": "encoder-v3-h-native-detail-branch-and-batch-cache",
+      "owner": "current Codex conversation",
+      "status": "completed",
+      "phase": "DETAIL_BRANCH_AND_DUAL_CACHE_VERIFIED",
+      "started_at": "2026-11-11T08:50:29.152738+00:00",
+      "updated_at": "2026-11-11T08:57:18.453612+00:00",
+      "authorization": "Continue the frozen native per-band detail branch test and dual-GPU cache replay, leaving formal training stopped.",
+      "scopes": [
+        "scripts/probe_v3_h_native_detail_branch.py",
+        "scripts/benchmark_v3_h_batch_basis_cache.py",
+        "docs/RESULTS.md",
+        "outputs/encoder_v3/hierarchical/simple_decoder/native_detail_branch_v1"
+      ],
+      "note": "Frozen per-band branch completed 383 VAL for A and held band, below detail gate. Real dual GPU 9 batches x 4 passes exact parity, median gain 3.28% with replay variability. Original formal run stays STOPPED at 6439.",
+      "evidence": [
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_detail_branch_v1\\probe\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_detail_branch_v1\\detail_ablation.png",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_detail_branch_v1\\dual_batch_cache\\report.json",
+        "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\encoder_v3\\hierarchical\\simple_decoder\\native_detail_branch_v1\\dual_batch_timing.csv"
+      ]
     }
   ],
-  "updated_at": "2026-11-10T01:46:52.148166+00:00"
+  "updated_at": "2026-11-10T15:20:06.122651+00:00"
 }
