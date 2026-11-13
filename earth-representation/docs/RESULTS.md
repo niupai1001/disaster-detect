@@ -1039,3 +1039,7 @@ L9旧示例obs_8d69627e3f5637470adc7041的CPU复核：A-only525/641及排EnMAP23
 
 
 正式启动已核验：源码提交`d23a9cf904292b85ed248c1bdaa8a71764aba2d8`，tree `56eccea004dc9238da3630f4d4a92d75a01b801e`，180文件冻结，代码identity `c1aefc7b9d678d606196fe91da3f1a11203a6e255a5066d73658445ce7dfd63f`。新Run `465f4c87dc6c4882a740517b7a270a56`，初始完整383VAL .14418921195233844；实际best0参数SHA `23ae61c30568536a3d9b28b5c746d3e352cfb9bfa5805128a76492d33056f7ec`与门禁随机初始化一致。已核对前17个真实更新/544观测（S2 386、L8 114、L9 43、EnMAP 1）、spent=cursor、只有A任务、每批checkpoint；前17步学习率2e-6升至3.4e-5，符合50步预热，更新均批3.170秒仅为前缀，不是完整Epoch实测。[启动核验](../outputs/encoder_v3/hierarchical/release_simple_decoder_v1/training_started.json)、[实时状态](../outputs/encoder_v3/hierarchical/release_simple_decoder_v1/formal_run/status.json)与实际日志为准；未把零末层基线当学习成绩，30轮仍在执行。两次未启动的冻结工具路径失败已保留并禁用其授权，修复后冻结身份复核通过，不影响模型门禁或旧运行。
+
+## 三阶段全图压缩注意力 A+B1 正式结果
+
+第30轮为最佳。完整383个VAL的A/B1 MSE为0.34914/0.39939。全图第3轮（699步）为0.55746/0.59277，旧Swin暂停在762步时为0.55131/0.58635。训练预算和策略存在差异。原生像元恢复仍有局部块状和平滑问题。335个配对S2 B1观测在40至320米固定边界上的残差跳变比中位数均接近1。[正式报告、重建图与边界诊断](../outputs/encoder_v3/patch_latent/mit_global_ab30_v1/review/REPORT.md)。
