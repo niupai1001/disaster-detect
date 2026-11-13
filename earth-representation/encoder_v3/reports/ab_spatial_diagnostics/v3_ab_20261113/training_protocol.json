@@ -1,0 +1,21 @@
+{
+  "P3": {
+    "initialization": "CPU random seed 17, exact frozen architecture and historical initial parameter hash",
+    "runs": {"T-JOINT": {"A": 0.5, "B1": 0.5}, "T-A": {"A": 1, "B1": 0}, "T-B": {"A": 0, "B1": 1}},
+    "updates": 233,
+    "data": "Full frozen TRAIN and VAL",
+    "diagnostic_updates": [0, 42, 116, 233],
+    "validation_updates": [0, 42, 116, 233],
+    "optimizer": "Historical AdamW, same 6990-step LR prefix and global eligible count, no finite norm clipping",
+    "execution": "Frozen dual-GPU sharding, fixed data order and stable per-observation, task and exposure mask; zero-weight task filtered before model forward",
+    "coefficient_control": "If a task shows worse joint MSE at both post-warmup intermediate and final nodes, run its single task with coefficient 0.5 on samples eligible for both tasks, retaining full weight on samples eligible for that task alone.",
+    "gradient_samples": "The two read-only TRAIN samples per sensor from the P2 frozen panel; use the first of the two per sensor, exposure 0."
+  },
+  "P5": {
+    "updates": 466,
+    "task_microbatches_per_update": 2,
+    "phases": [47, 93, 326],
+    "validation_updates": [0, 47, 140, 233, 466],
+    "conditions": "Freeze exact view schedule before launch, preserve the paired per-task view lists and counts, keep tail coefficients explicit, verify one update against the original executor."
+  }
+}

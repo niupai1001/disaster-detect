@@ -1,0 +1,135 @@
+{
+  "status": "IDENTITY_VERIFIED",
+  "experiment_id": "T-JOINT",
+  "parent_id": "P0-FROZEN",
+  "git_commit": "f623efad010741f832570fee3223516006c181ea",
+  "git_branch": "dev/encoder-v3-sensor-memory-v1",
+  "historical_git_commit": null,
+  "dirty_diff_hash": "95e931189bc66a7a4c6d25473c6aecfa4ee8cd0cb4b61f39d5b5ad92d3f600df",
+  "dirty_diff_scope": "Byte differences for frozen inputs against HEAD tree, including untracked paths; exact contents preserved in frozen runtime",
+  "worktree_vs_frozen_differences": [],
+  "source_snapshot_hash": "5a5eea0ade0ee7f742cdc94b24913de7bfbc54c7f4eba01ff7c5e0394d52d664",
+  "source_snapshot": "earth-representation\\outputs\\encoder_v3\\patch_latent\\mit_global_ab30_v1\\release\\runtime",
+  "source_count": 176,
+  "config_hash": "b0df3b6c315205ac09d520397ac9c0aba1782f1f506bcd98347a6bd23f2d9039",
+  "config_file_sha256": "3ab89e923676a320e4e1119075d160cc69909cb78c92a5d0a181d4fbd605a28a",
+  "checkpoint_hash": null,
+  "last_checkpoint_hash": "bd986171ebcc67fc12e5827e83172eee2cf32dd46c35fe0e7f6dba0375aa28eb",
+  "parameter_sha256": "fcc4e69a2c571491da165551e5d9fdb79f0b831b00c243862e8ad9421f4a05d8",
+  "dataset_manifest_hash": "1012a43e9d90f66f07a8612a7e9945a6a00df922cbeadb0c488dfe0a62fe06e5",
+  "data": {
+    "TRAIN": {
+      "base": {
+        "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+        "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+        "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+        "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+      },
+      "enmap": {
+        "members": "82d33b2967605866c918d4523c11cd957ba5f710d899c921ec8ba77fb2283569",
+        "statistics": "bc3bceeb10412e8c2d99e73b04101a32ffe7c7e60361b8cd8b5a359aa8c87320",
+        "qa_policy": "classes in {1,2}; cloud/shadow/haze/cirrus/snow=0; testflags=0; band pixelmask=0; finite and not nodata"
+      }
+    },
+    "VAL": {
+      "members": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
+      "contracts": "5a3eacd7081c4b61824f6e3909b9ff929be28235574b16470370c26978a33a5a",
+      "srf": "e6c7ee1678ce4763c2b4814b44a43d8194643472e7cec845bd4334ae1c24ac4d",
+      "statistics": "d28492684dfff58187dd41c3ff9ea46095192728f34c98955b88c2b811d7684f"
+    }
+  },
+  "train_member_hash": "af5bcc3e2eb47f96c4972200c37adef6a5e9a37d44719ae07f8284abc701a0ff",
+  "val_member_hash": "03c44e320390d66b13ad2a2e2ece00fcc1eb7012e2048165df51ec01eccf1893",
+  "mask_protocol_hash": "e5376b283aca193a3d835a6f7b0ff9bcea9225f40938e09e55315d997c821e5d",
+  "seed": 17,
+  "validation_seed": 17,
+  "environment": {
+    "python": "3.12.14",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "devices": [
+      "NVIDIA GeForce RTX 5090",
+      "NVIDIA GeForce RTX 5090"
+    ]
+  },
+  "precision": "float32",
+  "optimizer": "AdamW",
+  "scheduler": "Historical 6990-step schedule, 12 warmup steps then cosine to 1e-5",
+  "trainable_modules": "all parameters; task-specific gradients only where used",
+  "changed_factor": "enabled task objective",
+  "training": {
+    "seed": 17,
+    "validation_seed": 17,
+    "epochs": 30,
+    "batch_size": 32,
+    "task_weights": {
+      "A": 0.5,
+      "B1": 0.5
+    },
+    "optimizer": "AdamW",
+    "lr": 0.0001,
+    "min_lr": 1e-05,
+    "weight_decay": 0.04,
+    "warmup_steps": 12,
+    "precision": "float32",
+    "device": "cuda:1",
+    "offload_native_values": null,
+    "threads": 2,
+    "devices": [
+      "cuda:1",
+      "cuda:0"
+    ],
+    "batch_plan": "proportional",
+    "device_costs": [
+      {
+        "EnMAP": [
+          0.7852417000103742,
+          0.0
+        ],
+        "L8": [
+          0.08529204374678469,
+          3.298416775231734e-07
+        ],
+        "L9": [
+          0.1114648000075249,
+          0.0
+        ],
+        "S2": [
+          0.09210062477360911,
+          5.0839618403775836e-08
+        ]
+      },
+      {
+        "EnMAP": [
+          0.7737288999924203,
+          0.0
+        ],
+        "L8": [
+          0.06436410714955625,
+          4.239857262467129e-07
+        ],
+        "L9": [
+          0.10205707501154393,
+          0.0
+        ],
+        "S2": [
+          0.07993645823016333,
+          5.1217525841375786e-08
+        ]
+      }
+    ],
+    "spatial_cuda_graphs": true,
+    "early_stopping": {
+      "patience": 5,
+      "min_delta": 0.001,
+      "relative": true
+    },
+    "match_joint": false
+  },
+  "initial_parameter_sha": "d8df342e6eb18da5dab4790828cfcf3b45e0449cfb067f488f50f4a80ee75bc1",
+  "data_order_sha": "e993bc57d6c56a0bedc9c8b1334d8880730553c0dfac245795f2a7ee1a868434",
+  "diagnostic_source_sha256": {
+    "train_diagnostic.py": "20884d2790278623c44115b5ec741321cc85135b070af2ec590fee9beb721c90",
+    "metrics.py": "95b4000d7d799a2269c579ff15019c587c99ad8c836e6c06b856981843cbdafa"
+  }
+}

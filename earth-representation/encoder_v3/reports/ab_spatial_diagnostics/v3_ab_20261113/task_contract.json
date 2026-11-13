@@ -1,0 +1,21 @@
+{
+  "reference_run": "83f833a1ef5e4515825c1457b6e4278d",
+  "A": {
+    "eligibility": "At least two occupied 128 m mask regions",
+    "target": "A deterministic sample of occupied regions at nominal 0.55, at least one and at most occupied minus one; a valid native pixel is a target if its footprint intersects any selected region",
+    "input": "Same-observation QA-valid native pixels outside targets, physical descriptors, complete native grid geometry",
+    "task_specific_detail": false,
+    "loss": "Huber delta 1, average target pixels in each band, then equal mean over bands with targets"
+  },
+  "B1": {
+    "eligibility": "At least two optical bands with valid pixels",
+    "target": "Seeded complete optical bands; one for two bands, otherwise either one or a uniform count between two and C-1 according to the frozen coin flip",
+    "input": "Unhidden QA-valid bands and immutable geometry; target physical descriptor is available for target-conditioned readout",
+    "task_specific_detail": "Existing visible same-grid local contrast only for grids with maximum GSD <= 20 m; 5x5 visible-normalized mean, visible band average, target-descriptor scalar gain",
+    "loss": "Same band-averaged Huber plus 0.2 times the mean per-band squared signed error difference over horizontally or vertically adjacent valid target pairs; empty pair denominator clamped to one"
+  },
+  "training_reduction": "Renormalize configured 0.5/0.5 across eligible tasks within observation, then average eligible observations across both GPUs, including the actual 18-observation tail. Replica gradients are summed before global division and a single AdamW step. Infinity clipping threshold checks finiteness without finite clipping.",
+  "evaluation_reduction": "MSE averages pixels within target band, target bands within observation, observations within task, then A and B1 equally. High-texture MSE averages band-axis entries with adjacent target pairs in the upper quartile of absolute true contrast, then averages observations.",
+  "mask_identity": "Frozen seed 17, stable observation ID, task stream hierarchical_A or B1 and epoch/exposure index. VAL always exposure index 0.",
+  "data_normalization": "Frozen TRAIN statistics, existing QA and native grids. The zero prediction in standardized space is the TRAIN-mean reference."
+}

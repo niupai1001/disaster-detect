@@ -1,0 +1,13 @@
+{
+  "P0_FP32_reference": {"atol": 0.000001, "rtol": 0.00001},
+  "P0_reference_fields": ["observations", "member_order", "sensor", "task", "band", "targets", "mse", "texture_gradient_mse", "metric"],
+  "P1_exact_fields": ["target_mask", "visible_mask", "integer_geometry_indices"],
+  "P1_CPU_FP32": {"atol": 0.000001, "rtol": 0.00001},
+  "P1_GPU_FP32_prediction": {"atol": 0.00001, "rtol": 0.0001},
+  "P1_GPU_FP32_parameter_gradient": {"atol": 0.00003, "rtol": 0.0001},
+  "P1_GPU_gradient_tolerance_basis": "Existing frozen engineering graph_gate.json recorded max absolute gradient differences up to 2.17334e-5. New comparison records raw errors and its own same-mode repeat before judging.",
+  "P1_geometry_reference_float64": {"atol": 0.00000001, "rtol": 0.00000001},
+  "P0_fixed_samples": ["obs_5929ceec240fa570c7a1a784", "obs_64d10dd286169cf55d8668ac"],
+  "stop": ["identity mismatch", "reproduction mismatch", "hidden value affects prediction", "deterministic geometry error", "equivalent execution mismatch", "nonfinite value"],
+  "candidate_screen": "Use paired direction, reproducibility, and non-degradation by major sensor and texture metric alongside costs. No percent improvement threshold is asserted."
+}

@@ -1,0 +1,1898 @@
+{
+  "P2": {
+    "VISIBLE-AE": {
+      "fit/0": {
+        "mse": 0.24685334824607708,
+        "gradient_mse": 0.06814546010343747
+      },
+      "read_only/0": {
+        "mse": 0.23616675450466573,
+        "gradient_mse": 0.06859000853728503
+      },
+      "fit/64": {
+        "mse": 0.41997677693143487,
+        "gradient_mse": 0.06823556027853783
+      },
+      "read_only/64": {
+        "mse": 0.32558326376602054,
+        "gradient_mse": 0.06868982183732442
+      }
+    },
+    "DECODER-ORACLE": {
+      "fit/0": {
+        "mse": 1.0700219082646072,
+        "gradient_mse": 0.07084339175173682
+      },
+      "fit/64": {
+        "mse": 1.078156725037843,
+        "gradient_mse": 0.0707258967057669
+      }
+    },
+    "PROBE-PRE": {
+      "fit/0": {
+        "mse": 1.1961571322754025,
+        "gradient_mse": 0.10217438530435174
+      },
+      "read_only/0": {
+        "mse": 0.4141791411675513,
+        "gradient_mse": 0.07573600331670605
+      },
+      "fit/64": {
+        "mse": 0.7899533249437809,
+        "gradient_mse": 0.1140359233104391
+      },
+      "read_only/64": {
+        "mse": 0.2833287713583559,
+        "gradient_mse": 0.07694211485795677
+      }
+    },
+    "PROBE-POST": {
+      "fit/0": {
+        "mse": 1.1766939922235906,
+        "gradient_mse": 0.10191500404107501
+      },
+      "read_only/0": {
+        "mse": 0.4102174215950072,
+        "gradient_mse": 0.07565381367749069
+      },
+      "fit/64": {
+        "mse": 1.0414594591129571,
+        "gradient_mse": 0.10417441843310371
+      },
+      "read_only/64": {
+        "mse": 0.34691142733208835,
+        "gradient_mse": 0.07724213588517159
+      }
+    }
+  },
+  "states": {
+    "T-JOINT": {
+      "status": "COMPLETE",
+      "cursor": 233,
+      "spent_updates": 233,
+      "epoch": 0,
+      "observations_seen": 7442,
+      "validation": [
+        {
+          "cursor": 0,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 2.4563597019557544,
+              "median": 0.36552125215530396,
+              "p90": 3.5357333183288575,
+              "texture_gradient_mse": 0.15186068761134858
+            },
+            "B1": {
+              "count": 383,
+              "mse": 2.410605103292839,
+              "median": 0.33714738488197327,
+              "p90": 3.517798376083374,
+              "texture_gradient_mse": 0.06733830578183589
+            }
+          },
+          "seconds": 51.98614619998261
+        },
+        {
+          "cursor": 42,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 1.0776662188035,
+              "median": 0.20790159702301025,
+              "p90": 0.8892915129661566,
+              "texture_gradient_mse": 0.15186203674011853
+            },
+            "B1": {
+              "count": 383,
+              "mse": 1.0686374292743128,
+              "median": 0.21421867609024048,
+              "p90": 1.1817844629287724,
+              "texture_gradient_mse": 0.06752738093593137
+            }
+          },
+          "seconds": 23.780952900007833
+        },
+        {
+          "cursor": 116,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6740454088935419,
+              "median": 0.20076783001422882,
+              "p90": 0.642884373664856,
+              "texture_gradient_mse": 0.1518900678078261
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.7194685507935044,
+              "median": 0.19206123054027557,
+              "p90": 0.7633288145065311,
+              "texture_gradient_mse": 0.06743831807610712
+            }
+          },
+          "seconds": 24.64609619998373
+        },
+        {
+          "cursor": 233,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.651275196212998,
+              "median": 0.19572217762470245,
+              "p90": 0.5982788562774659,
+              "texture_gradient_mse": 0.15180854210449374
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.6962958031220607,
+              "median": 0.18180838227272034,
+              "p90": 0.8130706191062929,
+              "texture_gradient_mse": 0.06719715050535174
+            }
+          },
+          "seconds": 35.69729569996707
+        }
+      ],
+      "views": {
+        "A": 7442,
+        "B1": 7442
+      },
+      "targets": {
+        "A": 488584490,
+        "B1": 325962170
+      },
+      "forward_cost_lower_bound_macs": {
+        "A": 1298961098912,
+        "B1": 1266275652832
+      },
+      "peak_allocated_bytes": {
+        "cuda:1": 14837551104,
+        "cuda:0": 10180488192
+      },
+      "wall_seconds": 590.3420341999736,
+      "final_parameter_sha": "33a898f327bcd251ab16513b352ddcd05df3eeaf7fcbc4ae47a10a385f9fcd09",
+      "checkpoint_sha256": "348b58ff3916c521e38f161a3a12f99b9d18227f3a3113edb2ee1c919b328f84"
+    },
+    "T-A": {
+      "status": "COMPLETE",
+      "cursor": 233,
+      "spent_updates": 233,
+      "epoch": 0,
+      "observations_seen": 7442,
+      "validation": [
+        {
+          "cursor": 0,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 2.456359693931304,
+              "median": 0.36552125215530396,
+              "p90": 3.5357333183288575,
+              "texture_gradient_mse": 0.15186068797845
+            },
+            "B1": {
+              "count": 383,
+              "mse": 2.4106051055298066,
+              "median": 0.33714738488197327,
+              "p90": 3.517798376083374,
+              "texture_gradient_mse": 0.06733830580947645
+            }
+          },
+          "seconds": 54.171599300000025
+        },
+        {
+          "cursor": 42,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.9901386142207441,
+              "median": 0.20426200330257416,
+              "p90": 0.7785668134689332,
+              "texture_gradient_mse": 0.15196001735528286
+            },
+            "B1": {
+              "count": 383,
+              "mse": 1.1755080079135798,
+              "median": 0.24950413405895233,
+              "p90": 1.6886433601379396,
+              "texture_gradient_mse": 0.06767843597118199
+            }
+          },
+          "seconds": 22.63566250000008
+        },
+        {
+          "cursor": 116,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6275807377540654,
+              "median": 0.1969728022813797,
+              "p90": 0.580562448501587,
+              "texture_gradient_mse": 0.15186474685222168
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.9951535855443034,
+              "median": 0.2738417685031891,
+              "p90": 1.8677755355834964,
+              "texture_gradient_mse": 0.06761725911543914
+            }
+          },
+          "seconds": 23.895756699999993
+        },
+        {
+          "cursor": 233,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6162238128008516,
+              "median": 0.19988763332366943,
+              "p90": 0.5865380287170411,
+              "texture_gradient_mse": 0.151730504542357
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.9823103386528216,
+              "median": 0.27341026067733765,
+              "p90": 1.8854678630828872,
+              "texture_gradient_mse": 0.06726449886627855
+            }
+          },
+          "seconds": 45.93633780000005
+        }
+      ],
+      "views": {
+        "A": 7442
+      },
+      "targets": {
+        "A": 488584490
+      },
+      "forward_cost_lower_bound_macs": {
+        "A": 1298961098912
+      },
+      "peak_allocated_bytes": {
+        "cuda:1": 14843535872,
+        "cuda:0": 10183048704
+      },
+      "wall_seconds": 547.7233881,
+      "final_parameter_sha": "c504363ede33e5d9cd9088d2df6d7bec0ae885a2243356b3f4688d64ecb4f39b",
+      "checkpoint_sha256": "fd8b25a4a478e9c772d5680331067406a041c2d77cbb5d739fe7918a5ca91e08"
+    },
+    "T-B": {
+      "status": "COMPLETE",
+      "cursor": 233,
+      "spent_updates": 233,
+      "epoch": 0,
+      "observations_seen": 7442,
+      "validation": [
+        {
+          "cursor": 0,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 2.456359694796972,
+              "median": 0.36552125215530396,
+              "p90": 3.5357333183288575,
+              "texture_gradient_mse": 0.1518606877649066
+            },
+            "B1": {
+              "count": 383,
+              "mse": 2.410605105642271,
+              "median": 0.3371473550796509,
+              "p90": 3.517798376083374,
+              "texture_gradient_mse": 0.0673383056456751
+            }
+          },
+          "seconds": 24.819574500000044
+        },
+        {
+          "cursor": 42,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 1.1508406853016377,
+              "median": 0.24684232473373413,
+              "p90": 1.2467765569686893,
+              "texture_gradient_mse": 0.15186896321234214
+            },
+            "B1": {
+              "count": 383,
+              "mse": 1.0257964033401552,
+              "median": 0.21672195196151733,
+              "p90": 1.0184123039245612,
+              "texture_gradient_mse": 0.06753278322690011
+            }
+          },
+          "seconds": 23.600170700000035
+        },
+        {
+          "cursor": 116,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.9084823559872398,
+              "median": 0.22015482187271118,
+              "p90": 1.3631576776504517,
+              "texture_gradient_mse": 0.15176780462479258
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.7807533064132645,
+              "median": 0.18934595584869385,
+              "p90": 0.8847621917724614,
+              "texture_gradient_mse": 0.06730082993904608
+            }
+          },
+          "seconds": 24.319308599999886
+        },
+        {
+          "cursor": 233,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.9215682998212059,
+              "median": 0.23007848858833313,
+              "p90": 1.3444938182830812,
+              "texture_gradient_mse": 0.1515776162338298
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.6982826465921198,
+              "median": 0.18119384348392487,
+              "p90": 0.871050596237183,
+              "texture_gradient_mse": 0.06680889241764046
+            }
+          },
+          "seconds": 35.55501560000016
+        }
+      ],
+      "views": {
+        "B1": 7442
+      },
+      "targets": {
+        "B1": 325962170
+      },
+      "forward_cost_lower_bound_macs": {
+        "B1": 1266275652832
+      },
+      "peak_allocated_bytes": {
+        "cuda:1": 9832427008,
+        "cuda:0": 7186442240
+      },
+      "wall_seconds": 390.7405364000001,
+      "final_parameter_sha": "327c68f578a96a2a01434cdfcf167e4c04ee0c2984bf886fe10deccec7997e93",
+      "checkpoint_sha256": "70679e0f3a9624d4d92d702a4dadc9e15cf97e66fb28fc6f0ad5a97919e8dfb6"
+    },
+    "T-A-MATCH": {
+      "status": "COMPLETE",
+      "cursor": 233,
+      "spent_updates": 233,
+      "epoch": 0,
+      "observations_seen": 7442,
+      "validation": [
+        {
+          "cursor": 0,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 2.456359694748339,
+              "median": 0.36552125215530396,
+              "p90": 3.5357333183288575,
+              "texture_gradient_mse": 0.15186068778891096
+            },
+            "B1": {
+              "count": 383,
+              "mse": 2.4106051012236556,
+              "median": 0.3371473550796509,
+              "p90": 3.517798376083374,
+              "texture_gradient_mse": 0.06733830581546252
+            }
+          },
+          "seconds": 55.39075679999996
+        },
+        {
+          "cursor": 42,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.9901494082609342,
+              "median": 0.20426297187805176,
+              "p90": 0.7785613417625428,
+              "texture_gradient_mse": 0.1519600118310559
+            },
+            "B1": {
+              "count": 383,
+              "mse": 1.1755117702604254,
+              "median": 0.24950596690177917,
+              "p90": 1.6885900020599367,
+              "texture_gradient_mse": 0.06767841932240608
+            }
+          },
+          "seconds": 24.39466820000007
+        },
+        {
+          "cursor": 116,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6275748108761682,
+              "median": 0.1969727873802185,
+              "p90": 0.5805619478225709,
+              "texture_gradient_mse": 0.1518647336470335
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.995133089292527,
+              "median": 0.2738349139690399,
+              "p90": 1.8678208351135257,
+              "texture_gradient_mse": 0.06761723531476904
+            }
+          },
+          "seconds": 23.59012279999979
+        },
+        {
+          "cursor": 233,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6162213716396391,
+              "median": 0.19988758862018585,
+              "p90": 0.5865392923355104,
+              "texture_gradient_mse": 0.15173047643351292
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.9822997061467934,
+              "median": 0.27339595556259155,
+              "p90": 1.8854820728302015,
+              "texture_gradient_mse": 0.06726446250318742
+            }
+          },
+          "seconds": 33.46128449999969
+        }
+      ],
+      "views": {
+        "A": 7442
+      },
+      "targets": {
+        "A": 488584490
+      },
+      "forward_cost_lower_bound_macs": {
+        "A": 1298961098912
+      },
+      "peak_allocated_bytes": {
+        "cuda:1": 14843535872,
+        "cuda:0": 10183048704
+      },
+      "wall_seconds": 516.8513426999998,
+      "final_parameter_sha": "64400620dfd2aa2b9f8a713031c34640858c6591f1dd974ed685e4aa195dd3d3",
+      "checkpoint_sha256": "a7171b0b2fc8243f7d20e4da0ff0566d06c0de64754e784af295db845ab51f29"
+    },
+    "B-DETAIL-OFF": {
+      "status": "COMPLETE",
+      "cursor": 233,
+      "spent_updates": 233,
+      "epoch": 0,
+      "observations_seen": 7442,
+      "validation": [
+        {
+          "cursor": 0,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 2.4563596899336684,
+              "median": 0.36552125215530396,
+              "p90": 3.5357331275939945,
+              "texture_gradient_mse": 0.1518606880445411
+            },
+            "B1": {
+              "count": 383,
+              "mse": 2.4407822559484313,
+              "median": 0.34600597620010376,
+              "p90": 3.5660701751708985,
+              "texture_gradient_mse": 0.13278203018556803
+            }
+          },
+          "seconds": 50.62248559999989
+        },
+        {
+          "cursor": 42,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 1.0793280715740459,
+              "median": 0.20653536915779114,
+              "p90": 0.8900434017181402,
+              "texture_gradient_mse": 0.151861370515602
+            },
+            "B1": {
+              "count": 383,
+              "mse": 1.099519071019347,
+              "median": 0.22452858090400696,
+              "p90": 1.2395390510559083,
+              "texture_gradient_mse": 0.1327301061894787
+            }
+          },
+          "seconds": 21.613914000000022
+        },
+        {
+          "cursor": 116,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6703965680524172,
+              "median": 0.20126405358314514,
+              "p90": 0.6279929876327515,
+              "texture_gradient_mse": 0.15189737352995233
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.7485393790173916,
+              "median": 0.20204904675483704,
+              "p90": 0.7924118399620056,
+              "texture_gradient_mse": 0.13252831691687542
+            }
+          },
+          "seconds": 22.40153280000004
+        },
+        {
+          "cursor": 233,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6542017692937114,
+              "median": 0.19513039290905,
+              "p90": 0.5962433218955994,
+              "texture_gradient_mse": 0.1518082340242529
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.728281368720409,
+              "median": 0.1931896209716797,
+              "p90": 0.85844521522522,
+              "texture_gradient_mse": 0.13220881973583204
+            }
+          },
+          "seconds": 31.578606100000343
+        }
+      ],
+      "views": {
+        "A": 7442,
+        "B1": 7442
+      },
+      "targets": {
+        "A": 488584490,
+        "B1": 325962170
+      },
+      "forward_cost_lower_bound_macs": {
+        "A": 1298961098912,
+        "B1": 1266275652832
+      },
+      "peak_allocated_bytes": {
+        "cuda:1": 14844005888,
+        "cuda:0": 10180488192
+      },
+      "wall_seconds": 543.2512477999999,
+      "final_parameter_sha": "82f9ed4d5787f2319c6a661c8fcfa07f85a5dd7245b280fe590c364fab715348",
+      "checkpoint_sha256": "c5f5e4b3921843cc0a2e7e7662cb9f404547a9f14498ddfecfd6b97d863d52ea"
+    },
+    "C-JOINT": {
+      "status": "COMPLETE",
+      "cursor": 466,
+      "spent_updates": 466,
+      "views": {
+        "A": 14884,
+        "B1": 14884
+      },
+      "targets": {
+        "A": 977063950,
+        "B1": 640988432
+      },
+      "forward_cost_lower_bound_macs": {
+        "A": 2597922197824,
+        "B1": 2533620176768
+      },
+      "peak_allocated_bytes": {
+        "cuda:1": 15408154624,
+        "cuda:0": 10550940160
+      },
+      "validation": [
+        {
+          "cursor": 0,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 2.4563596919227595,
+              "median": 0.36552125215530396,
+              "p90": 3.5357333183288575,
+              "texture_gradient_mse": 0.15186068799021124
+            },
+            "B1": {
+              "count": 383,
+              "mse": 2.4106051022385664,
+              "median": 0.33714738488197327,
+              "p90": 3.517798376083374,
+              "texture_gradient_mse": 0.06733830582191962
+            }
+          },
+          "seconds": 47.58742280000024
+        },
+        {
+          "cursor": 47,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 1.0682384299987309,
+              "median": 0.24774876236915588,
+              "p90": 1.1537248373031632,
+              "texture_gradient_mse": 0.1518096160661067
+            },
+            "B1": {
+              "count": 383,
+              "mse": 1.018699240290445,
+              "median": 0.2132696807384491,
+              "p90": 1.2029364585876468,
+              "texture_gradient_mse": 0.06743826287905763
+            }
+          },
+          "seconds": 22.272839199999908
+        },
+        {
+          "cursor": 140,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.7558922111749766,
+              "median": 0.20359067618846893,
+              "p90": 0.6424031615257264,
+              "texture_gradient_mse": 0.15187696088835742
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.7814049099416377,
+              "median": 0.18725907802581787,
+              "p90": 0.8051049232482911,
+              "texture_gradient_mse": 0.06740748424205655
+            }
+          },
+          "seconds": 24.264537500000188
+        },
+        {
+          "cursor": 233,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.651275211995025,
+              "median": 0.19572216272354126,
+              "p90": 0.5982788443565369,
+              "texture_gradient_mse": 0.15180854187281556
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.6962958352560331,
+              "median": 0.1818082630634308,
+              "p90": 0.8130706667900087,
+              "texture_gradient_mse": 0.06719715052082498
+            }
+          },
+          "seconds": 21.7485029999998
+        },
+        {
+          "cursor": 466,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.572635527887423,
+              "median": 0.19085270166397095,
+              "p90": 0.5895909190177917,
+              "texture_gradient_mse": 0.15141947579730247
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.6246384265455697,
+              "median": 0.17486491799354553,
+              "p90": 0.7793463706970216,
+              "texture_gradient_mse": 0.0667166770719796
+            }
+          },
+          "seconds": 36.312172400000236
+        }
+      ],
+      "wall_seconds": 1032.1231523999995,
+      "final_parameter_sha": "adc800b8590ed4e5962dec11998a404df1c05393c31c33408b61a6759800c6d3",
+      "checkpoint_sha256": "57a68f8d603be7090cc17e4228216ff7310e8ff70b089f6ba5f56f5db5277fdc"
+    },
+    "C-BWARM": {
+      "status": "COMPLETE",
+      "cursor": 466,
+      "spent_updates": 466,
+      "views": {
+        "B1": 14884,
+        "A": 14884
+      },
+      "targets": {
+        "B1": 640988432,
+        "A": 977063950
+      },
+      "forward_cost_lower_bound_macs": {
+        "B1": 2533620176768,
+        "A": 2597922197824
+      },
+      "peak_allocated_bytes": {
+        "cuda:1": 15404058112,
+        "cuda:0": 10590874112
+      },
+      "validation": [
+        {
+          "cursor": 0,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 2.4563596945635333,
+              "median": 0.36552125215530396,
+              "p90": 3.5357333183288575,
+              "texture_gradient_mse": 0.15186068744588604
+            },
+            "B1": {
+              "count": 383,
+              "mse": 2.4106051047977277,
+              "median": 0.33714738488197327,
+              "p90": 3.517798376083374,
+              "texture_gradient_mse": 0.06733830585045204
+            }
+          },
+          "seconds": 25.51248149999992
+        },
+        {
+          "cursor": 47,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 1.0544346305687593,
+              "median": 0.2751140594482422,
+              "p90": 1.8096118450164802,
+              "texture_gradient_mse": 0.15181669851119853
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.8754096718546971,
+              "median": 0.20660626888275146,
+              "p90": 1.0777786731719972,
+              "texture_gradient_mse": 0.0674053424533854
+            }
+          },
+          "seconds": 24.554778099999567
+        },
+        {
+          "cursor": 140,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.7241663793041115,
+              "median": 0.20943550765514374,
+              "p90": 0.6634899020195011,
+              "texture_gradient_mse": 0.15184345635483668
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.7677004223226815,
+              "median": 0.1958402544260025,
+              "p90": 0.979431581497193,
+              "texture_gradient_mse": 0.0673293654733679
+            }
+          },
+          "seconds": 25.328614299999572
+        },
+        {
+          "cursor": 233,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.6811788114868031,
+              "median": 0.19966554641723633,
+              "p90": 0.6889825940132145,
+              "texture_gradient_mse": 0.15173653513671786
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.7017386622794396,
+              "median": 0.17659935355186462,
+              "p90": 0.7676155090332032,
+              "texture_gradient_mse": 0.06715412830779965
+            }
+          },
+          "seconds": 25.365351500000543
+        },
+        {
+          "cursor": 466,
+          "tasks": {
+            "A": {
+              "count": 383,
+              "mse": 0.604305319981066,
+              "median": 0.1932961791753769,
+              "p90": 0.5947054028511048,
+              "texture_gradient_mse": 0.15146941730208155
+            },
+            "B1": {
+              "count": 383,
+              "mse": 0.6301877128708665,
+              "median": 0.1730842888355255,
+              "p90": 0.8636307716369629,
+              "texture_gradient_mse": 0.06673434816191043
+            }
+          },
+          "seconds": 39.72338690000015
+        }
+      ],
+      "wall_seconds": 1092.9234343999997,
+      "final_parameter_sha": "260a9f36bc654561d2d47399a7103c57180f37b6a73dc0106c82c072e0aa351f",
+      "checkpoint_sha256": "0a818a88a8cbaa3baa4a3b390ccb484d5ff74df9a1708b66d373dd4fbdada339"
+    }
+  },
+  "costs": [
+    {
+      "run": "P0-FROZEN",
+      "status": "PASS",
+      "updates": 0,
+      "wall_seconds": 98.34216649999144,
+      "validation_seconds": 89.42425779998302,
+      "gpu_peak_bytes": 212823040
+    },
+    {
+      "run": "P1-CORRECTNESS",
+      "status": "PASS",
+      "updates": 0,
+      "wall_seconds": 26.31147149996832
+    },
+    {
+      "run": "VISIBLE-AE",
+      "status": "PASS",
+      "updates": 64,
+      "wall_seconds": 32.709879699978046,
+      "gpu_peak_bytes": 208716800,
+      "update_seconds": 8.965847199899144
+    },
+    {
+      "run": "DECODER-ORACLE",
+      "status": "PASS",
+      "updates": 64,
+      "wall_seconds": 7.013846100000137,
+      "gpu_peak_bytes": null,
+      "update_seconds": 1.6609311999986858
+    },
+    {
+      "run": "PROBE-PRE",
+      "status": "PASS",
+      "updates": 64,
+      "wall_seconds": 0.8599015999934636,
+      "gpu_peak_bytes": 69417984,
+      "update_seconds": 0.1679590999847278
+    },
+    {
+      "run": "PROBE-POST",
+      "status": "PASS",
+      "updates": 64,
+      "wall_seconds": 1.0803382999729365,
+      "gpu_peak_bytes": 69417984,
+      "update_seconds": 0.17959819990210235
+    },
+    {
+      "run": "T-A_interrupted_attempt1",
+      "status": "INTERRUPTED_NO_CHECKPOINT",
+      "updates": "at least 16 per last status-write cadence, exact count unavailable"
+    },
+    {
+      "run": "DECODER-ORACLE_visible_init_invalid",
+      "status": "EXCLUDED_TARGET_DEPENDENT_INITIALIZATION",
+      "updates": 64,
+      "wall_seconds": 4.571354400017299,
+      "update_seconds": 1.604343899525702
+    },
+    {
+      "run": "P4-fixed-checkpoint",
+      "status": "PASS",
+      "updates": 0,
+      "wall_seconds": 60.241379699999925
+    },
+    {
+      "run": "T-JOINT",
+      "status": "COMPLETE",
+      "updates": 233,
+      "wall_seconds": 590.3420341999736,
+      "update_seconds": 393.8260912997648,
+      "first_update_seconds": 3.0945109999738634,
+      "warm_median_seconds": 1.2121630999608897,
+      "validation_seconds": 136.11049099994125,
+      "gpu_peak_bytes": 14837551104,
+      "A_views": 7442,
+      "B1_views": 7442,
+      "A_targets": 488584490,
+      "B1_targets": 325962170,
+      "forward_macs_lower_bound": 2565236751744
+    },
+    {
+      "run": "T-A",
+      "status": "COMPLETE",
+      "updates": 233,
+      "wall_seconds": 547.7233881,
+      "update_seconds": 336.1982716000016,
+      "first_update_seconds": 2.888684999999896,
+      "warm_median_seconds": 0.930904099999907,
+      "validation_seconds": 146.63935630000014,
+      "gpu_peak_bytes": 14843535872,
+      "A_views": 7442,
+      "B1_views": 0,
+      "A_targets": 488584490,
+      "B1_targets": 0,
+      "forward_macs_lower_bound": 1298961098912
+    },
+    {
+      "run": "T-B",
+      "status": "COMPLETE",
+      "updates": 233,
+      "wall_seconds": 390.7405364000001,
+      "update_seconds": 261.7186510999984,
+      "first_update_seconds": 1.7959407000000738,
+      "warm_median_seconds": 0.8166021999998065,
+      "validation_seconds": 108.29406940000013,
+      "gpu_peak_bytes": 9832427008,
+      "A_views": 0,
+      "B1_views": 7442,
+      "A_targets": 0,
+      "B1_targets": 325962170,
+      "forward_macs_lower_bound": 1266275652832
+    },
+    {
+      "run": "T-A-MATCH",
+      "status": "COMPLETE",
+      "updates": 233,
+      "wall_seconds": 516.8513426999998,
+      "update_seconds": 314.4873384999978,
+      "first_update_seconds": 2.8841911999998047,
+      "warm_median_seconds": 0.8304425000001174,
+      "validation_seconds": 136.83683229999951,
+      "gpu_peak_bytes": 14843535872,
+      "A_views": 7442,
+      "B1_views": 0,
+      "A_targets": 488584490,
+      "B1_targets": 0,
+      "forward_macs_lower_bound": 1298961098912
+    },
+    {
+      "run": "B-DETAIL-OFF",
+      "status": "COMPLETE",
+      "updates": 233,
+      "wall_seconds": 543.2512477999999,
+      "update_seconds": 363.89378029999625,
+      "first_update_seconds": 3.0956012000001465,
+      "warm_median_seconds": 1.1259789000000637,
+      "validation_seconds": 126.2165385000003,
+      "gpu_peak_bytes": 14844005888,
+      "A_views": 7442,
+      "B1_views": 7442,
+      "A_targets": 488584490,
+      "B1_targets": 325962170,
+      "forward_macs_lower_bound": 2565236751744
+    },
+    {
+      "run": "C-JOINT",
+      "status": "COMPLETE",
+      "updates": 466,
+      "wall_seconds": 1032.1231523999995,
+      "update_seconds": 856.0363771000157,
+      "first_update_seconds": 2.133946400000241,
+      "warm_median_seconds": 1.4313314000003174,
+      "validation_seconds": 152.18547490000037,
+      "gpu_peak_bytes": 15408154624,
+      "A_views": 14884,
+      "B1_views": 14884,
+      "A_targets": 977063950,
+      "B1_targets": 640988432,
+      "forward_macs_lower_bound": 5131542374592
+    },
+    {
+      "run": "C-BWARM",
+      "status": "COMPLETE",
+      "updates": 466,
+      "wall_seconds": 1092.9234343999997,
+      "update_seconds": 940.6371570999963,
+      "first_update_seconds": 3.1812959999997474,
+      "warm_median_seconds": 1.798840299999938,
+      "validation_seconds": 140.48461229999975,
+      "gpu_peak_bytes": 15404058112,
+      "A_views": 14884,
+      "B1_views": 14884,
+      "A_targets": 977063950,
+      "B1_targets": 640988432,
+      "forward_macs_lower_bound": 5131542374592
+    },
+    {
+      "run": "P5-executor-gate",
+      "status": "PASS",
+      "updates": 8,
+      "wall_seconds": 81.97408780000023
+    }
+  ],
+  "gradient_summary": {
+    "T-JOINT/gradients_000": {
+      "physical_descriptor": {
+        "mean": 0.9754090190956655,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.8822164934437134,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.9704019218902153,
+        "negative": 0,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.9452643634079082,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.9839111024655585,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.9840870567571154,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.9214375926469256,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.9883731440904996,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.9866055318714628,
+        "negative": 0,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.9827239559886585,
+        "negative": 0,
+        "n": 4
+      }
+    },
+    "T-JOINT/gradients_042": {
+      "physical_descriptor": {
+        "mean": 0.02849675615245445,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": -0.01799111659493738,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.005688884808193212,
+        "negative": 2,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.00853081999393604,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.023459743353718226,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.050594939880755224,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": -0.04551535061374101,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.021974057196259195,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.0493909164510698,
+        "negative": 2,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.04653020807464381,
+        "negative": 2,
+        "n": 4
+      }
+    },
+    "T-JOINT/gradients_116": {
+      "physical_descriptor": {
+        "mean": 0.43691738021021,
+        "negative": 1,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.46884791539963055,
+        "negative": 1,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.49013813800409534,
+        "negative": 1,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.4649167443078681,
+        "negative": 1,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.4997387213239559,
+        "negative": 1,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.5827053169593366,
+        "negative": 1,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.4378192753902985,
+        "negative": 1,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.4814776340679551,
+        "negative": 1,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.6192594557137963,
+        "negative": 1,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.5610272606774707,
+        "negative": 1,
+        "n": 4
+      }
+    },
+    "T-JOINT/gradients_233": {
+      "physical_descriptor": {
+        "mean": 0.8280696578533451,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.8848572461999721,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.9086046432386308,
+        "negative": 0,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.817920012809051,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.882570766593243,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.8765348672131147,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.7760734998231076,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.9125320911702255,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.8778654322260735,
+        "negative": 0,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.8631688096764365,
+        "negative": 0,
+        "n": 4
+      }
+    },
+    "T-A/gradients_000": {
+      "physical_descriptor": {
+        "mean": 0.9754089893403854,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.8822165842421161,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.9704018256018536,
+        "negative": 0,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.9452643822292348,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.9839110785967645,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.984087103206884,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.9214376840150937,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.9883731308986844,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.9866054994299126,
+        "negative": 0,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.9827239502481147,
+        "negative": 0,
+        "n": 4
+      }
+    },
+    "T-A/gradients_042": {
+      "physical_descriptor": {
+        "mean": -0.030196148153480318,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.06636976695529678,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": -0.013989818810269672,
+        "negative": 2,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": -0.010086403441103009,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.004058681570050432,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.13239470409703807,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.05634019585051811,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.0036531895217695454,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.11463917526698683,
+        "negative": 2,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.03199055182119093,
+        "negative": 2,
+        "n": 4
+      }
+    },
+    "T-A/gradients_116": {
+      "physical_descriptor": {
+        "mean": -0.04905910570826977,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.0054341735300649785,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": -0.016887895086176496,
+        "negative": 2,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": -0.01896643076707419,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": -0.10129343326426288,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": -0.09998149004770282,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.020606779200512404,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": -0.10344578502611732,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": -0.09272265632734675,
+        "negative": 2,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": -0.08523694978261251,
+        "negative": 2,
+        "n": 4
+      }
+    },
+    "T-A/gradients_233": {
+      "physical_descriptor": {
+        "mean": -0.29820968779561485,
+        "negative": 3,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": -0.4732614444831655,
+        "negative": 3,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": -0.4925867069075396,
+        "negative": 3,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": -0.4619480801321585,
+        "negative": 3,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": -0.27413352654859113,
+        "negative": 3,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": -0.2522385745606928,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": -0.41481758246178785,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": -0.30715431980741636,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": -0.2583980826869715,
+        "negative": 3,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": -0.3396294651461191,
+        "negative": 3,
+        "n": 4
+      }
+    },
+    "T-B/gradients_000": {
+      "physical_descriptor": {
+        "mean": 0.9754090123894016,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.8822165056595405,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.9704018460615644,
+        "negative": 0,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.9452643506586387,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.9839110677038425,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.9840870235818788,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.9214377005439292,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.9883731814819463,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.9866054381303617,
+        "negative": 0,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.9827239180161762,
+        "negative": 0,
+        "n": 4
+      }
+    },
+    "T-B/gradients_042": {
+      "physical_descriptor": {
+        "mean": 0.028692352013089367,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": -0.012810890294195965,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.006979347041838779,
+        "negative": 2,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.008853581793788229,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.010860305763963213,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.012986381184330653,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": -0.052767221590702795,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.010077354411886896,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.014727759213105485,
+        "negative": 2,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.024034701410716397,
+        "negative": 2,
+        "n": 4
+      }
+    },
+    "T-B/gradients_116": {
+      "physical_descriptor": {
+        "mean": 0.01104197641295096,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": -0.01270448778727154,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.006740244333260786,
+        "negative": 2,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.006829725348319743,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.01962175008275935,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.06734719061722433,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": -0.05645167570408499,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.017925275040518912,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.0682229284710403,
+        "negative": 2,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.01329235823080499,
+        "negative": 2,
+        "n": 4
+      }
+    },
+    "T-B/gradients_233": {
+      "physical_descriptor": {
+        "mean": -0.4576162282270465,
+        "negative": 3,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": -0.259773995038908,
+        "negative": 3,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": -0.46445719886542747,
+        "negative": 3,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": -0.43103532623040536,
+        "negative": 3,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": -0.35183596711914256,
+        "negative": 3,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": -0.20508918326474024,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": -0.40616214772632886,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": -0.35951642921693233,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": -0.22888070762241056,
+        "negative": 3,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": -0.45296680108504084,
+        "negative": 3,
+        "n": 4
+      }
+    },
+    "T-A-MATCH/gradients_000": {
+      "physical_descriptor": {
+        "mean": 0.9754090176979312,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.8822165832801436,
+        "negative": 0,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": 0.9704018927327527,
+        "negative": 0,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": 0.945264363822142,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.9839110569315486,
+        "negative": 0,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.984087032182315,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.9214376796224089,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.9883731550934551,
+        "negative": 0,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.9866054912774356,
+        "negative": 0,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.9827239707405279,
+        "negative": 0,
+        "n": 4
+      }
+    },
+    "T-A-MATCH/gradients_042": {
+      "physical_descriptor": {
+        "mean": -0.030197583801209765,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.0663716670797358,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": -0.013990001027360782,
+        "negative": 2,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": -0.010086156284041081,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": 0.0040603649192915425,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": 0.13240711859861848,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.05633923390404044,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": 0.003654358619541387,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": 0.11464402266750989,
+        "negative": 2,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": 0.03198828902461179,
+        "negative": 2,
+        "n": 4
+      }
+    },
+    "T-A-MATCH/gradients_116": {
+      "physical_descriptor": {
+        "mean": -0.04907437282879365,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": 0.005432348152854871,
+        "negative": 2,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": -0.01688903323926766,
+        "negative": 2,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": -0.01896730979430941,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": -0.10132134884041252,
+        "negative": 2,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": -0.09995233118125232,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": 0.020601398555184613,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": -0.10347358528512246,
+        "negative": 2,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": -0.09269191077209923,
+        "negative": 2,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": -0.08525816549941445,
+        "negative": 2,
+        "n": 4
+      }
+    },
+    "T-A-MATCH/gradients_233": {
+      "physical_descriptor": {
+        "mean": -0.29796152117919383,
+        "negative": 3,
+        "n": 4
+      },
+      "dynamic_convolution_kernel": {
+        "mean": -0.4732602861259498,
+        "negative": 3,
+        "n": 4
+      },
+      "dynamic_kernel_condition": {
+        "mean": -0.49258610381904433,
+        "negative": 3,
+        "n": 4
+      },
+      "spectral_fusion": {
+        "mean": -0.4619427856897307,
+        "negative": 3,
+        "n": 4
+      },
+      "stage_transition_0": {
+        "mean": -0.2739801933549614,
+        "negative": 3,
+        "n": 4
+      },
+      "stage_transition_1": {
+        "mean": -0.25218692703558165,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_0": {
+        "mean": -0.41477448321538585,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_1": {
+        "mean": -0.30701890544139776,
+        "negative": 3,
+        "n": 4
+      },
+      "spatial_stage_2": {
+        "mean": -0.2583443214945053,
+        "negative": 3,
+        "n": 4
+      },
+      "shared_decoder": {
+        "mean": -0.339387558840913,
+        "negative": 3,
+        "n": 4
+      }
+    }
+  },
+  "P4": {
+    "status": "PASS",
+    "architecture": "original",
+    "candidate": "B-DETAIL-OFF",
+    "candidate_rationale": "Paired fixed-weight removal directly isolates the existing B1 contrast contribution; P2 probes gave mixed pixel and gradient evidence for fusion changes.",
+    "paired_by_sensor_delta": {
+      "S2/A": {
+        "mse": 0.0029220583070236356,
+        "texture_gradient_mse": -2.413265853186232e-06
+      },
+      "S2/B1": {
+        "mse": 0.036911000634123114,
+        "texture_gradient_mse": 0.0743282625457525
+      },
+      "L8/A": {
+        "mse": 0.0029580824387570224,
+        "texture_gradient_mse": 1.4384361011687322e-05
+      },
+      "L8/B1": {
+        "mse": -0.0023898664221633226,
+        "texture_gradient_mse": -1.0388282357275356e-05
+      }
+    },
+    "all_metrics_nonworse": false,
+    "reason": "Screen requires non-degradation in both MSE measures for each validated sensor/task."
+  },
+  "P5_gate": "PASS"
+}

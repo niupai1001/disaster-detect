@@ -1,0 +1,77 @@
+{
+  "P0": "PASS",
+  "P1": "PASS",
+  "P1_geometry_cases": 3,
+  "P1_leakage_cases": 4,
+  "P1_equivalence_cases": 12,
+  "P1_sample_scope": "Two VAL observations, S2 and L8; CPU synthetic rectangular north-up overlap checks",
+  "split_audit": {
+    "train": 47,
+    "val": 383,
+    "cross_role_exact_overlap": 0,
+    "cross_role_projection_pending": 0,
+    "train_members_in_exact_overlap": 0,
+    "protected_declared_bounds_candidates": 0
+  },
+  "cpu_regression": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cpu_initial_attempt": "Windows access violation in autograd; isolated case passed and full CPU rerun with two threads passed",
+  "P3_exposure": {
+    "status": "PASS",
+    "views": {
+      "T-JOINT": {
+        "A": 7442,
+        "B1": 7442
+      },
+      "T-A": {
+        "A": 7442
+      },
+      "T-B": {
+        "B1": 7442
+      }
+    },
+    "target_counts": {
+      "T-JOINT": {
+        "A": 488584490,
+        "B1": 325962170
+      },
+      "T-A": {
+        "A": 488584490
+      },
+      "T-B": {
+        "B1": 325962170
+      }
+    },
+    "matched_train_masks": true,
+    "matched_val_masks": true,
+    "matches_historical_val_masks": true,
+    "triggered_coefficient_controls": [
+      "T-A-MATCH"
+    ],
+    "train_exposure_hash": "cf44749422d56aa25a363df7274e29be19265860cacd831f7b3f6a259b094581"
+  },
+  "P5_executor": "PASS",
+  "P5_executor_cases": 4,
+  "P5_exposure": {
+    "status": "PASS",
+    "matched_train_masks": true,
+    "matched_val_masks": true,
+    "matches_historical_val_masks": true,
+    "matched_frozen_task_order": true,
+    "task_views_per_arm": {
+      "A": 14884,
+      "B1": 14884
+    },
+    "updates_per_arm": 466,
+    "target_counts_per_arm": {
+      "B1": 640988432,
+      "A": 977063950
+    },
+    "task_exposure_hash": "f4f2a5895a07988a3cc5e4b3d79faf54b3666406dcb0e7e7e4257d449a3b3127",
+    "training_mask_hash": "60e3dff07d61e17e457a5e2b0d2a1db8fb337aee67236c759f1721e18c579fe4"
+  }
+}

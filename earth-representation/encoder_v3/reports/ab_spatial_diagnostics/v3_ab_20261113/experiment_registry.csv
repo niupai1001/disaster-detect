@@ -1,0 +1,15 @@
+experiment_id,parent_id,phase,changed_factor,update_budget,evaluation,launch_condition
+P0-FROZEN,83f833a1ef5e4515825c1457b6e4278d,P0,Historical frozen checkpoint replay,0,Fixed subset then full frozen VAL twice,Identity bound
+P1-CORRECTNESS,P0-FROZEN,P1,One input or execution perturbation per check,0,Analytic reference and fixed sample pairs,P0 passes
+VISIBLE-AE,P0-FROZEN,P2,Full visible shared reconstruction diagnostic,64,16 fit and 8 read-only TRAIN,P1 passes
+DECODER-ORACLE,VISIBLE-AE,P2,Optimize existing pyramid tensors instead of the encoder,64,16 fit TRAIN,P1 passes
+PROBE-PRE,P0-FROZEN,P2,Probe aligned dynamic features before spectral fusion,64,16 fit and 8 read-only TRAIN,P1 passes
+PROBE-POST,PROBE-PRE,P2,Move the same capacity probe to the post-fusion representation,64,16 fit and 8 read-only TRAIN,P1 passes
+T-JOINT,P0-FROZEN,P3,Engineering budget of original joint objective from same random initialization,233,Full frozen VAL,P2 completes
+T-A,T-JOINT,P3,A-only with unit task coefficient,233,Full frozen VAL,P2 completes
+T-B,T-JOINT,P3,B1-only with unit task coefficient,233,Full frozen VAL,P2 completes
+T-A-MATCH,T-A,P3,Scale A coefficient to match original joint contribution,233,Full frozen VAL,Joint degradation at both late nodes
+T-B-MATCH,T-B,P3,Scale B1 coefficient to match original joint contribution,233,Full frozen VAL,Joint degradation at both late nodes
+B-DETAIL-OFF,T-JOINT,P4,Disable existing B1 local contrast contribution,233,Full frozen VAL,P3 and branch intervention support testing
+C-JOINT,T-JOINT,P5,Task microbatches with joint ordering,466,Full frozen VAL,P4 architecture fixed and executor gate passes
+C-BWARM,C-JOINT,P5,Permutation of the same task microbatches,466,Full frozen VAL,Identical exposure and executor gate passes
