@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed,wait,FIRST_COMPL
 from datetime import datetime,timezone,timedelta
 import hashlib
 import json
+import os
 from pathlib import Path
 import time
 import threading
@@ -173,10 +174,11 @@ def run_remote():
             return dict(id=t['id'],kind=t['kind'],status=state,error=error)
     try:
         pending=iter([t for t in tasks if t['id'] not in previous]);count=0;stop=False;state='all_data_tasks_attempted_model_training_disabled';transient_streak=0
-        with ThreadPoolExecutor(max_workers=4) as pool:
+        workers=max(1,int(os.environ.get('DSH_EXPANSION_WORKERS','4')))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
             active={}
             while True:
-                while len(active)<4 and not stop:
+                while len(active)<workers and not stop:
                     t=next(pending,None)
                     if t is None:break
                     active[pool.submit(one,t)]=t['id']
