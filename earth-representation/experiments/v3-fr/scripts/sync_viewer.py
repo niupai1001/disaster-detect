@@ -1,6 +1,7 @@
 """Mirror the new V3-FR metric journals into the existing Training Viewer."""
 import argparse
 from collections import defaultdict
+from hashlib import file_digest
 import importlib.util
 import json
 from pathlib import Path
@@ -29,35 +30,70 @@ def loss(label):
     return dict(label=label,unit="z²",direction="min",role="loss")
 
 
-def writer_for(root,path,group,binding,writer):
+def writer_for(root,path,group,binding,writer,names):
     is_fit = group=="fit"
     name = path.name
     charts = (["train","fit","held"] if is_fit else ["train","val_A","val_B1","main_B1"])
     metrics = dict(train=loss("工程训练目标"),fit=loss("拟合样本 MSE"),held=loss("只读 TRAIN MSE"),
-                   val_A=loss("A · 完整 VAL MSE"),val_B1=loss("B1 · 完整 VAL MSE"),
+                   val_A=loss("A · 完整 VAL MSE"),val_B1=loss("B1 · 完整 VAL 总输出 MSE"),
                    main_B1=loss("B1 · 共享主路径 MSE"),texture_A=loss("A · 高纹理梯度 MSE"),
                    main_texture_B1=loss("B1 · 主路径高纹理梯度 MSE"))
-    names = dict(B0="历史前端 D0",BP="物理 Q/K 位置",N0="有序前端与空间融合",
-                 N1="浅层 ResNet",N2="FiLM ResNet",C="完整主路径与 D1")
-    display = names.get(binding.get("experiment_id"),name)
+    display = names[binding["experiment_id"]]
     target = root/("v3_fr_20261113_"+name.lower())
     if (target/"run.json").exists():
         return None
     return writer(target,
         experiment=dict(id="encoder-v3-fr-"+group,name="Encoder V3-FR · "+("全可见拟合" if is_fit else "模块对照"),
-                        description="固定历史 Transformer 的有序打包、FiLM ResNet、空间融合和 D1"),
-        variant=dict(id=name.lower(),name=display,kind="baseline" if name in ("AE-L","B0") else "modification",
-                     description=binding.get("changed_factor",display)),
+                        description="固定数据和评价协议，按模型架构比较"),
+        variant=dict(id=name.lower(),name=display["name"],kind="baseline" if name in ("AE-L","B0") else "modification",
+                     description=display["architecture"]),
         metrics=metrics,charts=charts,numbers=[] if is_fit else ["texture_A","main_texture_B1"],
         primary_metric="fit" if is_fit else "val_A",config=dict(source=str(path)))
+
+
+def refresh_display(campaign, root, names):
+    def digest(journal):
+        with journal.open("rb") as stream:
+            return file_digest(stream,"sha256").hexdigest()
+
+    indexed = read(campaign/"viewer_index.json")
+    assert indexed and set(indexed) <= names.keys()
+    planned = []
+    for key,entry in indexed.items():
+        folder = root/("v3_fr_20261113_"+key.lower())
+        assert folder.resolve() == Path(entry["directory"]).resolve()
+        path = folder/"run.json"
+        original = read(path)
+        assert original["run_id"]==entry["run_id"] and original["variant"]["id"]==key.lower()
+        journals = [folder/name for name in ("metrics.jsonl","events.jsonl")]
+        before = [digest(journal) for journal in journals]
+        variant = dict(original["variant"],name=names[key]["name"],description=names[key]["architecture"])
+        metadata = dict(original,variant=variant)
+        if "val_B1" in original["metrics"]:
+            metric = dict(original["metrics"]["val_B1"],label="B1 · 完整 VAL 总输出 MSE")
+            metadata["metrics"] = dict(original["metrics"],val_B1=metric)
+        planned.append((path,metadata,journals,before))
+    for path,metadata,journals,before in planned:
+        temporary = path.with_name("run.display.tmp")
+        temporary.write_text(json.dumps(metadata,ensure_ascii=False)+"\n",encoding="utf-8")
+        temporary.replace(path)
+        assert read(path)==metadata and [digest(journal) for journal in journals]==before
+    print(f"Verified display metadata and unchanged journals for {len(planned)} Viewer runs")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("campaign",type=Path)
     parser.add_argument("viewer_root",type=Path)
-    parser.add_argument("writer",type=Path)
+    parser.add_argument("writer",type=Path,nargs="?")
+    parser.add_argument("--refresh-display",action="store_true")
     args = parser.parse_args()
+    names = read(args.campaign/"experiment_display_names.json")
+    if args.refresh_display:
+        refresh_display(args.campaign,args.viewer_root,names)
+        return
+    if args.writer is None:
+        parser.error("writer is required to publish live metrics")
     spec = importlib.util.spec_from_file_location("tvlp_writer",args.writer)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -75,7 +111,7 @@ def main():
                         binding = read(path)
                         if not binding:
                             continue
-                        writer = writer_for(args.viewer_root,run,group,binding,module.RunWriter)
+                        writer = writer_for(args.viewer_root,run,group,binding,module.RunWriter,names)
                         if writer is None:
                             skipped.add(run)
                             continue

@@ -10,20 +10,22 @@ import numpy as np
 
 
 root = Path(sys.argv[1])
-figures = root/"summary/figures"
+figures = Path(sys.argv[2]) if len(sys.argv)>2 else root/"summary/figures"
+names = json.loads((root/"experiment_display_names.json").read_bytes())
 figures.mkdir(parents=True,exist_ok=True)
 fit = root/"s5_capacity_fit"
+plt.rcParams.update({"font.family":["Microsoft YaHei","DejaVu Sans"]})
 fig,axes = plt.subplots(1,2,figsize=(11,4.4),layout="constrained")
 for arm in ("AE-L","AE-F","OR-D0","OR-D1"):
     rows = json.loads((fit/arm/"evaluation.json").read_bytes())
     for j,ax in enumerate(axes):
         id_ = next(r["id"] for r in rows if r["role"]=="fit" and r["id"].endswith("_L8")==bool(j))
         points = [(r["step"],r["mse"]) for r in rows if r["id"]==id_]
-        ax.plot(*zip(*points),label=arm)
+        ax.plot(*zip(*points),label=names[arm]["name"])
 for ax,title in zip(axes,("S2 fixed TRAIN scene","L8 fixed TRAIN scene")):
     ax.set(title=title,xlabel="Optimizer updates",ylabel="Native MSE (z²)",yscale="log")
     ax.grid(alpha=.24)
-axes[1].legend(frameon=False)
+axes[1].legend(frameon=False,fontsize=8)
 fig.suptitle("V3-FR shared-path and free-latent fits · one S2 and one L8 observation per update")
 fig.savefig(figures/"s5_fit.png",dpi=170)
 plt.close(fig)
@@ -58,7 +60,7 @@ with np.load(baseline/"raw_predictions.npz") as raw:
             ax.imshow(image,cmap=cmap,vmin=scale[0],vmax=scale[1],interpolation="none")
             ax.set_title(title,fontsize=10)
             ax.axis("off")
-        fig.suptitle(f"{row['id']}  ·  {row['task']}  ·  {row['band']}\n"
+        fig.suptitle(f"{names['S1-REPLAY']['name']} · {row['id']} · {row['task']} · {row['band']}\n"
                      f"Original prediction below/above fixed display range: {row['clipped_low']:.1%} / "
                      f"{row['clipped_high']:.1%}    Target variance ratio: {row['variance_ratio']:.3g}")
         fig.savefig(figures/(prefix+"historical.png"),dpi=135)

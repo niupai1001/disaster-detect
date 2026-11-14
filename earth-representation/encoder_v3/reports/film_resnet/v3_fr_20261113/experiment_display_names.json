@@ -1,0 +1,50 @@
+{
+  "S1-REPLAY": {
+    "name": "Patch Latent 动态卷积 + D0 历史权重复算",
+    "architecture": "历史动态卷积与光谱 Query 融合 → 原三阶段压缩全局 Transformer → D0 连续插值解码。读取历史正式权重。"
+  },
+  "AE-L": {
+    "name": "Patch Latent 动态卷积 + D0 全可见拟合",
+    "architecture": "历史动态卷积与光谱 Query 融合 → 原三阶段压缩全局 Transformer → D0 连续插值解码。关闭历史 B1 细节支路。"
+  },
+  "AE-F": {
+    "name": "FiLM 浅层 ResNet + D1 子像素解码全可见拟合",
+    "architecture": "原生有序打包 → 两块 FiLM 浅层 ResNet → 空间槽位融合 → 原三阶段压缩全局 Transformer，Q/K 注入物理位置 → D1 子像素展开与局部残差细化。关闭历史 B1 细节支路。"
+  },
+  "OR-D0": {
+    "name": "自由 Latent + D0 连续插值解码拟合",
+    "architecture": "每条拟合观测独立优化多尺度 Latent，替代完整 Encoder → D0 连续插值解码。关闭历史 B1 细节支路。"
+  },
+  "OR-D1": {
+    "name": "自由 Latent + D1 子像素解码拟合",
+    "architecture": "每条拟合观测独立优化多尺度 Latent，替代完整 Encoder → D1 子像素展开与局部残差细化。关闭历史 B1 细节支路。"
+  },
+  "B0": {
+    "name": "Patch Latent 动态卷积 + D0 连续插值解码",
+    "architecture": "历史 7×7、步幅 4 的动态卷积与光谱 Query 融合 → 原三阶段压缩全局 Transformer → D0 连续插值解码。"
+  },
+  "BP": {
+    "name": "Patch Latent 动态卷积 + Q/K 物理位置 + D0",
+    "architecture": "历史动态卷积与光谱 Query 融合 → 原三阶段压缩全局 Transformer，Q/K 注入物理位置 → D0 连续插值解码。"
+  },
+  "N0": {
+    "name": "原生有序打包 + 空间槽位融合 + D0",
+    "architecture": "原生有序打包与内容升维 → 空间槽位融合 → 原三阶段压缩全局 Transformer，Q/K 注入物理位置 → D0 连续插值解码。ResNet 块数为 0，FiLM 关闭。"
+  },
+  "N1": {
+    "name": "浅层 ResNet（FiLM 关闭）+ D0",
+    "architecture": "原生有序打包 → 两块浅层 ResNet，FiLM 关闭 → 空间槽位融合 → 原三阶段压缩全局 Transformer，Q/K 注入物理位置 → D0 连续插值解码。"
+  },
+  "N2": {
+    "name": "FiLM 浅层 ResNet + D0 连续插值解码",
+    "architecture": "原生有序打包 → 两块 FiLM 浅层 ResNet → 空间槽位融合 → 原三阶段压缩全局 Transformer，Q/K 注入物理位置 → D0 连续插值解码。"
+  },
+  "C": {
+    "name": "FiLM 浅层 ResNet + D1 子像素解码",
+    "architecture": "原生有序打包 → 两块 FiLM 浅层 ResNet → 空间槽位融合 → 原三阶段压缩全局 Transformer，Q/K 注入物理位置 → D1 子像素展开与局部残差细化。与 D0 父组仅解码末端不同。"
+  },
+  "PD": {
+    "name": "Patch Latent 动态卷积 + Q/K 物理位置 + D1",
+    "architecture": "历史动态卷积与光谱 Query 融合 → 原三阶段压缩全局 Transformer，Q/K 注入物理位置 → D1 子像素展开与局部残差细化。已登记，未执行。"
+  }
+}

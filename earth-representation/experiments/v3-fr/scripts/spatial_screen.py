@@ -34,10 +34,13 @@ def phase_residual(prediction,truth,mask,affine,origin,step,phase):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("campaign",type=Path)
+    parser.add_argument("--figures-only",type=Path)
     args = parser.parse_args()
     campaign = args.campaign
     stage = campaign/"s6_component_trials"
-    figure_root = campaign/"summary/figures"
+    figure_root = args.figures_only or campaign/"summary/figures"
+    names = json.loads((campaign/"experiment_display_names.json").read_bytes())
+    plt.rcParams.update({"font.family":["Microsoft YaHei","DejaVu Sans"]})
     scene_geometry = json.loads((campaign/"fixed_scene_geometry.json").read_bytes())
     audits = []
     with np.load(stage/"B0/val_233/raw_predictions.npz") as base:
@@ -56,7 +59,7 @@ def main():
                         if group:
                             groups[observation] = sorted(group)
                     for observation,group in groups.items():
-                        for prefix in group:
+                        for prefix in group if args.figures_only is None else ():
                             truth = base[prefix+"truth"]
                             target = base[prefix+"target_mask"]
                             affine = base[prefix+"affine"]
@@ -78,19 +81,24 @@ def main():
                         error = np.concatenate([abs(p[mask]-truth[mask]) for p in (p1,p2)])
                         err_scale = (0,max(float(np.quantile(error,.98)),1e-8))
                         shown = np.where(keep,truth,np.nan)
-                        shown_label,shown_limit = "Visible input",limit
+                        shown_label,shown_limit = "可见输入",limit
                         if task=="B1":
                             refs = sorted(k for k in base.files if k.startswith(f"{observation}_B1_visible_reference_"))
                             if refs:
                                 shown = base[refs[0]]
                                 shown_limit = np.nanquantile(shown,[.02,.98])
-                                shown_label = "Visible "+refs[0].split("reference_")[1]
-                        figure,axes = plt.subplots(2,5,figsize=(12,5.5),layout="constrained")
-                        panels = [(np.where(qa,truth,np.nan),"Truth",limit),(shown,shown_label,shown_limit),
-                                  (mask,"Target mask",(0,1)),(m1,f"{parent} main",limit),(m2,f"{arm} main",limit),
-                                  (p1,f"{parent} total",limit),(p2,f"{arm} total",limit),
-                                  (abs(p1-truth),f"{parent} error",err_scale),(abs(p2-truth),f"{arm} error",err_scale),
-                                  (abs(np.diff(p2-truth,axis=1)),"Candidate gradient error",err_scale)]
+                                shown_label = "可见 "+refs[0].split("reference_")[1]
+                        figure,axes = plt.subplots(2,5,figsize=(13,5.8),layout="constrained")
+                        source_name = names[parent]["name"].replace(" + ","\n+ ",1)
+                        candidate_name = names[arm]["name"].replace(" + ","\n+ ",1)
+                        total_label = "叠加历史支路后的总输出" if task=="B1" else "总输出"
+                        panels = [(np.where(qa,truth,np.nan),"原生真值",limit),(shown,shown_label,shown_limit),
+                                  (mask,"目标掩码",(0,1)),(m1,f"{source_name}\n共享主路径输出",limit),
+                                  (m2,f"{candidate_name}\n共享主路径输出",limit),
+                                  (p1,f"{source_name}\n{total_label}",limit),(p2,f"{candidate_name}\n{total_label}",limit),
+                                  (abs(p1-truth),f"{source_name}\n绝对误差",err_scale),
+                                  (abs(p2-truth),f"{candidate_name}\n绝对误差",err_scale),
+                                  (abs(np.diff(p2-truth,axis=1)),"候选总输出梯度误差",err_scale)]
                         for i,(ax,(arr,name,scale)) in enumerate(zip(axes.flat,panels,strict=True)):
                             ax.imshow(arr,vmin=scale[0],vmax=scale[1],cmap="gray" if i<7 else "magma",
                                       interpolation="none")
@@ -99,7 +107,8 @@ def main():
                         figure.suptitle(f"V3-FR · Step 233 · {prefix.removesuffix('_')}")
                         figure.savefig(figure_root/f"s6_{arm}_{observation}_{task}.png",dpi=135)
                         plt.close(figure)
-    (stage/"fixed_panel_phase_audit.json").write_text(json.dumps(audits,indent=2)+"\n",encoding="utf-8")
+    if args.figures_only is None:
+        (stage/"fixed_panel_phase_audit.json").write_text(json.dumps(audits,indent=2)+"\n",encoding="utf-8")
 
 
 if __name__=="__main__":
