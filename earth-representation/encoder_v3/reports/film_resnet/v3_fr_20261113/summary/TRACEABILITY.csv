@@ -1,0 +1,47 @@
+id,design_item,implementation,configuration,test_or_evidence,status,scope
+H01,Shallow ResNet,frontend.Frontend,2 blocks,frontend unit tests,PASS,2 stride-one 3x3 convolutions per block
+H02,Independent source and runs,run_v3_fr.py,campaign path,baseline_identity.json,PASS,Original release used read-only
+H03,Hidden and invalid values cleaned,frontend.VisibleBand.from_native,where-visible zero,leakage.json and candidate gate,PASS,Selected real S2 and L8
+H04,No raw high-dimensional bypass,model.TargetSpec,decoder only encoded fields,code review and query subset,PASS,Legacy B1 wrapper separate
+H05,No new physics or tasks,model.FRPretraining,frozen task config,baseline_config.json,PASS,Reused descriptors
+H06,Packing is permutation,frontend.pack and unpack,r 1/2/4,frontend unit tests,PASS,Guarantee limited to packing and initial carrier
+H07,Separate geometry and support,fusion.SpatialSlots and PackedBand,40m parent and 20m slots,representation_trace.csv,PASS,Observed and structural support remain distinct
+H08,Shared across sensors,frontend.Frontend and fusion.phase,geometric factor,frontend and fusion unit tests,PASS,Only factor-specific phase heads
+H09,Backbone preserved,model.FRPretraining.encode,32/64/96 and MIT,decoder_terminal_gate.json,PASS,Position disabled matches historical result
+H10,One sequential spatial pyramid,model.FRPretraining.encode,existing merges,baseline_config.json,PASS,No parallel backbones
+H11,Explicit ordered slots,fusion.SpatialSlots,4x8 reshape,test_t10_phase_and_slot_reshape,PASS,Inherited south-origin slot grid
+H12,Frozen A/B1 visibility and losses,model.FRPretraining.forward,task_masks and Huber,B0 compatibility and full VAL masks,PASS,Tested exact targets and separate task behavior
+H13,Historical B1 detail isolated,model.LegacyB1Detail,legacy_b1_detail,legacy_detail_gate.json,PASS,S2 applicable and L8 unchanged on panel
+H14,Raw prediction evaluation,evaluation.band_metrics,fixed display scales,raw_predictions.npz and display_audit.json,PASS,Float metrics and displayed images separated
+H15,Original members and TRAIN statistics,run_v3_fr.identity,seed 17 mask and order,dataset_binding.json,PASS,S6 parity separately asserted
+H16,Limited claims,summary report,short engineering scope,DECISION.md,PASS,No downstream measurement
+T01,Roundtrip and factors,frontend.pack and unpack,1/2/4,test_t01_t02_roundtrip,PASS,Noncontiguous and odd native shape
+T02,QA visibility and padding,frontend.VisibleBand,structural mask,test_t01_t02_roundtrip,PASS,Exact Boolean and input gradients
+T03,Initial left inverse,frontend.ContentLift,first 16 dims,test_t03_t04_content_and_empty,PASS,At initialization
+T04,No visible support,frontend and fusion,zero output,test_t03_t04_content_and_empty and test_t11_t12_channel_order_and_chunks,PASS,Finite
+T05,FiLM disabled identity,frontend.ResidualBlock,zero gamma delta and beta,test_t05_t06_film_identity_and_gradients,PASS,Exact equality
+T06,Parameter sharing and gradients,frontend.Frontend,shared weights,test_t05_t06_film_identity_and_gradients,PASS,Finite nonzero
+T07,Cross-cell dependency,frontend.Frontend,halo 4,test_t07_cross_pack_dependency,PASS,Native input perturbation gradient
+T08,Tile equivalence,frontend.Frontend,3 tile shapes,test_t08_halo_output_and_gradient,PASS,CPU forward and parameter gradients
+T09,Independent overlap,fusion and frozen AreaCache,10/20/30m,test_t09_independent_overlap,PASS,Float64 reference
+T10,Phase and slot order,fusion.PhaseAwareFusion,ordered reshape,test_t10_phase_and_slot_reshape,PASS,Left-right distinction and inverse
+T11,Channel order,fusion.PhaseAwareFusion,chunk 1/2/8,test_t11_t12_channel_order_and_chunks,PASS,Includes fully hidden band
+T12,Online softmax,fusion.add_attention_state,finite placeholders,test_t12_stable_empty_slots,PASS,Forward and gradients
+T13,No hidden value or raw bypass,model.FRPretraining,typed inputs,candidate gate,PASS,Fixed panel plus source inspection
+T14,No position equivalent,model.FRPretraining,position none,decoder_terminal_gate.json,PASS,Real loss and gradients
+T15,Position query and key,position.PhysicalPosition,qk_physical,test_t14_t15_positions_and_partial_pool,PASS,Synthetic and real coordinate export
+T16,Backbone dimensions,model.FRPretraining,strict frozen config,capacity.json,PASS,Full stage shapes recorded
+T17,D0 exact compatibility,model.TerminalDecoder,legacy_continuous,decoder_terminal_gate.json,PASS,Within predeclared FP32 tolerance
+T18,D1 ordering,model.split_field,r 4,test_t18_decoder_phase_order,PASS,Unique phase labels
+T19,Target subset invariant,model.TerminalDecoder.predict,grid+selection+descriptor,decoder_terminal_gate.json,PASS,Real S2 and L8 A/B1
+T20,Detail switch isolation,model.LegacyB1Detail,main path only,legacy_detail_gate.json,PASS,Historical applicability
+T21,Dual single and tail,candidate_gate and executor_gate,32/18 eager,one_step_equivalence.json,PASS,Adam moments and update
+T22,Recover next step,candidate_gate.update_and_resume,full snapshot,resume_gate.json,PASS,Two next-step trajectories
+T23,Optimizer registration,candidate_gate.update_and_resume,AdamW,resume_gate.json,PASS,No duplicates
+T24,Maximum full scenes,candidate_gate.capacity,full native,capacity.json,PASS,14 A/B1 checks
+T25,Display exclusion,run_v3_fr.replay,truth-derived display range,display_audit.json,PASS,Metrics use raw values
+T26,Mask generation and task order,historical task_masks,seed 17,test_t26_frozen_task_order_and_repeatability,PASS,Interleaved tasks and unrelated RNG draws do not change masks
+T27,Hidden values cannot affect output,candidate_gate.run,independent hidden/QA changes,leakage.json and candidate gate,PASS,Selected real S2 and L8
+T28,Decoder inputs,model.TargetSpec,encoded+grid+descriptor+mask,query subset and source inspection,PASS,Legacy detail isolated
+T29,Raw and weights replay,fit_diagnostics.fit,init best last,fit_gate.json,PASS,S5 best metrics recomputed
+T30,Historical regression,original patch_latent tests,frozen runtime,historical_regression.xml,PASS,40 CPU cases with frozen imports

@@ -1,0 +1,49 @@
+{
+  "S0": {
+    "baseline_identity.json": "PASS",
+    "geometry_census_summary.json": "PASS"
+  },
+  "S1": {
+    "s1_baseline/baseline_replay.json": "PASS",
+    "s1_baseline/executor_reference.json": "PASS"
+  },
+  "S4": {
+    "s4_decoder_execution/decoder_terminal_gate.json": "PASS",
+    "s4_decoder_execution/legacy_detail_gate.json": "PASS",
+    "s4_decoder_execution/capacity.json": "PASS",
+    "s4_decoder_execution/one_step_equivalence.json": "PASS",
+    "s4_decoder_execution/resume_gate.json": "PASS",
+    "s4_decoder_execution/d1_synthetic_patterns.json": "PASS"
+  },
+  "S5": {
+    "s5_capacity_fit/fit_gate.json": "PASS"
+  },
+  "S6": {
+    "s6_component_trials/screen.json": "NO_CANDIDATE"
+  },
+  "S7": {
+    "s7_seed_confirmation/screen.json": "NOT_TRIGGERED"
+  },
+  "candidate_unit_tests_final.xml": {
+    "tests": 29,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "historical_regression.xml": {
+    "tests": 40,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "excluded_attempts": {
+    "S6_initial_evaluation": {
+      "optimizer_updates": 0,
+      "reason": "New evaluation initially used float64 quantile selection; corrected to frozen Torch float32."
+    },
+    "S6_pre_revision_N0": {
+      "optimizer_updates": 0,
+      "reason": "Reserved output blocked the superseded initialization before launch."
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "architecture": "patch_latent_learned_decoder",
+  "model": {
+    "grid_metres": 40,
+    "descriptor": 32,
+    "patch_width": 32,
+    "bases": 8,
+    "latent_width": 32,
+    "latents": 4,
+    "latent_self_attention": false,
+    "spectral": "attention",
+    "widths": [
+      32,
+      64,
+      96
+    ],
+    "heads": [
+      2,
+      4,
+      4
+    ],
+    "depths": [
+      2,
+      2,
+      2
+    ],
+    "window": 8,
+    "spatial_reduction": 2,
+    "channel_chunk": 8,
+    "decoder_width": 32,
+    "decoder_subcell_width": 8,
+    "decoder_subcells": 4,
+    "mask_patch_metres": 128,
+    "mask_ratio": 0.55,
+    "query_source": "descriptor",
+    "kv_reduction": "conv",
+    "spatial_scope": "mit",
+    "decoder_mode": "continuous_native",
+    "huber_delta": 1.0,
+    "spectral_fusion_hidden": 128,
+    "stage_reductions": [
+      8,
+      4,
+      2
+    ],
+    "spatial_query_chunk": 1048576,
+    "gradient_loss_weight": 0.2,
+    "gpu_geometry": false
+  },
+  "training": {
+    "seed": 17,
+    "validation_seed": 17,
+    "epochs": 30,
+    "batch_size": 32,
+    "task_weights": {
+      "A": 0.5,
+      "B1": 0.5
+    },
+    "optimizer": "AdamW",
+    "lr": 0.0001,
+    "min_lr": 1e-05,
+    "weight_decay": 0.04,
+    "warmup_steps": 12,
+    "precision": "float32",
+    "device": "cuda:1",
+    "offload_native_values": null,
+    "threads": 2,
+    "devices": [
+      "cuda:1",
+      "cuda:0"
+    ],
+    "batch_plan": "proportional",
+    "device_costs": [
+      {
+        "EnMAP": [
+          0.7852417000103742,
+          0.0
+        ],
+        "L8": [
+          0.08529204374678469,
+          3.298416775231734e-07
+        ],
+        "L9": [
+          0.1114648000075249,
+          0.0
+        ],
+        "S2": [
+          0.09210062477360911,
+          5.0839618403775836e-08
+        ]
+      },
+      {
+        "EnMAP": [
+          0.7737288999924203,
+          0.0
+        ],
+        "L8": [
+          0.06436410714955625,
+          4.239857262467129e-07
+        ],
+        "L9": [
+          0.10205707501154393,
+          0.0
+        ],
+        "S2": [
+          0.07993645823016333,
+          5.1217525841375786e-08
+        ]
+      }
+    ],
+    "spatial_cuda_graphs": true,
+    "early_stopping": {
+      "patience": 5,
+      "min_delta": 0.001,
+      "relative": true
+    }
+  },
+  "initialization": "random",
+  "activation_policy": "gpu_resident_no_recomputation",
+  "viewer_root": "earth-representation\\training-runs",
+  "authorization": "User approved random initialization, full-stage reduced global attention, proportional batches, calibrated dual GPUs, Huber plus selected native-gradient loss; optimize before thirty epochs with early stopping."
+}

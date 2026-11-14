@@ -1,0 +1,2531 @@
+--- a/earth-representation/src/encoder_v3/shared_mae/geometry.py
++++ b/earth-representation/src/encoder_v3/shared_mae/geometry.py
+@@ -50,8 +50,11 @@
+ 
+ 
+ class AreaCache:
+-    def __init__(self, limit_bytes=1024*1024**2):
++    def __init__(self, limit_bytes=1024*1024**2, *, construction_device='cpu'):
++        if construction_device not in ('cpu', 'target', 'auto'):
++            raise ValueError('Unsupported area-map construction device')
+         self.limit = limit_bytes
++        self.construction_device = construction_device
+         self.items = OrderedDict()
+         self.bytes = 0
+ 
+@@ -63,8 +66,9 @@
+         if key in self.items:
+             self.items.move_to_end(key)
+             return self.items[key][0]
+-        # CPU geometry construction avoids repeated device synchronization for variable lengths.
+-        boxes = native_cells(grid, 'cpu')
++        use_target = self.construction_device == 'target' or (self.construction_device == 'auto' and math.prod(grid.shape) >= 262144)
++        compute_device = device if use_target else 'cpu'
++        boxes = native_cells(grid, compute_device)
+         origin = boxes.new_tensor(geometry.origin)
+         size = geometry.patch_size/resolution
+         lo = (boxes[:, :2]-origin)/size
+@@ -77,8 +81,9 @@
+         lengths = spans.prod(-1)
+         if bool((lengths < 1).any()) or int(lengths.max()) > 4096:
+             raise ValueError('Unsupported native-to-patch footprint expansion')
+-        source = torch.repeat_interleave(torch.arange(len(boxes)), lengths)
+-        offset = torch.arange(int(lengths.sum()))-torch.repeat_interleave(lengths.cumsum(0)-lengths, lengths)
++        edges = int(lengths.sum())
++        source = torch.repeat_interleave(torch.arange(len(boxes), device=boxes.device), lengths, output_size=edges)
++        offset = torch.arange(edges, device=boxes.device)-torch.repeat_interleave(lengths.cumsum(0)-lengths, lengths, output_size=edges)
+         nx = spans[source, 0]
+         ix, iy = low[source, 0]+offset%nx, low[source, 1]+offset//nx
+         lower = origin+torch.stack((ix, iy), -1)*size
+--- /dev/null
++++ b/earth-representation/src/encoder_v3/hierarchical_revised/backbone_ab.py
+@@ -0,0 +1,181 @@
++"""A/B1 on a shared 32 m grid, with either ResNet50 or MiT-B0."""
++from collections import defaultdict
++from dataclasses import dataclass
++
++import torch
++from torch import nn
++from torch.nn import functional as F
++from torch.utils.checkpoint import checkpoint
++
++from encoder_v3.shared_mae.geometry import metric_geometry
++from .frontend import Descriptor, NativeConvolution
++from .tasks import task_masks
++
++
++WIDTH = 32
++GRID_METRES = 32
++BLOCK_PIXELS = 262144
++
++
++@dataclass(frozen=True)
++class MaskConfig:
++    mask_patch_metres: float = 128.
++    mask_ratio: float = .55
++
++
++@dataclass
++class Result:
++    loss: torch.Tensor
++    channel_loss: dict
++    predictions: torch.Tensor
++    targets: tuple
++
++
++class ResNetStages(nn.Module):
++    widths = (256, 512, 1024, 2048)
++
++    def __init__(self):
++        super().__init__()
++        from torchvision.models import resnet50
++
++        self.net = resnet50(weights=None)
++        self.net.conv1 = nn.Conv2d(WIDTH, 64, 7, stride=2, padding=3, bias=False)
++        nn.init.kaiming_normal_(self.net.conv1.weight, mode="fan_out", nonlinearity="relu")
++        del self.net.fc, self.net.avgpool
++
++    def forward(self, x):
++        net = self.net
++        x = net.maxpool(net.relu(net.bn1(net.conv1(x))))
++        stages = []
++        for layer in (net.layer1, net.layer2, net.layer3, net.layer4):
++            x = layer(x)
++            stages.append(x)
++        return stages
++
++
++class MiTStages(nn.Module):
++    widths = (32, 64, 160, 256)
++
++    def __init__(self):
++        super().__init__()
++        from transformers import SegformerConfig, SegformerModel
++
++        self.net = SegformerModel(SegformerConfig(
++            num_channels=WIDTH, hidden_sizes=list(self.widths), depths=[2, 2, 2, 2],
++            num_attention_heads=[1, 2, 5, 8], sr_ratios=[8, 4, 2, 1],
++            patch_sizes=[7, 3, 3, 3], strides=[4, 2, 2, 2],
++            mlp_ratios=[4, 4, 4, 4], drop_path_rate=.1,
++        ))
++
++    def forward(self, x):
++        return self.net(x, output_hidden_states=True).hidden_states
++
++
++def groups_by_grid(channels, flags):
++    groups = defaultdict(list)
++    for index, (channel, active) in enumerate(zip(channels, flags)):
++        if active:
++            groups[channel.grid].append(index)
++    return groups.items()
++
++
++def blocks(indices, pixels):
++    count = max(1, BLOCK_PIXELS // pixels)
++    for start in range(0, len(indices), count):
++        yield indices[start:start+count]
++
++
++def area_features(values, keep, kernels, biases, mapping):
++    """Sum across channels before area scatter, which is linear in each channel."""
++    count, height, width = values.shape
++    clean = torch.where(keep, values, 0.)
++    rows = max(1, min(128, BLOCK_PIXELS // (width * count)))
++    tiles = []
++    for start in range(0, height, rows):
++        end = min(start + rows, height)
++        lo, hi = max(0, start-1), min(height, end+1)
++        feature = F.conv2d(clean[None, :, lo:hi], kernels.flatten(0, 1),
++                           biases.flatten(), padding=1, groups=count)
++        feature = F.gelu(feature.reshape(count, WIDTH, hi-lo, width)
++                         [:, :, start-lo:end-lo])
++        tiles.append(torch.where(keep[:, None, start:end], feature, 0.).sum(0))
++    native = torch.cat(tiles, dim=1).flatten(1).T
++    valid_count = keep.sum(0).flatten().to(values.dtype)
++    total = values.new_zeros(mapping.slots, WIDTH)
++    support = values.new_zeros(mapping.slots)
++    for start in range(0, len(mapping.source), BLOCK_PIXELS):
++        sl = slice(start, start+BLOCK_PIXELS)
++        src, dst, area = mapping.source[sl], mapping.destination[sl], mapping.area[sl].to(values.dtype)
++        total.index_add_(0, dst, native[src] * area[:, None])
++        support.index_add_(0, dst, valid_count[src] * area)
++    return total, support
++
++
++class BackboneAB(nn.Module):
++    def __init__(self, backbone, area_cache):
++        super().__init__()
++        self.config = MaskConfig()
++        self.area_cache = area_cache
++        self.descriptor = Descriptor(WIDTH)
++        self.native = NativeConvolution(WIDTH, WIDTH, 8)
++        self.readout = nn.Linear(WIDTH, WIDTH+1)
++        self.backbone = {"resnet50": ResNetStages, "segformer_b0": MiTStages}[backbone]()
++        self.project = nn.ModuleList(nn.Conv2d(size, WIDTH, 1) for size in self.backbone.widths)
++
++    def common_grid(self, channels, keeps, descriptor, geometry, maps):
++        height, width = geometry.shape
++        total = descriptor.new_zeros(height*width, WIDTH)
++        support = descriptor.new_zeros(height*width)
++        flags = torch.stack([keep.any() for keep in keeps]).tolist()
++        kernels, biases = self.native.generator(descriptor)
++        for grid, indices in groups_by_grid(channels, flags):
++            mapping = maps[grid]
++            for chosen in blocks(indices, mapping.pixels):
++                values = torch.stack([channels[i].values for i in chosen])
++                keep = torch.stack([keeps[i] for i in chosen])
++                args = (values, keep, kernels[chosen], biases[chosen], mapping)
++                if torch.is_grad_enabled() and values.numel() >= BLOCK_PIXELS:
++                    contribution, area = checkpoint(area_features, *args, use_reentrant=False)
++                else:
++                    contribution, area = area_features(*args)
++                total = total + contribution
++                support = support + area
++        denominator = torch.where(support > 0, support, 1.)
++        return (total / denominator[:, None]).T.reshape(1, WIDTH, height, width)
++
++    def forward(self, sample, *, kind, seed, epoch=0):
++        channels = sample.channels
++        keeps, targets = task_masks(sample, self.config, kind, seed, epoch)
++        geometry = metric_geometry(channels, GRID_METRES)
++        device = channels[0].values.device
++        maps = {grid: self.area_cache.get(grid, geometry, 1, device)
++                for grid in dict.fromkeys(geometry.grids)}
++        descriptor = self.descriptor([channel.physical for channel in channels])
++        common = self.common_grid(channels, keeps, descriptor, geometry, maps)
++        height, width = geometry.shape
++        ph, pw = (max(64, (size+31)//32*32) for size in geometry.shape)
++        stages = self.backbone(F.pad(common, (0, pw-width, 0, ph-height)))
++        size = stages[0].shape[-2:]
++        features = torch.stack([
++            F.interpolate(project(stage), size=size, mode="bilinear", align_corners=False)
++            for project, stage in zip(self.project, stages)
++        ]).mean(0)
++        weights, bias = self.readout(descriptor).split((WIDTH, 1), dim=-1)
++        predictions, losses = {}, {}
++        flags = torch.stack([target.any() for target in targets]).tolist()
++        for grid, indices in groups_by_grid(channels, flags):
++            mapping = maps[grid]
++            for chosen in blocks(indices, mapping.pixels):
++                logits = torch.einsum("cd,bdhw->bchw", weights[chosen], features)
++                logits = logits + bias[chosen][None, :, :, None]
++                field = F.interpolate(logits, size=(ph, pw), mode="bilinear",
++                                      align_corners=False)[0, :, :height, :width]
++                native = mapping.native_predictions(field)
++                for index, predicted in zip(chosen, native):
++                    target = targets[index]
++                    prediction = predicted[target.flatten()]
++                    truth = channels[index].values.detach()[target]
++                    predictions[index] = prediction
++                    losses[channels[index].name] = (prediction.float()-truth.float()).square().mean()
++        return Result(torch.stack(list(losses.values())).mean(), losses,
++                      torch.cat([predictions[i] for i in sorted(predictions)]), tuple(targets))
+--- a/earth-representation/src/encoder_v3/hierarchical_revised/tasks.py
++++ b/earth-representation/src/encoder_v3/hierarchical_revised/tasks.py
+@@ -24,6 +24,13 @@
+     return geo, parts, [(None, None, unique[g]) for g in grids], None, None
+ 
+ 
++def valid_optical_channels(channels):
++    optical = [i for i, c in enumerate(channels) if attribute(c.physical, "modality") == "optical"]
++    if not optical:
++        return []
++    present = torch.stack([channels[i].valid.any() for i in optical]).tolist()
++    return [i for i, valid in zip(optical, present) if valid]
++
+ def task_masks(sample, config, kind, seed, epoch):
+     channels = sample.channels
+     if kind == "A":
+@@ -33,8 +40,7 @@
+         return HierarchicalMAE.masks(options, sample, layout, "A", seed, epoch)[:2]
+     if kind != "B1":
+         raise ValueError("A or B1 required")
+-    eligible = [i for i, c in enumerate(channels)
+-                if attribute(c.physical, "modality") == "optical" and bool(c.valid.any())]
++    eligible = valid_optical_channels(channels)
+     if len(eligible) < 2:
+         raise ValueError("B1 requires two valid optical channels")
+     hidden = {eligible[i] for i in hidden_band_indices(len(eligible), seed=seed, update=epoch,
+@@ -51,7 +57,7 @@
+     if int(occupied_regions(sample, legacy_a_layout(grids, config.mask_patch_metres,
+                                                    channels[0].valid.device)).sum()) >= 2:
+         tasks.append("A")
+-    if sum(attribute(c.physical, "modality") == "optical" and bool(c.valid.any()) for c in channels) >= 2:
++    if len(valid_optical_channels(channels)) >= 2:
+         tasks.append("B1")
+     return tasks
+ 
+--- a/earth-representation/src/encoder_v3/hierarchical_revised/train.py
++++ b/earth-representation/src/encoder_v3/hierarchical_revised/train.py
+@@ -1,6 +1,8 @@
+ """Independent, bounded A/B1 formal runner; frozen-source release required."""
+ import argparse
+-from contextlib import nullcontext
++from concurrent.futures import ThreadPoolExecutor
++from contextlib import closing, nullcontext
++from dataclasses import replace
+ import json
+ import math
+ import os
+@@ -161,36 +163,75 @@
+         coefficient = weights[kind]/total
+         if backward:
+             (result.loss*coefficient).backward()
+-        loss = float(result.loss.detach())
++        loss, *channel_mse = torch.stack((result.loss.detach(),
++                                        *(value.detach() for value in result.channel_loss.values()))).tolist()
+         tasks[kind] = dict(loss=loss, weight=coefficient, targets=len(result.predictions),
+-                          channel_mse={str(c): float(v.detach()) for c,v in result.channel_loss.items()})
++                          channel_mse=dict(zip(map(str, result.channel_loss), channel_mse)))
+         weighted += coefficient*loss
+         del result
+     return dict(loss=weighted if kinds else None, tasks=tasks, eligible=bool(kinds),
+                 eligibility={k:k in kinds for k in ("A", "B1")}, activation_offload=offload)
+ 
+ 
++def batch_samples(dataset, rows, lookup, resolver, device, stopped, prefetch):
++    if not prefetch or not rows:
++        for row in rows:
++            if stopped():
++                raise StopRequested()
++            started = time.perf_counter()
++            sample = sample_from_dataset(dataset, lookup[row["id"]], resolver, device)
++            yield row, sample, time.perf_counter()-started
++        return
++
++    def load(row):
++        return sample_from_dataset(dataset, lookup[row["id"]], resolver, "cpu")
++
++    if stopped():
++        raise StopRequested()
++    with ThreadPoolExecutor(max_workers=1) as worker:
++        pending = worker.submit(load, rows[0])
++        for index, row in enumerate(rows):
++            if stopped():
++                pending.cancel()
++                raise StopRequested()
++            # Measure the remaining wait and transfer on the training thread.
++            started = time.perf_counter()
++            sample = pending.result()
++            if index+1 < len(rows):
++                pending = worker.submit(load, rows[index+1])
++            channels = [replace(c, values=c.values.to(device), valid=c.valid.to(device))
++                        for c in sample.channels]
++            yield row, replace(sample, channels=channels), time.perf_counter()-started
++            del sample, channels
++
++
++def accumulate_observations(model, dataset, rows, lookup, resolver, settings, epoch,
++                            stopped, progress=None, *, prefetch=False):
++    records = []
++    samples = batch_samples(dataset, rows, lookup, resolver, settings["device"], stopped, prefetch)
++    with closing(samples):
++        for row, sample, read_seconds in samples:
++            if sample.role != "TRAIN":
++                raise ValueError("Dataset/sample role mismatch")
++            loaded = time.perf_counter()
++            record = observation(model, sample, settings, epoch, True, stopped)
++            record.update(id=row["id"], sensor=row["sensor"], read_seconds=read_seconds,
++                          compute_seconds=time.perf_counter()-loaded)
++            records.append(record)
++            del sample
++            if progress:
++                progress(dict(observations_in_batch=len(records), batch_observations=len(rows), current_member=row["id"]))
++    return records
++
++
+ def update(model, dataset, rows, lookup, resolver, optimizer, state, settings, total, run=None,
+-           stopped=lambda: False, progress=None):
++           stopped=lambda: False, progress=None, *, prefetch=False, backward_batch=None):
+     if any(row["role"] != "TRAIN" for row in rows):
+         raise ValueError("Held-out member cannot enter optimizer update")
+     optimizer.zero_grad(set_to_none=True)
+-    records = []
+-    for row in rows:
+-        if stopped():
+-            raise StopRequested()
+-        before = time.perf_counter()
+-        sample = sample_from_dataset(dataset, lookup[row["id"]], resolver, settings["device"])
+-        if sample.role != "TRAIN":
+-            raise ValueError("Dataset/sample role mismatch")
+-        loaded = time.perf_counter()
+-        record = observation(model, sample, settings, state["epoch"], True, stopped)
+-        record.update(id=row["id"], sensor=row["sensor"], read_seconds=loaded-before,
+-                      compute_seconds=time.perf_counter()-loaded)
+-        records.append(record)
+-        del sample
+-        if progress:
+-            progress(dict(observations_in_batch=len(records), batch_observations=len(rows), current_member=row["id"]))
++    records = (accumulate_observations(model, dataset, rows, lookup, resolver, settings, state["epoch"],
++                                       stopped, progress, prefetch=prefetch)
++               if backward_batch is None else backward_batch(rows, state["epoch"], stopped))
+     eligible = sum(r["eligible"] for r in records)
+     if not eligible:
+         raise ValueError("Entire batch has no eligible task; no silent member removal")
+--- /dev/null
++++ b/earth-representation/src/encoder_v3/patch_latent/acceleration.py
+@@ -0,0 +1,71 @@
++"""Pre-captured spatial pyramids; no capture while the two training workers run."""
++from collections import Counter
++import gc
++from types import SimpleNamespace
++import torch
++from torch import nn
++from torch.nn import functional as F
++from encoder_v3.latent_response.types import NativeGrid
++from encoder_v3.shared_mae.geometry import metric_geometry
++
++
++class SpatialPyramid(nn.Module):
++    def __init__(self, encoder, decoder):
++        super().__init__()
++        self.stages, self.merges = encoder.stages, encoder.merges
++        self.decoder = decoder
++
++    def forward(self, feature, footprint):
++        output, supports = [], []
++        for index, blocks in enumerate(self.stages):
++            if index:
++                footprint = F.max_pool2d(footprint.float(), 3, stride=2, padding=1) > 0
++                feature = torch.where(footprint, self.merges[index-1](feature), 0.)
++            for block in blocks:
++                feature = block(feature, footprint)
++            output.append(feature)
++            supports.append(footprint)
++        field = self.decoder.subcells(SimpleNamespace(features=output, support=supports))
++        return (*output, field)
++
++
++def common_shapes(rows, metres, count=24, max_tokens=16384):
++    counts = Counter()
++    for row in rows:
++        channels = [SimpleNamespace(grid=NativeGrid(tuple(b['transform']), tuple(b['shape']), b['crs']))
++                    for b in row['bands']]
++        shape = metric_geometry(channels, metres).shape
++        counts[shape] += 1
++    shapes = [shape for shape, _ in counts.most_common() if shape[0]*shape[1] <= max_tokens][:count]
++    return shapes, dict(covered=sum(counts[s] for s in shapes), total=len(rows), shapes=[list(s) for s in shapes])
++
++
++def prepare_spatial_graphs(model, shapes):
++    encoder = model.encoder
++    if getattr(encoder, '_spatial_graphs', None):
++        raise ValueError('Spatial graphs already prepared')
++    device = next(model.parameters()).device
++    if device.type != 'cuda':
++        raise ValueError('CUDA graphs require a CUDA device')
++    graphs = {}
++    with torch.cuda.device(device), torch.enable_grad():
++        # Installed PyTorch uses a process-wide default capture stream, even across devices.
++        previous = torch.cuda.graph.default_capture_stream
++        torch.cuda.graph.default_capture_stream = torch.cuda.Stream(device=device)
++        gc.collect()
++        try:
++            with torch.compiler.config.patch(force_cudagraph_gc=False):
++                for height, width in shapes:
++                    module = SpatialPyramid(encoder, model.decoder)
++                    feature = torch.zeros(1, encoder.config.widths[0], height, width, device=device, requires_grad=True)
++                    support = torch.ones(1, 1, height, width, device=device, dtype=torch.bool)
++                    graphs[(height, width)] = torch.cuda.make_graphed_callables(module, (feature, support), num_warmup_iters=3,
++                                                                             allow_unused_input=True)
++        finally:
++            torch.cuda.graph.default_capture_stream = previous
++        # Graph outputs alias its memory pool; accumulated parameter gradients must own storage.
++        encoder._graph_gradient_hooks = [p.register_hook(
++            lambda g, p=p: g.clone() if g is not None and p.grad is None else g)
++                                        for p in SpatialPyramid(encoder, model.decoder).parameters()]
++    encoder._spatial_graphs = graphs
++    model.zero_grad(set_to_none=True)
+--- /dev/null
++++ b/earth-representation/src/encoder_v3/patch_latent/batching.py
+@@ -0,0 +1,48 @@
++"""Proportional sensor interleaving without replacement or changed loss weights."""
++from collections import defaultdict
++import random
++from encoder_v3.shared_mae.data import EpochPlan
++
++
++class ProportionalEpochPlan(EpochPlan):
++    def __init__(self, rows, seed, batch_size):
++        super().__init__(rows, seed, batch_size)
++        self.seed = seed
++        self.epoch = None
++
++    def batch(self, cursor):
++        if cursor < 0:
++            raise ValueError('Negative training cursor')
++        epoch, batch = divmod(cursor, len(self))
++        if epoch != self.epoch:
++            rng = random.Random(self.seed + epoch)
++            groups = defaultdict(list)
++            for row in self.rows.values():
++                groups[row['sensor']].append(row)
++            for rows in groups.values():
++                rng.shuffle(rows)
++            sensors = sorted(groups)
++            counts = {s: len(groups[s]) for s in sensors}
++            used = dict.fromkeys(sensors, 0)
++            order = []
++            total = len(self.rows)
++            for position in range(total):
++                sensor = max((s for s in sensors if used[s] < counts[s]),
++                             key=lambda s: (position+1)*counts[s]/total-used[s])
++                order.append(groups[sensor][used[sensor]])
++                used[sensor] += 1
++            self.epoch, self.order = epoch, order
++        return self.order[batch*self.batch_size:(batch+1)*self.batch_size]
++
++
++def timed_partition(rows, costs):
++    """Frozen device/sensor intercept + native-value slope from paired measurements."""
++    def estimate(row, slot):
++        base, slope = costs[slot][row['sensor']]
++        return base + slope*sum(b['shape'][0]*b['shape'][1] for b in row['bands'])
++    shards, loads = [[], []], [0., 0.]
++    for row in sorted(rows, key=lambda r: max(estimate(r, i) for i in range(2)), reverse=True):
++        slot = min(range(2), key=lambda i: loads[i]+estimate(row, i))
++        shards[slot].append(row)
++        loads[slot] += estimate(row, slot)
++    return shards
+--- /dev/null
++++ b/earth-representation/src/encoder_v3/patch_latent/geometry.py
+@@ -0,0 +1,73 @@
++"""Exact rectangular ownership overlaps for stride-4 native patch tokens."""
++from dataclasses import dataclass
++from functools import lru_cache
++
++import numpy as np
++import torch
++
++STRIDE = 4
++
++
++def ownership_edges(size):
++    """Midpoints between convolution centres, clipped to the native footprint."""
++    count = (size + STRIDE - 1) // STRIDE
++    return np.r_[0., .5 + STRIDE * (np.arange(1, count) - .5), float(size)]
++
++
++@dataclass(frozen=True)
++class PatchMap:
++    source: torch.Tensor
++    destination: torch.Tensor
++    area: torch.Tensor
++    footprint: torch.Tensor
++    shape: tuple
++    slots: int
++
++    def align(self, feature, coverage):
++        """Area × visible receptive-field fraction; one aligned feature per band and cell."""
++        channels, _, width = feature.shape
++        total = feature.new_zeros(channels, self.slots, width)
++        support = feature.new_zeros(channels, self.slots)
++        for start in range(0, len(self.source), max(1, 131072 // channels)):
++            stop = start + max(1, 131072 // channels)
++            src, dst = self.source[start:stop], self.destination[start:stop]
++            weights = coverage[:, src] * self.area[start:stop]
++            total.index_add_(1, dst, feature[:, src] * weights[..., None])
++            support.index_add_(1, dst, weights)
++        denominator = torch.where(support > 0, support, 1.)
++        return total / denominator[..., None], support
++
++
++def patch_map(grid, geometry, device):
++    a, _, x, _, e, y = grid.affine
++    offset = (x - geometry.origin[0], y - geometry.origin[1])
++    return _patch_map(grid.shape, a, e, offset, geometry.shape, geometry.patch_size, str(device))
++
++
++@lru_cache(maxsize=16)
++def _patch_map(native_shape, a, e, offset, shape, step, device):
++    h, w = native_shape
++    xe = offset[0] + ownership_edges(w) * a
++    ye = offset[1] + ownership_edges(h) * e
++    nx, ny = len(xe) - 1, len(ye) - 1
++    left, bottom = np.tile(xe[:-1], ny), np.repeat(ye[1:], nx)
++    right, top = np.tile(xe[1:], ny), np.repeat(ye[:-1], nx)
++    low_x = np.floor(left / step + 1e-9).astype(np.int64).clip(0, shape[1]-1)
++    low_y = np.floor(bottom / step + 1e-9).astype(np.int64).clip(0, shape[0]-1)
++    high_x = (np.ceil(right / step - 1e-9).astype(np.int64)-1).clip(low_x, shape[1]-1)
++    high_y = (np.ceil(top / step - 1e-9).astype(np.int64)-1).clip(low_y, shape[0]-1)
++    spans = high_x - low_x + 1
++    lengths = spans * (high_y - low_y + 1)
++    src = np.repeat(np.arange(nx*ny), lengths)
++    offset = np.arange(len(src)) - np.repeat(np.cumsum(lengths)-lengths, lengths)
++    x, y = low_x[src] + offset % spans[src], low_y[src] + offset // spans[src]
++    area = ((np.minimum(right[src], (x+1)*step) - np.maximum(left[src], x*step)) *
++            (np.minimum(top[src], (y+1)*step) - np.maximum(bottom[src], y*step)))
++    keep = area > 0
++    dst = (y * shape[1] + x)[keep]
++    slots = shape[0] * shape[1]
++    present = np.zeros(slots, dtype=bool)
++    present[dst] = True
++    return PatchMap(torch.from_numpy(src[keep]).to(device), torch.from_numpy(dst).to(device),
++                    torch.from_numpy(area[keep].astype(np.float32)).to(device),
++                    torch.from_numpy(present).to(device), (ny, nx), slots)
+--- /dev/null
++++ b/earth-representation/src/encoder_v3/patch_latent/model.py
+@@ -0,0 +1,613 @@
++"""Stride-four physical patch input, spectral compression, and spatial pyramid."""
++from dataclasses import dataclass
++import math
++from collections import defaultdict
++
++import torch
++from torch import nn
++from torch.nn import functional as F
++from torch.utils.checkpoint import checkpoint
++
++from encoder_v3.hierarchical_revised.frontend import Descriptor
++from encoder_v3.hierarchical_revised.tasks import task_masks
++from encoder_v3.shared_mae.geometry import AreaCache, metric_geometry
++from encoder_v3.shared_mae.model import ConditionalConvolution
++from .geometry import STRIDE, patch_map
++
++
++@dataclass(frozen=True)
++class Config:
++    grid_metres: float = 40.
++    descriptor: int = 32
++    patch_width: int = 32
++    bases: int = 8
++    latent_width: int = 32
++    latents: int = 2
++    query_source: str = "learned"
++    kv_reduction: str = "mean"
++    spatial_scope: str = "window"
++    spatial_query_chunk: int = 512
++    latent_self_attention: bool = False
++    spectral: str = "attention"
++    widths: tuple = (32, 64, 96)
++    heads: tuple = (2, 4, 4)
++    depths: tuple = (1, 1, 1)
++    window: int = 8
++    spatial_reduction: int = 2
++    channel_chunk: int = 8
++    decoder_width: int = 32
++    decoder_subcell_width: int = 8
++    decoder_subcells: int = 4
++    mask_patch_metres: float = 128.
++    mask_ratio: float = .55
++    decoder_mode: str = "subpixel"
++    huber_delta: float | None = None
++    stage_spatial_scopes: tuple = ()
++    spectral_fusion_hidden: int | None = None
++    learned_band_names: tuple = ()
++    stage_reductions: tuple = ()
++    gradient_loss_weight: float = 0.
++    gpu_geometry: bool = False
++
++    @property
++    def spatial_scopes(self):
++        return self.stage_spatial_scopes or (self.spatial_scope,)*len(self.widths)
++
++    @property
++    def reductions(self):
++        return self.stage_reductions or (self.spatial_reduction,)*len(self.widths)
++
++    def __post_init__(self):
++        if (len(self.widths) not in (3, 4) or len(self.widths) != len(self.heads)
++                or len(self.widths) != len(self.depths)
++                or any(a >= b for a, b in zip(self.widths, self.widths[1:]))
++                or any(h < 1 or d % h for d, h in zip(self.widths, self.heads))
++                or min(*self.widths, *self.depths, self.descriptor, self.patch_width, self.bases,
++                       self.latents, self.latent_width, self.window, self.spatial_reduction,
++                       self.channel_chunk, self.decoder_width, self.decoder_subcell_width, self.decoder_subcells,
++                       self.spatial_query_chunk) < 1
++                or self.window % self.spatial_reduction
++                or not math.isfinite(self.grid_metres) or self.grid_metres <= 0
++                or self.spectral not in ("mean", "attention")
++                or self.query_source not in ("learned", "descriptor")
++                or (self.learned_band_names and (self.query_source != "learned"
++                    or len(set(self.learned_band_names)) != len(self.learned_band_names)
++                    or any(not isinstance(name, str) or not name for name in self.learned_band_names)))
++                or self.kv_reduction not in ("mean", "conv")
++                or len(self.spatial_scopes) != len(self.widths)
++                or len(self.reductions) != len(self.widths)
++                or any(type(r) is not int or r < 1 for r in self.reductions)
++                or any(scope == "mit" and self.kv_reduction != "conv" for scope in self.spatial_scopes)
++                or any(scope not in ("window", "global", "overlap", "swin", "mit")
++                       for scope in (self.spatial_scope, *self.spatial_scopes))
++                or any(scope == "swin" and (self.window < 2 or depth < 2)
++                       for scope, depth in zip(self.spatial_scopes, self.depths))
++                or (self.spectral_fusion_hidden is not None and
++                    (type(self.spectral_fusion_hidden) is not int or self.spectral_fusion_hidden < 1
++                     or self.spectral != "attention"))
++                or self.decoder_mode not in ("subpixel", "continuous_native")
++                or (self.huber_delta is not None and
++                    (not math.isfinite(self.huber_delta) or self.huber_delta <= 0))
++                or not math.isfinite(self.gradient_loss_weight) or self.gradient_loss_weight < 0
++                or type(self.gpu_geometry) is not bool
++                or (self.latent_self_attention and self.spectral != "attention")):
++            raise ValueError("Invalid patch-latent prototype configuration")
++
++
++@dataclass
++class Encoded:
++    features: tuple
++    support: tuple
++    geometry: object
++    descriptor: torch.Tensor
++    decoded_field: torch.Tensor | None = None
++
++
++@dataclass
++class Result:
++    loss: torch.Tensor
++    channel_loss: dict
++    predictions: torch.Tensor
++    targets: tuple
++    encoded: Encoded
++
++    @property
++    def mse(self):
++        return torch.stack(list(self.channel_loss.values())).mean()
++
++
++class DynamicPatch(nn.Module):
++    def __init__(self, config):
++        super().__init__()
++        width = config.patch_width
++        self.generator = ConditionalConvolution(width, config.bases)
++        self.generator.base = nn.Parameter(torch.empty(width, 1, 7, 7))
++        self.generator.bases = nn.Parameter(torch.randn(config.bases, width, 1, 7, 7)*.02)
++        self.generator.coefficients = nn.Linear(config.descriptor, config.bases)
++        nn.init.kaiming_uniform_(self.generator.base, a=math.sqrt(5))
++
++    def forward(self, values, keep, kernel, bias):
++        clean = torch.where(keep, values, 0.)
++        count = values.shape[0]
++        out = F.conv2d(clean[None], kernel.flatten(0, 1), bias.flatten(),
++                       stride=STRIDE, padding=3, groups=count)
++        tokens = F.gelu(out.reshape(count, -1, *out.shape[-2:])).flatten(2).transpose(1, 2)
++        coverage = F.avg_pool2d(keep[:, None].to(out.dtype), 7, STRIDE, 3,
++                                count_include_pad=False).flatten(1)
++        return tokens, coverage
++
++
++def softmax_block(query, key, value, valid):
++    """Unnormalized attention state (max, mass, numerator) for one channel block."""
++    logits = torch.einsum("ld,cnd->nlc", query, key) / math.sqrt(key.shape[-1])
++    logits = logits.masked_fill(~valid.T[:, None], -torch.inf)
++    maximum = logits.amax(-1, keepdim=True)
++    maximum = torch.where(torch.isfinite(maximum), maximum, torch.finfo(logits.dtype).min)
++    weight = (logits - maximum).exp()
++    return maximum, weight.sum(-1, keepdim=True), torch.einsum("nlc,cnd->nld", weight, value)
++
++
++def merge_softmax(left, right):
++    peak = torch.maximum(left[0], right[0])
++    a, b = (left[0]-peak).exp(), (right[0]-peak).exp()
++    return peak, a*left[1]+b*right[1], a*left[2]+b*right[2]
++
++
++def divide(total, mass):
++    return total / torch.where(mass > 0, mass, 1.)
++
++
++class AdditiveProjection(nn.Module):
++    """Independently learned feature and descriptor terms, shared across channels."""
++    def __init__(self, config):
++        super().__init__()
++        self.feature = nn.Linear(config.patch_width+1, config.latent_width)
++        self.descriptor = nn.Linear(config.descriptor, config.latent_width, bias=False)
++
++    def forward(self, feature, condition):
++        return self.feature(feature) + condition[:, None]
++
++
++class Spectral(nn.Module):
++    def __init__(self, config):
++        super().__init__()
++        self.config = config
++        self.patch = DynamicPatch(config)
++        self.value = AdditiveProjection(config)
++        if config.spectral == "attention":
++            if config.query_source == "descriptor":
++                self.query_projection = nn.Linear(config.descriptor, config.latents*config.latent_width, bias=False)
++            else:
++                self.query = nn.Parameter(torch.randn(config.latents, config.latent_width)*.02)
++            self.key = AdditiveProjection(config)
++            if config.latent_self_attention:
++                self.latent_norm = nn.LayerNorm(config.latent_width)
++                self.latent_attention = nn.MultiheadAttention(config.latent_width, 1, batch_first=True)
++        latent_dim = config.latent_width * (config.latents if config.spectral == "attention" else 1)
++        hidden = config.spectral_fusion_hidden
++        self.fuse = (nn.Linear(latent_dim, config.widths[0]) if hidden is None else
++                     nn.Sequential(nn.Linear(latent_dim, hidden), nn.GELU(),
++                                   nn.Linear(hidden, config.widths[0])))
++
++    def read_block(self, values, keep, kernel, bias, value_condition, key_condition, mapping, step, query):
++        patches, fractions = self.patch(values, keep, kernel, bias)
++        aligned, support = mapping.align(patches, fractions)
++        content = torch.cat((aligned, (support / step**2)[..., None]), dim=-1)
++        value = self.value(content, value_condition)
++        if self.config.spectral == "mean":
++            return (value*support[..., None]).sum(0), support.sum(0)[:, None]
++        return softmax_block(query, self.key(content, key_condition), value, support > 0)
++
++    def forward(self, channels, keeps, descriptor, geometry, metrics):
++        groups = defaultdict(list)
++        for i, c in enumerate(channels):
++            groups[c.grid].append(i)
++        device = descriptor.device
++        maps = {grid: patch_map(grid, geometry, device) for grid in groups}
++        footprint = torch.stack([m.footprint for m in maps.values()]).any(0)
++        present = torch.stack([keep.any() for keep in keeps]).tolist()
++        active = [i for i, flag in enumerate(present) if flag]
++        conditions = descriptor[active]
++        query = None
++        if self.config.spectral == "attention":
++            if self.config.query_source == "descriptor":
++                # The visible channel set is permutation invariant and contains no target values.
++                summary = conditions.sum(0) / max(1, len(active))
++                query = self.query_projection(summary).reshape(self.config.latents, self.config.latent_width)
++            else:
++                query = self.query
++        kernels, biases = self.patch.generator(conditions)
++        value_condition = self.value.descriptor(conditions)
++        key_condition = self.key.descriptor(conditions) if self.config.spectral == "attention" else None
++        lookup = {i: j for j, i in enumerate(active)}
++        aggregate = None
++        patches = conv_macs = pairs = projections = 0
++        for grid, ids in groups.items():
++            mapping = maps[grid]
++            ids = [i for i in ids if present[i]]
++            # Bound transient feature tensors for scenes with a large native or reference grid.
++            chunk = min(self.config.channel_chunk, max(1, 262144 // mapping.slots),
++                        max(1, 2097152 // math.prod(grid.shape)))
++            for start in range(0, len(ids), chunk):
++                block = ids[start:start+chunk]
++                select = [lookup[i] for i in block]
++                args = (torch.stack([channels[i].values for i in block]),
++                        torch.stack([keeps[i] for i in block]), kernels[select], biases[select],
++                        value_condition[select], key_condition[select] if key_condition is not None else None,
++                        mapping, geometry.patch_size, query)
++                state = (checkpoint(self.read_block, *args, use_reentrant=False)
++                         if self.training and torch.is_grad_enabled() and
++                         (len(active) > chunk or args[0].numel() > 1048576) else self.read_block(*args))
++                if aggregate is None:
++                    aggregate = state
++                elif self.config.spectral == "attention":
++                    aggregate = merge_softmax(aggregate, state)
++                else:
++                    aggregate = tuple(a + b for a, b in zip(aggregate, state))
++                patches += len(block)*math.prod(mapping.shape)
++                projections += len(block)*mapping.slots
++                if self.config.spectral == "attention":
++                    pairs += len(block)*mapping.slots*self.config.latents
++        if metrics is not None:
++            conv_macs = 49*self.config.patch_width*patches
++            metrics.update(native_patch_tokens=patches, patch_conv_macs=conv_macs,
++                           spectral_pairs=pairs, spectral_channel_positions=projections,
++                           spectral_descriptor_projections=len(active),
++                           patch_overlap_edges=sum(len(m.source) for m in maps.values()))
++        height, width = geometry.shape
++        if aggregate is None:
++            return descriptor.new_zeros(1, self.config.widths[0], height, width), footprint
++        if self.config.spectral == "attention":
++            _, mass, numerator = aggregate
++            latent = divide(numerator, mass)
++            if self.config.latent_self_attention:
++                z = self.latent_norm(latent)
++                latent = latent + self.latent_attention(z, z, z, need_weights=False)[0]
++            valid = mass[:, 0] > 0
++        else:
++            numerator, mass = aggregate
++            latent, valid = divide(numerator, mass), mass > 0
++        feature = torch.where(valid, self.fuse(latent.flatten(1)), 0.)
++        return feature.T.reshape(1, -1, height, width), footprint
++
++
++class SpatialBlock(nn.Module):
++    """Spatial attention with reduced K/V and optional shifted partition."""
++    def __init__(self, width, heads, window, reduction, kv_reduction="mean",
++                 spatial_scope="window", query_chunk=512, *, shifted=False):
++        super().__init__()
++        self.heads, self.window, self.reduction = heads, window, reduction
++        self.spatial_scope, self.query_chunk = spatial_scope, query_chunk
++        self.shifted = shifted
++        self.norm = nn.LayerNorm(width)
++        self.query = nn.Linear(width, width)
++        self.kv = nn.Linear(width, 2*width)
++        self.kv_reduction = kv_reduction
++        if kv_reduction == "conv":
++            self.reduce = nn.Conv2d(width, width, reduction, stride=reduction, bias=False)
++            self.reduce_norm = nn.LayerNorm(width)
++        self.output = nn.Linear(width, width)
++        self.ff_norm = nn.LayerNorm(width)
++        self.expand = nn.Conv2d(width, 2*width, 1)
++        self.mix = nn.Conv2d(2*width, 2*width, 3, padding=1, groups=2*width)
++        self.contract = nn.Conv2d(2*width, width, 1)
++
++    def windows(self, x):
++        _, h, w, c = x.shape
++        s = self.window
++        return x.reshape(h//s, s, w//s, s, c).transpose(1, 2).reshape(-1, s, s, c)
++
++    def shift_offsets(self, height, width):
++        half = self.window//2
++        return (half if height > self.window else 0, half if width > self.window else 0)
++
++    def forward(self, x, footprint):
++        if self.spatial_scope == "mit":
++            return self.global_reduced_attention(x, footprint)
++        if self.shifted:
++            dy, dx = self.shift_offsets(*x.shape[-2:])
++            if dy or dx:
++                # Mask the padded boundary before K/V reduction to prevent wraparound.
++                padding = (dx, 0, dy, 0)
++                return self.attention_block(F.pad(x, padding), F.pad(footprint, padding))[..., dy:, dx:]
++        original = self.attention_block(x, footprint)
++        if self.spatial_scope != "overlap":
++            return original
++        shift = self.window//2
++        # Pad instead of rolling so opposite scene edges never become neighbours.
++        padding = (shift, 0, shift, 0)
++        shifted = self.attention_block(F.pad(x, padding), F.pad(footprint, padding))
++        return (original + shifted[..., shift:, shift:])*.5
++
++    def attention_pairs(self, height, width):
++        s, r = self.window, self.reduction
++        if self.spatial_scope == "mit":
++            return height*width*math.ceil(height/r)*math.ceil(width/r)
++        dy, dx = self.shift_offsets(height, width) if self.shifted else (0, 0)
++        windows = math.ceil((height+dy)/s)*math.ceil((width+dx)/s)
++        if self.spatial_scope == "global":
++            windows = windows**2
++        elif self.spatial_scope == "overlap":
++            windows += math.ceil((height+s//2)/s)*math.ceil((width+s//2)/s)
++        return windows*s*s*(s//r)**2
++
++    def global_reduced_attention(self, x, footprint):
++        """Every real query reads the full stage's convolution-reduced K/V grid."""
++        _, c, h, w = x.shape
++        r = self.reduction
++        z = self.norm(x.permute(0, 2, 3, 1))
++        clean = torch.where(footprint, z.permute(0, 3, 1, 2), 0.)
++        padding = (0, (-w) % r, 0, (-h) % r)
++        coverage = F.avg_pool2d(F.pad(footprint.to(x.dtype), padding), r)
++        reduced = divide(self.reduce(F.pad(clean, padding)), coverage)
++        reduced = self.reduce_norm(reduced.flatten(2).transpose(1, 2))
++        q = self.query(z).reshape(1, h*w, self.heads, c//self.heads).transpose(1, 2)
++        k, v = [a.reshape(1, -1, self.heads, c//self.heads).transpose(1, 2)
++                for a in self.kv(reduced).chunk(2, -1)]
++        mask = coverage.flatten(2)[:, :, None] > 0
++        # Chunking bounds the FP32 attention workspace, not its mathematical cost.
++        attended = torch.cat([F.scaled_dot_product_attention(part, k, v, attn_mask=mask)
++                              for part in q.split(self.query_chunk, 2)], 2)
++        out = self.output(attended.transpose(1, 2).reshape(1, h, w, c)).permute(0, 3, 1, 2)
++        x = torch.where(footprint, x+out, 0.)
++        z = self.ff_norm(x.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)
++        z = torch.where(footprint, self.expand(z), 0.)
++        return torch.where(footprint, x+self.contract(F.gelu(self.mix(z))), 0.)
++
++    def attention_block(self, x, footprint):
++        _, c, h, w = x.shape
++        s, r = self.window, self.reduction
++        ph, pw = (-h) % s, (-w) % s
++        padded = F.pad(x, (0, pw, 0, ph)).permute(0, 2, 3, 1)
++        valid = self.windows(F.pad(footprint, (0, pw, 0, ph)).permute(0, 2, 3, 1))
++        z = self.norm(self.windows(padded))
++        masked = torch.where(valid, z, 0.).permute(0, 3, 1, 2)
++        pooled = self.reduce(masked) if self.kv_reduction == "conv" else F.avg_pool2d(masked, r)
++        coverage = F.avg_pool2d(valid.permute(0, 3, 1, 2).to(z.dtype), r)
++        pooled = divide(pooled, coverage).flatten(2).transpose(1, 2)
++        if self.kv_reduction == "conv":
++            pooled = self.reduce_norm(pooled)
++        q = self.query(z).reshape(-1, s*s, self.heads, c//self.heads).transpose(1, 2)
++        k, v = [part.reshape(len(q), -1, self.heads, c//self.heads).transpose(1, 2)
++                for part in self.kv(pooled).chunk(2, dim=-1)]
++        valid_keys = coverage.flatten(1)>0
++        if self.spatial_scope == "global":
++            windows = len(q)
++            query, key, value = [t.transpose(0, 1).reshape(1, self.heads, -1, c//self.heads)
++                                 for t in (q, k, v)]
++            mask = valid_keys.flatten()[None, None, None]
++            chunks = []
++            for part in query.split(self.query_chunk, dim=2):
++                def attend(a, b, c, allowed):
++                    return F.scaled_dot_product_attention(a, b, c, attn_mask=allowed)
++                result = (checkpoint(attend, part, key, value, mask, use_reentrant=False)
++                          if self.training and torch.is_grad_enabled() and part.shape[2]*key.shape[2] > 1048576
++                          else attend(part, key, value, mask))
++                chunks.append(result)
++            attended = torch.cat(chunks, dim=2).reshape(self.heads, windows, s*s, c//self.heads).transpose(0, 1)
++        else:
++            attended = F.scaled_dot_product_attention(q, k, v, attn_mask=valid_keys[:, None, None])
++        out = self.output(attended.transpose(1, 2).reshape(-1, s, s, c))
++        out = out.reshape((h+ph)//s, (w+pw)//s, s, s, c).transpose(1, 2)
++        out = out.reshape(1, h+ph, w+pw, c)[:, :h, :w].permute(0, 3, 1, 2)
++        x = torch.where(footprint, x+out, 0.)
++        z = self.ff_norm(x.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)
++        z = torch.where(footprint, self.expand(z), 0.)
++        return torch.where(footprint, x+self.contract(F.gelu(self.mix(z))), 0.)
++
++
++class Encoder(nn.Module):
++    """Read native channels with explicit visible masks; return a geo-referenced pyramid."""
++    def __init__(self, config):
++        super().__init__()
++        self.config = config
++        if config.learned_band_names:
++            self.band_indices = {name: i for i, name in enumerate(config.learned_band_names)}
++            self.band_codes = nn.Embedding(len(self.band_indices), config.descriptor)
++            nn.init.normal_(self.band_codes.weight, std=.02)
++        else:
++            self.descriptor = Descriptor(config.descriptor)
++        self.spectral = Spectral(config)
++        self.merges = nn.ModuleList(nn.Conv2d(a, b, 3, stride=2, padding=1)
++                                    for a, b in zip(config.widths, config.widths[1:]))
++        self.stages = nn.ModuleList(nn.ModuleList(
++            SpatialBlock(width, heads, config.window, reduction, config.kv_reduction,
++                         scope, config.spatial_query_chunk,
++                         shifted=scope == "swin" and block_index % 2 == 1)
++            for block_index in range(depth))
++            for width, heads, depth, scope, reduction in zip(config.widths, config.heads, config.depths, config.spatial_scopes, config.reductions))
++
++    def forward(self, channels, keeps, metrics=None):
++        if not channels or len(channels) != len(keeps):
++            raise ValueError("One explicit visible mask required for each native channel")
++        geometry = metric_geometry(channels, self.config.grid_metres)
++        if self.config.learned_band_names:
++            indices = torch.tensor([self.band_indices[c.name] for c in channels],
++                                   device=self.band_codes.weight.device)
++            descriptor = self.band_codes(indices)
++        else:
++            descriptor = self.descriptor([c.physical for c in channels])
++        feature, footprint = self.spectral(channels, keeps, descriptor, geometry, metrics)
++        footprint = footprint.reshape(1, 1, *geometry.shape)
++        features, supports = [], []
++        graph = getattr(self, '_spatial_graphs', {}).get(tuple(feature.shape[-2:]))
++        captured = graph(feature, footprint) if graph is not None and self.training and torch.is_grad_enabled() else None
++        for index, blocks in enumerate(self.stages):
++            if index:
++                if captured is None:
++                    feature = self.merges[index-1](feature)
++                footprint = F.max_pool2d(footprint.float(), 3, stride=2, padding=1) > 0
++                if captured is None:
++                    feature = torch.where(footprint, feature, 0.)
++            if captured is not None:
++                feature = captured[index]
++            else:
++                for block in blocks:
++                    feature = (checkpoint(block, feature, footprint, use_reentrant=False)
++                               if self.training and torch.is_grad_enabled() and feature.numel() > 1048576
++                               else block(feature, footprint))
++            features.append(feature)
++            supports.append(footprint)
++        if metrics is not None:
++            metrics["stage_shapes"] = [list(f.shape) for f in features]
++            metrics["stage_pairs"] = [
++                sum(block.attention_pairs(*f.shape[-2:]) for block in blocks)
++                for f, blocks in zip(features, self.stages)]
++        return Encoded(tuple(features), tuple(supports), geometry, descriptor,
++                       captured[-1] if captured is not None else None)
++
++
++class Decoder(nn.Module):
++    """Learn spatial upsampling on shared grids, then read native scalar targets."""
++    def __init__(self, config):
++        super().__init__()
++        width = config.decoder_width
++        sub_width = config.decoder_subcell_width
++        self.resolution = config.decoder_subcells
++        self.project = nn.ModuleList(nn.Conv2d(channels, width, 1) for channels in config.widths)
++        self.continuous = config.decoder_mode == "continuous_native"
++        if self.continuous:
++            self.upsample = nn.ModuleList(nn.Conv2d(width, width, 3, padding=1, groups=width)
++                                          for _ in config.widths[1:])
++        else:
++            self.upsample = nn.ModuleList(nn.ConvTranspose2d(width, width, 3, stride=2, padding=1, groups=width)
++                                          for _ in config.widths[1:])
++        self.fuse = nn.Conv2d(width, width, 3, padding=1)
++        if self.continuous:
++            self.detail_gain = nn.Linear(config.descriptor, 1)
++            nn.init.zeros_(self.detail_gain.weight)
++            nn.init.ones_(self.detail_gain.bias)
++            self.subpixel = nn.Conv2d(width, sub_width, 1)
++            self.refine = nn.Conv2d(sub_width, sub_width, 3, padding=1, groups=sub_width, bias=False)
++            nn.init.zeros_(self.refine.weight)
++        else:
++            self.subpixel = nn.Conv2d(width, sub_width*self.resolution**2, 1)
++        self.readout = nn.Linear(config.descriptor, sub_width+1)
++        self.area = AreaCache(construction_device='auto' if config.gpu_geometry else 'cpu')
++
++    @staticmethod
++    def resize_supported(values, support, factor):
++        options = dict(scale_factor=factor, mode="bilinear", align_corners=False)
++        return divide(F.interpolate(values, **options), F.interpolate(support.to(values.dtype), **options))
++
++    def subcells(self, encoded):
++        pyramid = [torch.where(valid, project(feature), 0.)
++                   for project, feature, valid in zip(self.project, encoded.features, encoded.support)]
++        feature = pyramid[-1]
++        for level in reversed(range(len(pyramid)-1)):
++            skip = pyramid[level]
++            if self.continuous:
++                h, w = skip.shape[-2:]
++                resized = self.resize_supported(feature, encoded.support[level+1], 2)[..., :h, :w]
++                up = self.upsample[level](resized)
++            else:
++                up = self.upsample[level](feature, output_size=skip.shape)
++            feature = torch.where(encoded.support[level], skip+F.gelu(up), 0.)
++        fused = feature + F.gelu(self.fuse(feature))
++        packed = torch.where(encoded.support[0], self.subpixel(fused), 0.)
++        _, _, height, width = packed.shape
++        if self.continuous:
++            r = self.resolution
++            fine = self.resize_supported(packed, encoded.support[0], r)
++            fine = fine + self.refine(fine)
++            fine = fine.reshape(1, -1, height, r, width, r).transpose(3, 4)
++            return torch.where(encoded.support[0][..., None, None], fine, 0.).flatten(2)
++        # AreaMap slots are ordered (parent row, parent column, subcell row, subcell column).
++        return packed.reshape(1, -1, self.resolution**2, height, width).permute(0, 1, 3, 4, 2).flatten(2)
++
++    def forward(self, encoded, grids, targets):
++        fused = (encoded.decoded_field if encoded.decoded_field is not None else self.subcells(encoded))[0]
++        weight, bias = self.readout(encoded.descriptor).split((fused.shape[0], 1), -1)
++        groups = defaultdict(list)
++        for i, (grid, flag) in enumerate(zip(grids, torch.stack([t.any() for t in targets]).tolist())):
++            if flag:
++                groups[grid].append(i)
++        predictions = {}
++        for grid, indices in groups.items():
++            mapping = self.area.get(grid, encoded.geometry, self.resolution, fused.device)
++            chunk = max(1, 262144 // max(mapping.pixels, mapping.slots))
++            for start in range(0, len(indices), chunk):
++                chosen = indices[start:start+chunk]
++                field = weight[chosen] @ fused + bias[chosen]
++                native = mapping.native_predictions(field)
++                mask = torch.stack([targets[i].flatten() for i in chosen])
++                sizes = mask.sum(1).tolist()
++                values = native[mask].split(sizes)
++                predictions.update(zip(chosen, values))
++        return predictions
++
++
++    def add_native_detail(self, predictions, encoded, channels, keeps, targets):
++        """On matching fine native grids, transfer only visible local contrast."""
++        grids = {channels[i].grid for i in predictions
++                 if max(channels[i].grid.gsd_xy) <= encoded.geometry.patch_size/2}
++        sources = defaultdict(list)
++        for channel, keep in zip(channels, keeps):
++            if channel.grid in grids:
++                sources[channel.grid].append((channel, keep))
++        if not sources:
++            return predictions
++        native = {}
++        for grid, group in sources.items():
++            values = torch.stack([channel.values for channel, _ in group])[:, None]
++            keep = torch.stack([keep for _, keep in group])[:, None]
++            clean = torch.where(keep, values, 0.)
++            mask = keep.to(clean.dtype)
++            mean = divide(F.avg_pool2d(clean, 5, stride=1, padding=2),
++                          F.avg_pool2d(mask, 5, stride=1, padding=2))
++            detail = torch.where(keep, clean-mean, 0.)
++            native[grid] = divide(detail.sum(0), mask.sum(0))[0]
++        gain = self.detail_gain(encoded.descriptor).flatten()
++        return {i: value+gain[i]*native[channels[i].grid][targets[i]] if channels[i].grid in native else value
++                for i, value in predictions.items()}
++
++
++class Pretraining(nn.Module):
++    def __init__(self, config):
++        super().__init__()
++        self.config = config
++        self.encoder = Encoder(config)
++        self.decoder = Decoder(config)
++
++    def forward(self, sample, *, kind, seed, epoch=0, metrics=None):
++        keeps, targets = task_masks(sample, self.config, kind, seed, epoch)
++        encoded = self.encoder(sample.channels, keeps, metrics)
++        predictions = self.decoder(encoded, [c.grid for c in sample.channels], targets)
++        if self.config.decoder_mode == "continuous_native" and kind == "B1":
++            predictions = self.decoder.add_native_detail(predictions, encoded, sample.channels, keeps, targets)
++        if not predictions:
++            raise ValueError("No native supervision targets")
++        groups = defaultdict(list)
++        for i in sorted(predictions):
++            groups[sample.channels[i].grid].append(i)
++        truths = {}
++        for ids in groups.values():
++            values = torch.stack([sample.channels[i].values.detach() for i in ids])
++            mask = torch.stack([targets[i] for i in ids])
++            packed = values[mask].split([predictions[i].numel() for i in ids])
++            truths.update(zip(ids, packed))
++        ids = sorted(predictions)
++        prediction = torch.cat([predictions[i] for i in ids]).float()
++        truth = torch.cat([truths[i] for i in ids]).float()
++        lengths = torch.tensor([predictions[i].numel() for i in ids], device=prediction.device)
++        delta = self.config.huber_delta
++        squared = (prediction-truth).square()
++        per_pixel = squared if delta is None else F.huber_loss(prediction, truth, delta=delta, reduction='none')
++        objective = torch.segment_reduce(per_pixel, 'mean', lengths=lengths).mean()
++        losses = dict(zip(ids, torch.segment_reduce(squared.detach() if delta else squared, 'mean', lengths=lengths).unbind()))
++        if kind == 'B1' and self.config.gradient_loss_weight:
++            gradients = [native_gradient_loss(torch.cat([predictions[i] for i in group]).float(),
++                                               torch.cat([truths[i] for i in group]).float(),
++                                               torch.stack([targets[i] for i in group])) for group in groups.values()]
++            objective = objective + self.config.gradient_loss_weight * torch.cat(gradients).mean()
++        return Result(objective, losses, prediction, tuple(targets), encoded)
++
++
++def native_gradient_loss(prediction, truth, target):
++    """Signed finite differences; only adjacent valid targets from the same native band."""
++    error = prediction.new_zeros(target.shape).masked_scatter(target, prediction-truth.detach())
++    horizontal = target[..., :, 1:] & target[..., :, :-1]
++    vertical = target[..., 1:, :] & target[..., :-1, :]
++    total = ((error[..., :, 1:]-error[..., :, :-1]).square()*horizontal).sum((-2, -1))
++    total = total + ((error[..., 1:, :]-error[..., :-1, :]).square()*vertical).sum((-2, -1))
++    return total / (horizontal.sum((-2, -1))+vertical.sum((-2, -1))).clamp_min(1)
+--- /dev/null
++++ b/earth-representation/src/encoder_v3/patch_latent/parallel.py
+@@ -0,0 +1,64 @@
++"""Split observations between two GPUs, preserving one global optimizer update."""
++from concurrent.futures import ThreadPoolExecutor, wait
++import copy
++
++import torch
++
++from encoder_v3.hierarchical.parallel import add_replica_gradients, device_context, partition_rows, synchronize
++from encoder_v3.hierarchical_revised.train import accumulate_observations
++from encoder_v3.shared_mae.data import load_data
++from .batching import timed_partition
++
++
++class ParallelBatch:
++    def __init__(self, model, dataset, resolver, settings, devices, *, secondary_data=None):
++        self.model = model
++        self.devices = tuple(devices)
++        self.replica = copy.deepcopy(model).to(devices[1])
++        self.settings = settings
++        if secondary_data is None:
++            datasets, other_resolver = load_data()
++            other = datasets["TRAIN"]
++        else:
++            other, other_resolver = secondary_data
++        if ([r["id"] for r in dataset.rows] != [r["id"] for r in other.rows]
++                or dataset.identities != other.identities
++                or resolver.catalog_sha != other_resolver.catalog_sha):
++            raise ValueError("Dual-GPU inputs differ from the primary data binding")
++        self.datasets = dataset, other
++        self.resolvers = resolver, other_resolver
++        self.lookups = tuple({r["id"]: i for i, r in enumerate(ds.rows)} for ds in self.datasets)
++        self.pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="patch-gpu")
++
++    def backward(self, rows, epoch, stopped):
++        self.replica.load_state_dict(self.model.state_dict())
++        self.replica.train(self.model.training)
++        self.replica.zero_grad(set_to_none=True)
++        synchronize(self.devices[1])
++        costs = self.settings.get('device_costs')
++        shards = timed_partition(rows, costs) if costs is not None else partition_rows(rows)
++
++        def work(slot):
++            device = self.devices[slot]
++            model = (self.model, self.replica)[slot]
++            with device_context(device), torch.enable_grad():
++                part = accumulate_observations(model, self.datasets[slot], shards[slot], self.lookups[slot],
++                                               self.resolvers[slot], dict(self.settings, device=device),
++                                               epoch, stopped, prefetch=True)
++                synchronize(device)
++                for record in part:
++                    record['device'] = str(device)
++                return part
++
++        jobs = [self.pool.submit(work, slot) for slot in range(2)]
++        wait(jobs)
++        parts = [job.result() for job in jobs]
++        by_id = {r["id"]: r for part in parts for r in part}
++        if len(by_id) != len(rows):
++            raise ValueError("Global batch was not processed exactly once")
++        add_replica_gradients(self.model, self.replica)
++        synchronize(self.devices[0])
++        return [by_id[r["id"]] for r in rows]
++
++    def close(self):
++        self.pool.shutdown(wait=True, cancel_futures=True)
+--- /dev/null
++++ b/earth-representation/src/encoder_v3/patch_latent/__init__.py
+@@ -0,0 +1,4 @@
++"""Descriptor-conditioned patch and spectral-latent encoder prototype."""
++from .model import Config, Encoder, Pretraining
++
++__all__ = ["Config", "Encoder", "Pretraining"]
+--- /dev/null
++++ b/earth-representation/scripts/train_patch_latent.py
+@@ -0,0 +1,420 @@
++"""Run an independent, frozen Patch Latent A+B1 experiment."""
++import ssl
++import argparse
++from collections import Counter, defaultdict
++from dataclasses import replace
++import json
++import math
++from pathlib import Path
++import random
++import shutil
++import sys
++import time
++import uuid
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path[:0] = [str(ROOT / "src"), str(Path(__file__).resolve().parent)]
++
++import numpy as np
++import torch
++
++from probe_patch_latent import texture_mse
++from run_encoder_backbone_ab import largest_indices
++from encoder_v3.data import sha256
++from encoder_v3.hierarchical_revised.tasks import available_tasks
++from encoder_v3.hierarchical_revised.train import resume, save, update
++from encoder_v3.latent_response.checkpoint import digest, parameter_sha
++from encoder_v3.latent_response.run_control import append_event
++from encoder_v3.latent_response.tvlp_writer import RunWriter
++from encoder_v3.patch_latent import Config, Pretraining, model as patch_model
++from encoder_v3.patch_latent.parallel import ParallelBatch
++from encoder_v3.patch_latent.batching import ProportionalEpochPlan
++from encoder_v3.patch_latent.acceleration import common_shapes, prepare_spatial_graphs
++from encoder_v3.shared_mae.data import EpochPlan, identity, load_data, sample_from_dataset
++from encoder_v3.shared_mae.train import StopRequested, write
++
++
++def read(path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def validate_early_stop(policy):
++    if policy is None:
++        return
++    if (not isinstance(policy, dict) or not {"patience", "min_delta"} <= set(policy)
++            or set(policy) - {"patience", "min_delta", "relative"}
++            or type(policy.get("relative", False)) is not bool
++            or type(policy["patience"]) is not int or policy["patience"] < 1
++            or type(policy["min_delta"]) not in (int, float)
++            or not math.isfinite(policy["min_delta"]) or policy["min_delta"] < 0):
++        raise ValueError("Early stopping needs positive integer patience and finite nonnegative min_delta")
++
++
++def update_early_stop(state, policy, epoch, metric):
++    if policy is None or epoch == 0:
++        return
++    current = state.setdefault("early_stopping", dict(reference=None, bad_epochs=0))
++    reference = current["reference"]
++    threshold = policy["min_delta"] * (abs(reference) if policy.get("relative") and reference is not None else 1.)
++    if reference is None or (metric < reference and reference - metric >= threshold):
++        current.update(reference=metric, reference_epoch=epoch, bad_epochs=0)
++    else:
++        current["bad_epochs"] += 1
++    current["triggered"] = current["bad_epochs"] >= policy["patience"]
++
++
++def prepare(output, config_path):
++    proposed = read(config_path)
++    model = proposed["model"]
++    early_stop = proposed.get("early_stopping")
++    validate_early_stop(early_stop)
++    settings = read(ROOT / "configs/config_backbone_ab_segformer_b0.json")["training"]
++    epochs = proposed.get("epochs", 10)
++    devices = proposed.get("devices", [settings["device"]])
++    if (type(epochs) is not int or epochs < 1 or len(devices) not in (1, 2)
++            or len(set(devices)) != len(devices)
++            or any(d not in ("cuda:0", "cuda:1") for d in devices)):
++        raise ValueError("Invalid Patch Latent epoch budget or CUDA device set")
++    settings.update(epochs=epochs, device=devices[0], devices=devices, offload_native_values=None)
++    for key in ('batch_plan', 'device_costs', 'threads', 'spatial_cuda_graphs'):
++        if key in proposed:
++            settings[key] = proposed[key]
++    if early_stop is not None:
++        settings["early_stopping"] = early_stop
++    policy = ("checkpoint_global_attention" if "global" in Config(**model).spatial_scopes
++              else "gpu_resident_no_recomputation")
++    config = dict(architecture="patch_latent_learned_decoder", model=model, training=settings,
++                  initialization="random", activation_policy=policy,
++                  viewer_root=str(ROOT / "training-runs"),
++                  authorization=proposed.get("authorization", "User authorized this independent A+B1 experiment."))
++    output.mkdir(parents=True)
++    runtime = output / "runtime"
++    source = ROOT / "src/encoder_v3"
++    paths = list(source.glob("*.py"))
++    for folder in ("shared_mae", "latent_response", "hierarchical", "hierarchical_revised", "patch_latent"):
++        paths.extend((source / folder).glob("*.py"))
++    paths.extend(ROOT / path for path in (
++        "scripts/train_patch_latent.py", "scripts/probe_patch_latent.py",
++        "scripts/run_encoder_backbone_ab.py", "src/encoder_v3/config_optical_selfsup_v1.json",
++        "configs/config_lr_e0_v1.json", "outputs/encoder_v3/latent_response/channel_catalog_frozen.json",
++        "data/physics/sensor_physics.json",
++    ))
++    manifest = {}
++    for path in paths:
++        rel = path.relative_to(ROOT)
++        dest = runtime / rel
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(path, dest)
++        manifest[rel.as_posix()] = sha256(dest)
++    write(output / "config.json", config)
++    write(output / "source_manifest.json", manifest)
++
++
++def preflight(model, dataset, resolver, settings, output, stopped):
++    records = []
++    device = settings["device"]
++    for sensor, index in largest_indices(dataset).items():
++        if stopped():
++            raise StopRequested()
++        sample = sample_from_dataset(dataset, index, resolver, device)
++        for kind in available_tasks(sample, model.config):
++            model.zero_grad(set_to_none=True)
++            torch.cuda.reset_peak_memory_stats(device)
++            started = time.perf_counter()
++            metrics = {}
++            result = model(sample, kind=kind, seed=settings["seed"], metrics=metrics)
++            loss = float(result.loss.detach())
++            if not np.isfinite(loss):
++                raise ValueError("Nonfinite preflight loss")
++            result.loss.backward()
++            norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), float("inf"),
++                                                        error_if_nonfinite=True))
++            records.append(dict(sensor=sensor, member=sample.identifier, task=kind, loss=loss,
++                                gradient_norm=norm, targets=result.predictions.numel(),
++                                seconds=time.perf_counter()-started, metrics=metrics,
++                                peak_allocated_bytes=torch.cuda.max_memory_allocated(device)))
++            print("PREFLIGHT", records[-1], flush=True)
++            del result
++        del sample
++    model.zero_grad(set_to_none=True)
++    write(output / "preflight.json", dict(status="PASS", records=records))
++
++
++@torch.no_grad()
++def validate(model, dataset, resolver, settings, stopped):
++    model.eval()
++    started = time.perf_counter()
++    grouped = defaultdict(list)
++    rows = []
++    for index, row in enumerate(dataset.rows):
++        if stopped():
++            raise StopRequested()
++        sample = sample_from_dataset(dataset, index, resolver, settings["device"])
++        if row["role"] != "VAL" or sample.identifier != row["id"]:
++            raise ValueError("VAL identity mismatch")
++        tasks = {}
++        for kind in available_tasks(sample, model.config):
++            result = model(sample, kind=kind, seed=settings["validation_seed"], epoch=0)
++            loss, *losses = torch.stack((result.mse, *result.channel_loss.values())).tolist()
++            texture = texture_mse(sample, result)
++            if not all(np.isfinite(v) for v in (loss, *losses)) or (texture is not None and not np.isfinite(texture)):
++                raise ValueError("Nonfinite validation metric")
++            channels = {sample.channels[i].name: value for i, value in zip(result.channel_loss, losses)}
++            tasks[kind] = dict(mse=loss, texture_gradient_mse=texture, channel_mse=channels,
++                               targets=result.predictions.numel())
++            for band, value in channels.items():
++                grouped[(row["sensor"], kind, band)].append(value)
++            del result
++        rows.append(dict(id=row["id"], sensor=row["sensor"], tasks=tasks))
++
++    def summary(members):
++        stats = {}
++        for kind in ("A", "B1"):
++            values = [m["tasks"][kind] for m in members if kind in m["tasks"]]
++            textures = [v["texture_gradient_mse"] for v in values if v["texture_gradient_mse"] is not None]
++            stats[kind] = dict(count=len(values), mse=float(np.mean([v["mse"] for v in values])),
++                               texture_gradient_mse=float(np.mean(textures)) if textures else None)
++        return stats
++
++    tasks = summary(rows)
++    if any(v["count"] != len(dataset.rows) for v in tasks.values()):
++        raise ValueError("Expected both validation tasks for every frozen member")
++    return dict(observations=len(rows), metric=float(np.mean([v["mse"] for v in tasks.values()])), tasks=tasks,
++                sensors={s:summary([r for r in rows if r["sensor"] == s]) for s in sorted({r["sensor"] for r in rows})},
++                bands=[dict(sensor=s, task=t, band=b, count=len(v), mse=float(np.mean(v)))
++                       for (s,t,b),v in sorted(grouped.items())],
++                seconds=time.perf_counter()-started, members=rows)
++
++
++def train(output, continuing):
++    config = read(output / "config.json")
++    manifest = read(output / "source_manifest.json")
++    if ROOT != output / "runtime" or any(sha256(ROOT / name) != value for name, value in manifest.items()):
++        raise ValueError("Frozen runtime verification failed")
++    settings = dict(config["training"], offload_native_values=float("inf"))
++    early_stop = settings.get("early_stopping")
++    validate_early_stop(early_stop)
++    device = settings["device"]
++    torch.cuda.set_device(device)
++    torch.set_num_threads(settings["threads"])
++    torch.backends.cuda.matmul.allow_tf32 = False
++    torch.backends.cudnn.allow_tf32 = False
++    torch.backends.cudnn.benchmark = False
++    if config["activation_policy"] == "gpu_resident_no_recomputation":
++        patch_model.checkpoint = lambda function, *args, **kwargs: function(*args)
++    datasets, resolver = load_data()
++    training, validation = datasets["TRAIN"], datasets["VAL"]
++    if (len(training.rows), len(validation.rows)) != (7442, 383):
++        raise ValueError("Frozen TRAIN/VAL counts changed")
++    binding = dict(identity(config, datasets, resolver), frozen_source=digest(manifest),
++                   architecture=config["architecture"])
++    plan_class = ProportionalEpochPlan if settings.get('batch_plan') == 'proportional' else EpochPlan
++    plan = plan_class(training.rows, settings["seed"], settings["batch_size"])
++    per_epoch, epochs = len(plan), settings["epochs"]
++    total = per_epoch * epochs
++    lookup = {r["id"]: i for i,r in enumerate(training.rows)}
++    reference = Counter(lookup.keys())
++    for epoch in range(epochs):
++        visited = Counter(r["id"] for i in range(per_epoch) for r in plan.batch(epoch*per_epoch+i))
++        if visited != reference:
++            raise ValueError("Planned TRAIN coverage is incomplete")
++
++    random.seed(settings["seed"])
++    np.random.seed(settings["seed"])
++    torch.manual_seed(settings["seed"])
++    model_config = Config(**config["model"])
++    model = Pretraining(model_config)
++    if model_config.learned_band_names:
++        expected = {band["band_key"] for row in training.rows for band in row["bands"]}
++        if set(model_config.learned_band_names) != expected:
++            raise ValueError("Ablation codebook differs from the frozen TRAIN bands")
++        if any(b["band_key"] not in expected for row in validation.rows for b in row["bands"]):
++            raise ValueError("Validation contains an unfitted band code")
++        # Match the random initialization of unchanged parameters across both arms.
++        with torch.random.fork_rng(devices=[]):
++            torch.random.default_generator.manual_seed(settings["seed"])
++            reference = Pretraining(replace(model_config, learned_band_names=(), query_source="descriptor"))
++        shared = {name: value for name, value in reference.state_dict().items()
++                  if name in model.state_dict() and value.shape == model.state_dict()[name].shape}
++        model.load_state_dict(shared, strict=False)
++        del reference
++    model = model.to(device)
++    devices = settings.get("devices", [device])
++    parallel = ParallelBatch(model, training, resolver, settings, devices) if len(devices) == 2 else None
++    if settings.get('spatial_cuda_graphs'):
++        shapes, coverage = common_shapes(training.rows, model_config.grid_metres)
++        prepare_spatial_graphs(model, shapes)
++        if parallel is not None:
++            prepare_spatial_graphs(parallel.replica, shapes)
++        write(output / 'spatial_graph_coverage.json', coverage)
++    optimizer = torch.optim.AdamW(model.parameters(), lr=settings["lr"], weight_decay=settings["weight_decay"])
++    state = dict(status="PREFLIGHT", cursor=0, spent_updates=0, epoch=0, observations_seen=0, total=total,
++                 batches_per_epoch=per_epoch, last_validation=-1, training_seconds=0., best_val=None,
++                 parameters=sum(p.numel() for p in model.parameters()), initial_parameter_sha=parameter_sha(model))
++    stopped = lambda: (output / "STOP_REQUESTED").exists()
++    if continuing:
++        resume(output / "last.pt", model, optimizer, state, binding)
++        if state["status"] == "COMPLETE":
++            raise ValueError("Run is already complete")
++        viewer = Path(state["viewer"])
++    else:
++        viewer = Path(config["viewer_root"]) / ("patch_latent_10epoch_" + uuid.uuid4().hex)
++
++    names = dict(train_loss="训练 A+B1", train_A="训练 A", train_B1="训练 B1", val_A="完整 VAL A",
++                 val_B1="完整 VAL B1", val_loss="完整 VAL A+B1", texture_A="VAL A 高纹理梯度误差",
++                 texture_B1="VAL B1 高纹理梯度误差", update_seconds="每步耗时", learning_rate="学习率")
++    metrics = {k:dict(label=v, direction="none" if k=="learning_rate" else "min",
++                      role="loss" if k.startswith(("train", "val", "texture")) else "other",
++                      unit="s" if k=="update_seconds" else "") for k,v in names.items()}
++
++    def progress(status, **extra):
++        write(output / "status.json", dict(state, status=status, **extra))
++
++    if model.config.huber_delta is not None:
++        for key in ("train_loss", "train_A", "train_B1"):
++            metrics[key]["label"] += " Huber"
++    if model.config.gradient_loss_weight:
++        for key in ('train_loss', 'train_B1'):
++            metrics[key]['label'] += ' + 原生梯度'
++    updates = output / "updates.jsonl"
++    variant = (dict(id="swin_shift_q4_10epoch", name="Swin 移窗 · Q4 · 10 轮", kind="modification",
++                    description="Alternating regular and half-shifted windows in each stage.")
++               if config["model"].get("spatial_scope") == "swin" else
++               dict(id="learned_decoder_10epoch", name="卷积 Decoder · 10 轮", kind="baseline"))
++    if model.config.decoder_mode == "continuous_native":
++        loss_name = "Huber" if model.config.huber_delta is not None else "MSE"
++        variant = dict(id=f"continuous_native_{loss_name.lower()}",
++                       name=f"Swin 连续解码与原生细节 · {loss_name}", kind="modification",
++                       description="Shared convolution after resize and descriptor-conditioned visible native detail.")
++    if tuple(model.config.spatial_scopes) == ("swin", "swin", "global"):
++        variant = dict(id=f"f3_global_{('huber' if model.config.huber_delta is not None else 'mse')}",
++                       name="F1/F2 移窗 · F3 全图", kind="modification",
++                       description="Only the final encoder stage reads all reduced keys and values.")
++    if all(s == 'mit' for s in model.config.spatial_scopes):
++        variant = dict(id='mit_global_ab30', name='全阶段全图压缩注意力 · 30轮上限', kind='modification',
++                       description='Full-stage convolution-reduced K/V, proportional sensor batches, native gradient supervision.')
++    if model.config.spectral_fusion_hidden is not None:
++        variant["id"] += f"_spectral_ffn{model.config.spectral_fusion_hidden}"
++        variant["name"] += " · 光谱 FFN"
++        variant["kind"] = "modification"
++        variant["description"] = variant.get("description", "") + " Nonlinear fusion after spectral queries."
++    if parallel is not None:
++        variant["id"] += "_dual"
++        variant["name"] += " · 双卡"
++        variant["kind"] = "modification"
++        variant["description"] = variant.get("description", "") + " Two-GPU synchronized updates."
++    if model.config.learned_band_names:
++        variant["id"] += "_no_descriptor"
++        variant["name"] += " · 无物理 Descriptor"
++        variant["description"] = variant.get("description", "") + " Trainable band codes and spectral queries."
++    numbers = ["learning_rate", "texture_A", "texture_B1"]
++    if early_stop:
++        variant["id"] += "_early_stop"
++        variant["name"] += " · 早停"
++        variant["kind"] = "modification"
++        variant["description"] = variant.get("description", "") + " Early stopping on full-validation A+B1 MSE."
++        metrics["early_stop_bad_epochs"] = dict(label="早停等待轮数", direction="none", role="other", unit="")
++        numbers.append("early_stop_bad_epochs")
++    with RunWriter(viewer, resume=continuing, experiment=dict(id="patch-latent-learned-ab",
++                   name="Patch Latent A+B1"), variant=variant, metrics=metrics,
++                   charts=["train_loss", "val_A", "val_B1", "update_seconds"],
++                   numbers=numbers, primary_metric="val_loss",
++                   config=dict(output=str(output), epochs=epochs, updates=total, early_stopping=early_stop)) as writer:
++        state.update(run_id=writer.meta["run_id"], viewer=str(viewer))
++        try:
++            if not continuing:
++                write(output / "identity.json", binding)
++                progress("PREFLIGHT")
++                preflight(model, training, resolver, settings, output, stopped)
++                save(output / "last.pt", model, optimizer, state, binding)
++            elif updates.exists():
++                lines = updates.read_text(encoding="utf-8").splitlines()
++                committed = [json.loads(line) for line in lines[:state["cursor"]]]
++                if [r["cursor"] for r in committed] != list(range(1,state["cursor"]+1)):
++                    raise ValueError("Missing committed TRAIN updates")
++                if len(lines) > len(committed):
++                    updates.write_text("".join(line+"\n" for line in lines[:len(committed)]), encoding="utf-8")
++
++            while True:
++                cursor = state["cursor"]
++                if cursor % per_epoch == 0 and state["last_validation"] != cursor:
++                    epoch = cursor//per_epoch
++                    progress("VALIDATING", validation_epoch=epoch)
++                    result = validate(model, validation, resolver, settings, stopped)
++                    write(output / f"validation_epoch_{epoch:02d}.json", result)
++                    state.update(epoch=epoch, last_validation=cursor,
++                                 latest_validation={k:v for k,v in result.items() if k != "members"})
++                    update_early_stop(state, early_stop, epoch, result["metric"])
++                    values = dict(val_loss=result["metric"])
++                    if early_stop:
++                        values["early_stop_bad_epochs"] = state.get("early_stopping", {}).get("bad_epochs", 0)
++                    for kind, info in result["tasks"].items():
++                        values["val_"+kind] = info["mse"]
++                        if info["texture_gradient_mse"] is not None:
++                            values["texture_"+kind] = info["texture_gradient_mse"]
++                    if epoch and (state["best_val"] is None or result["metric"] < state["best_val"]):
++                        state.update(best_epoch=epoch, best_val=result["metric"])
++                        save(output / "best.pt", model, optimizer, state, binding)
++                    save(output / "last.pt", model, optimizer, state, binding)
++                    writer.log(cursor, values, epoch=epoch)
++                    print("VAL", epoch, values, result["seconds"], flush=True)
++                if cursor == total or state.get("early_stopping", {}).get("triggered", False):
++                    break
++                model.train()
++                state.update(epoch=cursor//per_epoch, status="TRAINING")
++                progress("TRAINING")
++                start = time.perf_counter()
++                record = update(model, training, plan.batch(cursor), lookup, resolver, optimizer,
++                                state, settings, total, stopped=stopped, prefetch=True,
++                                backward_batch=parallel.backward if parallel else None)
++                seconds = time.perf_counter()-start
++                state["training_seconds"] += seconds
++                record.update(seconds=seconds, epoch=state["epoch"]+1)
++                append_event(updates, record)
++                save(output / "last.pt", model, optimizer, state, binding)
++                values = dict(train_loss=record["loss"], learning_rate=record["lr"], update_seconds=seconds)
++                for kind in ("A", "B1"):
++                    losses = [m["tasks"][kind]["loss"] for m in record["members"] if kind in m["tasks"]]
++                    if losses:
++                        values["train_"+kind] = float(np.mean(losses))
++                writer.log(state["cursor"], values, epoch=plan.progress(state["cursor"]))
++                print("UPDATE", state["cursor"], "/", total, round(seconds,3), flush=True)
++
++            completed = state["cursor"]//per_epoch
++            reason = "max_epochs" if state["cursor"] == total else "early_stopping"
++            if (not 1 <= completed <= epochs or state["cursor"] != completed*per_epoch
++                    or state["last_validation"] != state["cursor"]
++                    or state["observations_seen"] != len(training.rows)*completed
++                    or state["spent_updates"] != state["cursor"]
++                    or (reason == "early_stopping" and not state.get("early_stopping", {}).get("triggered", False))):
++                raise ValueError("Incomplete TRAIN coverage or VAL checkpoint at termination")
++            state.update(status="COMPLETE", epoch=completed, termination_reason=reason,
++                         final_parameter_sha=parameter_sha(model),
++                         peak_allocated_bytes=torch.cuda.max_memory_allocated(device),
++                         peak_reserved_bytes=torch.cuda.max_memory_reserved(device))
++            save(output / "last.pt", model, optimizer, state, binding)
++            progress("COMPLETE")
++        except StopRequested:
++            progress("STOPPED")
++        except Exception as error:
++            progress("FAILED", error=repr(error))
++            raise
++        finally:
++            if parallel is not None:
++                parallel.close()
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--config", type=Path, default=ROOT / "configs/config_patch_latent_prototype.json")
++    mode = parser.add_mutually_exclusive_group()
++    mode.add_argument("--prepare", action="store_true")
++    mode.add_argument("--resume", action="store_true")
++    args = parser.parse_args()
++    output = args.output.resolve()
++    if args.prepare:
++        prepare(output, args.config.resolve())
++    else:
++        train(output, args.resume)
++
+--- /dev/null
++++ b/earth-representation/scripts/probe_patch_latent.py
+@@ -0,0 +1,398 @@
++"""Bounded, read-only capacity profile or small optimization probe for the patch-latent prototype."""
++import ssl
++import argparse
++from collections import defaultdict
++from dataclasses import replace
++import json
++import math
++from pathlib import Path
++import statistics
++import sys
++import time
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT / "src"))
++
++import torch
++
++from encoder_v3.data import sha256
++from encoder_v3.hierarchical_revised.backbone_ab import BackboneAB
++from encoder_v3.hierarchical_revised.tasks import available_tasks
++from encoder_v3.patch_latent import Config, Pretraining
++from encoder_v3.shared_mae.data import load_data, sample_from_dataset
++from encoder_v3.shared_mae.geometry import AreaCache
++from encoder_v3.shared_mae.train import write
++
++
++def by_size(dataset):
++    groups = defaultdict(list)
++    for index, row in enumerate(dataset.rows):
++        size = sum(math.prod(b["shape"]) for b in row["bands"])
++        groups[row["sensor"]].append((size, row["id"], index))
++    return {sensor: sorted(rows) for sensor, rows in sorted(groups.items())}
++
++
++def build(arm, config, device, seed):
++    torch.manual_seed(seed)
++    if arm == "segformer":
++        return BackboneAB("segformer_b0", AreaCache()).to(device)
++    return Pretraining(config).to(device)
++
++
++def cases_for_profile(dataset):
++    for sensor, rows in by_size(dataset).items():
++        for rank, item in (("median", rows[len(rows)//2]), ("max", rows[-1])):
++            yield sensor, rank, item
++
++
++def cost(config, metrics):
++    stage_macs, merge_macs = [], []
++    for i, (_, width, h, w) in enumerate(metrics["stage_shapes"]):
++        q = math.ceil(h/config.window)*math.ceil(w/config.window)*config.window**2
++        k = q // config.spatial_reduction**2
++        depth = config.depths[i]
++        projection = 2*(q+k)*width**2*depth
++        attention = 2*metrics["stage_pairs"][i]*width
++        ffn = h*w*(4*width**2+18*width)*depth
++        stage_macs.append(projection+attention+ffn)
++        if i:
++            merge_macs.append(h*w*9*width*config.widths[i-1])
++    projections = (metrics["spectral_channel_positions"]*(config.patch_width+1)
++                   + metrics["spectral_descriptor_projections"]*config.descriptor)*config.latent_width
++    if config.spectral == "attention":
++        projections *= 2
++    return dict(stage_macs=stage_macs, merge_macs=merge_macs,
++                spectral_kv_macs=projections,
++                spectral_score_value_macs=2*metrics["spectral_pairs"]*config.latent_width)
++
++
++def synchronize(device):
++    if device.type == "cuda":
++        torch.cuda.synchronize(device)
++
++
++def marker(device):
++    if device.type == "cpu":
++        return time.perf_counter()
++    event = torch.cuda.Event(enable_timing=True)
++    event.record()
++    return event
++
++
++def milliseconds(start, end):
++    return start.elapsed_time(end) if isinstance(start, torch.cuda.Event) else 1000*(end-start)
++
++
++def reset_peak(device):
++    if device.type == "cuda":
++        torch.cuda.reset_peak_memory_stats(device)
++
++
++def allocated(device):
++    return torch.cuda.max_memory_allocated(device) if device.type == "cuda" else None
++
++
++def run_profile(config, settings, train, resolver, device, output, rank_filter):
++    records = []
++    for arm in ("segformer", "patch_latent"):
++        model = build(arm, config, device, settings["seed"])
++        timers = defaultdict(list)
++        if arm == "patch_latent":
++            timed = {"spectral": model.encoder.spectral, "patch_conv": model.encoder.spectral.patch,
++                     "decoder": model.decoder}
++            timed.update({f"stage_{i+1}_block_{j+1}": block for i, blocks in enumerate(model.encoder.stages)
++                          for j, block in enumerate(blocks)})
++            for label, module in timed.items():
++                def before(_, __, name=label):
++                    start = marker(device)
++                    timers[name].append([start, None])
++                def after(_, __, ___, name=label):
++                    end = marker(device)
++                    timers[name][-1][1] = end
++                module.register_forward_pre_hook(before)
++                module.register_forward_hook(after)
++        for sensor, rank, (size, member, index) in cases_for_profile(train):
++            if rank_filter != "all" and rank != rank_filter:
++                continue
++            synchronize(device)
++            started = time.perf_counter()
++            sample = sample_from_dataset(train, index, resolver, device)
++            synchronize(device)
++            read_seconds = time.perf_counter()-started
++            for task in available_tasks(sample, model.config):
++                for repeat in ("first", "repeat"):
++                    model.zero_grad(set_to_none=True)
++                    reset_peak(device)
++                    timers.clear()
++                    metrics = {}
++                    args = {"metrics": metrics} if arm == "patch_latent" else {}
++                    started = time.perf_counter()
++                    start = marker(device)
++                    context = torch.autograd.graph.save_on_cpu() if size >= 1000000 and device.type == "cuda" else torch.enable_grad()
++                    with context:
++                        result = model(sample, kind=task, seed=settings["seed"], **args)
++                    middle = marker(device)
++                    forward_ranges = {k: v.copy() for k,v in timers.items()}
++                    result.loss.backward()
++                    end = marker(device)
++                    synchronize(device)
++                    wall_seconds = time.perf_counter()-started
++                    grad = torch.nn.utils.clip_grad_norm_(model.parameters(), float("inf"), error_if_nonfinite=True)
++                    if not torch.isfinite(result.loss):
++                        raise ValueError("Nonfinite capacity loss")
++                    if metrics:
++                        metrics.update(cost(config, metrics))
++                        metrics["forward_module_ms"] = {k:sum(milliseconds(a,b) for a,b in events if b is not None)
++                                                        for k,events in forward_ranges.items()}
++                    row = dict(arm=arm, sensor=sensor, rank=rank, id=member, task=task,
++                               repeat=repeat, native_values=size, targets=len(result.predictions),
++                               read_seconds=read_seconds, wall_seconds=wall_seconds,
++                               forward_ms=milliseconds(start,middle), backward_ms=milliseconds(middle,end),
++                               allocated_bytes=allocated(device),
++                               reserved_bytes=torch.cuda.max_memory_reserved(device) if device.type == "cuda" else None,
++                               parameters=sum(p.numel() for p in model.parameters()),
++                               loss=float(result.loss.detach()), gradient_norm=float(grad), metrics=metrics)
++                    records.append(row)
++                    write(output / "profile.json", records)
++                    print(arm, sensor, rank, task, repeat, round(wall_seconds,3), flush=True)
++                    del result
++            del sample
++        del model
++        if device.type == "cuda":
++            torch.cuda.empty_cache()
++
++
++def run_frontend(config, settings, dataset, resolver, device, output):
++    """Single largest S2 native band, same keep mask, standalone convolution comparison."""
++    from encoder_v3.hierarchical_revised.tasks import task_masks
++
++    _, member, index = by_size(dataset)["S2"][-1]
++    model = build("patch_latent", config, device, settings["seed"]).eval()
++    baseline = build("segformer", config, device, settings["seed"]).eval()
++    sample = sample_from_dataset(dataset, index, resolver, device)
++    channel = max(range(len(sample.channels)), key=lambda i: sample.channels[i].values.numel())
++    source = sample.channels[channel]
++    keep = task_masks(sample, config, "A", settings["seed"], 0)[0][channel]
++    records = []
++    with torch.no_grad():
++        descriptor = model.encoder.descriptor([source.physical])
++        old_kernel, old_bias = baseline.native.generator(descriptor)
++        new_kernel, new_bias = model.encoder.spectral.patch.generator(descriptor)
++        def dense():
++            clean = torch.where(keep, source.values, 0.)
++            return torch.nn.functional.gelu(torch.nn.functional.conv2d(
++                clean[None, None], old_kernel[0], old_bias[0], padding=1))
++        def patch():
++            return model.encoder.spectral.patch(source.values[None], keep[None], new_kernel, new_bias)[0]
++        for arm, execute in (("dense_3x3_stride1", dense), ("dynamic_7x7_stride4", patch)):
++            for repeat in range(3):
++                synchronize(device)
++                baseline_bytes = torch.cuda.memory_allocated(device) if device.type == "cuda" else None
++                reset_peak(device)
++                start = marker(device)
++                result = execute()
++                end = marker(device)
++                synchronize(device)
++                peak = allocated(device)
++                records.append(dict(id=member, band=source.name, arm=arm, repeat=repeat,
++                                    tokens=result.numel()//config.patch_width,
++                                    forward_ms=milliseconds(start,end),
++                                    incremental_peak_bytes=peak-baseline_bytes if peak is not None else None))
++                del result
++    write(output / "frontend.json", records)
++
++def run_stages(config, settings, dataset, device, output):
++    """Isolated stage forward/backward at the largest S2 reference shape."""
++    from types import SimpleNamespace
++
++    from encoder_v3.latent_response.types import NativeGrid
++    from encoder_v3.shared_mae.geometry import metric_geometry
++
++    _, member, index = by_size(dataset)["S2"][-1]
++    geometry = metric_geometry([SimpleNamespace(grid=NativeGrid(tuple(b["transform"]), tuple(b["shape"]),
++                                                                 b["crs"]))
++                                for b in dataset.rows[index]["bands"]], config.grid_metres)
++    model = build("patch_latent", config, device, settings["seed"])
++    records = []
++    height, width = geometry.shape
++    for stage, (blocks, channels) in enumerate(zip(model.encoder.stages, config.widths), 1):
++        if stage > 1:
++            height, width = (height+1)//2, (width+1)//2
++        feature = torch.randn(1, channels, height, width, device=device, requires_grad=True)
++        support = torch.ones(1, 1, height, width, dtype=torch.bool, device=device)
++        for repeat in ("first", "repeat"):
++            model.zero_grad(set_to_none=True)
++            feature.grad = None
++            synchronize(device)
++            starting_bytes = torch.cuda.memory_allocated(device) if device.type == "cuda" else None
++            reset_peak(device)
++            start = marker(device)
++            value = feature
++            for block in blocks:
++                value = block(value, support)
++            middle = marker(device)
++            value.square().mean().backward()
++            end = marker(device)
++            synchronize(device)
++            peak = allocated(device)
++            records.append(dict(member=member, stage=stage, shape=list(feature.shape),
++                                tokens=height*width, repeat=repeat, forward_ms=milliseconds(start,middle),
++                                backward_ms=milliseconds(middle,end),
++                                incremental_peak_bytes=peak-starting_bytes if peak is not None else None))
++            del value
++    write(output / "stages.json", records)
++
++def texture_mse(sample, result):
++    """Gradient MSE on the upper quartile of truth contrast across adjacent hidden pairs."""
++    offset = 0
++    metrics = []
++    for channel, target in zip(sample.channels, result.targets):
++        n = int(target.sum())
++        predicted = channel.values.new_zeros(channel.values.shape)
++        predicted[target] = result.predictions[offset:offset+n]
++        offset += n
++        truth = channel.values
++        for axis in (0, 1):
++            valid = (target[:-1] & target[1:]) if axis == 0 else (target[:, :-1] & target[:, 1:])
++            if bool(valid.any()):
++                detail = truth.diff(dim=axis)[valid]
++                error = predicted.diff(dim=axis)[valid]-detail
++                strong = detail.abs() >= torch.quantile(detail.abs(), .75)
++                metrics.append(float(error[strong].square().mean()))
++    return statistics.mean(metrics) if metrics else None
++
++
++def panel(dataset, count, seed):
++    import random
++    rng = random.Random(seed)
++    selected = []
++    for rows in by_size(dataset).values():
++        selected.extend(x[2] for x in rng.sample(rows, count))
++    return selected
++
++
++def run_ablation(config, settings, datasets, resolver, device, output):
++    train, val = datasets["TRAIN"], datasets["VAL"]
++    train_panel = panel(train, settings["train_per_sensor"], settings["seed"])
++    val_panel = panel(val, settings["val_per_sensor"], settings["seed"])
++    # Equalize storage warmup and normalization across arms. Timed training still moves each sample to the device.
++    prepared = {}
++    started = time.perf_counter()
++    for name, dataset, indices in (("train", train, train_panel), ("val", val, val_panel)):
++        for index in indices:
++            prepared[name, index] = sample_from_dataset(dataset, index, resolver, "cpu")
++    preparation_seconds = time.perf_counter()-started
++
++    def sample_to_device(name, index):
++        host = prepared[name, index]
++        return replace(host, channels=[replace(c, values=c.values.to(device), valid=c.valid.to(device))
++                                       for c in host.channels])
++    arms = {
++        "segformer": config,
++        "mean": replace(config, spectral="mean"),
++        "latent_1": replace(config, latents=1),
++        "latent_2": config,
++        "latent_4": replace(config, latents=4),
++        "latent_self": replace(config, latent_self_attention=True),
++        "four_stages": replace(config, widths=(*config.widths, 128),
++                               heads=(*config.heads, 4), depths=(*config.depths, 1)),
++    }
++    results, masks_ref = {}, {}
++    for arm, settings_model in arms.items():
++        model = build(arm, settings_model, device, settings["seed"])
++        optimizer = torch.optim.AdamW(model.parameters(), lr=settings["learning_rate"], weight_decay=.04)
++        def evaluate():
++            model.eval()
++            result = defaultdict(list)
++            with torch.no_grad():
++                for index in val_panel:
++                    sample = sample_to_device("val", index)
++                    for task in available_tasks(sample, model.config):
++                        view = model(sample, kind=task, seed=settings["seed"], epoch=0)
++                        key = (sample.identifier, task)
++                        masks = tuple(sha256_tensor(m) for m in view.targets)
++                        if key in masks_ref and masks_ref[key] != masks:
++                            raise ValueError("Evaluation masks changed")
++                        masks_ref[key] = masks
++                        result[task].append(dict(id=sample.identifier, mse=float(view.loss),
++                                                 texture_gradient_mse=texture_mse(sample, view)))
++            return {k: dict(mse=statistics.mean(r["mse"] for r in rows),
++                            texture_gradient_mse=statistics.mean(r["texture_gradient_mse"] for r in rows
++                                                               if r["texture_gradient_mse"] is not None),
++                            members=rows) for k,rows in result.items()}
++
++        initial = evaluate()
++        model.train()
++        losses = []
++        synchronize(device)
++        reset_peak(device)
++        started = time.perf_counter()
++        for step in range(settings["steps"]):
++            sample = sample_to_device("train", train_panel[step % len(train_panel)])
++            optimizer.zero_grad(set_to_none=True)
++            kinds = available_tasks(sample, model.config)
++            objective = 0.
++            for task in kinds:
++                result = model(sample, kind=task, seed=settings["seed"], epoch=step)
++                (result.loss/len(kinds)).backward()
++                objective += float(result.loss.detach())/len(kinds)
++                del result
++            torch.nn.utils.clip_grad_norm_(model.parameters(), float("inf"), error_if_nonfinite=True)
++            optimizer.step()
++            losses.append(objective)
++        synchronize(device)
++        seconds = time.perf_counter()-started
++        peak = allocated(device)
++        final = evaluate()
++        results[arm] = dict(initial=initial, final=final, losses=losses, train_seconds=seconds,
++                            common_cpu_preparation_seconds=preparation_seconds,
++                            allocated_bytes=peak, parameters=sum(p.numel() for p in model.parameters()))
++        write(output / "ablation.json", results)
++        print(arm, round(seconds,2), {k:round(v["mse"],5) for k,v in final.items()}, flush=True)
++        del optimizer, model
++        if device.type == "cuda":
++            torch.cuda.empty_cache()
++
++
++def sha256_tensor(mask):
++    from hashlib import sha256 as hash_bytes
++    return hash_bytes(mask.detach().cpu().numpy().tobytes()).hexdigest()
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--config", type=Path, default=ROOT/"configs/config_patch_latent_prototype.json")
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--device", default="cuda:0")
++    parser.add_argument("--rank", choices=("all","median","max"), default="all")
++    parser.add_argument("--mode", choices=("profile","ablation","stages","frontend"), required=True)
++    args = parser.parse_args()
++    document = json.loads(args.config.read_text(encoding="utf-8"))
++    if document["status"] != "engineering_candidate" or not 1 <= document["engineering"]["steps"] <= 16:
++        parser.error("Only a bounded engineering experiment is enabled")
++    args.output.mkdir(parents=True)
++    device = torch.device(args.device)
++    torch.set_num_threads(4 if device.type == "cpu" else 2)
++    if device.type == "cuda":
++        torch.cuda.set_device(device)
++    torch.backends.cuda.matmul.allow_tf32 = False
++    torch.backends.cudnn.allow_tf32 = False
++    datasets, resolver = load_data()
++    cfg = Config(**document["model"])
++    write(args.output / "identity.json", dict(config=document, device=args.device,
++          gpu=torch.cuda.get_device_name(device) if device.type == "cuda" else None, torch=torch.__version__,
++          data={k:v.identities for k,v in datasets.items()}, catalog=resolver.catalog_sha,
++          source={str(p.relative_to(ROOT)):sha256(p) for p in (*Path(__file__).parent.glob("probe_patch_latent.py"),
++                    *(ROOT/"src/encoder_v3/patch_latent").glob("*.py"))}))
++    if args.mode == "profile":
++        run_profile(cfg, document["engineering"], datasets["TRAIN"], resolver, device, args.output, args.rank)
++    elif args.mode == "frontend":
++        run_frontend(cfg, document["engineering"], datasets["TRAIN"], resolver, device, args.output)
++    elif args.mode == "stages":
++        run_stages(cfg, document["engineering"], datasets["TRAIN"], device, args.output)
++    else:
++        run_ablation(cfg, document["engineering"], datasets, resolver, device, args.output)
++
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/earth-representation/scripts/run_encoder_backbone_ab.py
+@@ -0,0 +1,288 @@
++"""Freeze, preflight and run the paired one-epoch backbone experiment."""
++import ssl
++import argparse
++from collections import Counter, defaultdict
++import gc
++import json
++import math
++from pathlib import Path
++import random
++import shutil
++import sys
++import time
++import uuid
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT / "src"))
++
++import numpy as np
++import torch
++import torchvision
++import transformers
++
++from encoder_v3.data import sha256
++from encoder_v3.hierarchical_revised.backbone_ab import BackboneAB
++from encoder_v3.hierarchical_revised.tasks import available_tasks, task_masks
++from encoder_v3.hierarchical_revised.train import evaluate, save, update
++from encoder_v3.latent_response.checkpoint import digest, parameter_sha
++from encoder_v3.latent_response.run_control import append_event
++from encoder_v3.shared_mae.data import EpochPlan, identity as data_identity, load_data, sample_from_dataset
++from encoder_v3.shared_mae.geometry import AreaCache
++from encoder_v3.shared_mae.train import StopRequested, write
++
++ARMS = ("resnet50", "segformer_b0")
++
++
++def read(path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def freeze(output):
++    output.mkdir(parents=True)
++    runtime = output / "runtime"
++    source = ROOT / "src/encoder_v3"
++    paths = list(source.glob("*.py"))
++    for folder in ("shared_mae", "latent_response", "hierarchical", "hierarchical_revised"):
++        paths.extend((source / folder).glob("*.py"))
++    paths.extend(ROOT / p for p in (
++        "scripts/run_encoder_backbone_ab.py", "scripts/train_v3_h_revised.py",
++        "src/encoder_v3/config_optical_selfsup_v1.json", "configs/config_lr_e0_v1.json",
++        "outputs/encoder_v3/latent_response/channel_catalog_frozen.json",
++        "data/physics/sensor_physics.json"))
++    manifest = {}
++    for path in paths:
++        rel = path.relative_to(ROOT)
++        destination = runtime / rel
++        destination.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(path, destination)
++        manifest[rel.as_posix()] = sha256(destination)
++    for arm in ARMS:
++        shutil.copy2(ROOT / "configs" / f"config_backbone_ab_{arm}.json", output / f"{arm}.json")
++    write(output / "source_manifest.json", manifest)
++
++
++def initialize(arm, settings, cache):
++    seed = settings["seed"]
++    random.seed(seed)
++    np.random.seed(seed)
++    torch.manual_seed(seed)
++    return BackboneAB(arm, cache).to(settings["device"])
++
++
++def largest_indices(dataset):
++    largest = {}
++    for i, row in enumerate(dataset.rows):
++        size = sum(math.prod(band["shape"]) for band in row["bands"])
++        candidate = (size, row["id"], i)
++        if row["sensor"] not in largest or candidate > largest[row["sensor"]]:
++            largest[row["sensor"]] = candidate
++    return {sensor: row[2] for sensor, row in sorted(largest.items())}
++
++
++def preflight(output, configs, dataset, resolver, cache, stopped):
++    records = []
++    for arm in ARMS:
++        settings = configs[arm]["training"]
++        device = settings["device"]
++        model = initialize(arm, settings, cache)
++        for sensor, i in largest_indices(dataset).items():
++            if stopped():
++                raise StopRequested()
++            sample = sample_from_dataset(dataset, i, resolver, device)
++            for kind in available_tasks(sample, model.config):
++                write(output / "status.json", dict(status="PREFLIGHT", arm=arm, sensor=sensor,
++                                                  member=sample.identifier, task=kind))
++                torch.cuda.reset_peak_memory_stats(device)
++                start = time.perf_counter()
++                model.zero_grad(set_to_none=True)
++                with torch.autograd.graph.save_on_cpu():
++                    result = model(sample, kind=kind, seed=settings["seed"])
++                targets = task_masks(sample, model.config, kind, settings["seed"], 0)[1]
++                if not all(torch.equal(a, b) for a, b in zip(result.targets, targets)):
++                    raise ValueError("Target masks changed")
++                if not torch.isfinite(result.loss):
++                    raise ValueError("Nonfinite preflight loss")
++                result.loss.backward()
++                norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), float("inf"),
++                                                           error_if_nonfinite=True))
++                record = dict(arm=arm, sensor=sensor, id=sample.identifier, task=kind,
++                              targets=len(result.predictions), loss=float(result.loss.detach()),
++                              gradient_norm=norm, seconds=time.perf_counter()-start,
++                              peak_allocated_bytes=torch.cuda.max_memory_allocated(device),
++                              peak_reserved_bytes=torch.cuda.max_memory_reserved(device))
++                records.append(record)
++                write(output / "preflight_progress.json", records)
++                print("PREFLIGHT", record, flush=True)
++                del result
++            del sample
++        del model
++        gc.collect()
++        torch.cuda.empty_cache()
++    write(output / "preflight.json", dict(status="PASS", records=records))
++
++
++def validation(model, dataset, resolver, settings, run, phase, stopped, progress):
++    start = time.perf_counter()
++    report = evaluate(model, dataset, resolver, settings, stopped,
++                      lambda extra: progress(phase, **extra))
++    report["seconds"] = time.perf_counter()-start
++    grouped = defaultdict(list)
++    for member in report["members"]:
++        for task, value in member["tasks"].items():
++            for channel, mse in value["channel_mse"].items():
++                grouped[(member["sensor"], task, channel)].append(mse)
++    report["bands"] = [dict(sensor=sensor, task=task, band=band, eligible=len(values),
++                            mse=sum(values)/len(values))
++                       for (sensor, task, band), values in sorted(grouped.items())]
++    if Counter(m["id"] for m in report["members"]) != Counter(r["id"] for r in dataset.rows):
++        raise ValueError("Incomplete VAL coverage")
++    write(run / f"{phase}.json", report)
++    return report
++
++
++def train_arm(output, config, datasets, resolver, cache, stopped):
++    arm, settings = config["backbone"], config["training"]
++    device = settings["device"]
++    run = output / arm
++    run.mkdir()
++    write(run / "config.json", config)
++    binding = data_identity(config, datasets, resolver)
++    binding.update(architecture=config["architecture"], backbone=arm, frozen_source=digest(read(output / "source_manifest.json")))
++    write(run / "identity.json", binding)
++    model = initialize(arm, settings, cache)
++    optimizer = torch.optim.AdamW(model.parameters(), lr=settings["lr"],
++                                  weight_decay=settings["weight_decay"])
++    dataset = datasets["TRAIN"]
++    plan = EpochPlan(dataset.rows, settings["seed"], settings["batch_size"])
++    lookup = {r["id"]: i for i, r in enumerate(dataset.rows)}
++    state = dict(run_id=uuid.uuid4().hex, arm=arm, cursor=0, spent_updates=0, epoch=0,
++                 observations_seen=0, total_batches=len(plan),
++                 parameters=sum(p.numel() for p in model.parameters()),
++                 initial_parameter_sha=parameter_sha(model))
++    def progress(phase, **extra):
++        report = dict(state, status=phase, **extra)
++        write(run / "status.json", report)
++        write(output / "status.json", report)
++
++    save(run / "initial.pt", model, optimizer, state, binding)
++    torch.cuda.reset_peak_memory_stats(device)
++    initial = validation(model, datasets["VAL"], resolver, settings, run,
++                         "initial_validation", stopped, progress)
++    if parameter_sha(model) != state["initial_parameter_sha"]:
++        raise ValueError("Initial validation changed model state")
++    model.train()
++    start = time.perf_counter()
++    updates_seconds = 0.
++    first42_seconds = None
++    observed = Counter()
++    while state["cursor"] < len(plan):
++        if stopped():
++            raise StopRequested()
++        rows = plan.batch(state["cursor"])
++        batch_start = time.perf_counter()
++        record = update(model, dataset, rows, lookup, resolver, optimizer, state, settings,
++                        len(plan), run, stopped, lambda extra: progress("TRAINING", **extra))
++        record["seconds"] = time.perf_counter()-batch_start
++        updates_seconds += record["seconds"]
++        observed.update(m["id"] for m in record["members"])
++        append_event(run / "updates.jsonl", record)
++        save(run / "last.pt", model, optimizer, state, binding)
++        if state["cursor"] == 42:
++            first42_seconds = time.perf_counter()-start
++        progress("TRAINING")
++        print(arm, "UPDATE", state["cursor"], "/", len(plan), record["loss"], record["seconds"], flush=True)
++    if observed != Counter(lookup.keys()):
++        raise ValueError("Incomplete TRAIN coverage")
++    training_seconds = time.perf_counter()-start
++    final = validation(model, datasets["VAL"], resolver, settings, run,
++                       "final_validation", stopped, progress)
++    state.update(status="COMPLETE", training_seconds=training_seconds,
++                 updates_seconds=updates_seconds, first42_training_seconds=first42_seconds,
++                 initial_validation_seconds=initial["seconds"], final_validation_seconds=final["seconds"],
++                 initial_tasks=initial["tasks"], final_tasks=final["tasks"],
++                 peak_allocated_bytes=torch.cuda.max_memory_allocated(device),
++                 peak_reserved_bytes=torch.cuda.max_memory_reserved(device),
++                 final_parameter_sha=parameter_sha(model))
++    save(run / "last.pt", model, optimizer, state, binding)
++    write(run / "status.json", state)
++    return state
++
++
++def matched_prefix(output, baseline):
++    def records(path):
++        return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()][:42]
++    reference = records(baseline)
++    def signature(rows):
++        return [[(m["id"], {k: v["targets"] for k, v in m["tasks"].items()})
++                 for m in row["members"]] for row in rows]
++    if len(reference) != 42:
++        raise ValueError("Expected 42 paused V3-H-R batches")
++    times = {"v3_h_r": sum(r["seconds"] for r in reference)}
++    for arm in ARMS:
++        rows = records(output / arm / "updates.jsonl")
++        if signature(rows) != signature(reference):
++            raise ValueError("First-42 member order or target counts differ")
++        times[arm] = sum(r["seconds"] for r in rows)
++    return times
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--baseline-updates", type=Path)
++    parser.add_argument("--prepare", action="store_true")
++    args = parser.parse_args()
++    output = args.output.resolve()
++    if args.prepare:
++        freeze(output)
++        return
++    if not args.baseline_updates or ROOT != output / "runtime":
++        parser.error("Run from the frozen runtime with the paused baseline updates")
++    if (output / "status.json").exists():
++        parser.error("This paired release has already been started")
++    manifest = read(output / "source_manifest.json")
++    if any(sha256(ROOT / name) != expected for name, expected in manifest.items()):
++        raise ValueError("Frozen runtime files changed")
++    configs = {arm: read(output / f"{arm}.json") for arm in ARMS}
++    settings = configs[ARMS[0]]["training"]
++    if any(c["training"] != settings or c["backbone"] != arm for arm, c in configs.items()):
++        raise ValueError("Backbone comparison requires identical training settings")
++    if settings["epochs"] != 1 or settings["precision"] != "float32" or settings["optimizer"] != "AdamW":
++        raise ValueError("Expected the approved one-epoch FP32 AdamW budget")
++    if any((c["grid_metres"], c["mask_patch_metres"], c["mask_ratio"]) != (32, 128, .55)
++           for c in configs.values()):
++        raise ValueError("Expected 32 m input and the frozen A mask settings")
++    torch.cuda.set_device(settings["device"])
++    torch.set_num_threads(settings["threads"])
++    torch.backends.cuda.matmul.allow_tf32 = False
++    torch.backends.cudnn.allow_tf32 = False
++    torch.backends.cudnn.benchmark = False
++    cache = AreaCache()
++    write(output / "environment.json", dict(torch=torch.__version__, torchvision=torchvision.__version__,
++          transformers=transformers.__version__, gpu=torch.cuda.get_device_name(settings["device"])))
++    stopped = lambda: (output / "STOP_REQUESTED").exists()
++    try:
++        write(output / "status.json", dict(status="LOADING"))
++        datasets, resolver = load_data()
++        if (len(datasets["TRAIN"].rows), len(datasets["VAL"].rows)) != (7442, 383):
++            raise ValueError("Frozen membership counts changed")
++        preflight(output, configs, datasets["TRAIN"], resolver, cache, stopped)
++        results = {}
++        for arm in ARMS:
++            results[arm] = train_arm(output, configs[arm], datasets, resolver, cache, stopped)
++            gc.collect()
++            torch.cuda.empty_cache()
++        report = dict(status="COMPLETE", results=results,
++                      first42_update_seconds=matched_prefix(output, args.baseline_updates),
++                      baseline_updates_sha256=sha256(args.baseline_updates))
++        write(output / "comparison.json", report)
++        write(output / "status.json", report)
++    except StopRequested:
++        write(output / "status.json", dict(read(output / "status.json"), status="STOPPED"))
++    except Exception as error:
++        write(output / "status.json", dict(read(output / "status.json"), status="FAILED", error=repr(error)))
++        raise
++
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/earth-representation/outputs/encoder_v3/latent_response/channel_catalog_frozen.json
+@@ -0,0 +1,157 @@
++{
++  "schema": "latent_response_channel_catalog_v1",
++  "architecture_id": "latent_response_sensor_memory_v1",
++  "spec_revision": "1.2",
++  "source": {
++    "members": "earth-representation\\observation_model\\outputs\\encoder_v2\\data_expansion\\members.jsonl",
++    "manifest_sha256": "b3c16c5b4a23e9454b20c32579203a3abc854430733bf2b11fccb7f533e0943c",
++    "member_count": 7778
++  },
++  "policy": {
++    "scope": "release union of observed channels per SensorKey",
++    "ordinal_base": 0,
++    "total": "union size",
++    "order": "native product order",
++    "b8a": "between B08 and B11",
++    "not_product_catalog": "13-band L2A product catalog is not used; no per-subset renumbering"
++  },
++  "sensors": [
++    {
++      "sensor_key": "L8/LC08",
++      "platform": "L8",
++      "instrument": "LC08",
++      "total_channels": 7,
++      "channels": [
++        "SR_B1",
++        "SR_B2",
++        "SR_B3",
++        "SR_B4",
++        "SR_B5",
++        "SR_B6",
++        "SR_B7"
++      ],
++      "ordinals": {
++        "SR_B1": 0,
++        "SR_B2": 1,
++        "SR_B3": 2,
++        "SR_B4": 3,
++        "SR_B5": 4,
++        "SR_B6": 5,
++        "SR_B7": 6
++      }
++    },
++    {
++      "sensor_key": "L9/LC09",
++      "platform": "L9",
++      "instrument": "LC09",
++      "total_channels": 6,
++      "channels": [
++        "SR_B2",
++        "SR_B3",
++        "SR_B4",
++        "SR_B5",
++        "SR_B6",
++        "SR_B7"
++      ],
++      "ordinals": {
++        "SR_B2": 0,
++        "SR_B3": 1,
++        "SR_B4": 2,
++        "SR_B5": 3,
++        "SR_B6": 4,
++        "SR_B7": 5
++      }
++    },
++    {
++      "sensor_key": "S2/S2A",
++      "platform": "S2",
++      "instrument": "S2A",
++      "total_channels": 10,
++      "channels": [
++        "B02",
++        "B03",
++        "B04",
++        "B05",
++        "B06",
++        "B07",
++        "B08",
++        "B8A",
++        "B11",
++        "B12"
++      ],
++      "ordinals": {
++        "B02": 0,
++        "B03": 1,
++        "B04": 2,
++        "B05": 3,
++        "B06": 4,
++        "B07": 5,
++        "B08": 6,
++        "B8A": 7,
++        "B11": 8,
++        "B12": 9
++      }
++    },
++    {
++      "sensor_key": "S2/S2B",
++      "platform": "S2",
++      "instrument": "S2B",
++      "total_channels": 10,
++      "channels": [
++        "B02",
++        "B03",
++        "B04",
++        "B05",
++        "B06",
++        "B07",
++        "B08",
++        "B8A",
++        "B11",
++        "B12"
++      ],
++      "ordinals": {
++        "B02": 0,
++        "B03": 1,
++        "B04": 2,
++        "B05": 3,
++        "B06": 4,
++        "B07": 5,
++        "B08": 6,
++        "B8A": 7,
++        "B11": 8,
++        "B12": 9
++      }
++    },
++    {
++      "sensor_key": "S2/S2C",
++      "platform": "S2",
++      "instrument": "S2C",
++      "total_channels": 10,
++      "channels": [
++        "B02",
++        "B03",
++        "B04",
++        "B05",
++        "B06",
++        "B07",
++        "B08",
++        "B8A",
++        "B11",
++        "B12"
++      ],
++      "ordinals": {
++        "B02": 0,
++        "B03": 1,
++        "B04": 2,
++        "B05": 3,
++        "B06": 4,
++        "B07": 5,
++        "B08": 6,
++        "B8A": 7,
++        "B11": 8,
++        "B12": 9
++      }
++    }
++  ],
++  "catalog_sha256": "82b9eda0cff0b77d1328d89a42d5625cf62358ccc308ccad044b7dc936f038c4"
++}

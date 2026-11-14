@@ -1,0 +1,13 @@
+id,stage,parent,changed_factor,max_updates,launch_gate
+S1-REPLAY,S1,83f833a1ef5e4515825c1457b6e4278d,read-only frozen replay,0,G0
+AE-L,S5,B0,full visible old shared path,400,G4
+AE-F,S5,AE-L,new complete shared path,400,G4
+OR-D0,S5,AE-L,independent latent replaces encoder,400,G4
+OR-D1,S5,OR-D0,D1 terminal only,400,G4
+B0,S6,,historical architecture under validated reference executor,233,G5
+BP,S6,B0,physical Q/K positioning,233,G5
+N0,S6,BP,combined ordered frontend and spatial fusion,233,G5
+N1,S6,N0,two shared residual blocks,233,G5
+N2,S6,N1,learned FiLM modulation,233,G5
+C,S6,N2,D1 terminal only,233,G5
+PD,S6,BP,D1 terminal only in old frontend,233,registered interaction trigger

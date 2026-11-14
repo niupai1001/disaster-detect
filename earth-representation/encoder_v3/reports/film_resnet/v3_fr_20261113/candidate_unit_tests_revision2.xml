@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="29" time="4.829" timestamp="2026-11-13T08:23:45.502750-05:00"><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[holes-10.0-4]" time="0.299" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[holes-20.0-2]" time="0.002" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[holes-30.0-1]" time="0.002" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[holes-60.0-1]" time="0.002" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[empty-10.0-4]" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[empty-20.0-2]" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[empty-30.0-1]" time="0.002" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[empty-60.0-1]" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[one-10.0-4]" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[one-20.0-2]" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[one-30.0-1]" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t01_t02_roundtrip[one-60.0-1]" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t03_t04_content_and_empty" time="0.006" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t05_t06_film_identity_and_gradients" time="0.030" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t07_cross_pack_dependency" time="0.012" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t08_halo_output_and_gradient[tile0]" time="0.070" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t08_halo_output_and_gradient[tile1]" time="0.039" /><testcase classname="encoder_v3.film_resnet.test_frontend" name="test_t08_halo_output_and_gradient[tile2]" time="0.056" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t09_independent_overlap[10.0]" time="0.007" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t09_independent_overlap[20.0]" time="0.015" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t09_independent_overlap[30.0]" time="0.012" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t10_phase_and_slot_reshape" time="0.012" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t11_t12_channel_order_and_chunks" time="3.562" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t12_stable_empty_slots" time="0.003" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t14_t15_positions_and_partial_pool" time="0.007" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_t18_decoder_phase_order" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_unsupported_geometry_and_config" time="0.001" /><testcase classname="encoder_v3.film_resnet.test_fusion_model" name="test_common_fusion_initialization_with_and_without_resnet" time="0.025" /><testcase classname="encoder_v3.film_resnet.test_task_protocol" name="test_t26_frozen_task_order_and_repeatability" time="0.002"><failure message="AttributeError: 'types.SimpleNamespace' object has no attribute 'values'">def test_t26_frozen_task_order_and_repeatability():
+        grid = NativeGrid((10.,0.,500000.,0.,-10.,3000000.),(40,44),"EPSG:32630")
+        physical = SimpleNamespace(modality="optical")
+        valid = torch.ones(grid.shape,dtype=torch.bool)
+        channels = [SimpleNamespace(grid=grid,valid=valid.clone(),physical=physical,name=name)
+                    for name in ("B02","B03","B04","B08")]
+        # A and B1 select by immutable identity and exposure rather than global RNG state.
+        sample = SimpleNamespace(identifier="v3_fr_synthetic_mask_protocol",channels=channels)
+        config = Config()
+        tasks = {}
+        for kind in ("A","B1","B1","A"):
+&gt;           actual = task_masks(sample,config,kind,17,0)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+v3-fr\tests\encoder_v3\film_resnet\test_task_protocol.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+outputs\encoder_v3\patch_latent\mit_global_ab30_v1\release\runtime\src\encoder_v3\hierarchical_revised\tasks.py:40: in task_masks
+    return HierarchicalMAE.masks(options, sample, layout, "A", seed, epoch)[:2]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(mask_ratio=0.55)
+sample = namespace(identifier='v3_fr_synthetic_mask_protocol', channels=[namespace(grid=NativeGrid(affine=(10.0, 0.0, 500000.0,...rue, True],
+        [True, True, True,  ..., True, True, True]]), physical=namespace(modality='optical'), name='B08')])
+layout = (FullGeometry(grids=(NativeGrid(affine=(10.0, 0.0, 500000.0, 0.0, -10.0, 3000000.0), shape=(40, 44), crs='EPSG:32630')...16384.,
+        16384., 16384.,  7168.,  2048.,  2048.,  2048.,   896.]), pixels=1760, pixel_area=100.0))], None, None)
+kind = 'A', seed = 17, epoch = 0
+
+    def masks(self,sample,layout,kind,seed,epoch):
+        geo,parts,maps,_,_=layout
+&gt;       device=sample.channels[0].values.device
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'values'
+
+outputs\encoder_v3\patch_latent\mit_global_ab30_v1\release\runtime\src\encoder_v3\hierarchical\model.py:425: AttributeError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,14 @@
+interface,shape,geometry,permission,symbol
+clean native,[H W],native north-up affine,visible AND QA only,frontend.VisibleBand.from_native
+ordered pack,[16 Hp Wp],right and bottom padding; ay*r+ax north-up native phase,clean values and two boolean masks,frontend.pack
+shared content lift,[C_group 32 Hp Wp],native packed ownership,first 16 dims initially carry exact values,frontend.ContentLift
+shallow ResNet,[C_group 32 Hp Wp],four packed-cell radius at two blocks,original observed centres only,frontend.Frontend
+native phase readout,[C_group r*r 8 Hp Wp],each original phase footprint,reads only encoded content, fusion.PhaseAwareFusion.phase_features
+band area aggregation,[C_chunk Href*Wref*4 8],20m slots with exact native overlaps,visible phase only; per-band support,fusion.PhaseAwareFusion.aggregate
+spectral fusion,[Href*Wref 4 8],40m parent grid; row order from south to north,only active visible bands,fusion.PhaseAwareFusion.forward
+backbone adapter,[1 32 Href Wref],reshape only; structural parent support,content plus Q/K position only,model.FRPretraining.encode
+backbone pyramid,[1 32 H W] [1 64 H2 W2] [1 96 H3 W3],40m/80m/160m centres; K coverage centroids,unchanged backbone modules,position.positioned_block
+top-down field,[1 32 H W],legacy masked parent interpolation,encoded only,model.TerminalDecoder.parent_field
+D1 terminal,[1 8 H*4 W*4],10m shared output sampling,encoded only; independently switched,model.TerminalDecoder.subcells
+native target,[packed scalar],exact native area; then target mask,descriptor and grid only,model.TerminalDecoder.predict
+B1 compatibility,[packed scalar],same fine native grid; maximum GSD 20m,cleared visible values in separate wrapper,model.LegacyB1Detail

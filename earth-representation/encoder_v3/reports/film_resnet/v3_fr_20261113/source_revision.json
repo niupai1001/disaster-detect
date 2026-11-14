@@ -1,0 +1,10 @@
+{
+  "issue": "The initial N0 construction consumed fewer random draws than N1 before creating common phase and fusion heads.",
+  "evidence": "With and without two ResNet blocks the same RNG seed alone cannot bind the common fusion parameter values.",
+  "resolution": "Instantiate the registered full sequence, then remove the ablated blocks in N0. Keep all initialized tensors of full C, N2, N1 and B0/BP unchanged.",
+  "affected_arms": ["N0", "N1"],
+  "test": "test_common_fusion_initialization_with_and_without_resnet",
+  "base_runs_requiring_rebuild": [],
+  "old_process_guard": "An exclusive output reservation prevents the original process from starting N0 before the corrected modules are loaded.",
+  "full_candidate_quality_effect": "No change to C initialization or executed layers."
+}
