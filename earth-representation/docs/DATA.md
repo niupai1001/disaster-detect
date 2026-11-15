@@ -99,3 +99,11 @@ S2 L1C曾有质量资产被误登记为波段的情况，该资产不能当光�
 ### 简洁Decoder训练恢复EnMAP与L9核对
 
 本轮用户要求保留EnMAP：config_v3_h_simple_decoder_v1.json设置exclude_enmap=false，恢复原7442 TRAIN（S2 5349/L8 1522/L9 524/EnMAP 47），383 VAL不变。不更改任何原始像元、QA、产品定标、窗口、成员角色或冻结TRAIN统计；47 EnMAP来自一个原始场景，无独立高光谱VAL。L9的524条与L8的1522条缓存/统计复核未发现重复定标、波段索引或μ/σ错配；L9为SR_B2—B7、30m/128×128。其示例主要问题定位在旧band读出条件，详见RESULTS，不能把少量TRAIN示例视作L9独立泛化成绩。
+
+## PD-HERE V1 多光谱发布
+
+PD-HERE V1 从本地冻结的 `research_dataset_v2` 派生清单，使用原生地表反射率和 QA。原发布的 VAL 与 TEST 存在 16 个采集场景重合。保留 TEST 全部 300 条，剔除 VAL 中 L8 的 12 条和 L9 的 13 条。派生后 TRAIN／VAL／TEST 为 **1,200／275／300**，VAL 的 S2／L8／L9 计数为 **100／88／87**。
+
+按统一采集键复核后，采集场景、发布地理组、样本 ID 与内容哈希在各角色间无交叉。VAL 与 TEST 的遮盖在运行前固定。历史 Patch Latent 结果使用原 383 条 VAL 面板和原归一化协议。
+
+[发布与原生遮盖身份](../reports/pd_here_v1/members_identity.json) · [历史复算](../reports/pd_here_v1/historical_replay.json)

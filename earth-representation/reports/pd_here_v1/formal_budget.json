@@ -1,0 +1,49 @@
+{
+  "status": "PROPOSED",
+  "device": "RTX 5090 cuda:1 FP32",
+  "train_members": 1200,
+  "effective_updates": 2400,
+  "task_updates": {
+    "A": 1200,
+    "B1": 1200
+  },
+  "observations_per_update": 1,
+  "validation_updates": [
+    0,
+    1200,
+    2400
+  ],
+  "checkpoint_interval": 100,
+  "val_members": 275,
+  "test_members": 300,
+  "measured_seconds_per_update": {
+    "A": 0.30440519998956006,
+    "B1": 0.24020430000382476
+  },
+  "warm_real_max_seconds": 0.354232499958016,
+  "measured_val_seconds_lower_bound": 54.74337720870972,
+  "planning_seconds_per_update": 0.4073673749517183,
+  "estimated_train_minutes": 16.3,
+  "proposed_gpu_cap_minutes": 30,
+  "adaptive_ablation_order": [
+    "stride 1",
+    "K 4/8/32",
+    "missing/shuffled physical conditions",
+    "latent_only",
+    "fine-only"
+  ],
+  "ablations": {
+    "variants": 8,
+    "comparison_updates_each": 2400,
+    "maximum_additional_updates": 19200,
+    "proposed_gpu_minutes_per_variant": 30,
+    "proposed_gpu_minutes_total": 240,
+    "validation_updates": [
+      0,
+      1200,
+      2400
+    ],
+    "checkpoint_interval": 100,
+    "rule": "锁定相同成员、遮盖及任务暴露。先在真实多光谱输入复测候选容量和速度。超出单候选时间或显存预算时，暂停对应消融并更新预算。"
+  }
+}
