@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "checks": {
+    "test_count": 12,
+    "member_counts": {
+      "TRAIN": {
+        "L8": 400,
+        "L9": 400,
+        "S2": 400
+      },
+      "VAL": {
+        "L8": 88,
+        "L9": 87,
+        "S2": 100
+      },
+      "TEST": {
+        "L8": 100,
+        "L9": 100,
+        "S2": 100
+      }
+    },
+    "fit_improved": {
+      "A": {
+        "A": true
+      },
+      "B1": {
+        "B1": true
+      },
+      "joint": {
+        "A": true,
+        "B1": true
+      }
+    },
+    "capacity": true,
+    "recovery": "PASS",
+    "validation": 275,
+    "references": 9,
+    "historical_replay": "PASS",
+    "manifest_and_panel_regeneration": "PASS: all six artifact SHA-256 values matched",
+    "locked_test_predictive_evaluation": "pending P6"
+  },
+  "real_peak_gib": 2.8173789978027344,
+  "synthetic_peak_gib": 14.165179252624512,
+  "validation_metrics": [
+    {
+      "sensor": "all",
+      "task": "A",
+      "observations": 275,
+      "mse": 0.01997323836101969,
+      "mae": 0.11215948000124522,
+      "bias": 0.04934180848828106,
+      "gradient_mse": 0.00041865152566455217,
+      "texture_mse": 0.002596474158707643,
+      "mse_2x2": 0.01979665653474714,
+      "mse_4x4": 0.01951440091109329
+    },
+    {
+      "sensor": "all",
+      "task": "B1",
+      "observations": 275,
+      "mse": 0.020510269795894133,
+      "mae": 0.1025411060003733,
+      "bias": 0.031289866028104865,
+      "gradient_mse": 0.0003766049552280727,
+      "texture_mse": 0.002381033024701909,
+      "mse_2x2": 0.020333107911373254,
+      "mse_4x4": 0.020082135796102137
+    }
+  ],
+  "budget": "formal_budget.json"
+}

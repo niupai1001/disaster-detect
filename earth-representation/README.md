@@ -2,6 +2,22 @@
 
 跨卫星地表表征子项目：共享光谱输入、自监督表征、原生网格编码与目标条件预测。
 
+## PD-HERE V1
+
+PD-HERE 是一个纯光学 Encoder，使用物理条件化双分支、三级 Group-Swin 和原生坐标 Decoder。A 空间遮盖与 B1 整波段遮盖共享网络。P0–P5 已完成工程验收。正式训练及锁定 TEST 评价按单独预算执行。
+
+在 `earth-representation` 使用下述 Python 环境。`prepare` 读取本地 `research_dataset_v2` 冻结发布及已定标影像缓存。历史复算另需本地 Patch Latent 冻结运行。
+
+```powershell
+python scripts/run_pd_here.py --help
+python -c "import ssl, sys, pytest; sys.path.insert(0, 'src'); raise SystemExit(pytest.main(['-q', 'tests/encoder_v4']))"
+python scripts/run_pd_here.py --out outputs/encoder_v4/my_pd_here_run prepare
+```
+
+其余入口包括 `capacity`、`recovery`、`fit A`、`fit B1`、`fit joint`、`evaluate` 和 `reference`。短程入口每次最多 200 步，默认使用单卡 FP32。
+
+[验收报告](reports/pd_here_v1/acceptance.json) · [短程拟合](reports/pd_here_v1/short_fit.json) · [P6 预算提案](reports/pd_here_v1/formal_budget.json)
+
 ## 环境
 
 使用已有Python 3.12环境 `../landslide-seg/.venv-use-independent`。复用已安装的PyTorch、NumPy、SciPy、rasterio、h5py、matplotlib和pytest；具体实验环境以冻结发布记录为准。本地凭证放.env，不提交版本库。
