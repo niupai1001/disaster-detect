@@ -4,6 +4,7 @@ from collections import OrderedDict
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import threading
@@ -22,8 +23,23 @@ from .metered_http import DownloadBudget, HTTPRangeFile
 from .native_data import aerosol_valid, BAD
 
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'observation_model/outputs/encoder_v2/data_expansion'
+_DEFAULT_OUT=ROOT/'observation_model/outputs/encoder_v2/data_expansion'
+# A completion run must never rewrite the frozen expansion release; the override
+# is only active when DSH_EXPANSION_OUT is set, so default behaviour is unchanged.
+OUT=Path(os.environ.get('DSH_EXPANSION_OUT') or _DEFAULT_OUT)
 PRE=ROOT/'observation_model/outputs/encoder_v2/pre_G1_data_contract'
+
+
+def network_cap(parent_bytes,srf_bytes,override=None):
+    """Phase-wide remaining cap; an explicit override replaces it (tighten or extend)."""
+    cap=10*1024**3-parent_bytes-srf_bytes
+    if override:cap=int(override)
+    return cap
+
+
+def range_block_size():
+    """Range request size. Larger blocks cut round trips without changing bytes read."""
+    return int(os.environ.get('DSH_EXPANSION_BLOCK','65536'))
 
 
 def read(p):return json.loads(Path(p).read_text(encoding='utf-8-sig'))
@@ -44,7 +60,7 @@ class Network:
     def __init__(self):
         parent=read(ROOT/'observation_model/outputs/phase0/download_budget.json')['received_bytes']
         srf=read(ROOT/'data/physics/srf/acquisition_manifest.json')['received_bytes']
-        self.cap=10*1024**3-parent-srf
+        self.cap=network_cap(parent,srf,os.environ.get('DSH_EXPANSION_CAP'))
         self.budget=ParallelBudget(OUT/'network.json',self.cap);self.tokens={};self.token_lock=threading.Lock();self.range_lock=threading.Lock();self.ranges=OrderedDict()
     def sign(self,href):
         if '.blob.core.windows.net' not in href:return href
@@ -61,15 +77,19 @@ class Network:
             if str(name)!='asset.tif':raise FileNotFoundError(name)
             with self.range_lock:
                 shared=self.ranges.get(href)
-                if shared is None:
-                    file=self.budget.open(address);file.block_size=65536
-                    self.ranges[href]=(file.size,file.blocks)
-                    while len(self.ranges)>32:self.ranges.popitem(last=False)
+                if shared is not None:
+                    self.ranges.move_to_end(href)
+                    file=HTTPRangeFile.__new__(HTTPRangeFile);io.RawIOBase.__init__(file)
+                    file.url=address;file.budget=self.budget;file.pos=0;file.size=shared[0];file.blocks=shared[1];file.block_size=range_block_size()
                     return file
+            # Open outside the lock: a serialized 1-byte request per band was the
+            # throughput ceiling once several workers ran concurrently.
+            file=self.budget.open(address);file.block_size=range_block_size()
+            with self.range_lock:
+                self.ranges.setdefault(href,(file.size,file.blocks))
                 self.ranges.move_to_end(href)
-                file=HTTPRangeFile.__new__(HTTPRangeFile);io.RawIOBase.__init__(file)
-                file.url=address;file.budget=self.budget;file.pos=0;file.size=shared[0];file.blocks=shared[1];file.block_size=65536
-                return file
+                while len(self.ranges)>32:self.ranges.popitem(last=False)
+            return file
         with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR'):
             with rasterio.open('asset.tif',opener=opener) as src:
                 if qa:
@@ -131,7 +151,7 @@ def write_observation(identifier,arrays,metadata):
     for b,(x,q) in arrays.items():
         if not np.isfinite(x[q]).all():raise ValueError('nonfinite valid reflectance')
         values[b]=np.where(q,x,0).astype('float32');values[b+'__valid']=q.astype(bool)
-    cache.parent.mkdir(parents=True,exist_ok=True);temp=cache.with_suffix('.tmp.npz');np.savez_compressed(temp,**values);temp.replace(cache)
+    cache.parent.mkdir(parents=True,exist_ok=True);temp=cache.with_name(cache.stem+'.'+str(os.getpid())+'.tmp.npz');np.savez_compressed(temp,**values);temp.replace(cache)
     row=dict(metadata,id=identifier,cache=str(cache),cache_sha256=digest(cache),band_count=len(arrays),
              valid_fraction={b:float(q.mean()) for b,(_,q) in arrays.items()},
              training_authorized=False,srf_scientific_ingestion='pending_G1',units='surface_reflectance',created_utc=datetime.now(timezone.utc).isoformat())
