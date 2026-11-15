@@ -141,7 +141,7 @@ python scripts/visualize_shared_mae.py --release outputs/encoder_v3/shared_mae/r
 
 ## Training Viewer（TVLP 2.0）
 
-当前入口`src/encoder_v3/shared_mae/train.py`复用用户提供且逐字节核对一致的`src/encoder_v3/latent_response/tvlp_writer.py`；旧LR入口与元数据逻辑保留在`latent_response`。在Viewer中添加`N:\Users\yzh\Disater\earth-representation\training-runs`；每次新训练独立目录和Run ID。同实验/方案保持稳定ID，显示名称不包含种子。
+当前入口`src/encoder_v3/shared_mae/train.py`复用用户提供且逐字节核对一致的`src/encoder_v3/latent_response/tvlp_writer.py`；旧LR入口与元数据逻辑保留在`latent_response`。在Viewer中添加`earth-representation/training-runs`；每次新训练独立目录和Run ID。同实验/方案保持稳定ID，显示名称不包含种子。
 
 当前MAE方案默认曲线为训练批次平均损失、完整验证集平均损失，均按观测等权，单位z²、越低越好、角色loss。辅助数字为学习率、裁剪前梯度范数、S2验证损失、Landsat验证损失。另记录整轮训练均值、批次观测数、累计观测数和耗时。旧运行保留旧元数据和归约口径。
 

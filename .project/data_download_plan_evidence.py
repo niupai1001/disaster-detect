@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / "earth-representation"
-PARENT = Path(r"C:\Users\yzh\Downloads\DATA_DOWNLOAD_AND_ADMISSION_PLAN.md")
+PARENT = Path.home() / "Downloads" / "DATA_DOWNLOAD_AND_ADMISSION_PLAN.md"
 OUT = ROOT / "outputs" / "encoder_v3" / "data_download_plan" / "plan_evidence_20261114.json"
 TIMEOUT = 90
 GB = 10**9

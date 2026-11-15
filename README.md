@@ -10,3 +10,5 @@
 各项目采用src、configs、scripts、tests、data、weights、outputs、docs的固定分工；滑坡项目另有成员清单目录manifests。四份专题在docs，README只解释工程使用。原始数据、派生缓存、模型权重与运行记录不随源码重复存放。
 
 根AGENTS规定维护规则；隐藏目录.project保存整理记录、兼容映射与维护工具。旧模块、资源和历史路径有必要的兼容映射，实际位置以各工程README为准。
+
+`main` 是本仓库唯一长期主线。旧分支的提交、配置、测试和实验记录可从归档标签还原，见[仓库整理记录](docs/repository/CONSOLIDATION.md)。
