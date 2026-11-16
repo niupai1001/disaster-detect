@@ -67,6 +67,8 @@ A 的展示样例中，模型预测存在大片平滑和亮度偏差，隐藏区
 
 [查看 A 的实际预测与 IDW](assets/pd-here-stop/actual_prediction_A.png) · [查看 B1 的实际预测与线性回归](assets/pd-here-stop/actual_prediction_B1.png) · [完整配对复放和匹配指标](assets/pd-here-stop/prediction_and_update_evidence.json)
 
+[下载 12 个实际预测样例（原生网格 GeoTIFF）](assets/pd-here-stop/actual_native_prediction_geotiffs.zip)。每个样例保留 CRS 与仿射变换，六层依次为原生真值、目标波段可见输入、隐藏区真值、PD-HERE 预测、简单基线预测以及共同评分掩码。
+
 ## USE V1 通用光谱编码
 
 ### 通用光谱编码与外部预训练首轮：统一监督与外部预训练验收
