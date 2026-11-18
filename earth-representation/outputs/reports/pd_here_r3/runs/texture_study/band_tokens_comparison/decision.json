@@ -1,0 +1,26 @@
+{
+  "status": "COMPLETED_BAND_TOKEN_ARCHITECTURE",
+  "architecture": "spatial whole native patch embedding + spectral per-band contextual token; feature concat 256; global attention over geo-band pairs",
+  "global_depth": 2,
+  "encoder_shapes": {
+    "A": [
+      16,
+      40,
+      256
+    ],
+    "B1": [
+      16,
+      144,
+      256
+    ]
+  },
+  "decoder_slots": 160,
+  "decoder": "128wide,2blocks,shared output Linear by native shape, trainable per-band bias",
+  "epochs": 30,
+  "updates": 1320,
+  "mean_epoch_seconds": 9.301877040000788,
+  "quality": "NOT_SELECTED: higher B1 reconstruction and centered error; texture remains oversmoothed",
+  "b1_same_band_cross_patch_encoder_cosine": 0.9862900388551943,
+  "checkpoint": "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\pd_here_geotoken_dualvit_r3\\texture_study\\band_tokens256\\last.pt",
+  "training_active": false
+}

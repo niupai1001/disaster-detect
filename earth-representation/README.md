@@ -166,3 +166,39 @@ python scripts/visualize_shared_mae.py --release outputs/encoder_v3/shared_mae/r
 排除EnMAP的正式短段已RUNNING：Run e5a83915eb97484ebb2081f20df44e50，源码e843a0f59bdbb40adda3d24cd34262ed35ac7a8f、175文件冻结于release_no_enmap_v1/runtime。随机初始参数0958271a…与原含EnMAP实验一致，初始383VAL同为2.1474302937；已核验真实A-only更新、checkpoint与已执行前缀零EnMAP输入。实际进度以release_no_enmap_v1/formal_run/status.json及training_started.json为准，max_updates232后TRIAL_COMPLETE，不将启动视为质量改善或因果结论。
 
 排除EnMAP短段现已TRIAL_COMPLETE232/1Epoch，7395观测全部唯一覆盖且实际输入EnMAP为0；完整VAL0.4961607213，含验证/保存17分16秒。[最佳权重图集](outputs/encoder_v3/hierarchical/no_enmap/reconstruction_best_v1/index.html)和[完成记录](outputs/encoder_v3/hierarchical/release_no_enmap_v1/trial_completion.json)已保存，训练保持停止。
+
+### GeoToken–DualViT R3
+
+实现位于 `src/pd_here_geotoken_dualvit_r3`，入口 `scripts/train_pd_here_geotoken_dualvit_r3.py`。新运行目录通过 `--out` 指定；不要覆盖已完成诊断。入口 `prepare` 冻结核心 S2 候选池的组隔离 7:3 与原生窗口，`benchmark` 丢弃计时权重，`diagnostics` 执行 G2 单任务及有条件 paired，各200步。
+
+本次产物在 `outputs/pd_here_geotoken_dualvit_r3`。Viewer 添加该目录下的 `viewer`；A、B1、paired 分别为 TVLP 2.0 日志。`gate_review.json` 是质量判定，`status.json` 是实际状态。G2 已完成并停止：重建仍显著差于简单参照，未启动 G3。当前入口不提供 G3 或自动延长训练；多卡/BF16 未验收。
+
+R3 后续授权运行：700 TRAIN续训10epoch已完成，入口 `scripts/continue_pd_here_geotoken_dualvit_r3.py`，产物 `outputs/pd_here_geotoken_dualvit_r3/subset700_10epochs`；viewer使用原根目录。原G2停止记录是历史门槛判断，最新状态以根status及子运行记录为准。
+
+
+### R3 重复纹理对照
+
+修正数据、诊断和训练结果位于 `outputs/pd_here_geotoken_dualvit_r3/texture_study`。以下命令从项目根目录运行。源核查使用本地原生 DN、既有独立标定记录以及抽样远程读取，失败时通过 `--retry` 复核未通过的成员。训练前须有通过核查的绑定与清单。
+
+```powershell
+$python = '../landslide-seg/.venv-use-independent/Scripts/python.exe'
+$study = 'outputs/pd_here_geotoken_dualvit_r3/texture_study'
+& $python scripts/audit_pd_here_r3_sources.py
+& $python scripts/diagnose_pd_here_r3_texture.py
+foreach ($variant in @('baseline','input_scale','decoder128')) {
+    & $python scripts/train_pd_here_r3_texture_study.py $variant --out "$study/$variant"
+    if ($LASTEXITCODE -ne 0) { throw "Study arm failed: $variant" }
+}
+& $python scripts/report_pd_here_r3_texture_study.py
+```
+
+恢复单组时重复该组训练命令并加 `--resume`。三组曲线位于原 Viewer 根目录的 `texture30_*` 子目录。诊断的冻结 Encoder 和自由 latent 权重仅供机制分析。
+
+
+### 每波段保留Token的新实现
+
+模型为BandTokenDualViT，入口变体band_tokens256。在通过源审计的数据目录下运行：
+```powershell
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_r3_texture_study.py band_tokens256 --out outputs/pd_here_geotoken_dualvit_r3/texture_study/band_tokens256
+```
+已完成的同一Run通过追加--resume校验并恢复。30epoch结果、last权重和固定预测图分别位于texture_study/band_tokens256及band_tokens_comparison。原Viewer根目录新增texture30_band_tokens256_band_tokens256。模型的Encoder Token索引采用geo_id*band_count+band_id，消费者必须按新索引读取。

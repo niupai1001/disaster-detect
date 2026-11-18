@@ -1043,3 +1043,186 @@ L9旧示例obs_8d69627e3f5637470adc7041的CPU复核：A-only525/641及排EnMAP23
 ## 三阶段全图压缩注意力 A+B1 正式结果
 
 第30轮为最佳。完整383个VAL的A/B1 MSE为0.34914/0.39939。全图第3轮（699步）为0.55746/0.59277，旧Swin暂停在762步时为0.55131/0.58635。训练预算和策略存在差异。原生像元恢复仍有局部块状和平滑问题。335个配对S2 B1观测在40至320米固定边界上的残差跳变比中位数均接近1。[正式报告、重建图与边界诊断](../outputs/encoder_v3/patch_latent/mit_global_ab30_v1/review/REPORT.md)。
+
+## GeoToken–DualViT R3：G2诊断停止
+
+核心S2总池1000，组隔离700 TRAIN / 300 development VAL；本次仅固定16 TRAIN父观测训练和评分，不含VAL/TEST成绩。seed17，每组同初始化，FP32全局batch16，AdamW lr1e-4。A-only、B1-only、paired各200更新；下表为last200固定评价mask，未做best选择。
+
+| 训练组／参照 | A MSE | B1 MSE |
+| --- | ---: | ---: |
+| A-only | 0.0203355 | — |
+| B1-only | — | 0.0249959 |
+| paired | 0.0288244 | 0.0217921 |
+| 可见地理Patch均值IDW／TRAIN光谱OLS | 0.00159342 | 0.0000673308 |
+
+A参照按可见地理Patch的同波段均值做距离平方反比加权；它不是逐像元IDW。B1 OLS在同16 TRAIN窗口的完整QA共同20m支持拟合，预测时排除目标波段；10m目标由20m预测重复回填。两参照均只读取任务允许的输入，按模型的原生目标QA和像元→波段→父归约评分。
+
+三组均出现MSE与CenteredMSE下降，说明有学习迹象；paired的A/B1误差仍约为对应参照18.1/323.7倍。判定DIAGNOSTIC_NOT_SELECTED，停止G2，未启动G3，不自动延长预算。单seed短诊断不能证明结构不可学习，也不构成灾害识别有效性证据。
+
+单张RTX5090计时各20热身+50测量，权重丢弃：A/B1/paired更新P50分别0.0457/0.0383/0.0752秒；paired峰值allocated约0.532GB。计时使用已加载固定批次，不含IO；未完成模块分项profile、双卡和BF16等价验收。17项局部张量断言及原生回填、ragged/padding隔离、父归约回归通过；独立恢复模型及AdamW状态后下一paired更新参数差为0。CPU累积等价测试使用SGD隔离归约误差，不等于真实GPU AdamW微批等价验收。高纹理分组、group bootstrap及下游probe未执行。
+
+证据与checkpoint位于 `outputs/pd_here_geotoken_dualvit_r3`，完整曲线为 `viewer/{A,B1,paired}`，训练绑定源码副本为 `runtime`。详见 [gate_review](../outputs/reports/pd_here_r3/runs/gate_review.json) 与 [G2结果](../outputs/reports/pd_here_r3/runs/g2_results.json)。
+
+### R3：700 TRAIN续训10 epoch
+
+用户授权扩展至700 TRAIN、10 epoch（440次paired更新）。从G2 paired第200步及AdamW状态继续，最终累计640步；lr1e-4、FP32、batch16、尾批12，不重新初始化。固定已登记初始窗口，每epoch固定300 development VAL，不轮换窗口；属于有明确预算的续训比较。
+
+| 固定VAL指标 | 续训前 | 第10epoch |
+| --- | ---: | ---: |
+| A mse | 0.04318647 | 0.01562965 |
+| A centered_mse | 0.00947288 | 0.00769449 |
+| A gradient_mse | 0.01509850 | 0.01209568 |
+| B1 mse | 0.03282255 | 0.00945796 |
+| B1 centered_mse | 0.00727563 | 0.00581354 |
+| B1 gradient_mse | 0.01173174 | 0.00943625 |
+
+平均训练更新耗时4.23秒/epoch；含VAL和checkpoint保存9.14秒/epoch，10epoch合计91.37秒，不含前期加载和训练前/后完整TRAIN评分。主要收益是Bias²下降，CenteredMSE和梯度MSE约改善两成；梯度相关仍接近零，不能宣称细节恢复可用。常量目标的gradient_amplitude受分母下限影响，不作解释或选择依据。
+
+末态权重、每epoch指标及训练前后固定评价见 `outputs/pd_here_geotoken_dualvit_r3/subset700_10epochs`，viewer原根目录新增 `subset700_10epochs`。达到用户指定10epoch后停止，无自动延长。
+
+
+## R3 重复纹理30 epoch对照
+
+修正后的 700 TRAIN / 300 开发 VAL，固定已登记窗口、共同目标支持、从 seed17 重新初始化。三组均完成 30 epoch，每组 1320 次 paired 更新，batch16、单卡 FP32、AdamW lr=1e-4、weight decay=0.04。A 的 MSE 覆盖 300 个开发父观测，B1 在 OLS 所需的共同合法支持上覆盖 299 个。每组采用第30轮 last 权重。
+
+| 变体 | A MSE | B1 MSE | A/B1 等权去均值 MSE | A/B1 等权梯度 MSE |
+| --- | ---: | ---: | ---: | ---: |
+| baseline | 0.00803303 | 0.00359149 | 0.00254960 | 0.00241447 |
+| input_scale | 0.00737776 | 0.00291697 | 0.00254135 | 0.00240228 |
+| decoder128 | 0.00459824 | 0.00278800 | 0.00219124 | 0.00158852 |
+
+128 维 Decoder 达到采用门槛。等权去均值 MSE 降 14.1%，等权梯度 MSE 降 34.2%，两任务各指标均改善。输入标准化使 B1 总 MSE 降 18.8%，等权去均值 MSE 只降 0.3%，未达到 5% 门槛。相比共同支持上的 A Patch 均值 IDW（0.0023651）及 B1 TRAIN OLS（0.00022538），128 维 Decoder 的 MSE 仍分别约为 1.94 倍和 12.37 倍。其 VAL 梯度相关分别为 0.00012 和 0.01136。
+
+固定展示窗口中，在预测/真值共同全有效的 Patch 上，128 维组的预测纹理 RMS 低于基准，但共同模板平均能量占比由 A 的 68.7% 升至 77.8%，B1 由 62.5% 升至 65.4%。模型降低了误差，重复图案仍主导剩余纹理。梯度幅度比和相关性在接近常量时按预定阈值缺失，按指标有效父数汇总。
+
+历史16个 TRAIN 样本和6个 VAL 展示窗口的诊断中，替换隐藏值对全部记录层的影响为零。可见像元打乱的影响向解码末端衰减。历史 TRAIN 固定遮盖下，冻结 Encoder / 自由 latent 的 B1 MSE 为 0.000857 / 0.000460，A 为 0.001714 / 0.001678。初始化的64/128维线性头仿射投影上限用于隔离表征维数与随机基选择的影响，未作为训练成绩。合成平面 A/B1 各200步 MSE 下降约98%。
+
+核查日志、三个 last 权重、高纹理评价、恢复身份、曲线和固定窗预测见 [实验目录](../outputs/reports/pd_here_r3/runs/texture_study)。预算已用完，开发选择为 decoder128。
+
+
+### R3 重复纹理的后续修正
+
+针对纹理未解决的反馈，增加单因素对照 decoder128_zerohead。保留已选128维Decoder和原训练配置，重新初始化模型，仅将最终线性头权重置零、偏置设为TRAIN逐波段均值，然后按常规训练所有参数。相同700/300修正数据、seed17、batch16、固定窗口，30epoch/1320次更新，采用last。该初始化消除了初始的逐像元随机图案。
+
+| 指标 | decoder128 | decoder128_zerohead |
+| --- | ---: | ---: |
+| A mse | 0.00459824 | 0.00282031 |
+| A centered_mse | 0.00258054 | 0.00204806 |
+| A gradient_mse | 0.00161040 | 0.00053860 |
+| A gradient_correlation | 0.00012206 | -0.00097417 |
+| B1 mse | 0.00278800 | 0.00167634 |
+| B1 centered_mse | 0.00180194 | 0.00121301 |
+| B1 gradient_mse | 0.00156664 | 0.00055211 |
+| B1 gradient_correlation | 0.01135853 | 0.03752163 |
+
+六个相同展示窗口的平均共同纹理误差RMS下降，A由0.01499降到0.00197，B1由0.01565降到0.00354。这里先对每Patch预测与真值分别去均值，再求误差在Patch间的平均图案RMS，避免把共同模板比例当作绝对误差。共同模板比例本身仍高（A约85%、B1约96%），预测纹理RMS低于真值，B11亮带仍缺失且残留Patch格状伪影。状态为ARTIFACT_REDUCED_DETAIL_UNRESOLVED。该对照支持改进输出初始化，但未通过细节恢复验收。现有强压缩表征与读出对空间变化的可读性仍需解决。
+
+三组并排图、曲线与诊断见 [后续对照](../outputs/reports/pd_here_r3/runs/texture_study/zerohead_comparison)。末态权重位于同级decoder128_zerohead/last.pt。原Viewer增加texture30_decoder128_zerohead_decoder128_zerohead条目。
+
+
+### R3 融合后跨Patch ViT增加一层
+
+将global_depth从1增至2，第二层位于联合GeoToken的首个跨Patch Block之后、Encoder最终LayerNorm之前。对照为decoder128_zerohead，保持128维Decoder、零初始化输出头、相同TRAIN均值偏置与修正数据。新组从同seed17初始化训练30epoch/1320次paired更新。所有共有参数初始值完全一致，第二层收到GPU梯度，隐藏值/梯度隔离回归通过。
+
+| VAL指标 | 单层跨Patch ViT | 双层跨Patch ViT |
+| --- | ---: | ---: |
+| A mse | 0.00282031 | 0.00283484 |
+| A centered_mse | 0.00204806 | 0.00204575 |
+| A gradient_mse | 0.00053860 | 0.00053967 |
+| A gradient_correlation | -0.00097417 | -0.00186888 |
+| B1 mse | 0.00167634 | 0.00163350 |
+| B1 centered_mse | 0.00121301 | 0.00121310 |
+| B1 gradient_mse | 0.00055211 | 0.00055513 |
+| B1 gradient_correlation | 0.03752163 | 0.03704248 |
+
+双层相对单层的等权去均值误差只降0.07%，梯度误差增加0.38%。固定六个窗口的共同纹理误差RMS上升，A由0.001971升至0.002231，B1由0.003537升至0.003760。相同30epoch预算下，新增一层未改善重复纹理和空间结构，保留单层配置。该结论依据一个seed。双层平均epoch耗时8.91秒，包含VAL，不含checkpoint写入时间。
+
+对照的reference为decoder128_zerohead，避免与早期64维随机输出头基线比较后误认为新增层有收益。权重和每epoch评价位于texture_study/global2_zerohead，图和结论位于 [双层对照](../outputs/reports/pd_here_r3/runs/texture_study/global2_comparison)，Viewer新增texture30_global2_zerohead_global2_zerohead。
+
+
+### R3 256→256融合投影对照
+
+按用户要求保留融合投影，将Linear(256,128)改为Linear(256,256)，两层跨Patch全局ViT宽度对应改成256。共有且形状一致的参数复制双层128维组的同seed初始化，零输出头、128维Decoder、修正700/300固定窗口和遮盖排程一致。新初始化训练30epoch/1320次paired更新，采用last。
+
+| VAL指标 | 双层128维全局ViT | 双层256维全局ViT |
+| --- | ---: | ---: |
+| A mse | 0.00283484 | 0.00284588 |
+| A centered_mse | 0.00204575 | 0.00204557 |
+| A gradient_mse | 0.00053967 | 0.00053985 |
+| A gradient_correlation | -0.00186888 | -0.00184082 |
+| B1 mse | 0.00163350 | 0.00163437 |
+| B1 centered_mse | 0.00121310 | 0.00119331 |
+| B1 gradient_mse | 0.00055513 | 0.00056430 |
+| B1 gradient_correlation | 0.03704248 | 0.03846536 |
+
+等权去均值误差下降0.61%，梯度误差上升0.85%，本预算下未达到结构改善门槛。模型维度和全局注意力轴已按用户指定实现，重复纹理与细节问题仍未解决。直接拼接的错误实验已停止，未纳入本次对照。
+
+曲线、固定样本预测、末态决策见 [256维投影对照](../outputs/reports/pd_here_r3/runs/texture_study/fusion256_comparison)，权重位于texture_study/fusion256_global2_zerohead/last.pt。Viewer新增texture30_fusion256_global2_zerohead_fusion256_global2_zerohead。
+
+
+### R3 双分支仅做线性投影的消融
+
+按用户提出的纯投影候选，移除光谱/空间分支整个局部Transformer Block（Attention、FFN及内部LayerNorm），保留值和QA线性Embedding、固定band/local位置编码、有效性屏蔽、scatter和展平压缩。两个128维分支仍经Linear(256,256)与两层256维跨Patch ViT，Decoder128及零初始化输出头配置相同。所有保留且形状相同的参数从对照的同seed初始化精确复制。相同修正700 TRAIN / 300开发VAL固定窗口，30epoch/1320paired更新，last评价。
+
+| 指标 | 局部Transformer分支 | 纯线性投影分支 |
+| --- | ---: | ---: |
+| A VAL mse | 0.00284588 | 0.00347258 |
+| A VAL centered_mse | 0.00204557 | 0.00204582 |
+| A VAL gradient_mse | 0.00053985 | 0.00053906 |
+| A VAL gradient_correlation | -0.00184082 | -0.00084975 |
+| B1 VAL mse | 0.00163437 | 0.00317854 |
+| B1 VAL centered_mse | 0.00119331 | 0.00128012 |
+| B1 VAL gradient_mse | 0.00056430 | 0.00056133 |
+| B1 VAL gradient_correlation | 0.03846536 | 0.03339302 |
+| B1 Encoder cosine | 0.98584212 | 0.98922200 |
+| B1 Encoder relative_patch_spread | 0.08292599 | 0.07802619 |
+| B1 Encoder effective_rank | 1.74380165 | 1.77292804 |
+
+纯投影版的B1 Encoder余弦更高，去均值空间差异RMS占比从8.29%降到7.80%，有效秩仍约1.77。B1重建MSE由0.001634增至0.003179。该预算下未缓解Token趋同，保留局部Transformer候选。这个实验同时移除了Attention和FFN，结论适用于整个局部Block，不单独估计Attention贡献。图、指标和Token分层核查见 [纯投影对照](../outputs/reports/pd_here_r3/runs/texture_study/linear_branches_comparison)。
+
+
+### R3 压缩前后隐藏波段纹理线性可读性
+
+冻结fusion256_global2_zerohead的30epoch权重，分别在可见原生像元、两分支压缩前/后、融合、全局Block及最终Encoder输出上拟合岭回归探针。目标为B1隐藏波段原生Patch减去自身目标均值后的纹理，目标均值仅用于构造监督/评价，未进入探针输入。每隐藏波段单独拟合，严格同QA全有效Patch，692 TRAIN父观测（每父至多4Patch）、295开发VAL父观测（全部合法Patch）。TRAIN内部按原隔离组、同获取与bbox重叠传递合并后划分80/20组做超参数选择，最终用全部合格TRAIN重新拟合。每父等权、再按隐藏band等权汇总。岭系数搜索1e-12至100，特征按TRAIN共同均值及总能量缩放。
+
+| 读出位置 | VAL纹理MSE |
+| --- | ---: |
+| raw_visible | 0.000214243 |
+| spectral_pre | 0.000250892 |
+| spectral_post | 0.000379786 |
+| spatial_pre | 0.000232474 |
+| spatial_post | 0.000354533 |
+| joint_post | 0.000311066 |
+| fusion_post | 0.000334528 |
+| global_input | 0.000340384 |
+| global1_after_attention | 0.000624360 |
+| global1 | 0.000821924 |
+| global2_after_attention | 0.000904044 |
+| global2 | 0.000917909 |
+| encoder | 0.000958390 |
+| constant_texture | 0.001113073 |
+| current_decoder | 0.001121348 |
+
+高余弦相似度没有阻止压缩前特征线性读出真实纹理。两分支压缩后误差分别增加约51%和53%。首层全局Block中的Attention残差及FFN残差进一步降低线性可读性，最终Encoder读出接近零纹理参照。此前较窄正则搜索夸大了压缩后的读出差距，扩展搜索后部分较弱方向可被重新读取。此次诊断说明任务相关的线性可读性变差，不证明非线性映射后信息不可逆丢失。各位置输入维数不同，读出参数量不同；独立开发VAL评价、共同父观测及TRAIN内部选参控制了部分可比性，仍需按此限制解释。梯度仅评分Patch内部真实原生相邻像元。
+
+报告包含逐波段及逐父指标、训练/内部验证误差、所选正则和计数。见 [压缩可读性探针](../outputs/reports/pd_here_r3/runs/texture_study/compression_probe/report.json)。
+
+
+### 保留每波段Token的整体架构对照
+
+按用户确认实施每个波段/地理Patch的空间直接编码，光谱分支保留波段交互后的Token，逐band拼接为256维并全局编码。采用独立BandTokenDualViT，Decoder恢复geo-band槽位后按原生shape读出。相同700/300修正池、固定窗口、seed17、batch16、单卡FP32、AdamW lr1e-4，30epoch/1320次更新、last评价。形状兼容参数复制同seed的原256维融合组初始化，新增参数从seed17初始化。
+
+| VAL指标 | 原每地理Patch一个Token | 新每地理Patch每波段一个Token |
+| --- | ---: | ---: |
+| A mse | 0.00284588 | 0.00292075 |
+| A centered_mse | 0.00204557 | 0.00204832 |
+| A gradient_mse | 0.00053985 | 0.00053871 |
+| A gradient_correlation | -0.00184082 | -0.00106676 |
+| B1 mse | 0.00163437 | 0.00240892 |
+| B1 centered_mse | 0.00119331 | 0.00201828 |
+| B1 gradient_mse | 0.00056430 | 0.00051977 |
+| B1 gradient_correlation | 0.03846536 | -0.00045315 |
+
+新结构的B1 MSE升至0.002409，去均值MSE升至0.002018；梯度误差略降但梯度相关接近零，图像更平滑，未通过质量选择门槛。固定窗口中共同纹理误差RMS下降，也未恢复真实亮带。同一可见band跨地理Patch核查中，融合前平均余弦0.9963，Encoder输出0.9863，仍有较强共同分量。这个统计按同band、同QA支持和band等权计算，不与旧单地理Token统计直接混用。新结构同时改变前端Token与Decoder读出，不单独归因于某一个改动。
+
+原CPU工程回归加新Token索引/QA/隐藏值梯度/跨父隔离及ragged恢复共10项测试通过。真实GPU确认A/B1长度40/144、Decoder160槽位；12父尾批独立恢复两份模型和AdamW后下一步参数差为0，检查权重丢弃。曲线及Viewer记录到1320。末态权重在texture_study/band_tokens256/last.pt，图和逐band相似性见 [波段Token对照](../outputs/reports/pd_here_r3/runs/texture_study/band_tokens_comparison)。

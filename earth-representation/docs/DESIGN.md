@@ -284,3 +284,46 @@ Encoder V3 的研究脉络和完整物理讨论来自本次提供的[研究演�
 旧分支的执行优化保持当时的信息流、任务归约与目标像元不变：同格网通道合批，复用纯几何交叠及精确近邻索引，通道条件只计算一次，空间分块仅保存有效核心输出。解码局部内容与全局记忆的Key/Value投影按视图共享；利用线性可分性分别投影内容和相对位置，跨目标通道合批并保留逐通道归一化权重。反向梯度先累积到共享投影，再一次传回编码器。近邻检索使用精确编译实现，并对等距点按原始索引排序。缓存不跨视图保存学习特征，不把隐藏值带入内容；内存缓存有容量上限。该调整属于Encoder V3实现修复，不另立架构版本。
 
 旧实现完成20步工程更新检查，随后E3已停止；修复版完成真实数据无更新等价性和最大S2完整前后向检查。工程证据见outputs/encoder_v3/latent_response/correctness_speed；这些检查不证明收敛、跨卫星迁移或灾害识别效果，正式成绩仍须独立实验与评价。
+
+## PD-HERE GeoToken–DualViT R3 当前实施方案
+
+本轮以 [R3 模型规格](PD_HERE_GeoToken_DualViT_R3/00_MODEL_PLAN.md)及[训练门槛](PD_HERE_GeoToken_DualViT_R3/01_TRAINING_AND_HANDOFF.md)为准。R3 替代旧方案的 Stem、描述器、槽位金字塔与坐标读出；旧实现和结果保留追溯，不能用于宣称 R3 已验收。
+
+原生波段按 120 米地理 Patch、4×4 窗口登记。先生成 A/B1 遮盖，仅可见值进入线性 Embedding。光谱分支对可见波段执行一层 Transformer；空间分支对每波段原生 2×2 Sub-patch 执行一层共享 Transformer。两路分别按固定波段／位置槽位回填并 Flatten+Linear 压缩到 128 维，再拼接投影为每地理 Patch 一个 128 维 Token。唯一一层跨 Patch Transformer 输出单尺度表示，不允许原始像元或分支缓存旁路。
+
+A 删除 75% 合法地理 Patch，Encoder 仅编码可见 Patch，Decoder 才恢复统一 mask token。B1 删除一个波段的全部值，保持其他波段形成的地理 Token，固定波段槽位不能重编号。共享 Decoder 宽度 64、两层 Transformer，Linear 输出全部原生像元，按冻结 offsets 回填。不插值输入、不引入 Stem 或可学习物理描述器。
+
+仅绑定核心 S2 冻结候选池，先按父观测及地理隔离组划分 TRAIN/development VAL=7:3，再切窗口。真实波段、共同米制栅格、对齐、QA、成员及 Layout 哈希必须在数据审计后冻结；不能把成本示例的十波段或 700/300 数量当作事实。全局 batch16，AdamW 初始 lr=1e-4、weight decay=0.04；损失按隐藏像元→波段→父观测归约，paired 两任务各 0.5，同一参数状态累计后一次更新。
+
+按 G0 工程隔离与数据身份、G1 FP32 性能参考、G2 固定16 TRAIN父观测单任务各200步与有条件 paired200步、G3 新初始化至多5周期顺序推进。任何泄漏、几何或分组错误即停止；G2 没有学习证据不得启动 G3。单卡等价 batch16 优先，DDP 和低精度必须另外验证。Viewer 记录真实阶段与运行身份，诊断不能标作正式验收。
+
+固定布局压缩不支持任意新波段布局；64维线性预测头存在仿射低秩约束。重建改善不等于灾害识别收益，后续仍需冻结 Encoder 的下游 probe。本节为实施设计，实际训练、速度和质量只以新运行证据为准。 本次单卡 FP32 G2 已执行，三组各200步，误差下降但仍明显落后于同输入参照；停止在 G2，不扩展 G3。见 [R3 运行证据](../outputs/reports/pd_here_r3/runs/gate_review.json)。
+
+
+### R3 重复纹理对照的选择
+
+修正 S2 标定后，以相同的 700/300 固定窗口和 30 epoch 预算比较基准、固定 TRAIN 逐波段标准化、128 维 Decoder。按预定结构指标选择 **128 维 Decoder** 作为后续开发配置。它保留 128 维单 GeoToken、单层跨 Patch ViT、两层 Decoder 和 792 维原生输出。模型类默认仍为 64 维，可打开历史权重。固定输入标准化可用于复现实验，本次选择的配置采用原生反射率输入。
+
+128 维 Decoder 下降了 A/B1 的 MSE、去均值 MSE 和梯度 MSE。六个固定窗口中的重复模板占比仍高，梯度相关仍接近零。该选择用于后续开发对照，参照模型仍优于当前重建。见 [30 epoch 对照](RESULTS.md#r3-重复纹理30-epoch对照)。
+
+进一步的输出初始化对照将最终预测Linear权重置零、偏置设为固定TRAIN逐波段均值，再训练全部参数。30epoch后重复高频图案的绝对误差明显降低，预测偏平滑，真实亮带仍缺失。此初始化保留为后续实验的显式decoder128_zerohead配置，模型默认初始化维持历史兼容。当前结论为伪纹理减弱、空间细节问题未解决，见RESULTS后续修正小节。
+
+融合后跨Patch编码器支持global_depth=1/2，默认1，旧权重键兼容。深度2的独立30epoch对照仅增加一个128维标准Block，位置编码仅在第一层前添加，最终LayerNorm位于第二层后。新组未超过单层对照的结构门槛，当前开发配置保留单层。详见RESULTS双层对照。
+
+
+### R3 按用户修正保留256维融合投影
+
+当前用户指定的融合为两分支各128维按特征拼接，再经Linear(256,256)、波段可见性编码及地理位置编码，送入两层256维全局Transformer。输入和输出为[B,P_visible,256]，注意力沿同父观测的地理Patch轴计算。4头注意力每头64维，MLP宽度1024，最终LayerNorm后经Decoder入口投影到128维。A在完整窗口时处理4个可见Patch，B1处理16个Patch。两个局部分支仍各输出128维。
+
+实现通过fusion_width=256启用，模型构造默认参数保留历史权重兼容。训练入口fusion256_global2_zerohead为本次实际运行配置。测试验证一个Patch的值改变会影响同窗口另一Patch的编码，跨父观测隔离成立。原误解为去掉投影的直接拼接实验已按用户修正停止，保留中断记录。
+
+双分支局部Transformer可通过branch_transformer=False移除，保留固定编码、QA屏蔽和线性Embedding/压缩。30epoch纯投影对照未改善Token趋同，B1 Encoder余弦由0.9858升至0.9892，重建误差上升，当前保留分支Transformer。具体运行入口为linear_branches256，默认参数维持历史权重兼容。
+
+
+### 按用户确认保留波段Token的架构
+
+新实现BandTokenDualViT位于src/pd_here_geotoken_dualvit_r3/band_tokens.py，入口变体band_tokens256。空间分支对每个波段、每个120m地理Patch的完整原生像元执行一次Linear值投影与QA投影，宽度128，加入固定band编码。该分支无2×2切分、局部Transformer或波段槽位压缩。光谱分支同样按完整波段Patch线性Embedding，经一层同地理Patch可见波段Attention+FFN，保留每波段128维Token。
+
+两个分支按(parent,geo_id,band_id)逐一对齐，在特征轴拼接并经Linear(256,256)。二维地理编码与固定波段编码定义每个联合Token位置。两层256维全局ViT处理所有可见geo-band Token，4头、MLP4。Encoder返回ids_keep=geo_id*N+band_id及valid。完整窗口下A编码4×10=40个Token，B1编码16×9=144个，Decoder恢复16×10=160个槽位。A隐藏地理位置的全部band与B1隐藏band的全部地理位置均在Decoder填共享mask token。输入QA全无效槽位从注意力及输出评分排除。
+
+为了按波段Token读出原生像元，Decoder保持128维、两层，输出头按原生shape共享Linear(128,144/36)，按band添加可训练标量偏置，最终按原offsets组装[B,16,792]。输出头权重与shape偏置零初始化，band偏置初始化为固定TRAIN均值。这是适配波段Token后的新Decoder合同，因此相对旧模型的结果包含前端和读出的共同变化。

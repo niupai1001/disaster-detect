@@ -1,0 +1,79 @@
+{
+  "status": "HIGH_SIMILARITY_LOW_SPATIAL_DIVERSITY",
+  "scope": "latest checkpoint, all300 developmentVAL parents, forward-only",
+  "exact_encoder_duplicates": 0,
+  "explanation": "Similarity already high before global ViT; token variation mostly low dimensional; attention nearly uniform",
+  "b1_stages": {
+    "spectral_reduce": {
+      "cosine": 0.9727240352054768,
+      "relative_patch_spread": 0.14766620591641436,
+      "effective_rank": 1.165666489736496
+    },
+    "spatial_reduce": {
+      "cosine": 0.9896953517028458,
+      "relative_patch_spread": 0.14273411835766991,
+      "effective_rank": 1.234938311304044
+    },
+    "fuse": {
+      "cosine": 0.9880908899782708,
+      "relative_patch_spread": 0.1440616752129644,
+      "effective_rank": 1.2433208835460474
+    },
+    "global_block_input": {
+      "cosine": 0.9867526548493705,
+      "relative_patch_spread": 0.14741521153238324,
+      "effective_rank": 1.5416127527707326
+    },
+    "global_block.attention": {
+      "cosine": 0.995663379616314,
+      "relative_patch_spread": 0.012709758100675483,
+      "effective_rank": 1.4688267007020988
+    },
+    "global_block.mlp": {
+      "cosine": 0.9794244646352434,
+      "relative_patch_spread": 0.10162048461114975,
+      "effective_rank": 1.5303151207597856
+    },
+    "global_block": {
+      "cosine": 0.9862937133297057,
+      "relative_patch_spread": 0.14736800467202382,
+      "effective_rank": 1.5452140154050915
+    },
+    "extra_global_blocks.0.attention": {
+      "cosine": 0.9982858306365295,
+      "relative_patch_spread": 0.007703427327132033,
+      "effective_rank": 1.4769323246389705
+    },
+    "extra_global_blocks.0.mlp": {
+      "cosine": 0.9775387766442775,
+      "relative_patch_spread": 0.10323241033304553,
+      "effective_rank": 1.5386972693674925
+    },
+    "extra_global_blocks.0": {
+      "cosine": 0.9855323203407008,
+      "relative_patch_spread": 0.14668569571800413,
+      "effective_rank": 1.5486125579692123
+    },
+    "encoder_norm": {
+      "cosine": 0.9858421150968106,
+      "relative_patch_spread": 0.08292599489588628,
+      "effective_rank": 1.7438016483669712
+    },
+    "decoder_embed": {
+      "cosine": 0.9893172451648555,
+      "relative_patch_spread": 0.06553197157628404,
+      "effective_rank": 1.6185192080314883
+    },
+    "decoder_norm": {
+      "cosine": 0.9899348786860043,
+      "relative_patch_spread": 0.08621389582060267,
+      "effective_rank": 2.4680184550905127
+    },
+    "prediction": {
+      "cosine": 0.9875692943467838,
+      "relative_patch_spread": 0.10265156671082365,
+      "effective_rank": 1.348725634593895
+    }
+  },
+  "caveat": "Raw cosine is affected by common feature offsets; spread and effective rank describe actual patch variation, without proving complete content collapse"
+}

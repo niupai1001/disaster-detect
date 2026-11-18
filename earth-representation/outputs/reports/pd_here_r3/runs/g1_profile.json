@@ -1,0 +1,75 @@
+{
+  "device": "NVIDIA GeForce RTX 5090",
+  "precision": "FP32",
+  "global_parent_batch": 16,
+  "warmup": 20,
+  "measured": 50,
+  "ddp": "NOT_RUN; single GPU selected",
+  "bf16": "NOT_RUN",
+  "tasks": {
+    "A": {
+      "p50": 0.04573399998480454,
+      "p95": 0.05034756003587972,
+      "parents_per_second": 349.8491276799781,
+      "peak_allocated": 221966336,
+      "peak_reserved": 251658240,
+      "trace": {
+        "A": {
+          "geographic_encoder_length": 4,
+          "decoder_length": 16,
+          "spectral_attention_length": 10,
+          "computed_band_patches": 540
+        },
+        "B1": {
+          "geographic_encoder_length": 16,
+          "decoder_length": 16,
+          "spectral_attention_length": 9,
+          "computed_band_patches": 1971
+        }
+      }
+    },
+    "B1": {
+      "p50": 0.038300100044580176,
+      "p95": 0.052147695005987774,
+      "parents_per_second": 417.75347796419527,
+      "peak_allocated": 519573504,
+      "peak_reserved": 589299712,
+      "trace": {
+        "A": {
+          "geographic_encoder_length": 4,
+          "decoder_length": 16,
+          "spectral_attention_length": 10,
+          "computed_band_patches": 540
+        },
+        "B1": {
+          "geographic_encoder_length": 16,
+          "decoder_length": 16,
+          "spectral_attention_length": 9,
+          "computed_band_patches": 1971
+        }
+      }
+    },
+    "paired": {
+      "p50": 0.07523260000743903,
+      "p95": 0.07846314999333116,
+      "parents_per_second": 212.67376108785172,
+      "peak_allocated": 532176384,
+      "peak_reserved": 614465536,
+      "trace": {
+        "A": {
+          "geographic_encoder_length": 4,
+          "decoder_length": 16,
+          "spectral_attention_length": 10,
+          "computed_band_patches": 540
+        },
+        "B1": {
+          "geographic_encoder_length": 16,
+          "decoder_length": 16,
+          "spectral_attention_length": 9,
+          "computed_band_patches": 1971
+        }
+      }
+    }
+  },
+  "status": "PASS"
+}

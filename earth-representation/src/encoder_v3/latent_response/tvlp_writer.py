@@ -61,6 +61,8 @@ class RunWriter:
                     raise ValueError('Run already exists; use resume=True or a new directory')
                 if not experiment or not variant or not metrics:
                     raise ValueError('experiment, variant and metrics are required')
+                if variant.get('kind') not in ('baseline', 'ablation', 'modification'):
+                    raise ValueError('Invalid TVLP 2.0 variant kind')
                 if variant['kind'] != 'baseline' and not variant.get('description', '').strip():
                     raise ValueError('A changed variant requires a description')
                 charts = charts or list(metrics)[:2]

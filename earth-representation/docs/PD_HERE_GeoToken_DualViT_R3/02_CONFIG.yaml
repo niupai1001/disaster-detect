@@ -1,0 +1,216 @@
+schema: geotoken_dualvit_r3_design_v1
+status: SPEC_AND_LOCAL_TENSOR_REFERENCE_NOT_TRAINED
+model_name: GeoToken-DualViT-S2-R3
+new_code_namespace: pd_here_geotoken_dualvit_r3
+seed: 17
+supersedes:
+  - residual_stem
+  - fine_token_global_fusion
+  - subpatch_sequence_decoder
+  - two_cross_patch_blocks
+  - train1000_val100
+  - b1_deletes_geographic_tokens
+
+data:
+  source: core_sentinel2_only
+  value_domain: surface_reflectance
+  total_parent_pool: REQUIRES_LOCAL_BINDING
+  split_ratio: {train: 0.7, development_val: 0.3}
+  split_unit: geographic_isolation_group_before_windows
+  group_integrity_precedes_exact_ratio: true
+  do_not_relabel_old_dev_as_unseen_test: true
+  do_not_merge_locked_test: true
+  train_manifest_sha256: REQUIRES_LOCAL_BINDING
+  val_manifest_sha256: REQUIRES_LOCAL_BINDING
+  layout_sha256: REQUIRES_LOCAL_BINDING
+  window_plan_sha256: REQUIRES_LOCAL_BINDING
+  band_keys: FROM_FROZEN_LAYOUT
+  native_shapes_per_patch: FROM_FROZEN_LAYOUT
+  require_original_complete_declared_band_layout: true
+  statistics_and_baseline_fit: TRAIN_ONLY
+  input_resampling: false
+
+geometry:
+  patch_m: [120, 120]
+  stride_m: [120, 120]
+  initial_window_patch_grid: [4, 4]
+  native_subpatch_pixels: [2, 2]
+  common_crs_and_native_integer_alignment_required: true
+  coordinate_dtype: float64
+  rotation_shear_supported: false
+  edge_padding: invalid_not_scored
+  anchor_before_task_mask: true
+  native_target_counted_once: true
+
+physical_descriptor:
+  instantiate: false
+  load_old_weights: false
+  modulation: false
+  physical_attention_bias: false
+  wavelength_or_srf_network: false
+  metadata_used_for: [geometry_validation, qa, canonical_band_layout]
+
+encoder:
+  stem: none
+  raw_value_projection: linear_only
+  qa_projection: separate_linear_no_bias
+  branch_width: 128
+  geographic_width: 128
+  block: pre_layernorm_msa_mlp_residual
+  heads: 4
+  mlp_ratio: 4
+  activation: gelu
+  layernorm_eps: 0.000001
+  dropout: 0.0
+  drop_path: 0.0
+  cls_token: false
+  spectral:
+    depth: 1
+    axis: visible_bands_within_one_geo_patch
+    embedding: raw_native_patch_flatten_linear_shared_by_shape
+    identity: fixed_canonical_band_sincos
+    reduction: scatter_visible_to_fixed_band_slots_then_flatten_linear_Nd_to_D
+    output_tokens_per_geographic_patch: 1
+  spatial:
+    depth: 1
+    axis: subpatches_within_one_band_and_geo_patch
+    embedding: raw_2x2_linear_4_to_d
+    position: fixed_2d_local_plus_canonical_band_identity
+    reduction: fixed_band_row_col_slots_flatten_linear_sumMd_to_D
+    output_tokens_per_geographic_patch: 1
+  fusion:
+    concat_axis: feature
+    projection: linear_2D_to_D
+    add_band_availability: linear_N_to_D
+    output_tokens_per_geographic_patch: 1
+    extra_fusion_attention: false
+  cross_geographic:
+    depth: 1
+    position: fixed_2d_geographic_patch_sincos
+    encoder_input: visible_geo_tokens_only
+    output: last_layer_only
+    final_layernorm: true
+  hierarchy: false
+  query_pooling: false
+  raw_value_skip_to_decoder: false
+  missing_band_slots:
+    value: fixed_zero
+    fill_timing: after_visible_branch_computation
+    hidden_content_evaluated: false
+    missing_band_reindex: false
+
+masking:
+  A:
+    unit: geographic_patch_all_bands_together
+    hidden_ratio: 0.75
+    keep_rule: max1_floor_validP_times_0p25_at_least_one_hidden
+    delete_before_all_learned_branch_operations: true
+  B1:
+    unit: entire_band_all_geo_patches
+    count: 1
+    sampling: deterministic_balanced_band_rotation
+    delete_content_before_both_branches: true
+    geographic_tokens_kept: true
+  views: independent_A_B1
+  distinguish_qa_padding_training_mask: true
+  rng_fields: [parent_id, window_id, task, exposure_index, seed]
+
+decoder:
+  width: 64
+  depth: 2
+  heads: 4
+  mlp_ratio: 4
+  encoder_projection: linear_128_to_64
+  complete_sequence: geographic_patch_tokens
+  complete_length: P
+  shared_spatial_mask_parameter_count: 1
+  A_restore: visible_encoding_plus_shared_mask_at_hidden_geo_ids
+  B1_restore: keep_all_geo_encodings_no_geo_mask_replacement
+  position: fixed_2d_all_valid_geo_positions
+  add_band_availability: linear_N_to_decoder_width
+  final_norm: true
+  output: linear_decoder_width_to_R
+  R: sum_native_pixel_counts_per_geographic_patch
+  output_layout: canonical_band_then_row_then_column
+  norm_pix_loss: false
+  coordinate_mlp: false
+  footprint_quadrature: false
+  subpatch_decoder_tokens: false
+  pretraining_only: true
+
+loss:
+  name: mse
+  scale: native_reflectance
+  mask: hidden_and_qa_valid_and_not_padding
+  reduction: pixels_over_entire_window_then_target_bands_then_parents
+  task_weights: {A: 0.5, B1: 0.5}
+  no_target_parent: reject_record_not_zero_loss
+  structural_auxiliary: false
+
+optimizer:
+  name: AdamW
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  weight_decay: 0.04
+  no_decay: [bias, layernorm]
+  clip_grad_norm: 1.0
+  pcgrad: false
+  cagrad: false
+  custom_step_projection: false
+  paired_same_parameter_state: true
+
+runtime:
+  global_parent_batch: 16
+  tasks_per_parent_when_joint: 2
+  target_world_size: 2
+  local_parents: 8
+  local_microbatch_fallback: 4
+  accumulation_fallback: 2
+  tail: actual_global_parent_count_no_duplicate_parents
+  ddp_rank_loss_multiplier: world_size_over_actual_global_parent_count
+  environment_reference: linux_ddp_nccl_after_local_verification
+  assume_windows_nccl: false
+  precision_reference: fp32
+  precision_candidate: bf16_autocast_fp32_loss_and_optimizer_state
+  sdpa: true
+  compile_initial: false
+  activation_checkpointing_initial: false
+  batch_all_patches_of_same_shape: true
+  cache: raw_data_qa_geometry_and_fixed_positions_only
+  benchmark_warmup_steps: 20
+  benchmark_measured_steps: 50
+  report_a_b1_joint_separately: true
+
+training:
+  diagnostic_train_parents: 16
+  A_only_updates: 200
+  B1_only_updates: 200
+  joint_updates_after_single_task_gate: 200
+  pilot_max_cycles: 5
+  steps_per_cycle: ceil_actual_train_parent_count_over_16
+  fresh_initialization_for_every_arm: true
+  warmup_cycles: 1
+  cosine_min_lr: 0.00001
+  val_every_cycle: true
+  review_cycles: [1, 3, 5]
+  selection_priority: [centered_mse, gradient_mse, mse]
+  optional_lr_diagnostic:
+    trigger: realizable_train_failure_after_engineering_pass
+    candidates: [0.00003, 0.0001, 0.0003]
+    updates_per_candidate: 50
+    data: TRAIN_ONLY
+  automatic_long_run: false
+
+acceptance:
+  production_geometry: NOT_RUN
+  real_manifest_binding: NOT_RUN
+  real_S2_ingestion: NOT_RUN
+  production_hidden_isolation: NOT_RUN
+  GPU_performance: NOT_RUN
+  DDP_equivalence: NOT_RUN
+  BF16_equivalence: NOT_RUN
+  real_single_task_learning: NOT_RUN
+  real_joint_learning: NOT_RUN
+  reconstruction_baseline: NOT_RUN
+  downstream_probe: NOT_RUN
+  local_tensor_tests: SEE_05_REFERENCE_TEST_RESULTS_JSON

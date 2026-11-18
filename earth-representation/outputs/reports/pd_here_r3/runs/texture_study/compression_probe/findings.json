@@ -1,0 +1,98 @@
+{
+  "status": "COMPLETED_LINEAR_ACCESSIBILITY_AUDIT",
+  "encoder_weights_updated": false,
+  "train_parents": 692,
+  "val_parents": 295,
+  "spatial_projection_mse_ratio": 1.5250416161762421,
+  "spectral_projection_mse_ratio": 1.5137438083037122,
+  "first_global_attention_ratio": 1.8342838419587284,
+  "first_global_ffn_ratio": 1.31642600657521,
+  "conclusions": [
+    "Pre-compression features retain linearly readable hidden-band texture despite high raw cosine",
+    "Reducers reduce linear accessibility by about51-53percent MSE increase",
+    "First global Block produces the largest next deterioration, in both attention and FFN residual stages",
+    "Current Decoder texture error is near the zero-texture reference"
+  ],
+  "limitations": [
+    "Different input dimensions imply different probe parameter counts; cross-validation and evaluation shared",
+    "A hidden geographic patch has no local pre-compression feature and is not tested here",
+    "This diagnoses linear accessibility of texture, not total mutual information"
+  ],
+  "macro": {
+    "raw_visible": {
+      "texture_mse": 0.00021424338980970435,
+      "gradient_mse": 0.00023230279659083416,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "spectral_pre": {
+      "texture_mse": 0.00025089195239670425,
+      "gradient_mse": 0.00027500375049522435,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "spectral_post": {
+      "texture_mse": 0.0003797861394937408,
+      "gradient_mse": 0.0003495640762027095,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "spatial_pre": {
+      "texture_mse": 0.0002324741069157738,
+      "gradient_mse": 0.0002484930481213114,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "spatial_post": {
+      "texture_mse": 0.0003545326877299602,
+      "gradient_mse": 0.0003466619403168073,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "joint_post": {
+      "texture_mse": 0.000311065925344906,
+      "gradient_mse": 0.0003237368584660077,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "fusion_post": {
+      "texture_mse": 0.0003345275144708619,
+      "gradient_mse": 0.00032741988140623697,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "global_input": {
+      "texture_mse": 0.000340383781649595,
+      "gradient_mse": 0.00033028185841723365,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "global1_after_attention": {
+      "texture_mse": 0.0006243604707446601,
+      "gradient_mse": 0.0005031307845544857,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "global1": {
+      "texture_mse": 0.000821924361165811,
+      "gradient_mse": 0.0005495759180348202,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "global2_after_attention": {
+      "texture_mse": 0.0009040441793272205,
+      "gradient_mse": 0.0006003960974584917,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "global2": {
+      "texture_mse": 0.0009179094436299569,
+      "gradient_mse": 0.0006162256523908815,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "encoder": {
+      "texture_mse": 0.0009583903817907663,
+      "gradient_mse": 0.0006417544035503407,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "constant_texture": {
+      "texture_mse": 0.001113073433752733,
+      "gradient_mse": 0.0005374554856179615,
+      "target_texture_energy": 0.001113073433752733
+    },
+    "current_decoder": {
+      "texture_mse": 0.001121348065064359,
+      "gradient_mse": 0.0005433768567144281,
+      "target_texture_energy": 0.001113073433752733
+    }
+  }
+}

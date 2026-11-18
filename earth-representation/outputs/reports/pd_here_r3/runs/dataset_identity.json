@@ -1,0 +1,85 @@
+{
+  "source": "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\s2_native_grid_r1\\s2_selection_1000\\train_1000.jsonl",
+  "pool_sha256": "46d45cf5b2ed836f09febc06c4fe2c2998b4a2653973cf6c3bbb2c4f320b2395",
+  "release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+  "group_rule": "union existing isolation_group, canonical_acquisition, overlapping lon/lat bbox; all dates",
+  "seed": 17,
+  "pool_count": 1000,
+  "train_count": 700,
+  "development_val_count": 300,
+  "groups": 987,
+  "old_val_test_included": false,
+  "role": "development VAL, not independent TEST",
+  "train_sha256": "89f274b194b9bf0110d5670fca9042c9e24cd60e8a862667fef24fe8519a4704",
+  "val_sha256": "197ca3c0d189d2c59ab5a26162e63e2794e21ae8b5c2a43e90044637d3f0ec21",
+  "layout": {
+    "band_keys": [
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B8A",
+      "B11",
+      "B12"
+    ],
+    "native_shapes": [
+      [
+        12,
+        12
+      ],
+      [
+        12,
+        12
+      ],
+      [
+        12,
+        12
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        12,
+        12
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        6
+      ]
+    ],
+    "patch_grid": [
+      4,
+      4
+    ],
+    "subpatch": 2
+  },
+  "layout_hash": "fe795edcbe592d9b9a5fbc7e90a330b73c8da23cbcc5dd9bf20230c5c6921c98",
+  "excluded": [],
+  "train_eligible": 700,
+  "val_eligible": 300,
+  "qa": "frozen QA intersect finite and native window support",
+  "input_resampling": false,
+  "initial_panel": "deterministic first legal window; fixed throughout G1/G2",
+  "rotation": "G3 requires registered window rotation before launch",
+  "window_plan_sha256": "5ef8c1f346a1f01fe24c5c90d8c47f0584a44c9ed647542dc28732f94e0bfc12"
+}

@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "traces": {
+    "A": {
+      "shape": [
+        16,
+        40,
+        256
+      ],
+      "trace": {
+        "geographic_patches_kept": 4,
+        "visible_bands": 10,
+        "encoder_length": 40,
+        "decoder_length": 160,
+        "computed_band_patches": 540,
+        "canonical_pair_index": "geo_id * band_count + band_id"
+      }
+    },
+    "B1": {
+      "shape": [
+        16,
+        144,
+        256
+      ],
+      "trace": {
+        "geographic_patches_kept": 16,
+        "visible_bands": 9,
+        "encoder_length": 144,
+        "decoder_length": 160,
+        "computed_band_patches": 1971,
+        "canonical_pair_index": "geo_id * band_count + band_id"
+      }
+    }
+  },
+  "losses": {
+    "A": 0.02028021216392517,
+    "B1": 0.019779464229941368
+  }
+}

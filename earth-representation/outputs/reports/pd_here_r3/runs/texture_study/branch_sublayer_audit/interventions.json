@@ -1,0 +1,3083 @@
+{
+  "scope": "21 previously included windows, B1 exposure0; frozen trained weights; out-of-distribution interventions",
+  "note": "QA masks stay active even when QA learned embeddings are zeroed; zero-code check keeps geographic positions unchanged",
+  "summary": {
+    "original": {
+      "mse": 0.0009432062735348674,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9971624009078032,
+          "rms": 1.216363752502713,
+          "patch_spread": 0.053390441007018674,
+          "relative_spread": 0.04246301469816768,
+          "effective_rank": 1.1195311340738638
+        },
+        "spatial_reduce": {
+          "cosine": 0.9973826533489271,
+          "rms": 18.58870205678,
+          "patch_spread": 0.5045734502034582,
+          "relative_spread": 0.03078442009124676,
+          "effective_rank": 1.3662168922484657
+        },
+        "encoder_norm": {
+          "cosine": 0.9971899729912814,
+          "rms": 1.0042571900679367,
+          "patch_spread": 0.03874119676958728,
+          "relative_spread": 0.038571495049219716,
+          "effective_rank": 1.8817887321825242
+        }
+      }
+    },
+    "zero_attention_updates": {
+      "mse": 0.03706499317749625,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.998059824043026,
+          "rms": 0.9921402079094376,
+          "patch_spread": 0.03358947414279195,
+          "relative_spread": 0.03221477168458455,
+          "effective_rank": 1.4155950178774392
+        },
+        "spatial_reduce": {
+          "cosine": 0.9991477397275872,
+          "rms": 13.493863292394545,
+          "patch_spread": 0.26991314093142277,
+          "relative_spread": 0.018877590322412808,
+          "effective_rank": 1.3931933595056645
+        },
+        "encoder_norm": {
+          "cosine": 0.9986462354733606,
+          "rms": 1.0048272615584675,
+          "patch_spread": 0.031467753053321175,
+          "relative_spread": 0.03131664715522605,
+          "effective_rank": 2.0031241295027566
+        }
+      }
+    },
+    "zero_band_local_codes": {
+      "mse": 0.02143682274756776,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9985353754360436,
+          "rms": 1.17268639773387,
+          "patch_spread": 0.05022938516845896,
+          "relative_spread": 0.0391673768934578,
+          "effective_rank": 1.1220440910662943
+        },
+        "spatial_reduce": {
+          "cosine": 0.9947307615244143,
+          "rms": 13.200595520063432,
+          "patch_spread": 0.5291226388815365,
+          "relative_spread": 0.04866222478074327,
+          "effective_rank": 1.3725544385070423
+        },
+        "encoder_norm": {
+          "cosine": 0.9945371649078105,
+          "rms": 1.0033872999932971,
+          "patch_spread": 0.05061679075421651,
+          "relative_spread": 0.05043486599949301,
+          "effective_rank": 1.9696151699221174
+        }
+      }
+    },
+    "zero_ffn_updates": {
+      "mse": 0.040135501695442055,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9984090273028069,
+          "rms": 1.019595860589523,
+          "patch_spread": 0.034804869609171646,
+          "relative_spread": 0.031129393780856357,
+          "effective_rank": 1.232659515928156
+        },
+        "spatial_reduce": {
+          "cosine": 0.9995882986899642,
+          "rms": 17.329411218007422,
+          "patch_spread": 0.2167564100220559,
+          "relative_spread": 0.012011896039558486,
+          "effective_rank": 1.3429590773026208
+        },
+        "encoder_norm": {
+          "cosine": 0.9992854995371264,
+          "rms": 1.0046707072262602,
+          "patch_spread": 0.023185278589200536,
+          "relative_spread": 0.023077221845469315,
+          "effective_rank": 2.0753579948704224
+        }
+      }
+    },
+    "zero_qa_embeddings": {
+      "mse": 0.02205463172867894,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9940360372305654,
+          "rms": 1.0728665074337702,
+          "patch_spread": 0.056498925814824096,
+          "relative_spread": 0.05954220964730907,
+          "effective_rank": 1.1078069322103594
+        },
+        "spatial_reduce": {
+          "cosine": 0.9976233497486704,
+          "rms": 14.020403686370814,
+          "patch_spread": 0.49347345942270254,
+          "relative_spread": 0.03371478570523367,
+          "effective_rank": 1.369657046472253
+        },
+        "encoder_norm": {
+          "cosine": 0.9968330371676254,
+          "rms": 1.0045120197659332,
+          "patch_spread": 0.04403556512268131,
+          "relative_spread": 0.04383728726412769,
+          "effective_rank": 1.927556447021886
+        }
+      }
+    }
+  },
+  "observations": [
+    {
+      "mode": "original",
+      "parent": "obs_ebac33b144f9bf21fb4c7c23",
+      "mse": 4.8537247494095936e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999861733834907,
+          "rms": 2.5393635476689727,
+          "patch_spread": 0.022296665470960493,
+          "relative_spread": 0.008780414876565381,
+          "effective_rank": 1.0392337730326107
+        },
+        "spatial_reduce": {
+          "cosine": 0.9997852543320176,
+          "rms": 17.859811916845764,
+          "patch_spread": 0.30648473181220515,
+          "relative_spread": 0.017160580035175066,
+          "effective_rank": 1.103471366382048
+        },
+        "encoder_norm": {
+          "cosine": 0.9995531029088075,
+          "rms": 1.0041033559802055,
+          "patch_spread": 0.020552661054323636,
+          "relative_spread": 0.020468670811542237,
+          "effective_rank": 2.0186818805835642
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_4bc3fdfe6b1d0bf1cdfa8bea",
+      "mse": 7.023243233561516e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9978986350978427,
+          "rms": 1.0908800938461964,
+          "patch_spread": 0.059459859791767024,
+          "relative_spread": 0.05450632028871753,
+          "effective_rank": 1.0007878638218013
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999206679775049,
+          "rms": 21.713668532426095,
+          "patch_spread": 0.26332781878228656,
+          "relative_spread": 0.01212728371481982,
+          "effective_rank": 1.0067126617318842
+        },
+        "encoder_norm": {
+          "cosine": 0.9996708484384141,
+          "rms": 1.0040542166973254,
+          "patch_spread": 0.017039526100599715,
+          "relative_spread": 0.016970723111595,
+          "effective_rank": 1.4702908585598287
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_3553936d8578f2848b627178",
+      "mse": 9.179829066852108e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999836306135361,
+          "rms": 0.9351097946149406,
+          "patch_spread": 0.011873454206932933,
+          "relative_spread": 0.012697390483244999,
+          "effective_rank": 1.0379943384224184
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999912743165549,
+          "rms": 17.145253563583843,
+          "patch_spread": 0.06835799549269479,
+          "relative_spread": 0.00398699239058708,
+          "effective_rank": 1.3515997572492522
+        },
+        "encoder_norm": {
+          "cosine": 0.9997060242942628,
+          "rms": 1.004115210470851,
+          "patch_spread": 0.016104356265153264,
+          "relative_spread": 0.016038355058481373,
+          "effective_rank": 1.8704089159686685
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_c8edb8f4b7fa897b39cebb13",
+      "mse": 0.0005230730166658759,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999963849942034,
+          "rms": 1.124415094651419,
+          "patch_spread": 0.0026013710002295164,
+          "relative_spread": 0.002313532620296217,
+          "effective_rank": 1.171080018402845
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999997758309808,
+          "rms": 20.986718072861123,
+          "patch_spread": 0.012740285775658852,
+          "relative_spread": 0.0006070642265945286,
+          "effective_rank": 2.0309365143467337
+        },
+        "encoder_norm": {
+          "cosine": 0.9997396795191614,
+          "rms": 1.004223414402702,
+          "patch_spread": 0.015688086653263093,
+          "relative_spread": 0.01562210801726242,
+          "effective_rank": 2.469125319490147
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_0ecd7ad4ea2a5f23b2f2d1c9",
+      "mse": 2.812757702486124e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999561941193275,
+          "rms": 1.0034485174385013,
+          "patch_spread": 0.007080932358846936,
+          "relative_spread": 0.007056597559107867,
+          "effective_rank": 1.0655744135317753
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999984243675228,
+          "rms": 19.946523601364987,
+          "patch_spread": 0.03294278598036962,
+          "relative_spread": 0.001651555260392105,
+          "effective_rank": 1.5824955776132594
+        },
+        "encoder_norm": {
+          "cosine": 0.9998048448910459,
+          "rms": 1.0041773395597142,
+          "patch_spread": 0.013122128787200297,
+          "relative_spread": 0.01306754123027089,
+          "effective_rank": 1.8255249381005694
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_df06ea12bdbabd8384494c20",
+      "mse": 0.0009497888386249542,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9993372191356099,
+          "rms": 1.312602545532923,
+          "patch_spread": 0.04714095670161433,
+          "relative_spread": 0.03591411342454381,
+          "effective_rank": 1.0485996699991806
+        },
+        "spatial_reduce": {
+          "cosine": 0.9990915770307505,
+          "rms": 14.91934805295862,
+          "patch_spread": 0.4369783002773245,
+          "relative_spread": 0.02928936966455906,
+          "effective_rank": 1.0933919311021079
+        },
+        "encoder_norm": {
+          "cosine": 0.9987762744304961,
+          "rms": 1.0043320546886645,
+          "patch_spread": 0.034017720756505505,
+          "relative_spread": 0.033870989776434796,
+          "effective_rank": 1.7251314627609022
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_a5e0581208d1b11aec566f63",
+      "mse": 0.0003386865137144923,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9777238646887869,
+          "rms": 1.0719255892366097,
+          "patch_spread": 0.17111228305686693,
+          "relative_spread": 0.1596307474838132,
+          "effective_rank": 1.0155676666736706
+        },
+        "spatial_reduce": {
+          "cosine": 0.9939577302454117,
+          "rms": 14.383719262911994,
+          "patch_spread": 1.2793971435245353,
+          "relative_spread": 0.08894758859924526,
+          "effective_rank": 1.1272989749932225
+        },
+        "encoder_norm": {
+          "cosine": 0.9897330860119112,
+          "rms": 1.0044271134145644,
+          "patch_spread": 0.09854142241669986,
+          "relative_spread": 0.09810709119719686,
+          "effective_rank": 1.2908289096299312
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_d2d30c22dc4f5695209c5ccb",
+      "mse": 0.0009259756188839674,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9975370307070364,
+          "rms": 1.6645048206505135,
+          "patch_spread": 0.13748262540369677,
+          "relative_spread": 0.08259671206597437,
+          "effective_rank": 1.0480893614846056
+        },
+        "spatial_reduce": {
+          "cosine": 0.99177181113876,
+          "rms": 15.740850094116986,
+          "patch_spread": 1.3970530331931201,
+          "relative_spread": 0.08875334081958237,
+          "effective_rank": 1.277561155896608
+        },
+        "encoder_norm": {
+          "cosine": 0.9912306873784229,
+          "rms": 1.0041355873435045,
+          "patch_spread": 0.09104575960285262,
+          "relative_spread": 0.09067078266165145,
+          "effective_rank": 1.3867579259131368
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_58d2c640690d2504319ca3c1",
+      "mse": 7.276367250597104e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999996413840821,
+          "rms": 1.230759674010287,
+          "patch_spread": 0.0008823875260893192,
+          "relative_spread": 0.0007169454319332402,
+          "effective_rank": 1.5290792313311952
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999999060472713,
+          "rms": 22.41315260108777,
+          "patch_spread": 0.006820059264344424,
+          "relative_spread": 0.00030428826259869523,
+          "effective_rank": 1.775769351990326
+        },
+        "encoder_norm": {
+          "cosine": 0.9998390404657274,
+          "rms": 1.003977215219104,
+          "patch_spread": 0.01191478260092979,
+          "relative_spread": 0.01186758267051863,
+          "effective_rank": 1.7657472945510264
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_5c171556d4162247d8b4746a",
+      "mse": 0.001962498761713505,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9963513103060412,
+          "rms": 1.3060641834812488,
+          "patch_spread": 0.1084250261937174,
+          "relative_spread": 0.083016614011048,
+          "effective_rank": 1.0415394965440778
+        },
+        "spatial_reduce": {
+          "cosine": 0.9932831707763554,
+          "rms": 16.817016911889585,
+          "patch_spread": 1.3540916104804686,
+          "relative_spread": 0.08051913235117993,
+          "effective_rank": 1.0838510308519163
+        },
+        "encoder_norm": {
+          "cosine": 0.9930299220005379,
+          "rms": 1.0044787102359511,
+          "patch_spread": 0.08119818732893992,
+          "relative_spread": 0.08083614565595576,
+          "effective_rank": 1.1632844805482592
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_42b7ac0d4c71d68a0b52d8ad",
+      "mse": 1.175073157355655e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999858757613225,
+          "rms": 1.0948819477561804,
+          "patch_spread": 0.004301273132197435,
+          "relative_spread": 0.003928526852609398,
+          "effective_rank": 1.0411390147674564
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999993457324299,
+          "rms": 20.818982933123763,
+          "patch_spread": 0.01859896380681317,
+          "relative_spread": 0.0008933656301346758,
+          "effective_rank": 1.2895956989808908
+        },
+        "encoder_norm": {
+          "cosine": 0.9999130414501789,
+          "rms": 1.0042262351682731,
+          "patch_spread": 0.008109953279317992,
+          "relative_spread": 0.008075822952344049,
+          "effective_rank": 2.0384985514084333
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_4e6457fe7a76ff7ee08b3a7f",
+      "mse": 0.0003050448140129447,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9954264025025436,
+          "rms": 1.0349035881949744,
+          "patch_spread": 0.07688827812643452,
+          "relative_spread": 0.07429511212782546,
+          "effective_rank": 1.1017627816607296
+        },
+        "spatial_reduce": {
+          "cosine": 0.9963713258098162,
+          "rms": 17.1320498738726,
+          "patch_spread": 1.0106048646653172,
+          "relative_spread": 0.058989138608950116,
+          "effective_rank": 1.0744636153280127
+        },
+        "encoder_norm": {
+          "cosine": 0.9934262403680331,
+          "rms": 1.0043463337180467,
+          "patch_spread": 0.07884599682081624,
+          "relative_spread": 0.0785047888101824,
+          "effective_rank": 1.1774518276617152
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_63930a00f5514653e2849261",
+      "mse": 0.00030991146923042834,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9847541464015972,
+          "rms": 0.9227223741145409,
+          "patch_spread": 0.11058654706964705,
+          "relative_spread": 0.11984812568977495,
+          "effective_rank": 1.0049699988001457
+        },
+        "spatial_reduce": {
+          "cosine": 0.9995583612099808,
+          "rms": 19.494954785895878,
+          "patch_spread": 0.5416525336441447,
+          "relative_spread": 0.027784241594446632,
+          "effective_rank": 1.0341314509246522
+        },
+        "encoder_norm": {
+          "cosine": 0.9988504807368879,
+          "rms": 1.0043498099400219,
+          "patch_spread": 0.03185289449017973,
+          "relative_spread": 0.03171494052662979,
+          "effective_rank": 1.3878510439560552
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_a5884b37d00115b43628628e",
+      "mse": 0.013267507776618004,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9958046407380349,
+          "rms": 1.9202836292124128,
+          "patch_spread": 0.22486677411494974,
+          "relative_spread": 0.11710081297062186,
+          "effective_rank": 1.0893318167105717
+        },
+        "spatial_reduce": {
+          "cosine": 0.9741980694430266,
+          "rms": 16.1682929091382,
+          "patch_spread": 2.6712388033189227,
+          "relative_spread": 0.16521464686040901,
+          "effective_rank": 1.094082335339182
+        },
+        "encoder_norm": {
+          "cosine": 0.9853807761177235,
+          "rms": 1.0050992006951316,
+          "patch_spread": 0.11766539918659534,
+          "relative_spread": 0.11706844369711703,
+          "effective_rank": 1.1541346717718128
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_cfbb2c1575fd7fcb06beba45",
+      "mse": 1.5635238014510833e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999991096651803,
+          "rms": 0.9596072886926735,
+          "patch_spread": 0.0029159655386311067,
+          "relative_spread": 0.0030387071596795485,
+          "effective_rank": 1.3668603688159051
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999992793570044,
+          "rms": 19.685637094670767,
+          "patch_spread": 0.01817400131515335,
+          "relative_spread": 0.0009232112340460324,
+          "effective_rank": 2.2570474121015556
+        },
+        "encoder_norm": {
+          "cosine": 0.9996988873577412,
+          "rms": 1.004360750956143,
+          "patch_spread": 0.01668628635589125,
+          "relative_spread": 0.016613837547918956,
+          "effective_rank": 2.300996495229019
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_1a726b0abe4e011bdc97473a",
+      "mse": 0.00023141695419326425,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9998453446637922,
+          "rms": 0.9238276674259802,
+          "patch_spread": 0.011144459088260882,
+          "relative_spread": 0.012063352810500026,
+          "effective_rank": 1.0456250537065983
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999956927835446,
+          "rms": 20.51804387081633,
+          "patch_spread": 0.062107498705744,
+          "relative_spread": 0.003026969778248797,
+          "effective_rank": 1.1018636705773917
+        },
+        "encoder_norm": {
+          "cosine": 0.9997268889549966,
+          "rms": 1.004443088641618,
+          "patch_spread": 0.016072393898067687,
+          "relative_spread": 0.01600129870952028,
+          "effective_rank": 2.567827984692456
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_dfc161acdf3cfabc092c959f",
+      "mse": 3.974766514147632e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9996029920933701,
+          "rms": 1.1025405622057642,
+          "patch_spread": 0.02604898664231838,
+          "relative_spread": 0.02362632952950435,
+          "effective_rank": 1.011196936340327
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999848466302389,
+          "rms": 20.47401183935382,
+          "patch_spread": 0.10764330499839782,
+          "relative_spread": 0.005257558012714089,
+          "effective_rank": 1.1830633057738393
+        },
+        "encoder_norm": {
+          "cosine": 0.9996910835643562,
+          "rms": 1.0041088998144185,
+          "patch_spread": 0.01708783721455514,
+          "relative_spread": 0.01701791231779078,
+          "effective_rank": 2.933930169119075
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_031300e81ee45bd5844e9715",
+      "mse": 2.0832718291785568e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999995912904367,
+          "rms": 1.0007831085258256,
+          "patch_spread": 0.0021910442124509592,
+          "relative_spread": 0.002189329729673808,
+          "effective_rank": 1.4783920736982512
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999995833622694,
+          "rms": 17.59977873566012,
+          "patch_spread": 0.012697420478339804,
+          "relative_spread": 0.0007214534153553129,
+          "effective_rank": 2.5006211283291724
+        },
+        "encoder_norm": {
+          "cosine": 0.9996002479239819,
+          "rms": 1.0041033645840987,
+          "patch_spread": 0.01943834116456332,
+          "relative_spread": 0.01935890452136341,
+          "effective_rank": 2.471498257299382
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_f486283b2491c3ffe881c939",
+      "mse": 0.0005098789697512984,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9968258885890457,
+          "rms": 1.0507465349184315,
+          "patch_spread": 0.06421240342478085,
+          "relative_spread": 0.061111220728189794,
+          "effective_rank": 1.3205980459268398
+        },
+        "spatial_reduce": {
+          "cosine": 0.9971452985439064,
+          "rms": 16.249626643932473,
+          "patch_spread": 0.8770396721827858,
+          "relative_spread": 0.0539729122028947,
+          "effective_rank": 1.394323871597752
+        },
+        "encoder_norm": {
+          "cosine": 0.9942778033622396,
+          "rms": 1.0043137050398996,
+          "patch_spread": 0.0735589832402893,
+          "relative_spread": 0.0732430343936877,
+          "effective_rank": 1.423765370020858
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_0d4d37b35d151e934c8803ad",
+      "mse": 5.4830994486110285e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999928912846853,
+          "rms": 1.1797953404951464,
+          "patch_spread": 0.004066468151214714,
+          "relative_spread": 0.0034467572566510255,
+          "effective_rank": 1.0496791780476469
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999997134833988,
+          "rms": 22.188025459170074,
+          "patch_spread": 0.017687020761864566,
+          "relative_spread": 0.0007971426206631969,
+          "effective_rank": 1.2773424564937972
+        },
+        "encoder_norm": {
+          "cosine": 0.9997530852222105,
+          "rms": 1.0040081685455304,
+          "patch_spread": 0.015275529715106552,
+          "relative_spread": 0.01521454724540304,
+          "effective_rank": 2.4754211479165735
+        }
+      }
+    },
+    {
+      "mode": "original",
+      "parent": "obs_43e1f04731806b49b430b3ee",
+      "mse": 2.9292443286976777e-05,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999562467521523,
+          "rms": 1.074472899883426,
+          "patch_spread": 0.025621499935784935,
+          "relative_spread": 0.023845645561246555,
+          "effective_rank": 1.003052713832492
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999846119087267,
+          "rms": 18.10727643669931,
+          "patch_spread": 0.10040460581213305,
+          "relative_spread": 0.005544986633585373,
+          "effective_rank": 1.0509314696141723
+        },
+        "encoder_norm": {
+          "cosine": 0.9995873874197675,
+          "rms": 1.0040172163108947,
+          "patch_spread": 0.019746885229482678,
+          "relative_spread": 0.019667875120746973,
+          "effective_rank": 2.6004058706515933
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_ebac33b144f9bf21fb4c7c23",
+      "mse": 0.010549151338636875,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999965341235809,
+          "rms": 1.7786142118996857,
+          "patch_spread": 0.019815492108090138,
+          "relative_spread": 0.011140972547906153,
+          "effective_rank": 1.0545514499466222
+        },
+        "spatial_reduce": {
+          "cosine": 0.999940906450419,
+          "rms": 18.27861514261752,
+          "patch_spread": 0.17144128613725343,
+          "relative_spread": 0.009379336716682072,
+          "effective_rank": 1.1034358490381866
+        },
+        "encoder_norm": {
+          "cosine": 0.9996187293833714,
+          "rms": 1.0043017047521248,
+          "patch_spread": 0.018987454790235652,
+          "relative_spread": 0.018906126217242667,
+          "effective_rank": 2.329444452475602
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_4bc3fdfe6b1d0bf1cdfa8bea",
+      "mse": 0.0168437696993351,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9993553614696811,
+          "rms": 0.9292130661224067,
+          "patch_spread": 0.024985940388207492,
+          "relative_spread": 0.026889355411750155,
+          "effective_rank": 1.0033806602554871
+        },
+        "spatial_reduce": {
+          "cosine": 0.999863513182533,
+          "rms": 13.491580710927122,
+          "patch_spread": 0.14997418038684987,
+          "relative_spread": 0.011116131133943597,
+          "effective_rank": 1.0093339279315632
+        },
+        "encoder_norm": {
+          "cosine": 0.9995454584038398,
+          "rms": 1.0049731429878448,
+          "patch_spread": 0.020042155287173208,
+          "relative_spread": 0.01994297601584326,
+          "effective_rank": 1.632927045097392
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_3553936d8578f2848b627178",
+      "mse": 0.069022536277771,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999665873788337,
+          "rms": 0.8865007615616106,
+          "patch_spread": 0.004979964754732151,
+          "relative_spread": 0.005617552709102833,
+          "effective_rank": 1.165563114831108
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999873721919506,
+          "rms": 11.732169767849912,
+          "patch_spread": 0.03929879418459134,
+          "relative_spread": 0.0033496612273957406,
+          "effective_rank": 1.368763847205217
+        },
+        "encoder_norm": {
+          "cosine": 0.9995754521045139,
+          "rms": 1.0047657573571496,
+          "patch_spread": 0.019365655306227327,
+          "relative_spread": 0.019273801047086935,
+          "effective_rank": 1.8126324483295932
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_c8edb8f4b7fa897b39cebb13",
+      "mse": 0.03921931982040405,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999986099576775,
+          "rms": 0.9576573495061085,
+          "patch_spread": 0.0011966273039227583,
+          "relative_spread": 0.0012495359687260726,
+          "effective_rank": 1.6891898080453616
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999996244418052,
+          "rms": 12.479301629683492,
+          "patch_spread": 0.007583188261525899,
+          "relative_spread": 0.0006076612687594946,
+          "effective_rank": 1.9511633665070067
+        },
+        "encoder_norm": {
+          "cosine": 0.9994386585814453,
+          "rms": 1.004905159237592,
+          "patch_spread": 0.023052821810700733,
+          "relative_spread": 0.02294029600583462,
+          "effective_rank": 2.4639022670261514
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_0ecd7ad4ea2a5f23b2f2d1c9",
+      "mse": 0.04867546260356903,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999872163894321,
+          "rms": 0.8939358571206882,
+          "patch_spread": 0.0031874975084838905,
+          "relative_spread": 0.0035656892864222066,
+          "effective_rank": 1.2358115888503252
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999971341350966,
+          "rms": 12.069120264346266,
+          "patch_spread": 0.01948456736045814,
+          "relative_spread": 0.0016144148814241299,
+          "effective_rank": 1.5359080169690686
+        },
+        "encoder_norm": {
+          "cosine": 0.9996154103824622,
+          "rms": 1.0050416032869036,
+          "patch_spread": 0.018436843421675883,
+          "relative_spread": 0.018344358443849233,
+          "effective_rank": 1.7850975108295715
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_df06ea12bdbabd8384494c20",
+      "mse": 0.010168259032070637,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9991403715924425,
+          "rms": 0.9734485408409099,
+          "patch_spread": 0.031154778648519055,
+          "relative_spread": 0.032004546045758225,
+          "effective_rank": 1.1003048597009228
+        },
+        "spatial_reduce": {
+          "cosine": 0.9997329618483571,
+          "rms": 13.051764217754805,
+          "patch_spread": 0.22611556568448038,
+          "relative_spread": 0.017324521184414816,
+          "effective_rank": 1.1023936077250243
+        },
+        "encoder_norm": {
+          "cosine": 0.9990840110342502,
+          "rms": 1.0045267448691884,
+          "patch_spread": 0.029436920018593757,
+          "relative_spread": 0.029304267077953305,
+          "effective_rank": 2.370255335582768
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_a5e0581208d1b11aec566f63",
+      "mse": 0.043139759451150894,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9876939935200292,
+          "rms": 0.8877762983755711,
+          "patch_spread": 0.09767860241211604,
+          "relative_spread": 0.11002614351255567,
+          "effective_rank": 1.0346969181565855
+        },
+        "spatial_reduce": {
+          "cosine": 0.9966577011989263,
+          "rms": 12.118895697292844,
+          "patch_spread": 0.688268485972575,
+          "relative_spread": 0.05679300351816069,
+          "effective_rank": 1.125230546611321
+        },
+        "encoder_norm": {
+          "cosine": 0.996309805221122,
+          "rms": 1.0049232426465784,
+          "patch_spread": 0.05910810192362484,
+          "relative_spread": 0.05881852405757579,
+          "effective_rank": 1.547397412731481
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_d2d30c22dc4f5695209c5ccb",
+      "mse": 0.023972706869244576,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9955953537120393,
+          "rms": 1.1846923645224068,
+          "patch_spread": 0.10015964436445791,
+          "relative_spread": 0.08454485515725929,
+          "effective_rank": 1.0860580991044486
+        },
+        "spatial_reduce": {
+          "cosine": 0.9979427321963303,
+          "rms": 15.553596285174685,
+          "patch_spread": 0.7467624345526187,
+          "relative_spread": 0.048012203792663355,
+          "effective_rank": 1.2503495467041446
+        },
+        "encoder_norm": {
+          "cosine": 0.9972449973834321,
+          "rms": 1.0044352681569801,
+          "patch_spread": 0.051046750355023075,
+          "relative_spread": 0.05082134406599225,
+          "effective_rank": 1.5833069423397488
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_58d2c640690d2504319ca3c1",
+      "mse": 0.016621967777609825,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999997724855063,
+          "rms": 0.972567454195466,
+          "patch_spread": 0.00046534835305619146,
+          "relative_spread": 0.0004784741161641484,
+          "effective_rank": 3.1377148341552483
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999999136422173,
+          "rms": 13.602963487322015,
+          "patch_spread": 0.00378226176381494,
+          "relative_spread": 0.0002780468952474962,
+          "effective_rank": 1.8073810538278234
+        },
+        "encoder_norm": {
+          "cosine": 0.9996681078154467,
+          "rms": 1.0049360215049796,
+          "patch_spread": 0.017125406126817528,
+          "relative_spread": 0.017041289953136255,
+          "effective_rank": 1.7655148955015627
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_5c171556d4162247d8b4746a",
+      "mse": 0.011577646248042583,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9958749969027892,
+          "rms": 1.00135546592424,
+          "patch_spread": 0.07149031341024994,
+          "relative_spread": 0.07139354189699776,
+          "effective_rank": 1.0810586663333475
+        },
+        "spatial_reduce": {
+          "cosine": 0.9978868572943123,
+          "rms": 14.909530522293307,
+          "patch_spread": 0.7043729135231548,
+          "relative_spread": 0.047243131664672415,
+          "effective_rank": 1.0937826734362193
+        },
+        "encoder_norm": {
+          "cosine": 0.9967411617273638,
+          "rms": 1.0047219032523285,
+          "patch_spread": 0.055534384854691025,
+          "relative_spread": 0.05527338925818558,
+          "effective_rank": 1.345836824936319
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_42b7ac0d4c71d68a0b52d8ad",
+      "mse": 0.07043226063251495,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999951895317951,
+          "rms": 0.9227639786749382,
+          "patch_spread": 0.0018508562628879231,
+          "relative_spread": 0.0020057742886167903,
+          "effective_rank": 1.131231103143042
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999990814463177,
+          "rms": 14.281472488579306,
+          "patch_spread": 0.011914653393623822,
+          "relative_spread": 0.0008342734548662124,
+          "effective_rank": 1.268797675857155
+        },
+        "encoder_norm": {
+          "cosine": 0.9998654442830955,
+          "rms": 1.004851000592076,
+          "patch_spread": 0.010094467104800513,
+          "relative_spread": 0.010045735237216934,
+          "effective_rank": 2.0142490487165947
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_4e6457fe7a76ff7ee08b3a7f",
+      "mse": 0.03840595483779907,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9971006293886335,
+          "rms": 0.8951416118989749,
+          "patch_spread": 0.048134821702793956,
+          "relative_spread": 0.053773415360145745,
+          "effective_rank": 1.1599843301366612
+        },
+        "spatial_reduce": {
+          "cosine": 0.9985194430140503,
+          "rms": 14.13791181369744,
+          "patch_spread": 0.5301411224260305,
+          "relative_spread": 0.037497837687203994,
+          "effective_rank": 1.0806564258611038
+        },
+        "encoder_norm": {
+          "cosine": 0.997459934049232,
+          "rms": 1.0047198560629997,
+          "patch_spread": 0.049029020209470794,
+          "relative_spread": 0.048798697381766974,
+          "effective_rank": 1.4327160249222597
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_63930a00f5514653e2849261",
+      "mse": 0.035251833498477936,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.996789658791255,
+          "rms": 0.8901083402648429,
+          "patch_spread": 0.048792660128277154,
+          "relative_spread": 0.05481654077497958,
+          "effective_rank": 1.0147196658526438
+        },
+        "spatial_reduce": {
+          "cosine": 0.9993183689196276,
+          "rms": 12.302722830956215,
+          "patch_spread": 0.3020866788103198,
+          "relative_spread": 0.02455445700607078,
+          "effective_rank": 1.0558989406502948
+        },
+        "encoder_norm": {
+          "cosine": 0.99898023388766,
+          "rms": 1.0048894813359432,
+          "patch_spread": 0.030017363905432273,
+          "relative_spread": 0.02987130869906798,
+          "effective_rank": 1.9099703424502996
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_a5884b37d00115b43628628e",
+      "mse": 0.03231089189648628,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9904126963847827,
+          "rms": 1.3069755668494587,
+          "patch_spread": 0.18024059080924829,
+          "relative_spread": 0.13790662609227564,
+          "effective_rank": 1.1203225207246854
+        },
+        "spatial_reduce": {
+          "cosine": 0.9935238473518097,
+          "rms": 16.120999305033113,
+          "patch_spread": 1.4419762085341448,
+          "relative_spread": 0.08944707342577377,
+          "effective_rank": 1.155604577750803
+        },
+        "encoder_norm": {
+          "cosine": 0.9942771944655086,
+          "rms": 1.0050539743649163,
+          "patch_spread": 0.07361657174529272,
+          "relative_spread": 0.07324638638617424,
+          "effective_rank": 1.3244038569265002
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_cfbb2c1575fd7fcb06beba45",
+      "mse": 0.06268313527107239,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999972348354929,
+          "rms": 0.886505680798739,
+          "patch_spread": 0.00145075967856747,
+          "relative_spread": 0.0016364922526614153,
+          "effective_rank": 2.253363949627712
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999994602246371,
+          "rms": 14.261026711581641,
+          "patch_spread": 0.010175620274304598,
+          "relative_spread": 0.0007135264858623952,
+          "effective_rank": 2.436077175399465
+        },
+        "encoder_norm": {
+          "cosine": 0.9995811574128932,
+          "rms": 1.0049073881324304,
+          "patch_spread": 0.019690514140001215,
+          "relative_spread": 0.01959435702487474,
+          "effective_rank": 2.28515548166936
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_1a726b0abe4e011bdc97473a",
+      "mse": 0.017180539667606354,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999662065575412,
+          "rms": 0.8990285100260522,
+          "patch_spread": 0.005126689546055285,
+          "relative_spread": 0.005702477161604945,
+          "effective_rank": 1.1747239364565139
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999916642053767,
+          "rms": 12.73400256551536,
+          "patch_spread": 0.036238346726297534,
+          "relative_spread": 0.002845793892364504,
+          "effective_rank": 1.1301429755248769
+        },
+        "encoder_norm": {
+          "cosine": 0.9994699017506495,
+          "rms": 1.0049388900672367,
+          "patch_spread": 0.022402853548265447,
+          "relative_spread": 0.02229275209636534,
+          "effective_rank": 2.5024537772062447
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_dfc161acdf3cfabc092c959f",
+      "mse": 0.05150347203016281,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9998823242687893,
+          "rms": 0.9245405160641006,
+          "patch_spread": 0.010629807889008547,
+          "relative_spread": 0.011497395413519722,
+          "effective_rank": 1.0397731948193567
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999745717531139,
+          "rms": 12.118626327074212,
+          "patch_spread": 0.05985069708219261,
+          "relative_spread": 0.00493873608005226,
+          "effective_rank": 1.2559313525776046
+        },
+        "encoder_norm": {
+          "cosine": 0.9993952730741523,
+          "rms": 1.0050199775527182,
+          "patch_spread": 0.023929838405261694,
+          "relative_spread": 0.02381031117762677,
+          "effective_rank": 2.6288249680786007
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_031300e81ee45bd5844e9715",
+      "mse": 0.07470016926527023,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999985377392675,
+          "rms": 0.907358344484568,
+          "patch_spread": 0.0011051397013473866,
+          "relative_spread": 0.0012179749137317627,
+          "effective_rank": 3.2990556604966366
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999996225107616,
+          "rms": 11.66534949122114,
+          "patch_spread": 0.007006594450012487,
+          "relative_spread": 0.0006006330504958605,
+          "effective_rank": 2.6358262479408516
+        },
+        "encoder_norm": {
+          "cosine": 0.9993662562888399,
+          "rms": 1.004807892479431,
+          "patch_spread": 0.02449206226529788,
+          "relative_spread": 0.024374870508692033,
+          "effective_rank": 2.467979210500034
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_f486283b2491c3ffe881c939",
+      "mse": 0.014729421585798264,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9976498842273176,
+          "rms": 0.8491680962694595,
+          "patch_spread": 0.040885741605617254,
+          "relative_spread": 0.04814799541484813,
+          "effective_rank": 1.7287664626436756
+        },
+        "spatial_reduce": {
+          "cosine": 0.9987887217949573,
+          "rms": 13.184940573774057,
+          "patch_spread": 0.4493832758443584,
+          "relative_spread": 0.03408307176887995,
+          "effective_rank": 1.4545966858508173
+        },
+        "encoder_norm": {
+          "cosine": 0.9974883465700602,
+          "rms": 1.0049384085299193,
+          "patch_spread": 0.048764749608986524,
+          "relative_spread": 0.04852511277812772,
+          "effective_rank": 1.8778843554743723
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_0d4d37b35d151e934c8803ad",
+      "mse": 0.01690566912293434,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999971406677325,
+          "rms": 0.9571708099375658,
+          "patch_spread": 0.001790475800995186,
+          "relative_spread": 0.0018705917297164283,
+          "effective_rank": 1.2046419587635748
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999993738833605,
+          "rms": 13.567820056895226,
+          "patch_spread": 0.010815461143942114,
+          "relative_spread": 0.0007971406680357357,
+          "effective_rank": 1.3639797895221293
+        },
+        "encoder_norm": {
+          "cosine": 0.9994997947677153,
+          "rms": 1.004957856667619,
+          "patch_spread": 0.0217624326340354,
+          "relative_spread": 0.0216550699013373,
+          "effective_rank": 2.4669343375534414
+        }
+      }
+    },
+    {
+      "mode": "zero_attention_updates",
+      "parent": "obs_43e1f04731806b49b430b3ee",
+      "mse": 0.07447092980146408,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9998891978666978,
+          "rms": 0.9304215407603961,
+          "patch_spread": 0.010257204621996793,
+          "relative_spread": 0.01102425532153307,
+          "effective_rank": 1.0125825933822599
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999796625933755,
+          "rms": 11.70871925069575,
+          "patch_spread": 0.05150362304732996,
+          "relative_spread": 0.004398740967699736,
+          "effective_rank": 1.0718062667282795
+        },
+        "encoder_norm": {
+          "cosine": 0.999345616353518,
+          "rms": 1.0047572188908598,
+          "patch_spread": 0.02488644665813711,
+          "relative_spread": 0.024768616925797238,
+          "effective_rank": 2.518720181209991
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_ebac33b144f9bf21fb4c7c23",
+      "mse": 0.0032691017258912325,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999754424545488,
+          "rms": 1.925130027857601,
+          "patch_spread": 0.018705807600024302,
+          "relative_spread": 0.009716646319646905,
+          "effective_rank": 1.038831796553845
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999633001777719,
+          "rms": 20.94890218450775,
+          "patch_spread": 0.1381534875209227,
+          "relative_spread": 0.00659478412301198,
+          "effective_rank": 1.0919602041496035
+        },
+        "encoder_norm": {
+          "cosine": 0.9997315144516145,
+          "rms": 1.0043684807006281,
+          "patch_spread": 0.015934532311078522,
+          "relative_spread": 0.01586522538019403,
+          "effective_rank": 2.3782792988402037
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_4bc3fdfe6b1d0bf1cdfa8bea",
+      "mse": 0.025017181411385536,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9987962511491895,
+          "rms": 0.8998868014592493,
+          "patch_spread": 0.031085655715027753,
+          "relative_spread": 0.03454396226794248,
+          "effective_rank": 1.0023415705236467
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999469870917591,
+          "rms": 17.487085183479934,
+          "patch_spread": 0.12208756989893148,
+          "relative_spread": 0.006981584902112087,
+          "effective_rank": 1.0051782582047908
+        },
+        "encoder_norm": {
+          "cosine": 0.9997164335380213,
+          "rms": 1.00486520597933,
+          "patch_spread": 0.01582846161701067,
+          "relative_spread": 0.01575182574023392,
+          "effective_rank": 1.672027931585822
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_3553936d8578f2848b627178",
+      "mse": 0.08493093401193619,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999938881774015,
+          "rms": 0.870515716736891,
+          "patch_spread": 0.006377660496701121,
+          "relative_spread": 0.007326301379839115,
+          "effective_rank": 1.0992789422848908
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999961245333846,
+          "rms": 15.749920013988206,
+          "patch_spread": 0.029236064892622187,
+          "relative_spread": 0.0018562675154322266,
+          "effective_rank": 1.3109926525724664
+        },
+        "encoder_norm": {
+          "cosine": 0.9997431013340332,
+          "rms": 1.0045036550562763,
+          "patch_spread": 0.015060401527814384,
+          "relative_spread": 0.014992878773517893,
+          "effective_rank": 1.7891398721293656
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_c8edb8f4b7fa897b39cebb13",
+      "mse": 0.03430131822824478,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999978960373367,
+          "rms": 0.9033250511345075,
+          "patch_spread": 0.0013197889629001389,
+          "relative_spread": 0.0014610343876133895,
+          "effective_rank": 1.3901831508332516
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999998746329053,
+          "rms": 16.244613916892348,
+          "patch_spread": 0.005631024560167523,
+          "relative_spread": 0.00034663948241404294,
+          "effective_rank": 1.866027371085268
+        },
+        "encoder_norm": {
+          "cosine": 0.9996330762371876,
+          "rms": 1.0046867283540115,
+          "patch_spread": 0.018633915994049722,
+          "relative_spread": 0.018546991284116847,
+          "effective_rank": 2.4640590873745953
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_0ecd7ad4ea2a5f23b2f2d1c9",
+      "mse": 0.049464914947748184,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999804821546997,
+          "rms": 0.8753084067084544,
+          "patch_spread": 0.003671310171702857,
+          "relative_spread": 0.004194304708563924,
+          "effective_rank": 1.1697428318054168
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999989793626842,
+          "rms": 15.603675173655198,
+          "patch_spread": 0.014878747097870784,
+          "relative_spread": 0.000953541196691382,
+          "effective_rank": 1.4442963628058798
+        },
+        "encoder_norm": {
+          "cosine": 0.9997371016763594,
+          "rms": 1.0048566491944104,
+          "patch_spread": 0.015240594374121383,
+          "relative_spread": 0.015166933896829668,
+          "effective_rank": 1.7774410514680798
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_df06ea12bdbabd8384494c20",
+      "mse": 0.005856024567037821,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.99942931307042,
+          "rms": 1.090973787824145,
+          "patch_spread": 0.03083180947340341,
+          "relative_spread": 0.02826081599530897,
+          "effective_rank": 1.0650620103569022
+        },
+        "spatial_reduce": {
+          "cosine": 0.9998930765559928,
+          "rms": 16.7013385436691,
+          "patch_spread": 0.17597076909243936,
+          "relative_spread": 0.010536327290913087,
+          "effective_rank": 1.0796814916034216
+        },
+        "encoder_norm": {
+          "cosine": 0.999515252189219,
+          "rms": 1.0043954508754378,
+          "patch_spread": 0.021411563340034714,
+          "relative_spread": 0.021317861726048493,
+          "effective_rank": 2.448447104322298
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_a5e0581208d1b11aec566f63",
+      "mse": 0.04789184033870697,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9900434232104063,
+          "rms": 0.966253978313438,
+          "patch_spread": 0.10002072565910988,
+          "relative_spread": 0.10351390825183718,
+          "effective_rank": 1.0239145310831348
+        },
+        "spatial_reduce": {
+          "cosine": 0.9987649746669457,
+          "rms": 15.753632434523976,
+          "patch_spread": 0.5397583208622952,
+          "relative_spread": 0.03426246759949906,
+          "effective_rank": 1.1105853131629504
+        },
+        "encoder_norm": {
+          "cosine": 0.9983254075875557,
+          "rms": 1.0047653458262853,
+          "patch_spread": 0.0398113487956184,
+          "relative_spread": 0.039622533719929284,
+          "effective_rank": 1.6825665908028435
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_d2d30c22dc4f5695209c5ccb",
+      "mse": 0.01793951727449894,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9969798414884278,
+          "rms": 1.2920936550150726,
+          "patch_spread": 0.09746931337999931,
+          "relative_spread": 0.07543517685555255,
+          "effective_rank": 1.0556038093201214
+        },
+        "spatial_reduce": {
+          "cosine": 0.9991476874822517,
+          "rms": 19.45495762337425,
+          "patch_spread": 0.5722281141363285,
+          "relative_spread": 0.029412971501352556,
+          "effective_rank": 1.2311737996118834
+        },
+        "encoder_norm": {
+          "cosine": 0.9987703902471697,
+          "rms": 1.0044233967597482,
+          "patch_spread": 0.03410246958125446,
+          "relative_spread": 0.03395228515312209,
+          "effective_rank": 1.6637840643136204
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_58d2c640690d2504319ca3c1",
+      "mse": 0.024482859298586845,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999996906893984,
+          "rms": 0.9415831022023777,
+          "patch_spread": 0.0005210681826195809,
+          "relative_spread": 0.0005533958515194189,
+          "effective_rank": 2.1531191938542613
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999999697706622,
+          "rms": 17.59067023013767,
+          "patch_spread": 0.002895765406645246,
+          "relative_spread": 0.00016461939020856643,
+          "effective_rank": 1.784569515476314
+        },
+        "encoder_norm": {
+          "cosine": 0.9997812287130273,
+          "rms": 1.0048387495275555,
+          "patch_spread": 0.013902583022799316,
+          "relative_spread": 0.013835635846384194,
+          "effective_rank": 1.7696491842227318
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_5c171556d4162247d8b4746a",
+      "mse": 0.00520370714366436,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9968661432528295,
+          "rms": 1.0991628266352726,
+          "patch_spread": 0.07363932135695464,
+          "relative_spread": 0.0669958258890335,
+          "effective_rank": 1.0511041793561124
+        },
+        "spatial_reduce": {
+          "cosine": 0.9991006038278054,
+          "rms": 19.042780654790764,
+          "patch_spread": 0.5636921330994248,
+          "relative_spread": 0.02960135619466959,
+          "effective_rank": 1.0711306612621059
+        },
+        "encoder_norm": {
+          "cosine": 0.9985903414736411,
+          "rms": 1.0045806589793573,
+          "patch_spread": 0.03651968130843496,
+          "relative_spread": 0.036353159880201706,
+          "effective_rank": 1.4378796663594966
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_42b7ac0d4c71d68a0b52d8ad",
+      "mse": 0.08324909210205078,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999933342644477,
+          "rms": 0.8972075865451153,
+          "patch_spread": 0.002066111114854772,
+          "relative_spread": 0.002302823946028771,
+          "effective_rank": 1.074575821575435
+        },
+        "spatial_reduce": {
+          "cosine": 0.999999737585191,
+          "rms": 18.644109563530073,
+          "patch_spread": 0.008297558356976964,
+          "relative_spread": 0.0004450498603166278,
+          "effective_rank": 1.2590217393139846
+        },
+        "encoder_norm": {
+          "cosine": 0.9999136739691714,
+          "rms": 1.0046514965343627,
+          "patch_spread": 0.00808382619417721,
+          "relative_spread": 0.008046398399905945,
+          "effective_rank": 2.0068611548719133
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_4e6457fe7a76ff7ee08b3a7f",
+      "mse": 0.036073267459869385,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9976815417792663,
+          "rms": 0.9522382041531363,
+          "patch_spread": 0.04787204474983021,
+          "relative_spread": 0.05027318221537303,
+          "effective_rank": 1.1058071336481967
+        },
+        "spatial_reduce": {
+          "cosine": 0.9994882325573923,
+          "rms": 18.569512221285773,
+          "patch_spread": 0.4072390309554861,
+          "relative_spread": 0.02193051848118434,
+          "effective_rank": 1.067924936430543
+        },
+        "encoder_norm": {
+          "cosine": 0.9990210586758249,
+          "rms": 1.0045756103626962,
+          "patch_spread": 0.030433134631777218,
+          "relative_spread": 0.030294518717998254,
+          "effective_rank": 1.6705677134483174
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_63930a00f5514653e2849261",
+      "mse": 0.02931239642202854,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9952639091633051,
+          "rms": 0.8672558864931567,
+          "patch_spread": 0.05598442512270601,
+          "relative_spread": 0.06455352566021214,
+          "effective_rank": 1.0095754620328097
+        },
+        "spatial_reduce": {
+          "cosine": 0.9997512228302043,
+          "rms": 16.159227496224823,
+          "patch_spread": 0.23896775533745807,
+          "relative_spread": 0.014788315554891877,
+          "effective_rank": 1.0294788587518955
+        },
+        "encoder_norm": {
+          "cosine": 0.9994754004546418,
+          "rms": 1.0046765041899648,
+          "patch_spread": 0.021525056341061437,
+          "relative_spread": 0.02142486288003354,
+          "effective_rank": 2.1390658453068454
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_a5884b37d00115b43628628e",
+      "mse": 0.02827630378305912,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9938666834350963,
+          "rms": 1.5336486644664642,
+          "patch_spread": 0.18484554244459772,
+          "relative_spread": 0.12052665432920584,
+          "effective_rank": 1.1236008057439677
+        },
+        "spatial_reduce": {
+          "cosine": 0.9957264400879963,
+          "rms": 19.057453616492946,
+          "patch_spread": 1.2606664440458264,
+          "relative_spread": 0.0661508336536002,
+          "effective_rank": 1.0705882823025095
+        },
+        "encoder_norm": {
+          "cosine": 0.9961519855715456,
+          "rms": 1.004899383028031,
+          "patch_spread": 0.060356652341781454,
+          "relative_spread": 0.06006238371836859,
+          "effective_rank": 1.2384484536728104
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_cfbb2c1575fd7fcb06beba45",
+      "mse": 0.07608538120985031,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999963157855075,
+          "rms": 0.8778561346596999,
+          "patch_spread": 0.001620716207201725,
+          "relative_spread": 0.0018462207453046895,
+          "effective_rank": 1.667265424193426
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999998180937644,
+          "rms": 18.724069175415476,
+          "patch_spread": 0.007754174709714618,
+          "relative_spread": 0.0004141287151350506,
+          "effective_rank": 2.2537936849932008
+        },
+        "encoder_norm": {
+          "cosine": 0.9997303235352257,
+          "rms": 1.0046869501378948,
+          "patch_spread": 0.015796393826848134,
+          "relative_spread": 0.015722702305111115,
+          "effective_rank": 2.2794936838101116
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_1a726b0abe4e011bdc97473a",
+      "mse": 0.009882637299597263,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999513931013463,
+          "rms": 0.9059254941246865,
+          "patch_spread": 0.006127551154599088,
+          "relative_spread": 0.00676385772818943,
+          "effective_rank": 1.124281228405858
+        },
+        "spatial_reduce": {
+          "cosine": 0.999997171986554,
+          "rms": 16.596582551564616,
+          "patch_spread": 0.027412005933798337,
+          "relative_spread": 0.0016516656877179883,
+          "effective_rank": 1.0843951303621866
+        },
+        "encoder_norm": {
+          "cosine": 0.9996515140719345,
+          "rms": 1.004743830115602,
+          "patch_spread": 0.018160739232295584,
+          "relative_spread": 0.01807499452891,
+          "effective_rank": 2.4904009647571477
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_dfc161acdf3cfabc092c959f",
+      "mse": 0.05227647349238396,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9997947769862799,
+          "rms": 0.8959895917491912,
+          "patch_spread": 0.012808973843188154,
+          "relative_spread": 0.01429589580184955,
+          "effective_rank": 1.029888125117644
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999897975986958,
+          "rms": 15.640083386119594,
+          "patch_spread": 0.048590703284331495,
+          "relative_spread": 0.0031068058964094287,
+          "effective_rank": 1.1420314072228663
+        },
+        "encoder_norm": {
+          "cosine": 0.9995932957771935,
+          "rms": 1.004842643155275,
+          "patch_spread": 0.019621078911878944,
+          "relative_spread": 0.019526518948546418,
+          "effective_rank": 2.58956722461015
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_031300e81ee45bd5844e9715",
+      "mse": 0.09230813384056091,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999979705216385,
+          "rms": 0.8761797957174801,
+          "patch_spread": 0.0012231503249532265,
+          "relative_spread": 0.0013960038007400314,
+          "effective_rank": 2.099132959165781
+        },
+        "spatial_reduce": {
+          "cosine": 0.999999883780122,
+          "rms": 15.661427163743044,
+          "patch_spread": 0.005246777496818182,
+          "relative_spread": 0.0003350127317237553,
+          "effective_rank": 2.5352124694317633
+        },
+        "encoder_norm": {
+          "cosine": 0.9996143239093742,
+          "rms": 1.004525482742313,
+          "patch_spread": 0.01910107879409315,
+          "relative_spread": 0.019015026619282963,
+          "effective_rank": 2.4669939495702575
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_f486283b2491c3ffe881c939",
+      "mse": 0.02031981572508812,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.998257553074418,
+          "rms": 0.9226896423962991,
+          "patch_spread": 0.039633705255254816,
+          "relative_spread": 0.04295453577686523,
+          "effective_rank": 1.4527592081696608
+        },
+        "spatial_reduce": {
+          "cosine": 0.9995986248565716,
+          "rms": 17.013342083974482,
+          "patch_spread": 0.33162177334485393,
+          "relative_spread": 0.019491865367076887,
+          "effective_rank": 1.5150828768918274
+        },
+        "encoder_norm": {
+          "cosine": 0.9990230342955096,
+          "rms": 1.0048476892921612,
+          "patch_spread": 0.030410658435770992,
+          "relative_spread": 0.0302639482180558,
+          "effective_rank": 2.6419053628034193
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_0d4d37b35d151e934c8803ad",
+      "mse": 0.0247575044631958,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999951644619758,
+          "rms": 0.9254358173457253,
+          "patch_spread": 0.0021244194944437197,
+          "relative_spread": 0.002295588148443229,
+          "effective_rank": 1.1437097578290059
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999997821210301,
+          "rms": 17.55294211174555,
+          "patch_spread": 0.008185944573400387,
+          "relative_spread": 0.0004663574072817549,
+          "effective_rank": 1.203954878350974
+        },
+        "encoder_norm": {
+          "cosine": 0.9996690947257614,
+          "rms": 1.0048552944855234,
+          "patch_spread": 0.01769868099616246,
+          "relative_spread": 0.017613163898612904,
+          "effective_rank": 2.4661082295452026
+        }
+      }
+    },
+    {
+      "mode": "zero_ffn_updates",
+      "parent": "obs_43e1f04731806b49b430b3ee",
+      "mse": 0.09194713085889816,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9997835655043961,
+          "rms": 0.8928529008420162,
+          "patch_spread": 0.012953161082532095,
+          "relative_spread": 0.014507609338914006,
+          "effective_rank": 1.0060718926379097
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999919828895649,
+          "rms": 15.721310249040284,
+          "patch_spread": 0.04337044585686168,
+          "relative_spread": 0.002758704279085724,
+          "effective_rank": 1.0450607293686012
+        },
+        "encoder_norm": {
+          "cosine": 0.9996079378456488,
+          "rms": 1.0044956464545987,
+          "patch_spread": 0.019257998795148112,
+          "relative_spread": 0.019171809119452005,
+          "effective_rank": 2.5098314584636388
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_ebac33b144f9bf21fb4c7c23",
+      "mse": 0.035994190722703934,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999909390130597,
+          "rms": 2.285455812678772,
+          "patch_spread": 0.023083055316411288,
+          "relative_spread": 0.010099978826261246,
+          "effective_rank": 1.0342762072416705
+        },
+        "spatial_reduce": {
+          "cosine": 0.999936166147358,
+          "rms": 22.75345348048896,
+          "patch_spread": 0.27481890501257106,
+          "relative_spread": 0.012078118394125432,
+          "effective_rank": 1.1125160080866225
+        },
+        "encoder_norm": {
+          "cosine": 0.9997232878841577,
+          "rms": 1.004005138598774,
+          "patch_spread": 0.016170960467833017,
+          "relative_spread": 0.016106451895656425,
+          "effective_rank": 2.273383207710508
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_4bc3fdfe6b1d0bf1cdfa8bea",
+      "mse": 0.008786615915596485,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9992172121667849,
+          "rms": 1.0716293452414107,
+          "patch_spread": 0.056663557245967874,
+          "relative_spread": 0.052876078373164576,
+          "effective_rank": 1.0009851843117912
+        },
+        "spatial_reduce": {
+          "cosine": 0.9996238148802643,
+          "rms": 14.354496138295863,
+          "patch_spread": 0.29129685500304364,
+          "relative_spread": 0.02029307418362828,
+          "effective_rank": 1.006737976925086
+        },
+        "encoder_norm": {
+          "cosine": 0.9991422718342481,
+          "rms": 1.0046183304121692,
+          "patch_spread": 0.027521804522807638,
+          "relative_spread": 0.027395284049332592,
+          "effective_rank": 1.3445692944632641
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_3553936d8578f2848b627178",
+      "mse": 0.02752414345741272,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999253922321714,
+          "rms": 0.9169846282126,
+          "patch_spread": 0.012081566339139004,
+          "relative_spread": 0.01317532046604595,
+          "effective_rank": 1.0389830213871127
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999486462691684,
+          "rms": 10.57593308542409,
+          "patch_spread": 0.07386851844012507,
+          "relative_spread": 0.006984586404194612,
+          "effective_rank": 1.3602439537671793
+        },
+        "encoder_norm": {
+          "cosine": 0.9993981055733018,
+          "rms": 1.0044683375702144,
+          "patch_spread": 0.023051577305334494,
+          "relative_spread": 0.02294903327773947,
+          "effective_rank": 1.929897265874468
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_c8edb8f4b7fa897b39cebb13",
+      "mse": 0.012353445403277874,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999998772836795,
+          "rms": 1.1656815470773978,
+          "patch_spread": 0.002438129920237869,
+          "relative_spread": 0.002091591761361205,
+          "effective_rank": 1.1682359388310655
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999991210638899,
+          "rms": 13.878990788925174,
+          "patch_spread": 0.013979788805697833,
+          "relative_spread": 0.0010072626330189002,
+          "effective_rank": 2.071028713362192
+        },
+        "encoder_norm": {
+          "cosine": 0.9994794508995755,
+          "rms": 1.0045602153388187,
+          "patch_spread": 0.022191787448889944,
+          "relative_spread": 0.022091047515160736,
+          "effective_rank": 2.4717330983020527
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_0ecd7ad4ea2a5f23b2f2d1c9",
+      "mse": 0.01854711025953293,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999823540551154,
+          "rms": 0.990317262131147,
+          "patch_spread": 0.007095413979555549,
+          "relative_spread": 0.007164788750916379,
+          "effective_rank": 1.0591793384030792
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999930430072985,
+          "rms": 12.930652626157723,
+          "patch_spread": 0.035793284241172646,
+          "relative_spread": 0.0027680957238589462,
+          "effective_rank": 1.5907756509359974
+        },
+        "encoder_norm": {
+          "cosine": 0.9996096878608103,
+          "rms": 1.0046626451135958,
+          "patch_spread": 0.018566501911307785,
+          "relative_spread": 0.01848033466916499,
+          "effective_rank": 1.8450887188540184
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_df06ea12bdbabd8384494c20",
+      "mse": 0.027945956215262413,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9989464177133999,
+          "rms": 0.9837469542969048,
+          "patch_spread": 0.05283292555697045,
+          "relative_spread": 0.0537058085173242,
+          "effective_rank": 1.0373970919912605
+        },
+        "spatial_reduce": {
+          "cosine": 0.9992474126164154,
+          "rms": 13.172406512536584,
+          "patch_spread": 0.41531310702307545,
+          "relative_spread": 0.031529022933494286,
+          "effective_rank": 1.1096778762596893
+        },
+        "encoder_norm": {
+          "cosine": 0.998513656642483,
+          "rms": 1.0042196769140759,
+          "patch_spread": 0.03748644513968222,
+          "relative_spread": 0.037328929119250544,
+          "effective_rank": 1.9134911176164082
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_a5e0581208d1b11aec566f63",
+      "mse": 0.018394596874713898,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9272654796810104,
+          "rms": 0.688133370185375,
+          "patch_spread": 0.19102922054828023,
+          "relative_spread": 0.27760493652098167,
+          "effective_rank": 1.0114382080977398
+        },
+        "spatial_reduce": {
+          "cosine": 0.9860613223506762,
+          "rms": 11.302479222862045,
+          "patch_spread": 1.298376092183452,
+          "relative_spread": 0.11487533545358498,
+          "effective_rank": 1.144041217617911
+        },
+        "encoder_norm": {
+          "cosine": 0.9864614505863543,
+          "rms": 1.0045754697930078,
+          "patch_spread": 0.11317697576017724,
+          "relative_spread": 0.11266149648616972,
+          "effective_rank": 1.3212745734003044
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_d2d30c22dc4f5695209c5ccb",
+      "mse": 0.025435782968997955,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9968948147455255,
+          "rms": 1.321642844141484,
+          "patch_spread": 0.14922263539259092,
+          "relative_spread": 0.11290692947346401,
+          "effective_rank": 1.038879676197972
+        },
+        "spatial_reduce": {
+          "cosine": 0.9948654926537938,
+          "rms": 16.388476450359427,
+          "patch_spread": 1.3421418439701471,
+          "relative_spread": 0.0818954616089839,
+          "effective_rank": 1.2797756804255855
+        },
+        "encoder_norm": {
+          "cosine": 0.9945717717732713,
+          "rms": 1.0040886555700006,
+          "patch_spread": 0.07162855399117458,
+          "relative_spread": 0.07133688205103017,
+          "effective_rank": 1.551444571030593
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_58d2c640690d2504319ca3c1",
+      "mse": 0.006308186799287796,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.999999811104386,
+          "rms": 1.2513251537868662,
+          "patch_spread": 0.0008542614505462279,
+          "relative_spread": 0.0006826854298908557,
+          "effective_rank": 1.4661512744961
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999997126945541,
+          "rms": 14.855050568030215,
+          "patch_spread": 0.007637671449560864,
+          "relative_spread": 0.0005141464456538448,
+          "effective_rank": 1.735111578822062
+        },
+        "encoder_norm": {
+          "cosine": 0.999675074550186,
+          "rms": 1.0045144755496382,
+          "patch_spread": 0.01693760453653719,
+          "relative_spread": 0.016861483780280493,
+          "effective_rank": 1.7632519115164913
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_5c171556d4162247d8b4746a",
+      "mse": 0.03101396933197975,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9934065287213174,
+          "rms": 0.9408263664172594,
+          "patch_spread": 0.11910078765848289,
+          "relative_spread": 0.12659167717846603,
+          "effective_rank": 1.0316247865484223
+        },
+        "spatial_reduce": {
+          "cosine": 0.9945992861415549,
+          "rms": 15.25292176816873,
+          "patch_spread": 1.2667507585133513,
+          "relative_spread": 0.08304971190220939,
+          "effective_rank": 1.1056471396115009
+        },
+        "encoder_norm": {
+          "cosine": 0.9931326899268387,
+          "rms": 1.0044626564151864,
+          "patch_spread": 0.08059580558918264,
+          "relative_spread": 0.08023773215902316,
+          "effective_rank": 1.2696528393825637
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_42b7ac0d4c71d68a0b52d8ad",
+      "mse": 0.020374899730086327,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999946805476446,
+          "rms": 1.0999977029355372,
+          "patch_spread": 0.0041606904919411995,
+          "relative_spread": 0.0037824538004376422,
+          "effective_rank": 1.0353597379155006
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999976442261499,
+          "rms": 14.557241506178618,
+          "patch_spread": 0.020410972719459776,
+          "relative_spread": 0.0014021181630322354,
+          "effective_rank": 1.277309043244266
+        },
+        "encoder_norm": {
+          "cosine": 0.9998538282570755,
+          "rms": 1.00456297452486,
+          "patch_spread": 0.010518153720612919,
+          "relative_spread": 0.010470377654111544,
+          "effective_rank": 2.053297201748885
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_4e6457fe7a76ff7ee08b3a7f",
+      "mse": 0.028555698692798615,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.982195286003195,
+          "rms": 0.6186410483514783,
+          "patch_spread": 0.08773730994425824,
+          "relative_spread": 0.14182264526102165,
+          "effective_rank": 1.0643467268755507
+        },
+        "spatial_reduce": {
+          "cosine": 0.9943490154969069,
+          "rms": 13.407517480778326,
+          "patch_spread": 0.995517998191698,
+          "relative_spread": 0.07425073281604304,
+          "effective_rank": 1.082375537370902
+        },
+        "encoder_norm": {
+          "cosine": 0.9913797451354407,
+          "rms": 1.004396167273056,
+          "patch_spread": 0.0902926791843725,
+          "relative_spread": 0.08989747484751748,
+          "effective_rank": 1.1906996812722128
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_63930a00f5514653e2849261",
+      "mse": 0.01405604649335146,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9894065136414021,
+          "rms": 0.8146827634883487,
+          "patch_spread": 0.11104868283303952,
+          "relative_spread": 0.1363091105027751,
+          "effective_rank": 1.0047474372712752
+        },
+        "spatial_reduce": {
+          "cosine": 0.9978942847641036,
+          "rms": 12.960151561841679,
+          "patch_spread": 0.5859558386513487,
+          "relative_spread": 0.045212113134275915,
+          "effective_rank": 1.0337023491575572
+        },
+        "encoder_norm": {
+          "cosine": 0.9968770672652227,
+          "rms": 1.0046379835378583,
+          "patch_spread": 0.052516352789220594,
+          "relative_spread": 0.05227390726785276,
+          "effective_rank": 1.2576940968462835
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_a5884b37d00115b43628628e",
+      "mse": 0.06101159378886223,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9952325499411676,
+          "rms": 1.5670542172024624,
+          "patch_spread": 0.2341432110593955,
+          "relative_spread": 0.14941615196785776,
+          "effective_rank": 1.0872981276338398
+        },
+        "spatial_reduce": {
+          "cosine": 0.9886938393387874,
+          "rms": 18.767207128240823,
+          "patch_spread": 2.5058510529649642,
+          "relative_spread": 0.13352285376518114,
+          "effective_rank": 1.0897023464899678
+        },
+        "encoder_norm": {
+          "cosine": 0.9880650792436478,
+          "rms": 1.0047945847817452,
+          "patch_spread": 0.10628384334653408,
+          "relative_spread": 0.10577668804775689,
+          "effective_rank": 1.153230325654813
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_cfbb2c1575fd7fcb06beba45",
+      "mse": 0.02039845660328865,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999951061570994,
+          "rms": 0.8881278913199809,
+          "patch_spread": 0.0027005978061555042,
+          "relative_spread": 0.0030407758077969356,
+          "effective_rank": 1.3651843755392337
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999979510223167,
+          "rms": 13.925707769577418,
+          "patch_spread": 0.019817906432261143,
+          "relative_spread": 0.0014231166386785758,
+          "effective_rank": 2.257193876462857
+        },
+        "encoder_norm": {
+          "cosine": 0.9995349306736429,
+          "rms": 1.0047121602041476,
+          "patch_spread": 0.020744648634344533,
+          "relative_spread": 0.020647354989840497,
+          "effective_rank": 2.3063601645079563
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_1a726b0abe4e011bdc97473a",
+      "mse": 0.011268225498497486,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9997845629913918,
+          "rms": 0.6689052144018099,
+          "patch_spread": 0.011429676539745678,
+          "relative_spread": 0.01708713924433529,
+          "effective_rank": 1.0439645687287633
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999768328597382,
+          "rms": 13.162775087428328,
+          "patch_spread": 0.065822253585925,
+          "relative_spread": 0.00500063650322426,
+          "effective_rank": 1.1014593225222753
+        },
+        "encoder_norm": {
+          "cosine": 0.9994764414921505,
+          "rms": 1.004746432534468,
+          "patch_spread": 0.0222599747990457,
+          "relative_spread": 0.02215481844796903,
+          "effective_rank": 2.6156435118129306
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_dfc161acdf3cfabc092c959f",
+      "mse": 0.014900495298206806,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9998874900236688,
+          "rms": 1.1399445105945913,
+          "patch_spread": 0.024375533009685788,
+          "relative_spread": 0.021383087319725404,
+          "effective_rank": 1.0125919936430796
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999306498377158,
+          "rms": 13.300566357956855,
+          "patch_spread": 0.11946138074773341,
+          "relative_spread": 0.008981676233378401,
+          "effective_rank": 1.173899957143736
+        },
+        "encoder_norm": {
+          "cosine": 0.9993299513861267,
+          "rms": 1.0045789273267172,
+          "patch_spread": 0.0251781014761109,
+          "relative_spread": 0.025063338271600313,
+          "effective_rank": 3.1364924337742086
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_031300e81ee45bd5844e9715",
+      "mse": 0.025083370506763458,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999982682773819,
+          "rms": 1.0598350946039239,
+          "patch_spread": 0.0021948378910497954,
+          "relative_spread": 0.002070923959986472,
+          "effective_rank": 1.4188373019243992
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999982119763087,
+          "rms": 10.649555074682336,
+          "patch_spread": 0.014100415872672696,
+          "relative_spread": 0.0013240380254189441,
+          "effective_rank": 2.5010706349715672
+        },
+        "encoder_norm": {
+          "cosine": 0.9991481424282902,
+          "rms": 1.0045254779356936,
+          "patch_spread": 0.028387677274630745,
+          "relative_spread": 0.028259788226544146,
+          "effective_rank": 2.4799357853407695
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_f486283b2491c3ffe881c939",
+      "mse": 0.02504020929336548,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9927514645174944,
+          "rms": 0.6975454720223979,
+          "patch_spread": 0.06573909865531724,
+          "relative_spread": 0.09424345980588113,
+          "effective_rank": 1.284675995989489
+        },
+        "spatial_reduce": {
+          "cosine": 0.9950849913008867,
+          "rms": 12.574337595623737,
+          "patch_spread": 0.8837242273004366,
+          "relative_spread": 0.07027998258993781,
+          "effective_rank": 1.409110546544373
+        },
+        "encoder_norm": {
+          "cosine": 0.9915962185196541,
+          "rms": 1.0046879466601635,
+          "patch_spread": 0.08917809239970358,
+          "relative_spread": 0.0887619809674776,
+          "effective_rank": 1.392296958931628
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_0d4d37b35d151e934c8803ad",
+      "mse": 0.0067975628189742565,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999973268699669,
+          "rms": 1.188903653136784,
+          "patch_spread": 0.003897458248893325,
+          "relative_spread": 0.0032781951999309067,
+          "effective_rank": 1.0567690345013458
+        },
+        "spatial_reduce": {
+          "cosine": 0.999998645385737,
+          "rms": 14.698363238680892,
+          "patch_spread": 0.019517036340294846,
+          "relative_spread": 0.001327837394093848,
+          "effective_rank": 1.2730646599818536
+        },
+        "encoder_norm": {
+          "cosine": 0.9995090151787638,
+          "rms": 1.0045594780232987,
+          "patch_spread": 0.02155237503511659,
+          "relative_spread": 0.021454553470070116,
+          "effective_rank": 2.4805304623510427
+        }
+      }
+    },
+    {
+      "mode": "zero_qa_embeddings",
+      "parent": "obs_43e1f04731806b49b430b3ee",
+      "mse": 0.023356709629297256,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9998858106019046,
+          "rms": 1.170815803882645,
+          "patch_spread": 0.024648792223641695,
+          "relative_spread": 0.021052664425865855,
+          "effective_rank": 1.0030195488888565
+        },
+        "spatial_reduce": {
+          "cosine": 0.9998942606884581,
+          "rms": 10.960193971549307,
+          "patch_spread": 0.11278674042776353,
+          "relative_spread": 0.010290578863890332,
+          "effective_rank": 1.0483539062141367
+        },
+        "encoder_norm": {
+          "cosine": 0.9990159134088986,
+          "rms": 1.0043746810071057,
+          "patch_spread": 0.03050695224368857,
+          "relative_spread": 0.030374075353132822,
+          "effective_rank": 2.728718167068203
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_ebac33b144f9bf21fb4c7c23",
+      "mse": 0.04250410571694374,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999960171835046,
+          "rms": 3.0095937793459386,
+          "patch_spread": 0.019892502650335698,
+          "relative_spread": 0.006609696892269244,
+          "effective_rank": 1.0443095160966491
+        },
+        "spatial_reduce": {
+          "cosine": 0.999934218562584,
+          "rms": 12.752289466351298,
+          "patch_spread": 0.2886216594666874,
+          "relative_spread": 0.02263292879511997,
+          "effective_rank": 1.117625044065903
+        },
+        "encoder_norm": {
+          "cosine": 0.9993817892727059,
+          "rms": 1.0036835219758522,
+          "patch_spread": 0.024162998120709576,
+          "relative_spread": 0.024074319834545332,
+          "effective_rank": 2.5804087388921353
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_4bc3fdfe6b1d0bf1cdfa8bea",
+      "mse": 0.02074163593351841,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9869709647228457,
+          "rms": 0.5980933247338804,
+          "patch_spread": 0.06799076961367213,
+          "relative_spread": 0.11367919821530259,
+          "effective_rank": 1.0007544087867541
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999534477081686,
+          "rms": 14.413887916836511,
+          "patch_spread": 0.31182849359687925,
+          "relative_spread": 0.021633891937833095,
+          "effective_rank": 1.0074990883182846
+        },
+        "encoder_norm": {
+          "cosine": 0.9993632296777457,
+          "rms": 1.0028842812346361,
+          "patch_spread": 0.023672585091477155,
+          "relative_spread": 0.023604503066230315,
+          "effective_rank": 1.7087775861292767
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_3553936d8578f2848b627178",
+      "mse": 0.013999298214912415,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9998718207994604,
+          "rms": 0.7834958955619058,
+          "patch_spread": 0.012667258422725699,
+          "relative_spread": 0.01616761299514023,
+          "effective_rank": 1.0383560309090274
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999917768749786,
+          "rms": 14.574040321398499,
+          "patch_spread": 0.08039535269049292,
+          "relative_spread": 0.0055163393895961395,
+          "effective_rank": 1.3566573469084307
+        },
+        "encoder_norm": {
+          "cosine": 0.9996227194520297,
+          "rms": 1.0033050131464958,
+          "patch_spread": 0.018229264688765283,
+          "relative_spread": 0.01816921519368863,
+          "effective_rank": 1.832322581508164
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_c8edb8f4b7fa897b39cebb13",
+      "mse": 0.0072900173254311085,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999753488412568,
+          "rms": 0.5883904974335409,
+          "patch_spread": 0.003006504203010804,
+          "relative_spread": 0.005109708970700008,
+          "effective_rank": 1.1731039669944292
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999996127473236,
+          "rms": 15.192767844325585,
+          "patch_spread": 0.01553713830626029,
+          "relative_spread": 0.0010226667362697394,
+          "effective_rank": 2.005942251941374
+        },
+        "encoder_norm": {
+          "cosine": 0.9994288056586356,
+          "rms": 1.0031771407240002,
+          "patch_spread": 0.02321426489297165,
+          "relative_spread": 0.023140743494431848,
+          "effective_rank": 2.4651623662171156
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_0ecd7ad4ea2a5f23b2f2d1c9",
+      "mse": 0.024801187217235565,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999011912754292,
+          "rms": 0.6891743359062953,
+          "patch_spread": 0.007928769067610354,
+          "relative_spread": 0.011504736399076244,
+          "effective_rank": 1.0719470782101208
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999976556042448,
+          "rms": 13.955760512269238,
+          "patch_spread": 0.04019731570274884,
+          "relative_spread": 0.002880338600494705,
+          "effective_rank": 1.5641870314740627
+        },
+        "encoder_norm": {
+          "cosine": 0.9994956292419616,
+          "rms": 1.0030264616237534,
+          "patch_spread": 0.0210712968954628,
+          "relative_spread": 0.021007717843606485,
+          "effective_rank": 1.8122497649711462
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_df06ea12bdbabd8384494c20",
+      "mse": 0.004169711377471685,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999386475839426,
+          "rms": 1.8680953895542978,
+          "patch_spread": 0.0403791753681874,
+          "relative_spread": 0.021615157124188034,
+          "effective_rank": 1.0607433878314565
+        },
+        "spatial_reduce": {
+          "cosine": 0.998478786831857,
+          "rms": 11.430771396376615,
+          "patch_spread": 0.4354058333092978,
+          "relative_spread": 0.038090678066338986,
+          "effective_rank": 1.1160362263876948
+        },
+        "encoder_norm": {
+          "cosine": 0.9985903775942258,
+          "rms": 1.0039924301763774,
+          "patch_spread": 0.036497861365893634,
+          "relative_spread": 0.03635272564702687,
+          "effective_rank": 1.6880089277989079
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_a5e0581208d1b11aec566f63",
+      "mse": 0.04656054824590683,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9982378040211145,
+          "rms": 1.6283437005772343,
+          "patch_spread": 0.15720403665875476,
+          "relative_spread": 0.0965422942361783,
+          "effective_rank": 1.0178433399208997
+        },
+        "spatial_reduce": {
+          "cosine": 0.9744580290823934,
+          "rms": 7.946331432837483,
+          "patch_spread": 1.4317273200373233,
+          "relative_spread": 0.18017462927871872,
+          "effective_rank": 1.1398056338707543
+        },
+        "encoder_norm": {
+          "cosine": 0.9641954149506821,
+          "rms": 1.0036541661150804,
+          "patch_spread": 0.1838650286527988,
+          "relative_spread": 0.18319560149338987,
+          "effective_rank": 1.1310777552685605
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_d2d30c22dc4f5695209c5ccb",
+      "mse": 0.038583651185035706,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9996372235021572,
+          "rms": 2.1868739430264506,
+          "patch_spread": 0.11788416792730116,
+          "relative_spread": 0.05390533290828796,
+          "effective_rank": 1.0547982646860374
+        },
+        "spatial_reduce": {
+          "cosine": 0.9698390911533394,
+          "rms": 8.471892575397172,
+          "patch_spread": 1.4658517536319653,
+          "relative_spread": 0.17302529990628976,
+          "effective_rank": 1.2466565286725737
+        },
+        "encoder_norm": {
+          "cosine": 0.9686340774966244,
+          "rms": 1.0037700928518927,
+          "patch_spread": 0.17212659427235272,
+          "relative_spread": 0.1714800983792114,
+          "effective_rank": 1.2782429947735032
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_58d2c640690d2504319ca3c1",
+      "mse": 0.016400383785367012,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999961852133931,
+          "rms": 0.5413385902004767,
+          "patch_spread": 0.000989557655706154,
+          "relative_spread": 0.0018279828440453246,
+          "effective_rank": 1.5432950352872288
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999997498140767,
+          "rms": 15.481103889820357,
+          "patch_spread": 0.008155408832814855,
+          "relative_spread": 0.000526797629604273,
+          "effective_rank": 1.750617612580955
+        },
+        "encoder_norm": {
+          "cosine": 0.9995904045530841,
+          "rms": 1.0028526292856126,
+          "patch_spread": 0.018985341175201693,
+          "relative_spread": 0.01893133708860693,
+          "effective_rank": 1.7655478636405952
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_5c171556d4162247d8b4746a",
+      "mse": 0.010386751964688301,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9995772479077304,
+          "rms": 1.7568534502567386,
+          "patch_spread": 0.09221214873936019,
+          "relative_spread": 0.052487103421110466,
+          "effective_rank": 1.05563479603084
+        },
+        "spatial_reduce": {
+          "cosine": 0.9914403169942373,
+          "rms": 13.036215839548177,
+          "patch_spread": 1.3055334264417107,
+          "relative_spread": 0.10014665624675322,
+          "effective_rank": 1.114126046266149
+        },
+        "encoder_norm": {
+          "cosine": 0.9948482107449325,
+          "rms": 1.0040188035200994,
+          "patch_spread": 0.06977640689187108,
+          "relative_spread": 0.06949711165491555,
+          "effective_rank": 1.1763031961053367
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_42b7ac0d4c71d68a0b52d8ad",
+      "mse": 0.04155685007572174,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9998959688816287,
+          "rms": 0.5431058212716682,
+          "patch_spread": 0.004929535970360069,
+          "relative_spread": 0.009076566255205455,
+          "effective_rank": 1.046552513479779
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999993153513078,
+          "rms": 14.810587132806148,
+          "patch_spread": 0.022134982509561217,
+          "relative_spread": 0.0014945378134625863,
+          "effective_rank": 1.320505539924828
+        },
+        "encoder_norm": {
+          "cosine": 0.9998099917052927,
+          "rms": 1.003057483485228,
+          "patch_spread": 0.011974096788472043,
+          "relative_spread": 0.01193759778040516,
+          "effective_rank": 2.0175793482298383
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_4e6457fe7a76ff7ee08b3a7f",
+      "mse": 0.0005563775193877518,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9994140577077374,
+          "rms": 1.4138184569999046,
+          "patch_spread": 0.06842907180221165,
+          "relative_spread": 0.048400182826454835,
+          "effective_rank": 1.1156602676844014
+        },
+        "spatial_reduce": {
+          "cosine": 0.9912145001940601,
+          "rms": 11.35197520042779,
+          "patch_spread": 1.0840006349051647,
+          "relative_spread": 0.09549004607271473,
+          "effective_rank": 1.0887243258135637
+        },
+        "encoder_norm": {
+          "cosine": 0.9934582899743505,
+          "rms": 1.0037737169090903,
+          "patch_spread": 0.07860939185336879,
+          "relative_spread": 0.07831385752501056,
+          "effective_rank": 1.229195652596317
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_63930a00f5514653e2849261",
+      "mse": 0.010313189588487148,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9922637419609767,
+          "rms": 0.8973083490002174,
+          "patch_spread": 0.11738358848407979,
+          "relative_spread": 0.13081744822152697,
+          "effective_rank": 1.004721017343861
+        },
+        "spatial_reduce": {
+          "cosine": 0.9998444550173186,
+          "rms": 12.922457453187825,
+          "patch_spread": 0.6425759693297386,
+          "relative_spread": 0.04972552408529868,
+          "effective_rank": 1.0317414107519953
+        },
+        "encoder_norm": {
+          "cosine": 0.9986841150541008,
+          "rms": 1.0032361819977538,
+          "patch_spread": 0.034042114467863975,
+          "relative_spread": 0.033932303358592576,
+          "effective_rank": 2.194623751798282
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_a5884b37d00115b43628628e",
+      "mse": 0.04659729450941086,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9988421650233379,
+          "rms": 2.396988865516558,
+          "patch_spread": 0.1995027481934896,
+          "relative_spread": 0.08323056942965656,
+          "effective_rank": 1.126103626956982
+        },
+        "spatial_reduce": {
+          "cosine": 0.967817257133548,
+          "rms": 12.030952236536665,
+          "patch_spread": 2.663133197994855,
+          "relative_spread": 0.22135680913994615,
+          "effective_rank": 1.0757600949551722
+        },
+        "encoder_norm": {
+          "cosine": 0.9767566781009788,
+          "rms": 1.003855013931221,
+          "patch_spread": 0.14818441801349935,
+          "relative_spread": 0.14761535874905954,
+          "effective_rank": 1.1406275338508522
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_cfbb2c1575fd7fcb06beba45",
+      "mse": 0.04062465950846672,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999847491089521,
+          "rms": 0.7008824287494941,
+          "patch_spread": 0.0032477835715187227,
+          "relative_spread": 0.004633849328072582,
+          "effective_rank": 1.3764572692773915
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999982456191536,
+          "rms": 13.723789774675247,
+          "patch_spread": 0.021552575139084425,
+          "relative_spread": 0.0015704536059606346,
+          "effective_rank": 2.3500233063138025
+        },
+        "encoder_norm": {
+          "cosine": 0.9992815995742804,
+          "rms": 1.0031374180172132,
+          "patch_spread": 0.025742395577454873,
+          "relative_spread": 0.025661883521738146,
+          "effective_rank": 2.30411503258743
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_1a726b0abe4e011bdc97473a",
+      "mse": 0.006810850463807583,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999705960929723,
+          "rms": 1.0889926339337717,
+          "patch_spread": 0.011062595110705146,
+          "relative_spread": 0.010158558254653843,
+          "effective_rank": 1.0530365255924423
+        },
+        "spatial_reduce": {
+          "cosine": 0.999997528126083,
+          "rms": 12.376806265516095,
+          "patch_spread": 0.07260272624527417,
+          "relative_spread": 0.005866030758480709,
+          "effective_rank": 1.0955097747967537
+        },
+        "encoder_norm": {
+          "cosine": 0.9989827840824546,
+          "rms": 1.003445855704583,
+          "patch_spread": 0.03098744862911527,
+          "relative_spread": 0.030881037031496854,
+          "effective_rank": 2.5015529702593184
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_dfc161acdf3cfabc092c959f",
+      "mse": 0.02465427853167057,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9975234924579719,
+          "rms": 0.590436729252374,
+          "patch_spread": 0.03102600312035174,
+          "relative_spread": 0.05254754926855186,
+          "effective_rank": 1.0095216305004975
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999854685048961,
+          "rms": 14.762460226685885,
+          "patch_spread": 0.12760189079834974,
+          "relative_spread": 0.008643673807681843,
+          "effective_rank": 1.1653954311355916
+        },
+        "encoder_norm": {
+          "cosine": 0.9992864437784971,
+          "rms": 1.0029745961539194,
+          "patch_spread": 0.025941166727139447,
+          "relative_spread": 0.02586423108483043,
+          "effective_rank": 2.7797533891422397
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_031300e81ee45bd5844e9715",
+      "mse": 0.01640666089951992,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999896818872538,
+          "rms": 0.6561123142791861,
+          "patch_spread": 0.002490801750806117,
+          "relative_spread": 0.0037963039202252215,
+          "effective_rank": 1.45430304642516
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999994038995053,
+          "rms": 15.400951244947185,
+          "patch_spread": 0.014952043626778424,
+          "relative_spread": 0.0009708519551143933,
+          "effective_rank": 2.5198917474208655
+        },
+        "encoder_norm": {
+          "cosine": 0.9995187154960475,
+          "rms": 1.0032869714865342,
+          "patch_spread": 0.02131137763458295,
+          "relative_spread": 0.021241557241600227,
+          "effective_rank": 2.4702946577697436
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_f486283b2491c3ffe881c939",
+      "mse": 0.004169945139437914,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9993686485417032,
+          "rms": 1.5676968701769431,
+          "patch_spread": 0.06186636110693729,
+          "relative_spread": 0.039463216571934946,
+          "effective_rank": 1.2661863725826843
+        },
+        "spatial_reduce": {
+          "cosine": 0.9964000873524237,
+          "rms": 11.424200208636977,
+          "patch_spread": 0.9423737811602354,
+          "relative_spread": 0.08248925648622453,
+          "effective_rank": 1.4326595437846827
+        },
+        "encoder_norm": {
+          "cosine": 0.9974628058474195,
+          "rms": 1.0038803992533871,
+          "patch_spread": 0.048959340876313116,
+          "relative_spread": 0.04877009344213264,
+          "effective_rank": 2.312819102108746
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_0d4d37b35d151e934c8803ad",
+      "mse": 0.01823531836271286,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.9999188826407043,
+          "rms": 0.5472176486009859,
+          "patch_spread": 0.004824614051460168,
+          "relative_spread": 0.008816627284947323,
+          "effective_rank": 1.0468009945032
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999997272027484,
+          "rms": 15.122739396996293,
+          "patch_spread": 0.020974812494249605,
+          "relative_spread": 0.0013869717611093438,
+          "effective_rank": 1.2668897379591475
+        },
+        "encoder_norm": {
+          "cosine": 0.9993424948591841,
+          "rms": 1.0028662096875898,
+          "patch_spread": 0.024898778483831065,
+          "relative_spread": 0.024827617326529994,
+          "effective_rank": 2.4696600721472732
+        }
+      }
+    },
+    {
+      "mode": "zero_band_local_codes",
+      "parent": "obs_43e1f04731806b49b430b3ee",
+      "mse": 0.014810562133789062,
+      "stages": {
+        "spectral_reduce": {
+          "cosine": 0.997968448802843,
+          "rms": 0.5736013280334047,
+          "patch_spread": 0.02989909506905373,
+          "relative_spread": 0.05212521939508568,
+          "effective_rank": 1.0027968232923405
+        },
+        "spatial_reduce": {
+          "cosine": 0.9999973182384517,
+          "rms": 16.030525585755004,
+          "patch_spread": 0.11641910029279592,
+          "relative_spread": 0.007262338322596727,
+          "effective_rank": 1.057389485305302
+        },
+        "encoder_norm": {
+          "cosine": 0.9995458859487837,
+          "rms": 1.0032549125789199,
+          "patch_spread": 0.02070043473940177,
+          "relative_spread": 0.02063327523230383,
+          "effective_rank": 2.503595282569686
+        }
+      }
+    }
+  ],
+  "embedding_ranks": {
+    "spatial_values": 4,
+    "spectral_values.6x6": 36,
+    "spectral_values.12x12": 128
+  }
+}

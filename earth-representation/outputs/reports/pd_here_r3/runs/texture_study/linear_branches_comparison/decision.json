@@ -1,0 +1,17 @@
+{
+  "status": "COMPLETED_ABLATION_NOT_SELECTED",
+  "variant": "linear_branches256",
+  "epochs": 30,
+  "updates": 1320,
+  "intervention": "Both branch Transformer blocks removed, including local MSA, FFN and their LayerNorms",
+  "kept": "linear value/QA embedding, fixed local/band codes, scatter, reducers, Linear256to256, two global256 ViT blocks, decoder128",
+  "conclusion": "Removing local blocks did not fix token similarity; reconstruction degraded",
+  "mean_epoch_seconds": 7.203530323330779,
+  "reference": "fusion256_global2_zerohead",
+  "b1_encoder_cosine": [
+    0.9858421150968106,
+    0.9892220019167121
+  ],
+  "checkpoint": "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\pd_here_geotoken_dualvit_r3\\texture_study\\linear_branches256\\last.pt",
+  "training_active": false
+}

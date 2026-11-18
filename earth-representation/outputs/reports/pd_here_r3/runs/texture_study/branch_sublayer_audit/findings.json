@@ -1,0 +1,94 @@
+{
+  "scope": "21 windows, aligned geographic patches with common full QA support; frozen checkpoint",
+  "spatial_embedding_rank": 4,
+  "spatial_stages": {
+    "raw_values": {
+      "cosine": 0.9750061026457414,
+      "rms": 0.10035510395494547,
+      "patch_spread": 0.01688553402036593,
+      "relative_spread": 0.1559211725614364,
+      "effective_rank": 6.189776791453568
+    },
+    "value_plus_qa_embedding": {
+      "cosine": 0.9987711830096334,
+      "rms": 0.5937004972758761,
+      "patch_spread": 0.009694474592596022,
+      "relative_spread": 0.01593204904139392,
+      "effective_rank": 6.192791273601496
+    },
+    "coded_embedding": {
+      "cosine": 0.999745524329102,
+      "rms": 1.342758733833132,
+      "patch_spread": 0.009694474589000659,
+      "relative_spread": 0.007139412160328446,
+      "effective_rank": 6.192791541885468
+    },
+    "after_attention_residual": {
+      "cosine": 0.9995389915218557,
+      "rms": 1.1010702629499545,
+      "patch_spread": 0.011727161639287614,
+      "relative_spread": 0.010444382080587638,
+      "effective_rank": 5.308251517795279
+    },
+    "after_ffn_residual_preflatten": {
+      "cosine": 0.9965666959289061,
+      "rms": 0.7942436764735364,
+      "patch_spread": 0.02359067727010755,
+      "relative_spread": 0.030350139760611898,
+      "effective_rank": 4.690309402707637
+    },
+    "flatten_projection_output": {
+      "cosine": 0.9973826533489271,
+      "rms": 18.58870205678,
+      "patch_spread": 0.5045734502034582,
+      "relative_spread": 0.03078442009124676,
+      "effective_rank": 1.3662168922484657
+    }
+  },
+  "spectral_stages": {
+    "raw_values": {
+      "cosine": 0.9750061026457414,
+      "rms": 0.10035510395494547,
+      "patch_spread": 0.01688553402036593,
+      "relative_spread": 0.1559211725614364,
+      "effective_rank": 6.189776791453568
+    },
+    "value_plus_qa_embedding": {
+      "cosine": 0.9987713644611953,
+      "rms": 0.5681570096793853,
+      "patch_spread": 0.012869211580879067,
+      "relative_spread": 0.020710682247849537,
+      "effective_rank": 4.6579698512585725
+    },
+    "coded_embedding": {
+      "cosine": 0.9992921592106593,
+      "rms": 0.8463262627951534,
+      "patch_spread": 0.012869211573269231,
+      "relative_spread": 0.014540696842302012,
+      "effective_rank": 4.6579698356888235
+    },
+    "after_attention_residual": {
+      "cosine": 0.9990235813303385,
+      "rms": 0.8075153485573929,
+      "patch_spread": 0.016722295161276983,
+      "relative_spread": 0.019388160770706247,
+      "effective_rank": 3.4863852645026006
+    },
+    "after_ffn_residual_preflatten": {
+      "cosine": 0.9985888379063894,
+      "rms": 0.8020067097858472,
+      "patch_spread": 0.02173173367987085,
+      "relative_spread": 0.02555617713509323,
+      "effective_rank": 2.553724306182609
+    },
+    "flatten_projection_output": {
+      "cosine": 0.9971624009078032,
+      "rms": 1.216363752502713,
+      "patch_spread": 0.053390441007018674,
+      "relative_spread": 0.04246301469816768,
+      "effective_rank": 1.1195311340738638
+    }
+  },
+  "conclusion": "High raw cosine is largely amplified by shared codes. Patch variation loses effective rank chiefly in learned reducers; FFN residual increases variation amplitude. No single-layer causal blame established.",
+  "limitation": "Frozen bypass changes activation distribution. Effective rank measures feature variation rather than task-relevant information loss."
+}

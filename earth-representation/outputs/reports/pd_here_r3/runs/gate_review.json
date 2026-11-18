@@ -1,0 +1,21 @@
+{
+  "status": "STOPPED_AT_G2",
+  "implementation": "RUNNABLE",
+  "selection": "DIAGNOSTIC_NOT_SELECTED",
+  "g0": "PASS native data and local contracts",
+  "g1": "single GPU FP32 timing PASS; multiGPU and BF16 NOT_RUN",
+  "g2": "A/B1/paired each200 updates completed; learning observed; reconstruction quality FAIL",
+  "g3": "NOT_RUN",
+  "paired_mse_baseline_ratio": {
+    "A": 18.089626911950592,
+    "B1": 323.6573571937317
+  },
+  "reason": "After bounded G2, both tasks remain substantially worse than their visible-input references; no automatic expansion or budget extension.",
+  "unfinished_acceptance": [
+    "full real GPU single/microbatch and DDP equivalence",
+    "high-texture subset and group bootstrap",
+    "frozen-encoder downstream probe"
+  ],
+  "viewer": "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\pd_here_geotoken_dualvit_r3\\viewer",
+  "training_active": false
+}

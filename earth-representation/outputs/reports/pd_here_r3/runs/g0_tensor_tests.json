@@ -1,0 +1,103 @@
+{
+  "status": "PASS",
+  "tests": 17,
+  "torch": "2.11.0+cu128",
+  "device": "cpu",
+  "results": [
+    {
+      "name": "geographic_token_and_native_output_shapes",
+      "status": "PASS",
+      "seconds": 4.700035788118839e-06
+    },
+    {
+      "name": "A_sparse_encoder_and_B1_sparse_bands",
+      "status": "PASS",
+      "seconds": 2.200016751885414e-06
+    },
+    {
+      "name": "A_hidden_value_and_nan_isolation",
+      "status": "PASS",
+      "seconds": 0.0028318000258877873
+    },
+    {
+      "name": "B1_hidden_value_and_nan_isolation",
+      "status": "PASS",
+      "seconds": 0.0027058999985456467
+    },
+    {
+      "name": "A_hidden_input_gradient_zero",
+      "status": "PASS",
+      "seconds": 0.00584200001321733
+    },
+    {
+      "name": "B1_hidden_input_gradient_zero",
+      "status": "PASS",
+      "seconds": 0.005362199968658388
+    },
+    {
+      "name": "one_shared_decoder_mask_and_complete_positions",
+      "status": "PASS",
+      "seconds": 0.00020100001711398363
+    },
+    {
+      "name": "B1_does_not_replace_observed_geographic_tokens",
+      "status": "PASS",
+      "seconds": 0.004714300041086972
+    },
+    {
+      "name": "QA_invalid_value_isolation",
+      "status": "PASS",
+      "seconds": 0.006218700029421598
+    },
+    {
+      "name": "pixel_band_parent_loss_weighting",
+      "status": "PASS",
+      "seconds": 0.0005624999757856131
+    },
+    {
+      "name": "all_required_modules_receive_A_gradients",
+      "status": "PASS",
+      "seconds": 0.005547199980355799
+    },
+    {
+      "name": "subpatch_row_major_order",
+      "status": "PASS",
+      "seconds": 5.2099989261478186e-05
+    },
+    {
+      "name": "no_convolution_or_descriptor_parameters",
+      "status": "PASS",
+      "seconds": 8.840003283694386e-05
+    },
+    {
+      "name": "no_cross_parent_information_exchange",
+      "status": "PASS",
+      "seconds": 0.0026523999986238778
+    },
+    {
+      "name": "state_dict_output_roundtrip",
+      "status": "PASS",
+      "seconds": 0.005559100012760609
+    },
+    {
+      "name": "reject_no_visible_context",
+      "status": "PASS",
+      "seconds": 7.960002403706312e-05
+    },
+    {
+      "name": "MAC_and_full_decoder_length_contract",
+      "status": "PASS",
+      "seconds": 2.870004391297698e-05
+    }
+  ],
+  "scope": "Small synthetic tensor correctness tests only; not trained, no real imagery, no geometry loader, no DDP/AMP/profiling validation or quality claim.",
+  "not_run": [
+    "real_Sentinel2_ingestion",
+    "geographic_split",
+    "GPU_throughput",
+    "DDP",
+    "BF16",
+    "training_quality",
+    "transfer"
+  ]
+}

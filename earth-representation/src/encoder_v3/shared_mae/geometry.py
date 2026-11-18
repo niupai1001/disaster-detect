@@ -50,8 +50,11 @@ def metric_geometry(channels, patch_metres):
 
 
 class AreaCache:
-    def __init__(self, limit_bytes=1024*1024**2):
+    def __init__(self, limit_bytes=1024*1024**2, *, construction_device='cpu'):
+        if construction_device not in ('cpu', 'target', 'auto'):
+            raise ValueError('Unsupported area-map construction device')
         self.limit = limit_bytes
+        self.construction_device = construction_device
         self.items = OrderedDict()
         self.bytes = 0
 
@@ -63,8 +66,9 @@ class AreaCache:
         if key in self.items:
             self.items.move_to_end(key)
             return self.items[key][0]
-        # CPU geometry construction avoids repeated device synchronization for variable lengths.
-        boxes = native_cells(grid, 'cpu')
+        use_target = self.construction_device == 'target' or (self.construction_device == 'auto' and math.prod(grid.shape) >= 262144)
+        compute_device = device if use_target else 'cpu'
+        boxes = native_cells(grid, compute_device)
         origin = boxes.new_tensor(geometry.origin)
         size = geometry.patch_size/resolution
         lo = (boxes[:, :2]-origin)/size
@@ -77,8 +81,9 @@ class AreaCache:
         lengths = spans.prod(-1)
         if bool((lengths < 1).any()) or int(lengths.max()) > 4096:
             raise ValueError('Unsupported native-to-patch footprint expansion')
-        source = torch.repeat_interleave(torch.arange(len(boxes)), lengths)
-        offset = torch.arange(int(lengths.sum()))-torch.repeat_interleave(lengths.cumsum(0)-lengths, lengths)
+        edges = int(lengths.sum())
+        source = torch.repeat_interleave(torch.arange(len(boxes), device=boxes.device), lengths, output_size=edges)
+        offset = torch.arange(edges, device=boxes.device)-torch.repeat_interleave(lengths.cumsum(0)-lengths, lengths, output_size=edges)
         nx = spans[source, 0]
         ix, iy = low[source, 0]+offset%nx, low[source, 1]+offset//nx
         lower = origin+torch.stack((ix, iy), -1)*size

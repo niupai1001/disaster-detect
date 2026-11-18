@@ -1,0 +1,96 @@
+{
+  "status": "ARTIFACT_REDUCED_DETAIL_UNRESOLVED",
+  "additional_updates": 1320,
+  "epoch": 30,
+  "initialization": "output weights zero; each band bias fixed TRAIN mean at initialization then trainable",
+  "checkpoint": "N:\\Users\\yzh\\Disater\\earth-representation\\outputs\\pd_here_geotoken_dualvit_r3\\texture_study\\decoder128_zerohead\\last.pt",
+  "detail_acceptance": "FAIL: weak gradient correlation, B11 structure absent and patch-grid artifacts remain",
+  "comparison_reference": "decoder128 30epoch on identical audited data, seed17",
+  "val": {
+    "A": {
+      "all": {
+        "metrics": {
+          "mse": 0.0028203139054568988,
+          "mae": 0.02535862724033799,
+          "bias_squared": 0.0007722563493180774,
+          "centered_mse": 0.002048057556138821,
+          "gradient_mse": 0.0005385958413360734,
+          "gradient_amplitude": 0.6407371481406539,
+          "gradient_correlation": -0.0009741658819257773
+        },
+        "valid_parents": {
+          "mse": 300,
+          "mae": 300,
+          "bias_squared": 300,
+          "centered_mse": 300,
+          "gradient_mse": 300,
+          "gradient_amplitude": 299,
+          "gradient_correlation": 299
+        }
+      },
+      "high_texture": {
+        "metrics": {
+          "mse": 0.007856192523191875,
+          "mae": 0.05089815040840073,
+          "bias_squared": 0.00200061308531736,
+          "centered_mse": 0.005855579437874517,
+          "gradient_mse": 0.0015235124569451155,
+          "gradient_amplitude": 0.09374745822966328,
+          "gradient_correlation": -0.00437936864415791
+        },
+        "valid_parents": {
+          "mse": 129,
+          "mae": 129,
+          "bias_squared": 129,
+          "centered_mse": 129,
+          "gradient_mse": 129,
+          "gradient_amplitude": 129,
+          "gradient_correlation": 129
+        }
+      }
+    },
+    "B1": {
+      "all": {
+        "metrics": {
+          "mse": 0.0016763435375026635,
+          "mae": 0.022741016979413848,
+          "bias_squared": 0.0004633298963283822,
+          "centered_mse": 0.0012130136411742812,
+          "gradient_mse": 0.0005521131807908152,
+          "gradient_amplitude": 0.9160248536179653,
+          "gradient_correlation": 0.037521633206418284
+        },
+        "valid_parents": {
+          "mse": 299,
+          "mae": 299,
+          "bias_squared": 299,
+          "centered_mse": 299,
+          "gradient_mse": 299,
+          "gradient_amplitude": 298,
+          "gradient_correlation": 298
+        }
+      },
+      "high_texture": {
+        "metrics": {
+          "mse": 0.005787151600522281,
+          "mae": 0.04752946360021272,
+          "bias_squared": 0.0009031911571450102,
+          "centered_mse": 0.00488396044337727,
+          "gradient_mse": 0.0022133884456288218,
+          "gradient_amplitude": 0.2575076829167444,
+          "gradient_correlation": 0.08029124962164348
+        },
+        "valid_parents": {
+          "mse": 68,
+          "mae": 68,
+          "bias_squared": 68,
+          "centered_mse": 68,
+          "gradient_mse": 68,
+          "gradient_amplitude": 68,
+          "gradient_correlation": 68
+        }
+      }
+    }
+  },
+  "training_active": false
+}

@@ -144,3 +144,18 @@ S2 L1C曾有质量资产被误登记为波段的情况，该资产不能当光�
 逐资产和逐观测清单、冻结成员与遮盖、影像、运行权重及日志按本机发布路径保存。此页提供公开的方案、汇总和发布身份。
 
 [BigEarthNet 官方资料](https://bigearth.net/) · [BigEarthNet-L 数据卡](https://huggingface.co/datasets/isaaccorley/bigearthnet-l) · [SEN2VENµS 发布说明](https://zenodo.org/records/14603764)
+
+## GeoToken–DualViT R3 数据绑定
+
+复用 `outputs/s2_native_grid_r1/s2_selection_1000/train_1000.jsonl` 的1000个核心 S2 候选父观测，未纳入旧 VAL/TEST。按原隔离组、同次获取、经纬度 bbox 重叠做传递合并，得到987组；seed17 固定组顺序后以最接近70%的前缀拆成700 TRAIN / 300 development VAL。它仍属于开发划分，不能宣称独立测试。
+
+十波段按 B02/B03/B04/B05/B06/B07/B08/B8A/B11/B12 冻结，120m Patch 对应四个12×12和六个6×6原生网格，4×4窗口。对错开10m的裁剪边界选共同20m格边界内的锚点，不插值、不修改源数据。QA与finite、边缘padding共同定义合法支持。1000个观测全部找到同时支持 A 和全部 B1 排程的初始窗口，无排除；G1/G2固定该面板，尚未执行G3窗口轮换。
+
+成员哈希、源发布、Layout、窗口及排除记录见 `outputs/pd_here_geotoken_dualvit_r3/dataset_identity.json`，逐父窗口见 `window_plan.json`。基线的10m→20m区域均值与20m→10m重复只用于线性回归参照，学习模型始终读取原生网格。
+
+
+### R3 重复纹理对照使用的修正数据
+
+R3 原绑定的 1000 个成员按来源、处理基线、标定参数及独立复核结论分成 20 组。核查了全部缓存哈希、有效值和可读的本地原生栅格，并按组抽样及原展示样本核对远程 10 米源资产，合计 59 个指定样本、6562 项像元对照（含原始 ESA B04 参考）。有源像元对照的波段核验 CRS、像元尺寸、整像元对齐、覆盖范围及 QA 标为有效的像元。远程 10 米源资产采用分组抽查。
+
+880 个 S2 Core10 成员依据已有标定记录改正重复的 −0.1 偏移。另外两景由相同 ESA 产品的原始 B04 和产品标定 XML 独立核验，一景保持原值，一景加回 0.1。共重建 881 个缓存（609 TRAIN、272 开发 VAL），仅对有效像元加回 0.1。成员和顺序、登记窗口、Layout 与既有 QA 掩膜保留，旧数据与权重继续用于复现历史实验。修正数据身份、逐成员记录及新清单见 [纹理对照数据核查](../outputs/reports/pd_here_r3/runs/texture_study/source_audit.json)。
