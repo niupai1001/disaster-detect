@@ -35,7 +35,9 @@ class DualProjection(LayoutProjection):
 class WholeSceneDualViT(WholeSceneViT):
     projection_type = DualProjection
 
-    def __init__(self, layouts):
+    def __init__(self, layouts, *, global_depth=2, spectral_only=False):
+        if global_depth not in (1,2):
+            raise ValueError('Expected one or two post-fusion global blocks')
         super().__init__(layouts)
         self.spatial_values = nn.Linear(4,128)
         self.spatial_qa = nn.Linear(4,128,bias=False)
@@ -44,6 +46,22 @@ class WholeSceneDualViT(WholeSceneViT):
         self.global_blocks = nn.ModuleList([Block(256),Block(256)])
         self.encoder_norm = nn.LayerNorm(256,eps=1e-6)
         self.decoder_embed = nn.Linear(256,128)
+        self.spectral_only = spectral_only
+        if global_depth==1:
+            del self.global_blocks[1]
+        if spectral_only:
+            spectral_projection = nn.Linear(128,256)
+            with torch.no_grad():
+                spectral_projection.weight.copy_(self.fuse.weight[:,128:])
+                spectral_projection.bias.copy_(self.fuse.bias)
+            self.fuse = spectral_projection
+            del self.spatial_values,self.spatial_qa,self.spatial_block
+            for projection in self.projections.values():
+                del projection.spatial_reduce
+                if projection.factorized:
+                    del projection.pool
+                for j in range(len(projection.subshapes)):
+                    delattr(projection,f'local_{j}')
 
     def spatial_band(self, values, qa, position, weight, pooling):
         v = self.spatial_values(values)+self.spatial_qa(qa.float())+position
@@ -59,7 +77,8 @@ class WholeSceneDualViT(WholeSceneViT):
         valid_spec = []
         spectral_ids = bands.nonzero().flatten().tolist()
         start = 0
-        spatial = a.spatial_reduce.bias.expand(len(x),-1)
+        if not self.spectral_only:
+            spatial = a.spatial_reduce.bias.expand(len(x),-1)
         for j,((_,h,w),value,quality) in enumerate(zip(scene.layout,x.split(a.widths,-1),
                                                         q.split(a.widths,-1),strict=True)):
             n = a.widths[j]
@@ -71,6 +90,8 @@ class WholeSceneDualViT(WholeSceneViT):
             spec.append(a.spectral_values[str(n)](safe)+a.spectral_qa[str(n)](quality.float())+a.band_position[j])
             present = quality.any(-1)
             valid_spec.append(present)
+            if self.spectral_only:
+                continue
             if not present.any():
                 start += width
                 continue
@@ -97,7 +118,8 @@ class WholeSceneDualViT(WholeSceneViT):
         fixed = spectral.new_zeros(len(x),len(bands),128)
         fixed[:,spectral_ids] = spectral
         spectral = a.spectral_reduce(fixed.flatten(1))
-        return self.fuse(torch.cat((spatial,spectral),-1))+a.availability(bands.float())
+        joint = spectral if self.spectral_only else torch.cat((spatial,spectral),-1)
+        return self.fuse(joint)+a.availability(bands.float())
 
     def forward(self, scene, keep, bands):
         a = self.projections[self.layout_indices[scene.layout]]

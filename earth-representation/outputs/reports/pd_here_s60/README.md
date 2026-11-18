@@ -33,3 +33,9 @@
 同一2,000景、60米原生网格、切块、A/B1遮盖与共有模块初始化。两组各10轮／1,250次更新。加入同Patch波段注意力及局部融合后，A/B1 MSE分别增加2.4%／5.3%，B1梯度MSE下降1.5%，梯度相关由0.1042提高到0.1294。参数量4,465万→4,916万，每轮中位耗时46.3→76.6秒。
 
 [三组同预算结果](native512_dual_axis2000_seed17/findings.md) · [A同目标预测](native512_dual_axis2000_seed17/A_predictions_comparison.png) · [B1预测](native512_dual_axis2000_seed17/B1_predictions.png) · [曲线](native512_dual_axis2000_seed17/curves.png)。
+
+## 旧120米双分支消融与2,000景汇总
+
+[双分支一层／仅光谱消融](native512_legacy_global1_2000_seed17/findings.md) · [A 预测对照](native512_legacy_global1_2000_seed17/A_predictions_comparison.png) · [B1 预测对照](native512_legacy_global1_2000_seed17/B1_predictions_comparison.png)。
+
+[2,000景全量对照](expanded2000_comparison/REPORT.md)包括5个完整同协议ViT、2个替换前试跑与一条3阶段历史原生训练轨迹。提供逐轮、分来源、逐父观测与波段的指标和有效支持数。ViT固定TRAIN22与历史VAL275分别统计。

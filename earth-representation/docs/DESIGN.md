@@ -343,3 +343,5 @@ S60整景空间ViT共享一层全局空间Block和两层MAE Decoder。各波段�
 ### 60米 Dual-Axis 的整景适配
 
 按附件保留联合原生空间投影、同位置波段注意力及局部融合，只把固定8×8窗口改为既有2,000景原生整景／512像元切块协议。空间注意力作用于同父的整景或切块。每Patch内先更新可见波段Token，再用一条空间Token与这些Token融合，只保留空间行给原两层MAE Decoder。固定每布局各原生形状的光谱投影，同shape共享。训练数据、遮盖、切块、Decoder和共用模块的初始值与60米空间ViT一致。模型和命令见 `src/pd_here_s60/whole_scene_dual_axis.py` 与 `scripts/train_pd_here_s60_whole_scene.py --dual-axis`。
+
+120米旧双分支整景消融保留原生数据和同预算。全局一层组删除融合后第二个Block；仅光谱组移除波段内子Patch空间分支并保留两层全局ViT，其投影取原融合光谱半边初始化。固定训练面板上，减一层主要影响B1，仅光谱计算更快但误差上升。[消融结果](RESULTS.md#120米双分支的深度和空间分支消融)。

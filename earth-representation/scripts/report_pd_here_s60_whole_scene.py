@@ -11,7 +11,7 @@ import numpy as np
 import torch
 
 from train_pd_here_s60_whole_scene import (
-    ROOT, FROZEN, TASKS, ExpandedTrainingData, WholeSceneViT, masks, read, write_json,
+    ROOT, FROZEN, TASKS, MODELS, ExpandedTrainingData, WholeSceneViT, masks, read, write_json,
 )
 from pd_here_s60.whole_scene import native_axis, pack_scene, tile_bounds, tiles
 from pd_here_s60.whole_scene_dual import WholeSceneDualViT
@@ -99,9 +99,7 @@ def main():
     curves(run,history)
     identity=read(run/'identity.json')
     layouts={tuple(tuple(y) for y in x['bands']):x['train_means'] for x in identity['layouts']}
-    model_type=(WholeSceneDualViT if identity['patch_m']==120 else
-                WholeSceneDualAxisViT if identity['model_id']==DUAL_AXIS_ID else WholeSceneViT)
-    model=model_type(layouts).to(args.device).eval()
+    model=MODELS[identity['model_id']](layouts).to(args.device).eval()
     state=torch.load(run/'last.pt',map_location='cpu',weights_only=True)
     assert state['epoch']==10 and json.loads(json.dumps(state['identity']))==identity
     model.load_state_dict(state['model'])

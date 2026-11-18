@@ -239,3 +239,5 @@ foreach ($variant in @('baseline','input_scale','decoder128')) {
 ```powershell
 ../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60_whole_scene.py --dual-axis --out outputs/pd_here_s60/native512_dual_axis_new_run --device cuda:1
 ```
+
+旧120米模型的两项消融分别使用 `--legacy-dual-one-layer` 和 `--legacy-spectral-only`。前者删除融合后第二个全局Block，后者移除空间分支并保留两层全局Block。两组沿用相同的2,000景整景／512输出上限和10轮预算，各指定一个独立输出目录。

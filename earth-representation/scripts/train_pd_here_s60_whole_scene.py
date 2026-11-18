@@ -1,6 +1,7 @@
 """Ten-epoch full-scene probe on the frozen expanded 2,000 TRAIN subset."""
 import argparse
 from collections import defaultdict
+from functools import partial
 import hashlib
 import json
 from pathlib import Path
@@ -20,6 +21,12 @@ ROOT = Path(__file__).resolve().parents[1]
 FROZEN = ROOT/'outputs/pd_here_native_patch/wp1_wp2/raw_native_full_preflight_v1'
 VIEWER = ROOT/'outputs/pd_here_geotoken_dualvit_r3/viewer'
 TASKS = ('A','B1')
+LEGACY_MODELS = {
+    'R3-WholeScene-DualViT': WholeSceneDualViT,
+    'R3-WholeScene-DualViT-Global1': partial(WholeSceneDualViT,global_depth=1),
+    'R3-WholeScene-SpectralOnly': partial(WholeSceneDualViT,spectral_only=True),
+}
+MODELS = {'S60-WholeScene-SpatialViT':WholeSceneViT, DUAL_AXIS_ID:WholeSceneDualAxisViT, **LEGACY_MODELS}
 
 
 def masks(scene, parent, epoch):
@@ -171,9 +178,10 @@ def run(args):
             subset['extension_release_sha256']!=EXTENSION_SHA or len({r['id'] for r in rows})!=2000):
         raise ValueError('Frozen expanded subset identity differs')
     data = ExpandedTrainingData(ROOT)
-    patch_m = 120 if args.legacy_dual else 60
-    model_type = WholeSceneDualViT if args.legacy_dual else (WholeSceneDualAxisViT if args.dual_axis else WholeSceneViT)
-    model_id = 'R3-WholeScene-DualViT' if args.legacy_dual else (DUAL_AXIS_ID if args.dual_axis else 'S60-WholeScene-SpatialViT')
+    model_id = args.model_id
+    legacy = model_id in LEGACY_MODELS
+    spectral_only = model_id=='R3-WholeScene-SpectralOnly'
+    patch_m = 120 if legacy else 60
     cache={}; layouts=defaultdict(list); members=[]; panel=[]; selected=defaultdict(int)
     print('Packing all native scenes',flush=True)
     for i,row in enumerate(rows,1):
@@ -213,14 +221,17 @@ def run(args):
     write_json(args.out/'status.json',dict(status='PREFLIGHT'))
     # Exercise the largest full sequence and every native layout before any optimizer update.
     torch.manual_seed(17)
-    model=model_type(stats).to(args.device)
-    if args.dual_axis:
+    model=MODELS[model_id](stats).to(args.device)
+    if model_id==DUAL_AXIS_ID:
         identity.update(initialization='seed17, all common tensors identical to spatial ViT initialization',
                         encoder='one global spatial block, one per-patch spectral block, one per-patch fusion block')
         write_json(args.out/'identity.json',identity)
-    if args.legacy_dual:
+    if legacy:
         identity['factorized_spatial_layouts'] = [list(k) for k,idx in model.layout_indices.items()
-                                                 if model.projections[idx].factorized]
+                                                 if not spectral_only and model.projections[idx].factorized]
+        identity['global_encoder_depth'] = len(model.global_blocks)
+        identity['spectral_only'] = spectral_only
+        identity['initialization'] = 'seed17; unchanged tensors retain baseline initialization'
         write_json(args.out/'identity.json',identity)
     counts=defaultdict(int)
     for scene in cache.values():counts[scene.layout]+=1
@@ -252,7 +263,7 @@ def run(args):
                  for t in TASKS for k in ('mse','centered_mse','within_patch_mse','template_fraction')}
     history=[]
     write_json(args.out/'initial.json',evaluate(model,panel,cache,args.device))
-    with RunWriter(viewer,experiment=dict(id='pd_here_r3_whole_scene' if args.legacy_dual else 'pd_here_s60_whole_scene',
+    with RunWriter(viewer,experiment=dict(id='pd_here_r3_whole_scene' if legacy else 'pd_here_s60_whole_scene',
                    name='Full-scene 2000 TRAIN'),
                    variant=dict(id=model_id,name=model_id,kind='baseline'),
                    config=identity,metrics=definitions,charts=['A_mse','B1_mse','A_within_patch_mse','B1_within_patch_mse']) as log:
@@ -294,8 +305,10 @@ def main():
     parser.add_argument('--out',required=True,type=Path)
     parser.add_argument('--device',default='cuda:1')
     architectures=parser.add_mutually_exclusive_group()
-    architectures.add_argument('--legacy-dual',action='store_true')
-    architectures.add_argument('--dual-axis',action='store_true')
+    for option,model_id in zip(('--legacy-dual','--legacy-dual-one-layer','--legacy-spectral-only','--dual-axis'),
+                               (*LEGACY_MODELS,DUAL_AXIS_ID),strict=True):
+        architectures.add_argument(option,dest='model_id',action='store_const',const=model_id)
+    parser.set_defaults(model_id='S60-WholeScene-SpatialViT')
     args=parser.parse_args()
     args.out.mkdir(parents=True,exist_ok=False)
     try:

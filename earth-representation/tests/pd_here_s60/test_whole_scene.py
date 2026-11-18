@@ -100,3 +100,40 @@ def test_scene_dual_axis_shared_init_local_fusion_and_hidden_values():
         torch.testing.assert_close(dual(perturbed,keep,bands),output,atol=0,rtol=0)
         gradient,=torch.autograd.grad(output.square().mean(),values)
         assert not gradient[~active].any()
+
+
+def test_legacy_ablation_preserves_shared_initial_tensors_and_paths():
+    from pd_here_s60.whole_scene import Scene
+    from pd_here_s60.whole_scene_dual import WholeSceneDualViT
+    layout=(('red',4,4),('nir',2,2))
+    means={layout:[.1,.2]}
+    torch.manual_seed(17)
+    old=WholeSceneDualViT(means).eval()
+    torch.manual_seed(17)
+    shallow=WholeSceneDualViT(means,global_depth=1).eval()
+    torch.manual_seed(17)
+    spectral=WholeSceneDualViT(means,spectral_only=True).eval()
+    reference=old.state_dict()
+    for model in (shallow,spectral):
+        for name,value in model.state_dict().items():
+            expected=reference[name][:,128:] if model is spectral and name=='fuse.weight' else reference[name]
+            assert torch.equal(value,expected),name
+    assert len(shallow.global_blocks)==1 and len(spectral.global_blocks)==2
+    assert not hasattr(spectral,'spatial_block') and not hasattr(spectral.projections['0'],'spatial_reduce')
+    with torch.no_grad():
+        for model in (old,shallow,spectral):
+            model.projections['0'].output.weight.fill_(.01)
+    values=torch.rand(4,20,requires_grad=True)
+    qa=torch.ones_like(values,dtype=torch.bool)
+    scene=Scene((2,2),layout,values,qa,(0,0),80,120)
+    keep=torch.ones(4,dtype=torch.bool)
+    bands=torch.tensor([True,False])
+    hook=old.global_blocks[1].register_forward_hook(lambda _,args,output:args[0])
+    torch.testing.assert_close(shallow(scene,keep,bands),old(scene,keep,bands),atol=1e-6,rtol=1e-5)
+    hook.remove()
+    hook=old.fuse.register_forward_pre_hook(lambda _,args:(torch.cat((torch.zeros_like(args[0][:,:128]),args[0][:,128:]),-1),))
+    result=spectral(scene,keep,bands)
+    torch.testing.assert_close(result,old(scene,keep,bands),atol=1e-6,rtol=1e-5)
+    hook.remove()
+    gradient,=torch.autograd.grad(result[...,-4:].square().mean(),values)
+    assert not gradient[:,16:].any()
