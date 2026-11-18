@@ -220,3 +220,16 @@ foreach ($variant in @('baseline','input_scale','decoder128')) {
 ../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60.py --spatial-only --out outputs/pd_here_s60/spatial_vit_new_run
 ../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/report_pd_here_s60.py --run outputs/pd_here_s60/spatial_vit_new_run --reference outputs/pd_here_s60/matched_seed17_v1
 ```
+
+整景试验使用扩展版冻结的2,000个 TRAIN 父观测。60米 Patch 按原生像元中心归属，整景过大时只在 Patch 边界切分，任一原生波段切片的输出长和宽均不超过512像元。Viewer沿用R3根目录，训练和报告入口如下。
+
+```powershell
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60_whole_scene.py --out outputs/pd_here_s60/native512_new_run --device cuda:1
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/report_pd_here_s60_whole_scene.py --run outputs/pd_here_s60/native512_new_run --device cuda:1
+```
+
+同一2,000景上复跑旧120米双分支时，训练入口使用 `--legacy-dual` 并指定独立目录。报告入口读取检查点的原生 Patch 大小及模型类型。极高分辨率布局使用低秩空间汇聚，常规布局保留旧版展平线性汇聚。
+
+```powershell
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60_whole_scene.py --legacy-dual --out outputs/pd_here_s60/native512_dual_new_run --device cuda:1
+```
