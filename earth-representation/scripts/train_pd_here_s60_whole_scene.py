@@ -14,6 +14,7 @@ from encoder_v3.latent_response.tvlp_writer import RunWriter
 from pd_here_geotoken_dualvit_r3.data import write_json
 from pd_here_s60.whole_scene import WholeSceneViT, pack_scene, tile_bounds, tiles
 from pd_here_s60.whole_scene_dual import WholeSceneDualViT
+from pd_here_s60.whole_scene_dual_axis import WholeSceneDualAxisViT, MODEL_ID as DUAL_AXIS_ID
 
 ROOT = Path(__file__).resolve().parents[1]
 FROZEN = ROOT/'outputs/pd_here_native_patch/wp1_wp2/raw_native_full_preflight_v1'
@@ -171,7 +172,8 @@ def run(args):
         raise ValueError('Frozen expanded subset identity differs')
     data = ExpandedTrainingData(ROOT)
     patch_m = 120 if args.legacy_dual else 60
-    model_type = WholeSceneDualViT if args.legacy_dual else WholeSceneViT
+    model_type = WholeSceneDualViT if args.legacy_dual else (WholeSceneDualAxisViT if args.dual_axis else WholeSceneViT)
+    model_id = 'R3-WholeScene-DualViT' if args.legacy_dual else (DUAL_AXIS_ID if args.dual_axis else 'S60-WholeScene-SpatialViT')
     cache={}; layouts=defaultdict(list); members=[]; panel=[]; selected=defaultdict(int)
     print('Packing all native scenes',flush=True)
     for i,row in enumerate(rows,1):
@@ -197,7 +199,7 @@ def run(args):
         if i%200==0:print('packed',i,flush=True)
     stats={k:[sum(x)/len(x) for x in zip(*v,strict=True)] for k,v in layouts.items()}
     write_json(args.out/'members.json',members)
-    identity=dict(model_id='R3-WholeScene-DualViT' if args.legacy_dual else 'S60-WholeScene-SpatialViT',subset_sha256=digest(subset_file),
+    identity=dict(model_id=model_id,subset_sha256=digest(subset_file),
         core_sha256=CORE_SHA,extension_sha256=EXTENSION_SHA,members_sha256=digest(args.out/'members.json'),
         layouts=[dict(bands=k,train_means=v) for k,v in stats.items()],sources=subset['sample_counts'],
         precision='BF16 linear/attention, FP32 residual/loss/optimizer',attention='exact efficient SDPA over each whole image or output tile',
@@ -212,6 +214,10 @@ def run(args):
     # Exercise the largest full sequence and every native layout before any optimizer update.
     torch.manual_seed(17)
     model=model_type(stats).to(args.device)
+    if args.dual_axis:
+        identity.update(initialization='seed17, all common tensors identical to spatial ViT initialization',
+                        encoder='one global spatial block, one per-patch spectral block, one per-patch fusion block')
+        write_json(args.out/'identity.json',identity)
     if args.legacy_dual:
         identity['factorized_spatial_layouts'] = [list(k) for k,idx in model.layout_indices.items()
                                                  if model.projections[idx].factorized]
@@ -247,8 +253,8 @@ def run(args):
     history=[]
     write_json(args.out/'initial.json',evaluate(model,panel,cache,args.device))
     with RunWriter(viewer,experiment=dict(id='pd_here_r3_whole_scene' if args.legacy_dual else 'pd_here_s60_whole_scene',
-                   name='R3 full-scene 2000 TRAIN' if args.legacy_dual else 'S60 full-scene 2000 TRAIN'),
-                   variant=dict(id='whole_scene',name='Whole Scene Dual ViT' if args.legacy_dual else 'Whole Scene Spatial ViT',kind='baseline'),
+                   name='Full-scene 2000 TRAIN'),
+                   variant=dict(id=model_id,name=model_id,kind='baseline'),
                    config=identity,metrics=definitions,charts=['A_mse','B1_mse','A_within_patch_mse','B1_within_patch_mse']) as log:
         for epoch in range(1,11):
             started=time.perf_counter()
@@ -287,7 +293,9 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--out',required=True,type=Path)
     parser.add_argument('--device',default='cuda:1')
-    parser.add_argument('--legacy-dual',action='store_true')
+    architectures=parser.add_mutually_exclusive_group()
+    architectures.add_argument('--legacy-dual',action='store_true')
+    architectures.add_argument('--dual-axis',action='store_true')
     args=parser.parse_args()
     args.out.mkdir(parents=True,exist_ok=False)
     try:

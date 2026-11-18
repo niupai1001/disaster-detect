@@ -68,3 +68,35 @@ def test_old_dual_branch_equivalence_for_aligned_layout():
         active=q & keep[:,None] & bands[proj.band_slots]
         changed=Scene((2,2),key,torch.where(active,x,float('nan')),q,(0,0),int(q.sum()),120)
         torch.testing.assert_close(new(changed,keep,bands),actual,atol=0,rtol=0)
+
+
+def test_scene_dual_axis_shared_init_local_fusion_and_hidden_values():
+    from pd_here_s60.whole_scene import Scene
+    from pd_here_s60.whole_scene_dual_axis import WholeSceneDualAxisViT
+    layout=(('blue',2,2),('green',2,2),('nir',1,1))
+    means={layout:[.1,.2,.3]}
+    torch.manual_seed(17)
+    spatial=WholeSceneViT(means)
+    torch.manual_seed(17)
+    dual=WholeSceneDualAxisViT(means)
+    assert all(torch.equal(value,dual.state_dict()[key]) for key,value in spatial.state_dict().items())
+    with torch.no_grad():
+        dual.projections['0'].output.weight.normal_(std=.02)
+    values=torch.rand(4,9,requires_grad=True)
+    qa=torch.ones_like(values,dtype=torch.bool)
+    qa[0,0]=False
+    scene=Scene((2,2),layout,values,qa,(0,0),int(qa.sum()))
+    for keep,bands,shape in [(torch.tensor([True,False,False,True]),torch.ones(3,dtype=torch.bool),(2,4,128)),
+                             (torch.ones(4,dtype=torch.bool),torch.tensor([True,False,True]),(4,3,128))]:
+        capture=[]
+        with torch.no_grad():
+            hook=dual.fusion_block.register_forward_pre_hook(lambda _,args:capture.append(tuple(args[0].shape)))
+            dual(scene,keep,bands)
+            hook.remove()
+        assert capture==[shape]
+        output=dual(scene,keep,bands)
+        active=qa & keep[:,None] & bands[dual.projections['0'].band_slots]
+        perturbed=Scene((2,2),layout,torch.where(active,values,float('nan')),qa,(0,0),int(qa.sum()))
+        torch.testing.assert_close(dual(perturbed,keep,bands),output,atol=0,rtol=0)
+        gradient,=torch.autograd.grad(output.square().mean(),values)
+        assert not gradient[~active].any()

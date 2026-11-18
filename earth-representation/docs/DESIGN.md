@@ -339,3 +339,7 @@ S60整景空间ViT共享一层全局空间Block和两层MAE Decoder。各波段�
 
 
 旧双分支整景对照恢复120米地理Patch、波段内2×2子Patch空间ViT与同位置波段ViT，分别汇聚后进行256维两层全局ViT。常规布局保留完整展平线性汇聚，24景高分辨率样本以低秩汇聚控制参数量。单波段切片输出不超过512，包括全部原生目标，同父归约。
+
+### 60米 Dual-Axis 的整景适配
+
+按附件保留联合原生空间投影、同位置波段注意力及局部融合，只把固定8×8窗口改为既有2,000景原生整景／512像元切块协议。空间注意力作用于同父的整景或切块。每Patch内先更新可见波段Token，再用一条空间Token与这些Token融合，只保留空间行给原两层MAE Decoder。固定每布局各原生形状的光谱投影，同shape共享。训练数据、遮盖、切块、Decoder和共用模块的初始值与60米空间ViT一致。模型和命令见 `src/pd_here_s60/whole_scene_dual_axis.py` 与 `scripts/train_pd_here_s60_whole_scene.py --dual-axis`。

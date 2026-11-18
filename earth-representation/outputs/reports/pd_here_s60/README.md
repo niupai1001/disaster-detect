@@ -27,3 +27,9 @@
 - [冻结成员](subset_expanded_2000_seed17.json)
 
 训练依赖本地冻结核心和扩展发布，目录路径及哈希见运行记录。检查点与原始缓存保存在本地。
+
+## 60米 Dual-Axis 的光谱分支消融
+
+同一2,000景、60米原生网格、切块、A/B1遮盖与共有模块初始化。两组各10轮／1,250次更新。加入同Patch波段注意力及局部融合后，A/B1 MSE分别增加2.4%／5.3%，B1梯度MSE下降1.5%，梯度相关由0.1042提高到0.1294。参数量4,465万→4,916万，每轮中位耗时46.3→76.6秒。
+
+[三组同预算结果](native512_dual_axis2000_seed17/findings.md) · [A同目标预测](native512_dual_axis2000_seed17/A_predictions_comparison.png) · [B1预测](native512_dual_axis2000_seed17/B1_predictions.png) · [曲线](native512_dual_axis2000_seed17/curves.png)。

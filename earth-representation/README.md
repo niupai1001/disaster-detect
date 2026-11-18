@@ -233,3 +233,9 @@ foreach ($variant in @('baseline','input_scale','decoder128')) {
 ```powershell
 ../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60_whole_scene.py --legacy-dual --out outputs/pd_here_s60/native512_dual_new_run --device cuda:1
 ```
+
+同预算的60米 Dual-Axis 整景变体使用 `--dual-axis`。每个可见位置保留空间分支的一个 Token，并在同一位置读取经过波段注意力的可见光谱 Token。训练入口沿用冻结2,000景、10轮及512像元上限。
+
+```powershell
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60_whole_scene.py --dual-axis --out outputs/pd_here_s60/native512_dual_axis_new_run --device cuda:1
+```
