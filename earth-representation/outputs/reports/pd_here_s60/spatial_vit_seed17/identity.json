@@ -1,0 +1,117 @@
+{
+  "model_id": "PD-HERE-S60-SpatialViT",
+  "reference": "PD-HERE-S60-DualAxis-v1",
+  "layout": {
+    "band_keys": [
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B8A",
+      "B11",
+      "B12"
+    ],
+    "band_gsd": [
+      10,
+      10,
+      10,
+      20,
+      20,
+      20,
+      10,
+      20,
+      20,
+      20
+    ],
+    "native_shapes": [
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "offsets": [
+      0,
+      36,
+      72,
+      108,
+      117,
+      126,
+      135,
+      171,
+      180,
+      189,
+      198
+    ],
+    "patch_size_m": 60,
+    "window_shape_m": [
+      480,
+      480
+    ],
+    "grid_shape": [
+      8,
+      8
+    ],
+    "qa_rule": "audited QA and finite value; padding invalid",
+    "patch_order": "row-major; native row-major inside each band"
+  },
+  "layout_hash": "2bd0229bf6e1fb60594df09878f55477fb48c0b00e831c2c52d9282fc9ba9fc0",
+  "data": {
+    "status": "PASS",
+    "train_sha256": "783a55c1dfdadea767811bda5ff2ee271959ca86685cfc0d3307380a6589cb23",
+    "val_sha256": "86e547f95faf9629d694c23e7fd63a1ac91c989c7911c3d8ac6a5765fbb06b29",
+    "source_audit_sha256": "5e636e137be1df28a36d4dc4077a00762a83fe3bbda49ec4a8b0bc3e3046904c",
+    "window_plan_sha256": "5ef8c1f346a1f01fe24c5c90d8c47f0584a44c9ed647542dc28732f94e0bfc12"
+  },
+  "windows_sha256": "90f3cd3b55eba392323a2ac8a46239ef9c945fc672767e7c8e6029e9f71b44bf",
+  "exposure0_target_sha256": "42c3afcfd6f16fc973a245e47edee4faefb240336bb4c824515e38fe02054cb2",
+  "mask_source_sha256": "8e705977cb88e833b2f1db5e3b625ee89400ebc3955aaf02aa9f60b95e8d0d18",
+  "seed": 17,
+  "batch": 16,
+  "lr": 0.0001,
+  "weight_decay": 0.04,
+  "max_epochs": 30,
+  "precision": "FP32",
+  "diagnostic_updates_per_task": 0,
+  "renderer_scope": "fixed native targets; 60m analysis grid for both",
+  "encoder": "Linear native patch embedding + position + one global pre-LN ViT block + LN",
+  "initialization": "seed17 Dual-Axis initial tensors for common keys; no trained checkpoint"
+}

@@ -1,0 +1,39 @@
+{
+  "tail_parents": 12,
+  "checkpoint_next_update_max_parameter_difference": 0.0,
+  "accumulation": {
+    "batch": 16,
+    "microbatches": [
+      8,
+      8
+    ],
+    "max_parameter_difference": 7.450580596923828e-09,
+    "tolerance": 2e-05,
+    "passed": true
+  },
+  "ddp": {
+    "status": "NOT_RUN",
+    "nccl_available": false,
+    "gloo_available": true
+  },
+  "bf16": {
+    "status": "FAILED",
+    "error": "Index put requires the source and destination dtypes match, got Float for the destination and BFloat16 for the source."
+  },
+  "bf16_after_dtype_fix": {
+    "status": "SMOKE_PASS",
+    "fp32": {
+      "A": 0.0017664359183982015,
+      "B1": 0.0009417770779691637
+    },
+    "bf16": {
+      "A": 0.0017692598048597574,
+      "B1": 0.0009402827126905322
+    },
+    "relative_loss_diff": {
+      "A": 0.0015986351002852395,
+      "B1": 0.001586750531085257
+    },
+    "max_parameter_difference": 3.08073649648577e-05
+  }
+}

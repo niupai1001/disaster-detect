@@ -151,12 +151,14 @@ class Study:
         return (mean,np.sqrt(np.maximum(second-mean**2,0))),thresholds,coefficients
 
     @torch.no_grad()
-    def score(self, model, thresholds, coefficients=None):
+    def score(self, model, thresholds, coefficients=None, *, role='val', records_for=metric_records, rows=None, tasks=TASKS):
         records = defaultdict(list)
         model.eval()
-        for start,rows in batches(self.rows['val']):
-            values,qa,views = self.inputs(rows,0)
+        for start,group in batches(self.rows[role] if rows is None else rows):
+            values,qa,views = self.inputs(group,0)
             for task,view in zip(TASKS,views,strict=True):
+                if task not in tasks:
+                    continue
                 keep,bands = view
                 estimates = {'model':model(values,qa,*view)['prediction']}
                 if coefficients is not None:
@@ -175,7 +177,7 @@ class Study:
                     support = tuple(q & (available.repeat_interleave(2,-1).repeat_interleave(2,-2)
                                           if q.shape[-1]==12 else available) for q in qa)
                 for name,prediction in estimates.items():
-                    for record in metric_records(prediction,values,support,*view,task):
+                    for record in records_for(prediction,values,support,*view,task):
                         record['parent'] += start
                         records[name,task].append(record)
         model.train()
@@ -189,10 +191,12 @@ class Study:
         return result
 
 
-def train(study, variant, out, resume):
+def train(study, variant, out, resume, epochs=30):
+    if epochs < 1:
+        raise ValueError('Epoch budget must be positive')
     stats, thresholds, coefficients = study.train_references()
     model, optimizer = initial_model(study.layout,variant,stats,study.device)
-    identity = dict(variant=variant,seed=17,epochs=30,updates=1320,lr=1e-4,weight_decay=.04,
+    identity = dict(variant=variant,seed=17,epochs=epochs,updates=44*epochs,lr=1e-4,weight_decay=.04,
                     data=study.identity,layout_hash=study.layout.layout_hash,
                     statistics=[x.tolist() for x in stats],thresholds=thresholds,
                     precision='FP32',batch=16,schedule='shuffle seed17+epoch; train exposure epoch-1; VAL exposure 0')
@@ -228,21 +232,24 @@ def train(study, variant, out, resume):
         history = state['history']
     elif checkpoint.exists():
         raise ValueError('Existing run requires --resume')
-    if len(history) == 30:
+    if len(history) > epochs:
+        raise ValueError('Checkpoint exceeds requested epoch budget')
+    if len(history) == epochs:
         write_json(out/'history.json',history)
-        write_json(out/'status.json',dict(status='COMPLETED',epochs=30,updates=1320))
+        write_json(out/'status.json',dict(status='COMPLETED',epochs=epochs,updates=44*epochs))
         return
     write_json(out/'identity.json',identity)
     definitions = {f'{t}_{k}':dict(label=f'{t} VAL {k}',direction='min',role='loss',unit='')
                    for t in TASKS for k in ('mse','centered_mse','gradient_mse')}
-    viewer = BASE/'viewer'/f'texture30_{out.name}_{variant}'
-    with RunWriter(viewer,experiment=dict(id='pd_here_r3_texture30',name='R3 texture study'),
+    viewer = BASE/'viewer'/f'texture{epochs}_{out.name}_{variant}'
+    with RunWriter(viewer,experiment=dict(id=f'pd_here_r3_texture{epochs}',name='R3 texture study'),
                    variant=dict(id=variant,name=variant,kind='baseline'),config=identity,metrics=definitions,
                    charts=['A_centered_mse','B1_centered_mse','A_gradient_mse','B1_gradient_mse'],
                    resume=resume and (viewer/'run.json').exists()) as log:
         if not resume:
             write_json(out/'reference_metrics.json',study.score(model,thresholds,coefficients))
-        for epoch in range(len(history)+1,31):
+        write_json(out/'status.json',dict(status='RUNNING',epochs=len(history),target_epochs=epochs,updates=44*len(history)))
+        for epoch in range(len(history)+1,epochs+1):
             started = time.perf_counter()
             ordered = list(study.rows['train'])
             random.Random(17+epoch).shuffle(ordered)
@@ -261,10 +268,11 @@ def train(study, variant, out, resume):
                             cuda_rng=torch.cuda.get_rng_state(study.device)),temporary)
             temporary.replace(checkpoint)
             write_json(out/'history.json',history)
+            write_json(out/'status.json',dict(status='RUNNING',epochs=epoch,target_epochs=epochs,updates=44*epoch))
             log.log(44*epoch,{key:val[t]['all']['metrics'][k] for key in definitions
                              for t,k in [key.split('_',1)]},epoch=epoch)
             print(variant, epoch, history[-1]['train'], flush=True)
-    write_json(out/'status.json',dict(status='COMPLETED',epochs=30,updates=1320))
+    write_json(out/'status.json',dict(status='COMPLETED',epochs=epochs,updates=44*epochs))
 
 
 def main():
@@ -274,12 +282,13 @@ def main():
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--device',default='cuda:0')
     parser.add_argument('--resume',action='store_true')
+    parser.add_argument('--epochs',type=int,default=30)
     args=parser.parse_args()
     torch.set_num_threads(4)
     torch.backends.cuda.matmul.allow_tf32=False
     torch.backends.cudnn.allow_tf32=False
     try:
-        train(Study(args.release,args.device),args.variant,args.out,args.resume)
+        train(Study(args.release,args.device),args.variant,args.out,args.resume,args.epochs)
     except Exception as error:
         write_json(args.out/'status.json',dict(status='FAILED',error=str(error)))
         raise

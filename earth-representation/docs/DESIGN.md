@@ -327,3 +327,10 @@ A 删除 75% 合法地理 Patch，Encoder 仅编码可见 Patch，Decoder 才恢
 两个分支按(parent,geo_id,band_id)逐一对齐，在特征轴拼接并经Linear(256,256)。二维地理编码与固定波段编码定义每个联合Token位置。两层256维全局ViT处理所有可见geo-band Token，4头、MLP4。Encoder返回ids_keep=geo_id*N+band_id及valid。完整窗口下A编码4×10=40个Token，B1编码16×9=144个，Decoder恢复16×10=160个槽位。A隐藏地理位置的全部band与B1隐藏band的全部地理位置均在Decoder填共享mask token。输入QA全无效槽位从注意力及输出评分排除。
 
 为了按波段Token读出原生像元，Decoder保持128维、两层，输出头按原生shape共享Linear(128,144/36)，按band添加可训练标量偏置，最终按原offsets组装[B,16,792]。输出头权重与shape偏置零初始化，band偏置初始化为固定TRAIN均值。这是适配波段Token后的新Decoder合同，因此相对旧模型的结果包含前端和读出的共同变化。
+
+### S60 Dual-Axis 60米候选
+
+实现位于src/pd_here_s60/model.py。固定480米窗口内为8×8个60米Patch。空间分支联合投影可见原生值、QA与波段可用性，在同父观测的可见位置之间注意。光谱分支对同位置可见波段做注意力。局部融合读取一个空间行及该位置的光谱行，保留空间输出，每位置128维。两层Decoder恢复64槽并以共享Linear(128,198)回填原生波段。旧120米遮盖仅用于映射同一批隐藏像元。30轮对照中B1粗结构改善，但局部共同纹理占比上升。详见 [对照结果](RESULTS.md#s60-dual-axis-同预算对照)。
+
+
+S60空间ViT消融保留多波段联合Patch投影、QA、band可用性、二维位置编码及单层全局空间ViT。移除光谱Token分支及同位置融合，空间Block接末端LayerNorm并送入同一MAE Decoder。保留模块与Dual-Axis共享从头初始化，第30轮A近似持平，B1重建与梯度指标退化，共同模板比例降低但纹理仍重复。[空间ViT对照](RESULTS.md#s60-空间-vit-30轮消融)。

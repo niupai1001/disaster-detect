@@ -202,3 +202,21 @@ foreach ($variant in @('baseline','input_scale','decoder128')) {
 ../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_r3_texture_study.py band_tokens256 --out outputs/pd_here_geotoken_dualvit_r3/texture_study/band_tokens256
 ```
 已完成的同一Run通过追加--resume校验并恢复。30epoch结果、last权重和固定预测图分别位于texture_study/band_tokens256及band_tokens_comparison。原Viewer根目录新增texture30_band_tokens256_band_tokens256。模型的Encoder Token索引采用geo_id*band_count+band_id，消费者必须按新索引读取。
+
+### S60 Dual-Axis 同源对照
+
+在本目录执行以下命令，将输出目录换成一个新的运行目录。命令依赖既有审核通过的R3修正数据，先测TRAIN16及真实性能，再训练同预算的S60与修改前双分支ViT。
+
+```powershell
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60.py --out outputs/pd_here_s60/new_run
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/report_pd_here_s60.py --run outputs/pd_here_s60/new_run
+```
+
+[已完成的30轮对照](outputs/reports/pd_here_s60/matched_seed17_v1/findings.md)位于outputs/pd_here_s60/matched_seed17_v1。Viewer沿用outputs/pd_here_geotoken_dualvit_r3/viewer。
+
+空间 ViT 消融使用 `--spatial-only`，固定从头训练30轮。60米原生 Patch 投影成空间 Token，编码器只执行一层全局空间 ViT。与已完成的 Dual-Axis 运行对照时，报告入口使用 `--reference` 核对数据和更新预算。
+
+```powershell
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/train_pd_here_s60.py --spatial-only --out outputs/pd_here_s60/spatial_vit_new_run
+../landslide-seg/.venv-use-independent/Scripts/python.exe scripts/report_pd_here_s60.py --run outputs/pd_here_s60/spatial_vit_new_run --reference outputs/pd_here_s60/matched_seed17_v1
+```

@@ -16,6 +16,37 @@ def rms(x):
     return x.double().square().mean().sqrt().item()
 
 
+def hidden_prediction_effect(prediction, reference, values, qa, keep, bands, task):
+    """Record real hidden support, including partial QA, per parent and band."""
+    records = []
+    offset = 0
+    for j,(truth,q) in enumerate(zip(values,qa,strict=True)):
+        pixels = truth.shape[-2]*truth.shape[-1]
+        pred = prediction[...,offset:offset+pixels].reshape_as(truth)
+        base = reference[...,offset:offset+pixels].reshape_as(truth)
+        offset += pixels
+        selected = q & ((~keep)[:,:,None,None] if task == 'A' else (~bands[:,j])[:,None,None,None])
+        for i in range(len(truth)):
+            valid = selected[i]
+            if not valid.any():
+                continue
+            count = valid.flatten(1).sum(-1)
+            def centered(x):
+                mean = torch.where(valid,x,0.).flatten(1).sum(-1)/count.clamp_min(1)
+                return torch.where(valid,x-mean[:,None,None],0.)
+            delta = pred[i]-base[i]
+            texture = centered(truth[i])
+            target_rms = rms(texture[valid])
+            absolute = rms(delta[valid])
+            texture_delta = rms(centered(delta)[valid])
+            records.append(dict(parent=i,band=j,valid_pixels=int(valid.sum()),
+                truth_texture_rms=target_rms,prediction_delta_rms=absolute,
+                centered_prediction_delta_rms=texture_delta,
+                delta_to_truth_texture=absolute/target_rms if target_rms>=1e-6 else None,
+                centered_delta_to_truth_texture=texture_delta/target_rms if target_rms>=1e-6 else None))
+    return records
+
+
 @torch.no_grad()
 def intervention(model, values, qa, view, task):
     keep,bands = view
@@ -33,11 +64,17 @@ def intervention(model, values, qa, view, task):
             candidate[i,j][valid] = pixels[torch.randperm(len(pixels),device=keep.device,generator=generator)]
         shuffled.append(candidate)
     hidden = [torch.where(a,x,torch.full_like(x,99.)) for x,a in zip(values,active,strict=True)]
+    # Exchange content only where the donor has real QA support; masks stay fixed.
+    exchanged = [torch.where(a & a.roll(1,0),x.roll(1,0),x)
+                 for x,a in zip(values,active,strict=True)]
     names = ('spatial_values','spectral_values.12x12','spectral_values.6x6',
              'spectral_reduce','spatial_reduce','encoder_norm','decoder_norm','prediction')
     measurements = {}
     modules = dict(model.named_modules())
     names = tuple(name for name in names if name in modules and not isinstance(modules[name], nn.ModuleDict))
+    names += tuple(name for name,module in modules.items()
+                   if isinstance(module,nn.Linear) and
+                   (name.startswith('prediction.') or name.startswith('spatial_values.')))
     hooks = [modules[name].register_forward_hook(
         lambda m,args,result,name=name: measurements.setdefault(name,[]).append(result))
         for name in names]
@@ -45,11 +82,16 @@ def intervention(model, values, qa, view, task):
         original = model(values,qa,*view)
         base = dict(measurements)
         effects = {}
-        for label,data in [('mean',flattened),('shuffle',shuffled),('hidden',hidden)]:
+        output_effects = {}
+        for label,data in [('mean',flattened),('shuffle',shuffled),('exchange',exchanged),('hidden',hidden)]:
             measurements.clear()
-            model(tuple(data),qa,*view)
+            changed = model(tuple(data),qa,*view)
             effects[label] = {name:rms(torch.cat([(x-y).flatten() for x,y in zip(parts,measurements[name],strict=True)]))
                               for name,parts in base.items()}
+            output_effects[label] = hidden_prediction_effect(changed['prediction'],original['prediction'],
+                                                             values,qa,*view,task)
+        if not torch.equal(changed['prediction'],original['prediction']):
+            raise ValueError('Hidden values changed final predictions')
         if any(value != 0 for value in effects['hidden'].values()):
             raise ValueError('Hidden values changed learned features')
     finally:
@@ -81,7 +123,9 @@ def intervention(model, values, qa, view, task):
                 common_texture_error_rms=rms((pp-yy).mean(0)),
                 texture_error_rms=rms(pp-yy),
                 cosine=float(similarity.mean())))
-    return dict(layer_difference_rms=effects,texture=examples)
+    return dict(layer_difference_rms=effects,hidden_prediction_effects=output_effects,texture=examples,
+                exchange=dict(donor_indices=torch.arange(len(keep)).roll(1).tolist(),
+                              modified_pixels=[int((a & a.roll(1,0)).sum()) for a in active]))
 
 
 @torch.no_grad()

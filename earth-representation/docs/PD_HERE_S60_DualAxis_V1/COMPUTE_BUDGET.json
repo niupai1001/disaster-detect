@@ -1,0 +1,91 @@
+{
+  "scope": "Arithmetic forecast, no model or GPU benchmark. Excludes bias/add/norm/activation/softmax/backward/optimizer/IO/communication. All QA valid; no CLS; MLP ratio4.",
+  "source_reference_commit": "a0cbf6959d93d58f002667c520b1def4f976816f",
+  "proposed_geometry": {
+    "patch_m": 60,
+    "window_m": 480,
+    "grid": [
+      8,
+      8
+    ],
+    "R": 198,
+    "C": 10
+  },
+  "rows": {
+    "A": {
+      "visible_patches": 16,
+      "visible_bands": 10,
+      "raw_visible_values_per_patch": 198,
+      "mac_by_component": {
+        "spatial_block": 3211264,
+        "spectral_blocks": 31866880,
+        "local_fusion_blocks": 35098624,
+        "decoder_blocks": 27262976,
+        "spatial_value_and_validity_projection": 811008,
+        "spectral_value_and_validity_projection": 811008,
+        "availability_projections": 2560,
+        "encoder_decoder_projection": 262144,
+        "prediction_projection": 1622016
+      },
+      "forward_matrix_mac": 100948480,
+      "gmac": 0.10094848
+    },
+    "B1_hide_10m": {
+      "visible_patches": 64,
+      "visible_bands": 9,
+      "raw_visible_values_per_patch": 162,
+      "mac_by_component": {
+        "spatial_block": 13631488,
+        "spectral_blocks": 114573312,
+        "local_fusion_blocks": 127467520,
+        "decoder_blocks": 27262976,
+        "spatial_value_and_validity_projection": 3244032,
+        "spectral_value_and_validity_projection": 2654208,
+        "availability_projections": 2560,
+        "encoder_decoder_projection": 1048576,
+        "prediction_projection": 1622016
+      },
+      "forward_matrix_mac": 291506688,
+      "gmac": 0.291506688
+    },
+    "B1_hide_20m": {
+      "visible_patches": 64,
+      "visible_bands": 9,
+      "raw_visible_values_per_patch": 189,
+      "mac_by_component": {
+        "spatial_block": 13631488,
+        "spectral_blocks": 114573312,
+        "local_fusion_blocks": 127467520,
+        "decoder_blocks": 27262976,
+        "spatial_value_and_validity_projection": 3244032,
+        "spectral_value_and_validity_projection": 3096576,
+        "availability_projections": 2560,
+        "encoder_decoder_projection": 1048576,
+        "prediction_projection": 1622016
+      },
+      "forward_matrix_mac": 291949056,
+      "gmac": 0.291949056
+    },
+    "no_mask": {
+      "visible_patches": 64,
+      "visible_bands": 10,
+      "raw_visible_values_per_patch": 198,
+      "mac_by_component": {
+        "spatial_block": 13631488,
+        "spectral_blocks": 127467520,
+        "local_fusion_blocks": 140394496,
+        "decoder_blocks": 27262976,
+        "spatial_value_and_validity_projection": 3244032,
+        "spectral_value_and_validity_projection": 3244032,
+        "availability_projections": 2560,
+        "encoder_decoder_projection": 1048576,
+        "prediction_projection": 1622016
+      },
+      "forward_matrix_mac": 317917696,
+      "gmac": 0.317917696
+    }
+  },
+  "b1_uniform_band_mean_mac": 291772108.8,
+  "batch16_paired_mac": 6283529420.8,
+  "batch16_paired_gmac": 6.2835294208
+}

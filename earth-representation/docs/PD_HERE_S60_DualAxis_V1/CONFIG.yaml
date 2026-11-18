@@ -1,0 +1,125 @@
+schema: proposal_only_not_legacy_runner_config
+model_id: PD-HERE-S60-DualAxis-v1
+status: NOT_IMPLEMENTED_NOT_TRAINED_NOT_GPU_BENCHMARKED
+reference_commit: a0cbf6959d93d58f002667c520b1def4f976816f
+
+data:
+  source: core_Sentinel2_corrected_release
+  reuse_parent_split: true
+  expected_train: 700
+  expected_development_val: 300
+  require_release_manifest_QA_calibration_hashes: true
+  release_hash: null
+  test_locked: true
+  resample_raw_bands: false
+  band_keys: [B02, B03, B04, B05, B06, B07, B08, B8A, B11, B12]
+  native_gsd_m: [10, 10, 10, 20, 20, 20, 10, 20, 20, 20]
+
+geometry:
+  patch_size_m: 60
+  patch_stride_m: 60
+  window_size_m: [480, 480]
+  grid_shape: [8, 8]
+  native_shapes: [[6, 6], [6, 6], [6, 6], [3, 3], [3, 3], [3, 3], [6, 6], [3, 3], [3, 3], [3, 3]]
+  band_offsets: [0, 36, 72, 108, 117, 126, 135, 171, 180, 189, 198]
+  raw_values_per_patch: 198
+  patch_grid_tokens: 64
+  subpatch: null
+  alignment: same north-up metric CRS; native integer boundaries; otherwise reject
+
+encoder:
+  width: 128
+  heads: 4
+  mlp_ratio: 4
+  norm: PreLN eps1e-6
+  activation: GELU
+  dropout: 0.0
+  drop_path: 0.0
+  stem: false
+  descriptor: false
+  spatial:
+    embedding: joint native all-visible-band vector plus input QA and band availability
+    value_projection: [198, 128]
+    qa_projection: [198, 128]
+    depth: 1
+    attention_axis: visible geographic patches
+  spectral:
+    embedding_by_shape:
+      6x6: [36, 128]
+      3x3: [9, 128]
+    stable_band_identity: true
+    remove_hidden_bands: true
+    depth: 1
+    attention_axis: visible bands in same 60m patch
+    flatten_reducer: false
+  fusion:
+    depth: 1
+    attention_scope: same patch, spatial token plus visible spectral tokens
+    type_embedding_std: 0.02
+    retain_output: spatial row only
+    output_tokens_per_patch: 1
+  extra_global_block: 0
+  multiscale: false
+
+decoder:
+  width: 128
+  depth: 2
+  heads: 4
+  mlp_ratio: 4
+  full_sequence_length: 64
+  mask_token: one shared trainable vector
+  position: fixed sincos2D for every effective geographic position
+  availability_condition: true
+  head: [128, 198]
+  head_init: zero_weight_train_band_mean_bias
+  raw_input_skip: false
+  coordinate_MLP: false
+  quadrature: false
+  keep_for_downstream: false
+
+masking:
+  A:
+    hidden_fraction: 0.75
+    main_protocol: reuse old native pixel masks; map one old120m cell to2x2new60m cells
+    mask_grouping_is_not_network_hierarchy: true
+    typical_visible_tokens: 16
+  B1:
+    hidden_bands: 1
+    schedule: same parent/band/exposure schedule as matched reference
+    typical_visible_geo_tokens: 64
+    visible_spectral_tokens_per_patch: 9
+    spatial_missing_slots: safe_zero plus validity and availability
+    no_geo_mask_when_source_evidence_exists: true
+
+training:
+  global_parent_batch: 16
+  paired_task_weights: {A: 0.5, B1: 0.5}
+  optimizer: AdamW
+  lr: 0.0001
+  weight_decay: 0.04
+  exclude_decay: 1D parameters and biases
+  betas: [0.9, 0.999]
+  gradient_clip_norm: 1.0
+  objective: masked physical-unit MSE
+  reduction: pixel_to_band_to_parent
+  extra_losses: false
+  gradient_surgery: false
+  seed: 17
+  precision_reference: FP32
+  bf16_after_numerical_checks: true
+  activation_checkpointing_default: false
+  ddp: 8 parents per rank on2GPUs only if validated faster; uneven tail needs exact weighting
+  max_main_epochs: 30
+  review_epochs: [1, 5, 10, 20, 30]
+  do_not_auto_extend_failed_training: true
+
+validation:
+  fixed_native_targets: true
+  metrics: [MSE, bias_squared, centered_MSE, within_patch_centered_MSE, gradient_MSE_interior, gradient_MSE_boundaries, gradient_correlation, common_template_fraction, output_content_sensitivity]
+
+performance:
+  warmup_updates: 20
+  measured_updates: 50
+  tasks: [A, B1, paired]
+  report: [p50, p95, peak_allocated, peak_reserved, native_input_pixels, native_target_pixels, effective_parent_count, token_lengths, module_times]
+  runtime_claim: NONE; arithmetic MAC forecast only

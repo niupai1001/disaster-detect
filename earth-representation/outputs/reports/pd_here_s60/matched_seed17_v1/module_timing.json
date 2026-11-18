@@ -1,0 +1,480 @@
+{
+  "scope": "Instrumented forward CUDA event spans; host call includes internal synchronization and Python dispatch; not exclusive kernel attribution",
+  "arms": {
+    "s60": {
+      "A": {
+        "measured": 10,
+        "median_host_call_ms": 19.559649983420968,
+        "median_end_sync_ms": 0.02239999594166875,
+        "forward_cuda_event_ms": {
+          "spatial_block": 0.6704800128936768,
+          "spectral_block": 0.6502400040626526,
+          "fusion_block": 0.6270879805088043,
+          "decoder_blocks.0": 0.5914559960365295,
+          "decoder_blocks.1": 0.5811839997768402,
+          "prediction": 0.05169599875807762
+        },
+        "input_shapes": {
+          "spatial_block": [
+            [
+              16,
+              16,
+              128
+            ]
+          ],
+          "spectral_block": [
+            [
+              216,
+              10,
+              128
+            ]
+          ],
+          "fusion_block": [
+            [
+              216,
+              11,
+              128
+            ]
+          ],
+          "decoder_blocks.0": [
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "decoder_blocks.1": [
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "prediction": [
+            [
+              16,
+              64,
+              128
+            ]
+          ]
+        }
+      },
+      "B1": {
+        "measured": 10,
+        "median_host_call_ms": 20.085299998754635,
+        "median_end_sync_ms": 0.023450003936886787,
+        "forward_cuda_event_ms": {
+          "spatial_block": 0.6612800061702728,
+          "spectral_block": 0.638480007648468,
+          "fusion_block": 0.6434880197048187,
+          "decoder_blocks.0": 0.5786719918251038,
+          "decoder_blocks.1": 0.591951996088028,
+          "prediction": 0.05225600115954876
+        },
+        "input_shapes": {
+          "spatial_block": [
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "spectral_block": [
+            [
+              865,
+              9,
+              128
+            ]
+          ],
+          "fusion_block": [
+            [
+              865,
+              10,
+              128
+            ]
+          ],
+          "decoder_blocks.0": [
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "decoder_blocks.1": [
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "prediction": [
+            [
+              16,
+              64,
+              128
+            ]
+          ]
+        }
+      },
+      "paired": {
+        "measured": 10,
+        "median_host_call_ms": 39.99684998416342,
+        "median_end_sync_ms": 0.0271500030066818,
+        "forward_cuda_event_ms": {
+          "spatial_block": 1.4825120270252228,
+          "spectral_block": 1.3409279882907867,
+          "fusion_block": 1.3316960036754608,
+          "decoder_blocks.0": 1.2062240242958069,
+          "decoder_blocks.1": 1.2170239984989166,
+          "prediction": 0.10513599961996078
+        },
+        "input_shapes": {
+          "spatial_block": [
+            [
+              16,
+              16,
+              128
+            ],
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "spectral_block": [
+            [
+              216,
+              10,
+              128
+            ],
+            [
+              865,
+              9,
+              128
+            ]
+          ],
+          "fusion_block": [
+            [
+              216,
+              11,
+              128
+            ],
+            [
+              865,
+              10,
+              128
+            ]
+          ],
+          "decoder_blocks.0": [
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "decoder_blocks.1": [
+            [
+              16,
+              64,
+              128
+            ]
+          ],
+          "prediction": [
+            [
+              16,
+              64,
+              128
+            ]
+          ]
+        }
+      }
+    },
+    "r3": {
+      "A": {
+        "measured": 10,
+        "median_host_call_ms": 43.148099968675524,
+        "median_end_sync_ms": 0.02685000072233379,
+        "forward_cuda_event_ms": {
+          "spatial_block": 6.4655680656433105,
+          "spectral_block": 0.6439999938011169,
+          "global_block": 0.6210879981517792,
+          "extra_global_blocks.0": 0.6352640092372894,
+          "decoder_blocks.0": 0.6027039885520935,
+          "decoder_blocks.1": 0.6110399961471558,
+          "prediction": 0.05766399949789047
+        },
+        "input_shapes": {
+          "spatial_block": [
+            [
+              54,
+              9,
+              128
+            ],
+            [
+              54,
+              36,
+              128
+            ]
+          ],
+          "spectral_block": [
+            [
+              64,
+              10,
+              128
+            ]
+          ],
+          "global_block": [
+            [
+              16,
+              4,
+              256
+            ]
+          ],
+          "extra_global_blocks.0": [
+            [
+              16,
+              4,
+              256
+            ]
+          ],
+          "decoder_blocks.0": [
+            [
+              16,
+              16,
+              128
+            ]
+          ],
+          "decoder_blocks.1": [
+            [
+              16,
+              16,
+              128
+            ]
+          ],
+          "prediction": [
+            [
+              16,
+              16,
+              128
+            ]
+          ]
+        }
+      },
+      "B1": {
+        "measured": 10,
+        "median_host_call_ms": 42.72850000415929,
+        "median_end_sync_ms": 0.025549990823492408,
+        "forward_cuda_event_ms": {
+          "spatial_block": 6.421279966831207,
+          "spectral_block": 0.6515839993953705,
+          "global_block": 0.6148959994316101,
+          "extra_global_blocks.0": 0.6129759848117828,
+          "decoder_blocks.0": 0.6198720037937164,
+          "decoder_blocks.1": 0.5948639810085297,
+          "prediction": 0.055903999134898186
+        },
+        "input_shapes": {
+          "spatial_block": [
+            [
+              155,
+              9,
+              128
+            ],
+            [
+              188,
+              9,
+              128
+            ],
+            [
+              191,
+              36,
+              128
+            ],
+            [
+              195,
+              9,
+              128
+            ],
+            [
+              203,
+              9,
+              128
+            ],
+            [
+              219,
+              9,
+              128
+            ],
+            [
+              219,
+              36,
+              128
+            ]
+          ],
+          "spectral_block": [
+            [
+              256,
+              9,
+              128
+            ]
+          ],
+          "global_block": [
+            [
+              16,
+              16,
+              256
+            ]
+          ],
+          "extra_global_blocks.0": [
+            [
+              16,
+              16,
+              256
+            ]
+          ],
+          "decoder_blocks.0": [
+            [
+              16,
+              16,
+              128
+            ]
+          ],
+          "decoder_blocks.1": [
+            [
+              16,
+              16,
+              128
+            ]
+          ],
+          "prediction": [
+            [
+              16,
+              16,
+              128
+            ]
+          ]
+        }
+      },
+      "paired": {
+        "measured": 10,
+        "median_host_call_ms": 84.05365000362508,
+        "median_end_sync_ms": 0.02720000338740647,
+        "forward_cuda_event_ms": {
+          "spatial_block": 13.041664093732834,
+          "spectral_block": 1.3139199614524841,
+          "global_block": 1.2404319941997528,
+          "extra_global_blocks.0": 1.2357279658317566,
+          "decoder_blocks.0": 1.212911993265152,
+          "decoder_blocks.1": 1.1837439835071564,
+          "prediction": 0.11585599929094315
+        },
+        "input_shapes": {
+          "spatial_block": [
+            [
+              54,
+              9,
+              128
+            ],
+            [
+              54,
+              36,
+              128
+            ],
+            [
+              155,
+              9,
+              128
+            ],
+            [
+              188,
+              9,
+              128
+            ],
+            [
+              191,
+              36,
+              128
+            ],
+            [
+              195,
+              9,
+              128
+            ],
+            [
+              203,
+              9,
+              128
+            ],
+            [
+              219,
+              9,
+              128
+            ],
+            [
+              219,
+              36,
+              128
+            ]
+          ],
+          "spectral_block": [
+            [
+              64,
+              10,
+              128
+            ],
+            [
+              256,
+              9,
+              128
+            ]
+          ],
+          "global_block": [
+            [
+              16,
+              4,
+              256
+            ],
+            [
+              16,
+              16,
+              256
+            ]
+          ],
+          "extra_global_blocks.0": [
+            [
+              16,
+              4,
+              256
+            ],
+            [
+              16,
+              16,
+              256
+            ]
+          ],
+          "decoder_blocks.0": [
+            [
+              16,
+              16,
+              128
+            ]
+          ],
+          "decoder_blocks.1": [
+            [
+              16,
+              16,
+              128
+            ]
+          ],
+          "prediction": [
+            [
+              16,
+              16,
+              128
+            ]
+          ]
+        }
+      }
+    }
+  }
+}
