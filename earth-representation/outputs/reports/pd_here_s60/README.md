@@ -39,3 +39,7 @@
 [双分支一层／仅光谱消融](native512_legacy_global1_2000_seed17/findings.md) · [A 预测对照](native512_legacy_global1_2000_seed17/A_predictions_comparison.png) · [B1 预测对照](native512_legacy_global1_2000_seed17/B1_predictions_comparison.png)。
 
 [2,000景全量对照](expanded2000_comparison/REPORT.md)包括5个完整同协议ViT、2个替换前试跑与一条3阶段历史原生训练轨迹。提供逐轮、分来源、逐父观测与波段的指标和有效支持数。ViT固定TRAIN22与历史VAL275分别统计。
+
+## 无遮盖模型对照
+
+[2,000 景无遮盖 Autoencoder 对照](unmasked_autoencoder/README.md)包含逐轮曲线、三组结果及固定卫星预测。

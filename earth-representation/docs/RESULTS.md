@@ -1273,3 +1273,17 @@ Query 双分支 256 维使用旧冻结 2,000 TRAIN、A 遮盖约 25% 和 batch16
 固定 16 景的误差分解显示，两个纯黑 SPOT 图的 MSE 均有超过 97% 来自均值偏差平方。A、B1 的块内梯度 RMS 仅为真值的 18.0% 和 15.1%（逐景中位数）。WorldView‑2 斜纹来自 UTM 视图去除重复源像元后的 QA。Query 第 10 轮在 SpaceNet 校正后的 8 景 WorldView‑3 VAL_EXT 上，A／B1 MSE 为 0.084462／0.104302。
 
 [13 个完成运行、同景 GSD 与 QA 诊断](../outputs/reports/pd_here_s60/current_results/REPORT.md) · [逐项指标](../outputs/reports/pd_here_s60/current_results/results_snapshot.json) · [Query 曲线](../outputs/reports/pd_here_s60/current_results/query_loss_curves.png)
+
+### 空间卷积分辨率组加权 256 维的无遮盖 Autoencoder
+
+使用按卫星分层并通过质检的 2,000 景子集，seed17 从头训练 10 轮、batch32、630 次 AdamW 更新。模型有 47,308,672 个参数，训练与逐轮验证共 133.38 秒。训练目标为全部 QA 有效原生像元。固定 275 VAL 中 272 景有对应的已训练输出头。第 9 轮为最佳，TRAIN／VAL MSE 为 0.00269143／0.00355696。第 10 轮为 last，分别为 0.00254864／0.00376752。
+
+第 10 轮的留出原生梯度相关为 0.118，梯度 MSE 为 0.00042886。同一支持下，直接填充输入的逐块逐波段真值均值可得到像元 MSE 0.00098193、梯度 MSE 0.00040424。预测的共同块内模板能量占比为 51.9%，真值为 0.83%，该指标在 135 个父观测上有效。固定 Sentinel‑2、Landsat 8、Landsat 9 留出图仍有明显块状或近常数预测。当前表示和 Decoder 在此训练预算下未能可靠恢复全可见的输入细节，判断适用于这两个模块的组合。[结果及逐卫星表](../outputs/reports/pd_here_s60/unmasked_autoencoder/spectral_conv256_unmasked_2000_ep10_seed17/findings.md) · [第 10 轮预测](../outputs/reports/pd_here_s60/unmasked_autoencoder/spectral_conv256_unmasked_2000_ep10_seed17/predictions/last_epoch_010/overview.png) · [曲线](../outputs/reports/pd_here_s60/unmasked_autoencoder/spectral_conv256_unmasked_2000_ep10_seed17/loss_curves.png)
+
+同样本和同预算的 Decoder 512 维组有 181,242,496 个参数，训练与逐轮验证共 156.01 秒。第 7 轮为 best，VAL MSE 0.00313862。第 10 轮 TRAIN／VAL MSE 为 0.00247814／0.00332139，VAL MSE 比 128 维组同轮下降 11.8%，逐景复算的降幅约 95% 来自均值偏差平方下降。原生梯度 MSE 为 0.00042999，和 128 维组同轮接近。梯度相关从 0.118 降到 0.087，预测共同模板能量从 51.9% 降到 39.6%，真值为 0.83%。扩宽改善像元均值及共同模板占比，块内细节误差仍高于逐块真值均值基线。[宽度对照](../outputs/reports/pd_here_s60/unmasked_autoencoder/spectral_conv256_unmasked_decoder512_2000_ep10_seed17/findings.md) · [同预算曲线](../outputs/reports/pd_here_s60/unmasked_autoencoder/spectral_conv256_unmasked_decoder512_2000_ep10_seed17/width_comparison_curves.png) · [固定预测](../outputs/reports/pd_here_s60/unmasked_autoencoder/spectral_conv256_unmasked_decoder512_2000_ep10_seed17/predictions/last_epoch_010/overview.png)
+
+### 60M地理Patch-单空间ViT 的无遮盖 Autoencoder
+
+沿用 2,000 TRAIN、272 景共同可评分 VAL、seed17、batch32 与 630 次 AdamW 更新，使用原版一层 128 维全局空间 ViT 和两层 128 维 Decoder。参数量 33,095,362，训练与逐轮验证共 197.51 秒。第 10 轮同时为 best 和 last，TRAIN／VAL MSE 为 0.00088285／0.00129223。相对 120 米双分支的 Decoder 128／512 维组第 10 轮，VAL MSE 分别下降 65.7%／61.1%。
+
+原生梯度相关提高到 0.222，梯度 MSE 为 0.00039750。按相同的物理 120 米块评价，预测共同模板能量从 51.9%／39.6% 降到 3.82%，跨块边界梯度 MSE 明显下降。相对双分支 128 维组，120 米块内部梯度 MSE 接近持平。Landsat 8 和 9 留出梯度相关提高较多，Sentinel‑2 仍为 0.118，其梯度 MSE 高于双分支 128 维组 2.9%。这项对照同时改变 Patch 尺寸、输入投影和 Encoder，反映架构组合的效果。[逐卫星结果](../outputs/reports/pd_here_s60/unmasked_autoencoder/spatial60_unmasked_2000_ep10_seed17/findings.md) · [三组曲线](../outputs/reports/pd_here_s60/unmasked_autoencoder/spatial60_unmasked_2000_ep10_seed17/architecture_comparison_curves.png) · [固定预测](../outputs/reports/pd_here_s60/unmasked_autoencoder/spatial60_unmasked_2000_ep10_seed17/predictions/last_epoch_010/overview.png)

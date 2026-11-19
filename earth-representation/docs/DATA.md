@@ -171,3 +171,7 @@ S60整景试验复用已冻结的扩展2,000 TRAIN选择及来源DN缩放，按�
 SpaceNet 3 多光谱 `img157` 源 TIFF 没有声明 NoData，八个波段同时为零且连通边界的像元占 92.7%。旧缓存报告 99.65% 有效，扣除背景后有效覆盖约 7.2%。该数据入口按共同边界零填充校正，校正后有效覆盖低于 50% 的候选剔除。核查标记 4 景 TRAIN、2 景 VAL_EXT、3 景 TEST_EXT。新全量候选为 13,016 景，并准备覆盖全部 12 层的 2,000 TRAIN／275 VAL 比例清单。样本继承原角色，历史结果对应原发布身份。
 
 [卫星、产品、实际入模 GSD、波段与有效数](../outputs/reports/pd_here_s60/current_results/satellite_inventory.csv) · [质检与候选清单哈希](../outputs/reports/pd_here_s60/current_results/results_snapshot.json)
+
+无遮盖 Autoencoder 固定上述筛查后的 2,000 TRAIN 与 275 VAL，DN 使用 TRAIN 产品域尺度。2,000 景均参与训练。VAL 中 QuickBird‑2、WorldView‑2、WorldView‑3 各一景缺少对应的 TRAIN 输出布局，留出评分覆盖其余 272 景和 9 个传感器分层。总览为这三个传感器补画已标注的 TRAIN 示例。逐景记录入模波段、实际 GSD、有效像元数和原生切片。[运行成员](../outputs/reports/pd_here_s60/unmasked_autoencoder/spatial60_unmasked_2000_ep10_seed17/members.json)
+
+[冻结 TRAIN](../outputs/pd_here_s60/sensor_gsd_validation_seed17/coverage_qc_revision/screened_train2000_candidate.json) · [冻结 VAL](../outputs/pd_here_s60/sensor_gsd_validation_seed17/coverage_qc_revision/screened_val275_candidate.json)

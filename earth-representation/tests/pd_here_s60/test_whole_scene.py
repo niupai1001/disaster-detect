@@ -3,9 +3,25 @@ from types import SimpleNamespace
 import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'scripts'))
-from train_pd_here_s60_whole_scene import masks, objective
+from train_pd_here_s60_whole_scene import early_stop_state, masks, objective
 from pd_here_s60.whole_scene import WholeSceneViT, pack_scene, tile_bounds, tiles
 import torch
+
+
+def test_early_stopping_keeps_true_best_and_uses_relative_threshold():
+    policy = dict(patience=2,relative_min_delta=.001,min_epochs=5)
+    state,best = early_stop_state({},1.,1,policy)
+    assert best and state['stale_epochs']==0
+    state,best = early_stop_state(state,.9995,2,policy)
+    assert best and state['best_epoch']==2 and state['reference_epoch']==1
+    state,best = early_stop_state(state,1.1,3,policy)
+    assert not best and not state['triggered']
+    state,best = early_stop_state(state,.99,4,policy)
+    assert best and state['stale_epochs']==0
+    state,_ = early_stop_state(state,.992,5,policy)
+    assert not state['triggered']
+    state,_ = early_stop_state(state,.993,6,policy)
+    assert state['triggered'] and state['best_epoch']==4
 
 
 def test_native_512_tiling_preserves_pixels_and_parent_loss():

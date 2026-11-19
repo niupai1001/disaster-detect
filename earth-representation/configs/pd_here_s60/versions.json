@@ -1,0 +1,140 @@
+{
+  "logs_root": "outputs/pd_here_s60",
+  "viewer_root": "outputs/pd_here_geotoken_dualvit_r3/viewer",
+  "weights_root": "weights/pd_here_s60",
+  "versions": [
+    {
+      "key": "s60-spatial-vit",
+      "name": "60M地理Patch-单空间ViT",
+      "name_confirmed": true,
+      "model_ids": ["S60-WholeScene-SpatialViT", "PD-HERE-S60-SpatialViT"],
+      "implementation": "src/pd_here_s60/whole_scene.py",
+      "constructor": "WholeSceneViT(layouts)",
+      "entry": "scripts/train_pd_here_s60_versioned.py",
+      "fixed_window": {
+        "run": "spatial_vit_seed17",
+        "model_id": "PD-HERE-S60-SpatialViT",
+        "train_parents": 700,
+        "implementation": "src/pd_here_s60/model.py",
+        "entry": "scripts/train_pd_here_s60.py --spatial-only"
+      },
+      "runs": [
+        "spatial_vit_seed17",
+        "whole_scene_expanded2000_seed17",
+        "native512_expanded2000_seed17",
+        "native512_spatial60_mae_batch32_ep300_seed17",
+        "native512_full13020_mae_batch32_ep100_seed17"
+      ]
+    },
+    {
+      "key": "s120-subpatch-spectral-g2",
+      "name": "120M地理Patch-空间子PatchViT+光谱ViT1280投影128维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["R3-WholeScene-DualViT"],
+      "implementation": "src/pd_here_s60/whole_scene_dual.py",
+      "constructor": "WholeSceneDualViT(layouts, global_depth=2)",
+      "entry": "scripts/train_pd_here_s60_versioned.py --legacy-dual",
+      "note": "光谱汇聚实际为 128×波段数→128，10 波段时为 1280→128。",
+      "runs": ["native512_legacy_dual2000_seed17", "native512_legacy_dual2000_v2_seed17"]
+    },
+    {
+      "key": "s60-dual-axis",
+      "name": "60M地理Patch-空间全局注意力-光谱ViT1280维投影128维-全局1层",
+      "name_confirmed": true,
+      "model_ids": ["S60-WholeScene-DualAxisViT"],
+      "implementation": "src/pd_here_s60/whole_scene_dual_axis.py",
+      "constructor": "WholeSceneDualAxisViT(layouts)",
+      "entry": "scripts/train_pd_here_s60_versioned.py --dual-axis",
+      "note": "显示名沿用指定叫法。实际先做一层全局空间自注意力，局部融合让空间 Token 读取变长光谱 Token 并保留空间行，权重结构中没有固定 1280→128 层。",
+      "runs": ["native512_dual_axis2000_seed17"]
+    },
+    {
+      "key": "s120-subpatch-spectral-g1",
+      "name": "120M地理Patch-空间子PatchViT+光谱ViT1280投影128维-全局一层",
+      "name_confirmed": true,
+      "model_ids": ["R3-WholeScene-DualViT-Global1"],
+      "implementation": "src/pd_here_s60/whole_scene_dual.py",
+      "constructor": "WholeSceneDualViT(layouts, global_depth=1)",
+      "entry": "scripts/train_pd_here_s60_versioned.py --legacy-dual-one-layer",
+      "note": "光谱汇聚实际为 128×波段数→128。",
+      "runs": ["native512_legacy_global1_2000_seed17"]
+    },
+    {
+      "key": "s120-spectral-g2",
+      "name": "120M地理Patch-仅光谱ViT1280投影128维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["R3-WholeScene-SpectralOnly"],
+      "implementation": "src/pd_here_s60/whole_scene_dual.py",
+      "constructor": "WholeSceneDualViT(layouts, global_depth=2, spectral_only=True)",
+      "entry": "scripts/train_pd_here_s60_versioned.py --legacy-spectral-only",
+      "note": "光谱汇聚实际为 128×波段数→128。",
+      "runs": ["native512_legacy_spectral_only_2000_seed17"]
+    },
+    {
+      "key": "s120-spectral-conv-256",
+      "name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接256维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["S120-SpectralTransformer-SpatialConv"],
+      "implementation": "src/pd_here_s60/whole_scene_spectral_conv.py",
+      "constructor": "WholeSceneSpectralConv(layouts, fusion_width=256)",
+      "entry": "scripts/train_pd_here_s60_versioned.py --spectral-transformer-spatial-conv",
+      "note": "显示名以 10 波段举例。实际为波长条件的变长汇聚，8×128 维经线性层输出 1024。",
+      "runs": [
+        "native512_spectral_transformer_spatial_conv2000_seed17",
+        "native512_spectral_transformer_spatial_conv2000_ep300_earlystop_seed17",
+        "native512_spectral_transformer_spatial_conv2000_accel_warm_ep300_seed17",
+        "native512_spectral_conv256_full13020_mae_batch32_ep100_seed17"
+      ]
+    },
+    {
+      "key": "s120-spectral-conv-512",
+      "name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接512维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["S120-SpectralTransformer-SpatialConv-512"],
+      "implementation": "src/pd_here_s60/whole_scene_spectral_conv.py",
+      "constructor": "WholeSceneSpectralConv(layouts, fusion_width=512)",
+      "entry": "scripts/train_pd_here_s60_versioned.py --spectral-transformer-spatial-conv-512",
+      "runs": ["native512_spectral_conv512_mae_batch32_ep300_seed17"]
+    },
+    {
+      "key": "s120-spectral-conv-1024",
+      "name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接1024维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["S120-SpectralTransformer-SpatialConv-1024"],
+      "implementation": "src/pd_here_s60/whole_scene_spectral_conv.py",
+      "constructor": "WholeSceneSpectralConv(layouts, fusion_width=1024)",
+      "entry": "scripts/train_pd_here_s60_versioned.py --spectral-transformer-spatial-conv-1024",
+      "runs": ["native512_spectral_conv1024_mae_batch32_ep300_seed17"]
+    },
+    {
+      "key": "s120-adaptive-query-256",
+      "name": "120M地理Patch-空间卷积Query汇聚-光谱ViT变长投影1024维-双分支TOKEN自注意力融合-融合256维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["S120-AdaptiveQueryDualViT-256"],
+      "implementation": "src/pd_here_s60/whole_scene_adaptive_query.py",
+      "constructor": "AdaptiveQueryDualViT(fusion_width=256)",
+      "entry": "scripts/train_pd_here_s60_adaptive_query.py --width 256",
+      "runs": []
+    },
+    {
+      "key": "s120-adaptive-query-512",
+      "name": "120M地理Patch-空间卷积Query汇聚-光谱ViT变长投影1024维-双分支TOKEN自注意力融合-融合512维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["S120-AdaptiveQueryDualViT-512"],
+      "implementation": "src/pd_here_s60/whole_scene_adaptive_query.py",
+      "constructor": "AdaptiveQueryDualViT(fusion_width=512)",
+      "entry": "scripts/train_pd_here_s60_adaptive_query.py --width 512",
+      "runs": []
+    },
+    {
+      "key": "s120-adaptive-query-1024",
+      "name": "120M地理Patch-空间卷积Query汇聚-光谱ViT变长投影1024维-双分支TOKEN自注意力融合-融合1024维-全局两层",
+      "name_confirmed": true,
+      "model_ids": ["S120-AdaptiveQueryDualViT-1024"],
+      "implementation": "src/pd_here_s60/whole_scene_adaptive_query.py",
+      "constructor": "AdaptiveQueryDualViT(fusion_width=1024)",
+      "entry": "scripts/train_pd_here_s60_adaptive_query.py --width 1024",
+      "runs": []
+    }
+  ]
+}

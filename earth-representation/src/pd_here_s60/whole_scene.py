@@ -57,10 +57,12 @@ class Scene:
     valid_pixels: int
     patch_m: int = 60
     subcells: torch.Tensor | None = None
+    metadata: object | None = None
 
     def to(self, device):
         return Scene(self.grid,self.layout,self.values.to(device),self.qa.to(device),self.origin,self.valid_pixels,
-                     self.patch_m,None if self.subcells is None else self.subcells.to(device))
+                     self.patch_m,None if self.subcells is None else self.subcells.to(device),
+                     None if self.metadata is None else self.metadata.to(device))
 
 
 def pack_scene(observation, scale, patch_m=60):
@@ -121,13 +123,14 @@ def tiles(scene, keep):
     ids = torch.arange(gh*gw,device=keep.device).reshape(gh,gw)
     for r0,r1,c0,c1 in bounds:
         index = ids[r0:r1,c0:c1].flatten()
+        metadata = None if scene.metadata is None else scene.metadata.crop(r0,r1,c0,c1)
         yield Scene((r1-r0,c1-c0),scene.layout,scene.values[index],scene.qa[index],
                     (scene.origin[0]+scene.patch_m*c0,scene.origin[1]-scene.patch_m*r0),0,
-                    scene.patch_m),keep[index],index
+                    scene.patch_m,metadata=metadata),keep[index],index
 
 
 class LayoutProjection(nn.Module):
-    def __init__(self, layout, means, *, joint_input=True):
+    def __init__(self, layout, means, *, joint_input=True, decoder_width=128):
         super().__init__()
         widths = tuple(h*w for _,h,w in layout)
         self.widths = widths
@@ -135,8 +138,8 @@ class LayoutProjection(nn.Module):
             self.input_values = nn.Linear(sum(widths),128)
             self.input_qa = nn.Linear(sum(widths),128,bias=False)
             self.availability = nn.Linear(len(widths),128,bias=False)
-        self.decoder_availability = nn.Linear(len(widths),128,bias=False)
-        self.output = nn.Linear(128,sum(widths))
+        self.decoder_availability = nn.Linear(len(widths),decoder_width,bias=False)
+        self.output = nn.Linear(decoder_width,sum(widths))
         with torch.no_grad():
             self.output.weight.zero_()
             self.output.bias.copy_(torch.repeat_interleave(torch.tensor(means),torch.tensor(widths)))
@@ -146,22 +149,25 @@ class LayoutProjection(nn.Module):
 class WholeSceneViT(nn.Module):
     projection_type = LayoutProjection
 
-    def __init__(self, layouts):
+    def __init__(self, layouts, *, decoder_width=128):
         super().__init__()
+        self.decoder_width = decoder_width
         self.layout_indices = {key:str(i) for i,key in enumerate(layouts)}
-        self.projections = nn.ModuleDict({self.layout_indices[k]:self.projection_type(k,v) for k,v in layouts.items()})
+        decoder_options = {'decoder_width': decoder_width} if decoder_width != 128 else {}
+        self.projections = nn.ModuleDict({self.layout_indices[k]:self.projection_type(k,v,**decoder_options)
+                                          for k,v in layouts.items()})
         self.spatial_block = Block(128)
         self.encoder_norm = nn.LayerNorm(128,eps=1e-6)
-        self.decoder_embed = nn.Linear(128,128)
-        self.mask_token = nn.Parameter(torch.empty(1,128))
+        self.decoder_embed = nn.Linear(128,decoder_width)
+        self.mask_token = nn.Parameter(torch.empty(1,decoder_width))
         nn.init.normal_(self.mask_token,std=.02)
-        self.decoder_blocks = nn.ModuleList([Block(128),Block(128)])
-        self.decoder_norm = nn.LayerNorm(128,eps=1e-6)
+        self.decoder_blocks = nn.ModuleList([Block(decoder_width),Block(decoder_width)])
+        self.decoder_norm = nn.LayerNorm(decoder_width,eps=1e-6)
 
     def forward(self, scene, keep, bands):
         a = self.projections[self.layout_indices[scene.layout]]
         structural = scene.qa.any(-1)
-        position = grid_position(scene.grid,128).to(scene.values.device)[structural]
+        position = grid_position(scene.grid,self.decoder_width).to(scene.values.device)[structural]
         qa = scene.qa[structural]
         evidence = qa & bands[a.band_slots]
         selected = keep[structural] & evidence.any(-1)

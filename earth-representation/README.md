@@ -247,3 +247,5 @@ foreach ($variant in @('baseline','input_scale','decoder128')) {
 两组 13,020 景全量训练和 Query 256 维的 2,000 景短程已完成。[整景重建阶段报告](outputs/reports/pd_here_s60/current_results/REPORT.md)汇总 13 个完成运行、跨卫星验证、GSD 对照、数据质检及纹理误差。可下载[指标快照](outputs/reports/pd_here_s60/current_results/results_snapshot.json)、[卫星规格表](outputs/reports/pd_here_s60/current_results/satellite_inventory.csv)和[Query 曲线](outputs/reports/pd_here_s60/current_results/query_loss_curves.png)。
 
 Viewer 使用「训练集｜用户确认的完整模型名」。运行配置记录训练数据、预算、初始化、检查点和遮盖口径。历史 Core VAL 与新的传感器比例候选分别登记。
+
+[2,000 景无遮盖 Autoencoder 对照](outputs/reports/pd_here_s60/unmasked_autoencoder/README.md)汇总 120 米卷积双分支 Decoder 128、512 维与 60 米单空间 ViT 的同预算重建。提供逐轮指标、原生梯度、固定预测和复现命令。

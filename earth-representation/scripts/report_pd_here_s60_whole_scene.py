@@ -14,6 +14,7 @@ from train_pd_here_s60_whole_scene import (
     ROOT, FROZEN, TASKS, MODELS, ExpandedTrainingData, WholeSceneViT, masks, read, write_json,
 )
 from pd_here_s60.whole_scene import native_axis, pack_scene, tile_bounds, tiles
+from pd_here_s60.whole_scene_spectral_conv import MODEL_ID as SPECTRAL_CONV_ID, pack_spectral_conv_scene
 from pd_here_s60.whole_scene_dual import WholeSceneDualViT
 from pd_here_s60.whole_scene_dual_axis import WholeSceneDualAxisViT, MODEL_ID as DUAL_AXIS_ID
 
@@ -117,7 +118,8 @@ def main():
         row=by_id[key]
         scale=subset['dn_scales'][row['domain']] if row['encoding']=='stored_dn' else 1.
         obs=data.load(row,'cpu')
-        scene=pack_scene(obs,scale,identity['patch_m']).to(args.device)
+        scene=(pack_spectral_conv_scene(obs,scale,row['source']) if identity['model_id']==SPECTRAL_CONV_ID
+               else pack_scene(obs,scale,identity['patch_m'])).to(args.device)
         analysis=pack_scene(obs,scale) if scene.patch_m==120 else scene
         comparison_views=masks(analysis,key,0)
         for task,(keep,bands) in zip(TASKS,masks(scene,key,0),strict=True):
