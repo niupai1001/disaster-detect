@@ -1263,3 +1263,13 @@ B1跨60米边界梯度MSE降低16.5%，块内去均值MSE只降低1.1%。同一�
 ### 120米双分支的深度和空间分支消融
 
 同一2,000景、10轮／1,250次更新，固定22景TRAIN同原生目标。双分支一层相对旧双分支的 A/B1 MSE 变化为 +0.2%／+7.1%。仅光谱两层相对旧双分支的 A/B1 MSE 变化为 +3.4%／+13.1%。[完整对照](../outputs/reports/pd_here_s60/native512_legacy_global1_2000_seed17/findings.md)。
+
+### 13,020 景全量与 Query 双分支阶段结果
+
+60M地理Patch-单空间ViT 与 120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接256维-全局两层均完成 100 轮／40,700 次更新。前者第 90 轮的 A／B1 Core VAL MSE 为 0.00181486／0.00080942，后者第 91 轮为 0.00161600／0.00092921。
+
+Query 双分支 256 维使用旧冻结 2,000 TRAIN、A 遮盖约 25% 和 batch16，完成 10 轮／1,250 次更新。第 10 轮 A／B1 训练损失为 0.00396897／0.00390252，Core VAL MSE 为 0.00809383／0.00892401。参数量 15,811,552，各轮训练和评估累计 7:08。合批的真实负载吞吐由 14.3 增至 44.7 景/秒。512、1024 维通过工程验证。
+
+固定 16 景的误差分解显示，两个纯黑 SPOT 图的 MSE 均有超过 97% 来自均值偏差平方。A、B1 的块内梯度 RMS 仅为真值的 18.0% 和 15.1%（逐景中位数）。WorldView‑2 斜纹来自 UTM 视图去除重复源像元后的 QA。Query 第 10 轮在 SpaceNet 校正后的 8 景 WorldView‑3 VAL_EXT 上，A／B1 MSE 为 0.084462／0.104302。
+
+[13 个完成运行、同景 GSD 与 QA 诊断](../outputs/reports/pd_here_s60/current_results/REPORT.md) · [逐项指标](../outputs/reports/pd_here_s60/current_results/results_snapshot.json) · [Query 曲线](../outputs/reports/pd_here_s60/current_results/query_loss_curves.png)

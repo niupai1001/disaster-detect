@@ -1,0 +1,895 @@
+{
+  "as_of": "2026-11-19",
+  "scope": "PD-HERE S60/S120 whole-scene reconstruction",
+  "completed_runs": [
+    {
+      "id": "native512_expanded2000_seed17",
+      "model_id": "S60-WholeScene-SpatialViT",
+      "confirmed_name": "60M地理Patch-单空间ViT",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 10,
+      "completed_updates": 1250,
+      "selected_epoch": 10,
+      "selected_updates": 1250,
+      "checkpoint": "last.pt",
+      "checkpoint_sha256": "ec458fb1fc2159ad114834ef910da2b876b8c177069189c388be09b862b8a331",
+      "evaluation": "fixed TRAIN, 22 parents",
+      "training_loss": {
+        "A": 0.0033320271604643493,
+        "B1": 0.0028632788849558893
+      },
+      "evaluation_mse": {
+        "A": 0.0040199159144368056,
+        "B1": 0.004795203092271549
+      },
+      "parameters": 44647538,
+      "seconds_train_and_eval": 518.54625819996,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "2c63c6d638c46e62d7f354b27b037e2f07b86233254d8a8cdf3f5ec94599f81b"
+    },
+    {
+      "id": "native512_legacy_dual2000_v2_seed17",
+      "model_id": "R3-WholeScene-DualViT",
+      "confirmed_name": "120M地理Patch-空间子PatchViT+光谱ViT1280投影128维-全局两层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 10,
+      "completed_updates": 1250,
+      "selected_epoch": 10,
+      "selected_updates": 1250,
+      "checkpoint": "last.pt",
+      "checkpoint_sha256": "2a1d54e3cfcc52535f6d10d01e4dd78ed2ce75590a9a00505547b5e608cb637c",
+      "evaluation": "fixed TRAIN, 22 parents",
+      "training_loss": {
+        "A": 0.0025990389906437486,
+        "B1": 0.0020305651372100326
+      },
+      "evaluation_mse": {
+        "A": 0.003719048631718793,
+        "B1": 0.004343882535977173
+      },
+      "parameters": 122963696,
+      "seconds_train_and_eval": 2138.2528674999485,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "bb0a1bc9e70cb951062a3b9bbabacb811452eb421338302836630ab3d089f170"
+    },
+    {
+      "id": "native512_dual_axis2000_seed17",
+      "model_id": "S60-WholeScene-DualAxisViT",
+      "confirmed_name": "60M地理Patch-空间全局注意力-光谱ViT1280维投影128维-全局1层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 10,
+      "completed_updates": 1250,
+      "selected_epoch": 10,
+      "selected_updates": 1250,
+      "checkpoint": "last.pt",
+      "checkpoint_sha256": "b9715b5310a96e02e30d0263e936a66e4e08fe13522eba470509f3eedb495902",
+      "evaluation": "fixed TRAIN, 22 parents",
+      "training_loss": {
+        "A": 0.003374401772706733,
+        "B1": 0.0028650568843694374
+      },
+      "evaluation_mse": {
+        "A": 0.004114824638423965,
+        "B1": 0.005046991450853966
+      },
+      "parameters": 49162226,
+      "seconds_train_and_eval": 790.6921159998747,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "6e57b557e4cb91511b032ff164ac5f7229031e2bc2d356dd1e0a7a589f82bc3c"
+    },
+    {
+      "id": "native512_legacy_global1_2000_seed17",
+      "model_id": "R3-WholeScene-DualViT-Global1",
+      "confirmed_name": "120M地理Patch-空间子PatchViT+光谱ViT1280投影128维-全局一层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 10,
+      "completed_updates": 1250,
+      "selected_epoch": 10,
+      "selected_updates": 1250,
+      "checkpoint": "last.pt",
+      "checkpoint_sha256": "dd39e6b0e2b53b99ec97c8798716c7e3cacc7564e693099259a7e366da1d1e06",
+      "evaluation": "fixed TRAIN, 22 parents",
+      "training_loss": {
+        "A": 0.0027947704984180744,
+        "B1": 0.0022213877133151526
+      },
+      "evaluation_mse": {
+        "A": 0.0037269187124080207,
+        "B1": 0.0046521717781615735
+      },
+      "parameters": 122173936,
+      "seconds_train_and_eval": 1914.4687776000937,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "42a2ea5d436820c72458754d8dbe4d68ce4e98d967bfced019f12bed3f4529bb"
+    },
+    {
+      "id": "native512_legacy_spectral_only_2000_seed17",
+      "model_id": "R3-WholeScene-SpectralOnly",
+      "confirmed_name": "120M地理Patch-仅光谱ViT1280投影128维-全局两层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 10,
+      "completed_updates": 1250,
+      "selected_epoch": 10,
+      "selected_updates": 1250,
+      "checkpoint": "last.pt",
+      "checkpoint_sha256": "4d1d4482110edc0a9d7dcda47c51ac31bb45b1d96fb2d830b27e2c00c56807f8",
+      "evaluation": "fixed TRAIN, 22 parents",
+      "training_loss": {
+        "A": 0.0036985216765297083,
+        "B1": 0.003079663669197771
+      },
+      "evaluation_mse": {
+        "A": 0.003846862494902265,
+        "B1": 0.004913148435207404
+      },
+      "parameters": 79060768,
+      "seconds_train_and_eval": 877.6547439000569,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "95ac220ae88304e37c4f0502b92d84251c91367b8cc68c3054f89b25f0da7195"
+    },
+    {
+      "id": "native512_spectral_transformer_spatial_conv2000_seed17",
+      "model_id": "S120-SpectralTransformer-SpatialConv",
+      "confirmed_name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接256维-全局两层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 10,
+      "completed_updates": 1250,
+      "selected_epoch": 10,
+      "selected_updates": 1250,
+      "checkpoint": "last.pt",
+      "checkpoint_sha256": "bd43b2d67759ea62066a827ceec9363ff31e5f3451bbbace3e735fc3793f11b2",
+      "evaluation": "fixed TRAIN, 22 parents",
+      "training_loss": {
+        "A": 0.003964065575204586,
+        "B1": 0.003511320932663466
+      },
+      "evaluation_mse": {
+        "A": 0.0033389831625529535,
+        "B1": 0.005083922100766358
+      },
+      "parameters": 62789696,
+      "seconds_train_and_eval": 976.9605882999022,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "dbf314a28e0d7dd2064022d0cfaefbcfadb33dc93ffb20c8c5d2bf9d19223a10"
+    },
+    {
+      "id": "native512_spectral_transformer_spatial_conv2000_accel_warm_ep300_seed17",
+      "model_id": "S120-SpectralTransformer-SpatialConv",
+      "confirmed_name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接256维-全局两层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "early_stopping",
+      "completed_epochs": 42,
+      "completed_updates": 5250,
+      "selected_epoch": 22,
+      "selected_updates": 2750,
+      "checkpoint": "best.pt",
+      "checkpoint_sha256": "44098e3f82dff2796a7df79bee4c977cbbf0b17094563ae8a6df4ff2650c544a",
+      "evaluation": "Core VAL, 275 parents",
+      "training_loss": {
+        "A": 0.0022851426317356525,
+        "B1": 0.0016161879673600196
+      },
+      "evaluation_mse": {
+        "A": 0.0022347123410467015,
+        "B1": 0.0012726481924418631
+      },
+      "parameters": 62789696,
+      "seconds_train_and_eval": 3041.8283470998285,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "3785de2e44ec4b0f7e47d65409cd3ad0706ffabde11791657cbe741aa50f04b5"
+    },
+    {
+      "id": "native512_spectral_conv512_mae_batch32_ep300_seed17",
+      "model_id": "S120-SpectralTransformer-SpatialConv-512",
+      "confirmed_name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接512维-全局两层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 32,
+      "stop_reason": "early_stopping",
+      "completed_epochs": 286,
+      "completed_updates": 18018,
+      "selected_epoch": 266,
+      "selected_updates": 16758,
+      "checkpoint": "best.pt",
+      "checkpoint_sha256": "40bb5d69b48bfcc429001916c5f108948b32850e876025c7f8d99a99131d21b5",
+      "evaluation": "Core VAL, 275 parents",
+      "training_loss": {
+        "A": 0.0022824782840907575,
+        "B1": 0.0015331696784123777
+      },
+      "evaluation_mse": {
+        "A": 0.002531763635730415,
+        "B1": 0.001608243626870189
+      },
+      "parameters": 68072768,
+      "seconds_train_and_eval": 5868.785104700306,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "5bca7e1aa7650a8bbb605205cbfab792b1d8a6af24424a1bf7d8f62995405432"
+    },
+    {
+      "id": "native512_spectral_conv1024_mae_batch32_ep300_seed17",
+      "model_id": "S120-SpectralTransformer-SpatialConv-1024",
+      "confirmed_name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接1024维-全局两层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 32,
+      "stop_reason": "early_stopping",
+      "completed_epochs": 152,
+      "completed_updates": 9576,
+      "selected_epoch": 132,
+      "selected_updates": 8316,
+      "checkpoint": "best.pt",
+      "checkpoint_sha256": "cfdf2f4f82ee7e6b8bcba02274cded0c877d42ee30a50390395b05a2b0ec06e6",
+      "evaluation": "Core VAL, 275 parents",
+      "training_loss": {
+        "A": 0.002821544110774994,
+        "B1": 0.002227130857296288
+      },
+      "evaluation_mse": {
+        "A": 0.0033250222341350472,
+        "B1": 0.002353783423158099
+      },
+      "parameters": 88076096,
+      "seconds_train_and_eval": 3757.272964600066,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "6349b7c9e38b9b8084dc4ab66eaac46ef8e24467ee5a2f7fb02ca9cccb8bfa90"
+    },
+    {
+      "id": "native512_spatial60_mae_batch32_ep300_seed17",
+      "model_id": "S60-WholeScene-SpatialViT",
+      "confirmed_name": "60M地理Patch-单空间ViT",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 32,
+      "stop_reason": "early_stopping",
+      "completed_epochs": 266,
+      "completed_updates": 16758,
+      "selected_epoch": 246,
+      "selected_updates": 15498,
+      "checkpoint": "best.pt",
+      "checkpoint_sha256": "df15090c214f8bfccaa5065a38fd51df83216f696b20f502a5134fcd347a2b35",
+      "evaluation": "Core VAL, 275 parents",
+      "training_loss": {
+        "A": 0.0019720977870747447,
+        "B1": 0.0009905035896226764
+      },
+      "evaluation_mse": {
+        "A": 0.0023267316368628045,
+        "B1": 0.00128818828804687
+      },
+      "parameters": 44647538,
+      "seconds_train_and_eval": 8419.219857600867,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "5fbaa09742d815b44aceb34c7681e195fb6d1e0cf48e953b24c4d4fedbd4b8bf"
+    },
+    {
+      "id": "native512_full13020_mae_batch32_ep100_seed17",
+      "model_id": "S60-WholeScene-SpatialViT",
+      "confirmed_name": "60M地理Patch-单空间ViT",
+      "parents": 13020,
+      "seed": 17,
+      "batch": 32,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 100,
+      "completed_updates": 40700,
+      "selected_epoch": 90,
+      "selected_updates": 36630,
+      "checkpoint": "best.pt",
+      "checkpoint_sha256": "d6a50d83c2cd91c2fec6d9830ea56d0c0806cd06e1a0019122133967dfb7a69b",
+      "evaluation": "Core VAL, 275 parents",
+      "training_loss": {
+        "A": 0.0017638557740757542,
+        "B1": 0.0007076346674524878
+      },
+      "evaluation_mse": {
+        "A": 0.0018148636998060106,
+        "B1": 0.0008094153807421617
+      },
+      "parameters": 93456982,
+      "seconds_train_and_eval": 18363.158667400014,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "b44732aa3c8b1b0c16d32facddfd3317fc7a4ad43b82a2163715273736fdfe17"
+    },
+    {
+      "id": "native512_spectral_conv256_full13020_mae_batch32_ep100_seed17",
+      "model_id": "S120-SpectralTransformer-SpatialConv",
+      "confirmed_name": "120M地理Patch-空间卷积分辨率组加权-光谱ViT1280维投影1024维-拼接256维-全局两层",
+      "parents": 13020,
+      "seed": 17,
+      "batch": 32,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 100,
+      "completed_updates": 40700,
+      "selected_epoch": 91,
+      "selected_updates": 37037,
+      "checkpoint": "best.pt",
+      "checkpoint_sha256": "25e0555dd7482adf30bed64874e479c3ea877bcb7fa5523a9eeb8070658b52cc",
+      "evaluation": "Core VAL, 275 parents",
+      "training_loss": {
+        "A": 0.001747164380852528,
+        "B1": 0.0010623737721891355
+      },
+      "evaluation_mse": {
+        "A": 0.0016159974379722148,
+        "B1": 0.0009292064718055846
+      },
+      "parameters": 143599276,
+      "seconds_train_and_eval": 12284.863687899604,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "d1c185bcbe96e41a8aa6f5fb83c4f88013b7e5b5cc62c790c68202c8ad8c2f92"
+    },
+    {
+      "id": "adaptive_query256_mask25_2000_ep10_seed17",
+      "model_id": "S120-AdaptiveQueryDualViT-256",
+      "confirmed_name": "120M地理Patch-空间卷积Query汇聚-光谱ViT变长投影1024维-双分支TOKEN自注意力融合-融合256维-全局两层",
+      "parents": 2000,
+      "seed": 17,
+      "batch": 16,
+      "stop_reason": "max_epochs",
+      "completed_epochs": 10,
+      "completed_updates": 1250,
+      "selected_epoch": 10,
+      "selected_updates": 1250,
+      "checkpoint": "best.pt",
+      "checkpoint_sha256": "e98708e3a4522d9c193ba462e33d2cb886b08df330fe2c64136a9a34ce029734",
+      "evaluation": "Core VAL, 275 parents",
+      "training_loss": {
+        "A": 0.003968966928310692,
+        "B1": 0.00390252298861742
+      },
+      "evaluation_mse": {
+        "A": 0.008093825541436672,
+        "B1": 0.008924006329228481
+      },
+      "parameters": 15811552,
+      "seconds_train_and_eval": 428.47881819988834,
+      "subset_release_sha256": "ecf9e97e7ac8d55c23111299dc6ed7f1ff27aec7641361b57c2ee567ea34cf78",
+      "core_release_sha256": "6a7fb668d2a780f49bed27bcde3475c27c193cfc14d3ee7704436736bc7a79cd",
+      "extension_release_sha256": "66c1fef2132b441b6bc8f88a11d7d45f7cd4324ea0efb6db55d09d0bc91eb28b",
+      "history_sha256": "adda8ce39a7e1a2e735e7046a4ab093a0c471d37cb5d2c650c52cbf280415258"
+    }
+  ],
+  "sensor_counts": {
+    "full_train": {
+      "Sentinel-2 MSI": 8406,
+      "Landsat 8 OLI": 2044,
+      "Landsat 9 OLI-2": 525,
+      "VENuS": 129,
+      "Landsat OLI (unresolved)": 1753,
+      "SPOT 6/7 (unresolved)": 100,
+      "WorldView-3": 20,
+      "SPOT 7": 4,
+      "SPOT 6": 2,
+      "WorldView-2": 27,
+      "QuickBird-2": 5,
+      "GeoEye-1": 5
+    },
+    "historical_2000": {
+      "Landsat OLI (unresolved)": 269,
+      "Sentinel-2 MSI": 1291,
+      "Landsat 8 OLI": 314,
+      "Landsat 9 OLI-2": 81,
+      "SPOT 6/7 (unresolved)": 15,
+      "VENuS": 20,
+      "WorldView-3": 3,
+      "SPOT 6": 1,
+      "GeoEye-1": 1,
+      "QuickBird-2": 1,
+      "WorldView-2": 4
+    },
+    "core_val": {
+      "Landsat 8 OLI": 88,
+      "Landsat 9 OLI-2": 87,
+      "Sentinel-2 MSI": 100
+    },
+    "val_ext": {
+      "WorldView-3": 10,
+      "Landsat OLI (unresolved)": 837,
+      "Sentinel-2 MSI": 340,
+      "VENuS": 12,
+      "SPOT 6/7 (unresolved)": 6,
+      "SPOT 7": 3,
+      "SPOT 6": 3,
+      "WorldView-2": 4,
+      "QuickBird-2": 1,
+      "GeoEye-1": 1
+    },
+    "screened_train2000_candidate": {
+      "GeoEye-1": 1,
+      "Landsat 8 OLI": 314,
+      "Landsat 9 OLI-2": 81,
+      "Landsat OLI (unresolved)": 269,
+      "QuickBird-2": 1,
+      "SPOT 6": 1,
+      "SPOT 6/7 (unresolved)": 15,
+      "SPOT 7": 1,
+      "Sentinel-2 MSI": 1291,
+      "VENuS": 20,
+      "WorldView-2": 4,
+      "WorldView-3": 2
+    },
+    "screened_val275_candidate": {
+      "Sentinel-2 MSI": 177,
+      "Landsat 8 OLI": 43,
+      "Landsat 9 OLI-2": 10,
+      "VENuS": 2,
+      "Landsat OLI (unresolved)": 36,
+      "SPOT 6/7 (unresolved)": 1,
+      "WorldView-3": 1,
+      "SPOT 7": 1,
+      "SPOT 6": 1,
+      "WorldView-2": 1,
+      "QuickBird-2": 1,
+      "GeoEye-1": 1
+    }
+  },
+  "screened_candidates": {
+    "full_parents": 13016,
+    "train2000_sha256": "11480f068277d4503d6a07e150593ce566b807e0a4750b5724bc91e1d2a8e82f",
+    "val275_sha256": "cdcc0737623e911117777c3e0d0f8739ac2282e8c7dc76f131ee20ccfb3cc1b5"
+  },
+  "query_runtime": {
+    "device": "cuda:0",
+    "batch": 16,
+    "parameters": 15811552,
+    "selected": "packed",
+    "comparisons": {
+      "serial": {
+        "seconds": 11.195269600022584,
+        "parents": 160,
+        "parents_per_second": 14.291750508596705,
+        "train": {
+          "A": 0.026901840046048165,
+          "B1": 0.025817143730819225
+        },
+        "peak_allocated_bytes": 2231280640,
+        "gpu_utilization_percent": 19,
+        "gpu_samples": 40,
+        "tail_parents": 12,
+        "loss_relative_l2": 0.0,
+        "gradient_relative_l2": 0.0,
+        "compatible": true
+      },
+      "resident": {
+        "seconds": 9.394285599992145,
+        "parents": 160,
+        "parents_per_second": 17.031630377527993,
+        "train": {
+          "A": 0.026901840046048165,
+          "B1": 0.025817143730819225
+        },
+        "peak_allocated_bytes": 2366225408,
+        "gpu_utilization_percent": 24.029411764705884,
+        "gpu_samples": 34,
+        "tail_parents": 12,
+        "loss_relative_l2": 0.0,
+        "gradient_relative_l2": 7.287624280080673e-13,
+        "compatible": true
+      },
+      "packed": {
+        "seconds": 3.57723639998585,
+        "parents": 160,
+        "parents_per_second": 44.72726487984772,
+        "train": {
+          "A": 0.026899279654026033,
+          "B1": 0.025813006795942783
+        },
+        "peak_allocated_bytes": 2713324032,
+        "gpu_utilization_percent": 29.571428571428573,
+        "gpu_samples": 14,
+        "tail_parents": 12,
+        "loss_relative_l2": 0.00020537665113806725,
+        "gradient_relative_l2": 0.0017482362454757094,
+        "compatible": true
+      }
+    }
+  },
+  "full_prediction_compatible_layouts": {
+    "Sentinel-2 MSI": {
+      "role": "Core VAL",
+      "paired_val": 100,
+      "compatible": 100
+    },
+    "Landsat 8 OLI": {
+      "role": "Core VAL",
+      "paired_val": 88,
+      "compatible": 88
+    },
+    "Landsat 9 OLI-2": {
+      "role": "Core VAL",
+      "paired_val": 87,
+      "compatible": 87
+    },
+    "SPOT 6/7 (unresolved)": {
+      "role": "VAL_EXT",
+      "paired_val": 6,
+      "compatible": 6
+    },
+    "VENuS": {
+      "role": "VAL_EXT",
+      "paired_val": 12,
+      "compatible": 12
+    },
+    "SPOT 6": {
+      "role": "VAL_EXT",
+      "paired_val": 3,
+      "compatible": 3
+    },
+    "SPOT 7": {
+      "role": "VAL_EXT",
+      "paired_val": 3,
+      "compatible": 3
+    },
+    "WorldView-2": {
+      "role": "VAL_EXT",
+      "paired_val": 4,
+      "compatible": 2
+    },
+    "WorldView-3": {
+      "role": "VAL_EXT",
+      "paired_val": 10,
+      "compatible": 0
+    }
+  },
+  "native_sensor_evaluation": {
+    "core_parents": 275,
+    "ext_parents": 1217,
+    "seconds": 56.08952129998943,
+    "optimizer_updates": 0,
+    "by_sensor_and_product": [
+      {
+        "sensor": "GeoEye-1",
+        "source": "fMoW",
+        "domain": "fmow_geoeye1_dn",
+        "parents": 1,
+        "native_gsd_m": [
+          1.78,
+          1.78
+        ],
+        "mse": {
+          "A": 0.0025939317420125008,
+          "B1": 0.014883287250995636
+        }
+      },
+      {
+        "sensor": "Landsat 8 OLI",
+        "source": "Core L8",
+        "domain": "surface_reflectance",
+        "parents": 88,
+        "native_gsd_m": [
+          30.0,
+          30.0
+        ],
+        "mse": {
+          "A": 0.008436210978702135,
+          "B1": 0.010132982236675823
+        }
+      },
+      {
+        "sensor": "Landsat 9 OLI-2",
+        "source": "Core L9",
+        "domain": "surface_reflectance",
+        "parents": 87,
+        "native_gsd_m": [
+          30.0,
+          30.0
+        ],
+        "mse": {
+          "A": 0.008792505782879033,
+          "B1": 0.011119088841282399
+        }
+      },
+      {
+        "sensor": "Landsat OLI (unresolved)",
+        "source": "BigEarthNet-L",
+        "domain": "landsatbench_optical_dn",
+        "parents": 837,
+        "native_gsd_m": [
+          30.0,
+          30.0
+        ],
+        "mse": {
+          "A": 0.004136943193565634,
+          "B1": 0.0031353322337702833
+        }
+      },
+      {
+        "sensor": "QuickBird-2",
+        "source": "fMoW",
+        "domain": "fmow_quickbird2_dn",
+        "parents": 1,
+        "native_gsd_m": [
+          2.59,
+          2.59
+        ],
+        "mse": {
+          "A": 0.03948796167969704,
+          "B1": 0.03745165094733238
+        }
+      },
+      {
+        "sensor": "SPOT 6",
+        "source": "WorldStrat SPOT",
+        "domain": "rayleigh_corrected_reflectance",
+        "parents": 3,
+        "native_gsd_m": [
+          6.0,
+          6.0
+        ],
+        "mse": {
+          "A": 0.004425931566705306,
+          "B1": 0.003676469437777996
+        }
+      },
+      {
+        "sensor": "SPOT 6/7 (unresolved)",
+        "source": "FLAIR-HUB SPOT",
+        "domain": "flair_spot_boa_reflectance",
+        "parents": 6,
+        "native_gsd_m": [
+          1.6,
+          1.6
+        ],
+        "mse": {
+          "A": 0.002477050778300812,
+          "B1": 0.002799339866517888
+        }
+      },
+      {
+        "sensor": "SPOT 7",
+        "source": "WorldStrat SPOT",
+        "domain": "rayleigh_corrected_reflectance",
+        "parents": 3,
+        "native_gsd_m": [
+          6.0,
+          6.0
+        ],
+        "mse": {
+          "A": 0.0037491897431512675,
+          "B1": 0.004081739656006296
+        }
+      },
+      {
+        "sensor": "Sentinel-2 MSI",
+        "source": "Core S2",
+        "domain": "surface_reflectance",
+        "parents": 100,
+        "native_gsd_m": [
+          10.0,
+          20.0
+        ],
+        "mse": {
+          "A": 0.00705657123355195,
+          "B1": 0.005518032284289803
+        }
+      },
+      {
+        "sensor": "Sentinel-2 MSI",
+        "source": "FLAIR-HUB S2",
+        "domain": "flair_s2_boa_reflectance",
+        "parents": 328,
+        "native_gsd_m": [
+          10.24,
+          10.24
+        ],
+        "mse": {
+          "A": 0.005448571268061642,
+          "B1": 0.00674935937450289
+        }
+      },
+      {
+        "sensor": "Sentinel-2 MSI",
+        "source": "SEN2VENUS",
+        "domain": "maja_registered_boa_reflectance",
+        "parents": 12,
+        "native_gsd_m": [
+          10.0,
+          20.0
+        ],
+        "mse": {
+          "A": 0.004534858899811904,
+          "B1": 0.003490057191811502
+        }
+      },
+      {
+        "sensor": "VENuS",
+        "source": "SEN2VENUS",
+        "domain": "venus_s2_regressed_reflectance",
+        "parents": 12,
+        "native_gsd_m": [
+          5.0,
+          5.0
+        ],
+        "mse": {
+          "A": 0.0041920113532493515,
+          "B1": 0.009930849443965903
+        }
+      },
+      {
+        "sensor": "WorldView-2",
+        "source": "fMoW",
+        "domain": "fmow_worldview2_dn",
+        "parents": 4,
+        "native_gsd_m": [
+          1.49,
+          1.94
+        ],
+        "mse": {
+          "A": 0.015870683826506138,
+          "B1": 0.01569742101128213
+        }
+      },
+      {
+        "sensor": "WorldView-3",
+        "source": "SpaceNet 3",
+        "domain": "worldview3_dn",
+        "parents": 10,
+        "native_gsd_m": [
+          1.16,
+          1.2
+        ],
+        "mse": {
+          "A": 0.03024122058413923,
+          "B1": 0.02379434132017195
+        }
+      }
+    ]
+  },
+  "matched_footprint": {
+    "parent_count": 12,
+    "footprint_m": [
+      1200,
+      1200
+    ],
+    "patch_grid": [
+      10,
+      10
+    ],
+    "common_target_gsd_m": 60,
+    "aggregate": {
+      "10": {
+        "A": 0.0030488580107430607,
+        "B1": 0.009244293835763528
+      },
+      "20": {
+        "A": 0.003086867596872859,
+        "B1": 0.012736478282325455
+      },
+      "30": {
+        "A": 0.006031819115984642,
+        "B1": 0.021050560153829185
+      }
+    }
+  },
+  "spacenet_qc": {
+    "minimum_effective_support": 0.5,
+    "below_threshold": {
+      "TRAIN": 4,
+      "VAL_EXT": 2,
+      "TEST_EXT": 3
+    },
+    "img157": {
+      "role": "VAL_EXT",
+      "pixels": 105625,
+      "qa_valid": 105257,
+      "edge_zero_mislabeled": 97627,
+      "effective_support": 0.07223668639053255
+    },
+    "worldView3_corrected": {
+      "role": "VAL_EXT",
+      "scored": 8,
+      "mse": {
+        "A": 0.0844619800336659,
+        "B1": 0.1043022470548749
+      }
+    }
+  },
+  "image_diagnostics": {
+    "checkpoint_epoch": 91,
+    "parameters": 143599276,
+    "seconds": 19.73234099999536,
+    "aggregates": {
+      "A": {
+        "cases": 16,
+        "median": {
+          "mse": 0.0006051213179959863,
+          "centered_skill_vs_constant": -0.009514865061242106,
+          "within_patch_gradient_rms_ratio": 0.18027026148127834,
+          "within_patch_gradient_skill_vs_constant": -0.03144235787592953,
+          "within_patch_gradient_correlation": 0.002602413432630885
+        }
+      },
+      "B1": {
+        "cases": 16,
+        "median": {
+          "mse": 0.0015272075298973634,
+          "centered_skill_vs_constant": 0.13085792687920228,
+          "within_patch_gradient_rms_ratio": 0.15058651066087897,
+          "within_patch_gradient_skill_vs_constant": -0.009327226331721339,
+          "within_patch_gradient_correlation": 0.023002679926488016
+        }
+      }
+    },
+    "a_not_better_than_visible_mean": 9,
+    "spot_black_panels": [
+      {
+        "sensor": "SPOT 6",
+        "task": "B1",
+        "band": "B3",
+        "mse": 0.01693464676446184,
+        "bias_squared": 0.01657968418958309,
+        "centered_mse": 0.00035496257487874184,
+        "truth_mean": 0.16649720822091418,
+        "pred_mean": 0.03773508572527071,
+        "below_display_range_fraction": 1.0,
+        "within_patch_gradient_correlation": -0.0160538236604963
+      },
+      {
+        "sensor": "SPOT 7",
+        "task": "B1",
+        "band": "B0",
+        "mse": 0.0016139477205229815,
+        "bias_squared": 0.0015964382396806798,
+        "centered_mse": 1.750948084230161e-05,
+        "truth_mean": 0.09568361845664798,
+        "pred_mean": 0.05572816526586714,
+        "below_display_range_fraction": 1.0,
+        "within_patch_gradient_correlation": -0.005170688620067816
+      }
+    ],
+    "worldview2_mask": {
+      "source_sha256": "528ab937ef4608b06bca67adbd4782edf859766bd492f2e14e059327f35e8920",
+      "original_pixels": 35154,
+      "original_valid": 35154,
+      "stored_pixels": 39204,
+      "before_deduplication_valid": 36671,
+      "final_valid": 31210,
+      "deduplicated_valid": 5461,
+      "exact_cached_mask_match": true
+    }
+  }
+}

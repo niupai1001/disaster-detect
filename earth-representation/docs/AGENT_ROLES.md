@@ -110,3 +110,12 @@ enabled_tasks覆盖训练、VAL、梯度诊断与检查；可视化只画启用�
 排除EnMAP的正式短段已RUNNING：Run e5a83915eb97484ebb2081f20df44e50，源码e843a0f59bdbb40adda3d24cd34262ed35ac7a8f、175文件冻结于release_no_enmap_v1/runtime。随机初始参数0958271a…与原含EnMAP实验一致，初始383VAL同为2.1474302937；已核验真实A-only更新、checkpoint与已执行前缀零EnMAP输入。实际进度以release_no_enmap_v1/formal_run/status.json及training_started.json为准，max_updates232后TRIAL_COMPLETE，不将启动视为质量改善或因果结论。
 
 排除EnMAP短段已SHORT_TRIAL_COMPLETE232/1Epoch，实际7395唯一观测、无EnMAP输入；只读图集no_enmap/reconstruction_best_v1完成，原权重和日志不变。VAL0.49616仍差于可见均值，不标记质量通过，不自动恢复或重开EnMAP。
+
+## PD-HERE 整景训练、验证和交付
+
+1. 完成正确性与代表性负载的加速核查，再按授权运行子集。保持模型、样本隔离、遮盖及损失归约。
+2. 按完整训练池的实测卫星／仪器比例冻结子集 TRAIN 和独立 VAL。记录平台未知、稀有分层及实际任务有效数。经 QA 修正的数据以新候选登记。
+3. 训练日志显示「训练集｜用户确认的完整模型名」。每次固定预测同时包含 Sentinel‑2、Landsat 8、Landsat 9，并列本次扩展卫星、实际入模 GSD、波段数及数据角色。
+4. 交付 A、B1 各自损失、验证指标、参数量、耗时、最佳轮和结束轮。细节恢复同时记录常数基线、中心化误差与原生邻接梯度。用户根据子集结果决定是否全量及其初始化和预算。
+
+[整景阶段报告](../outputs/reports/pd_here_s60/current_results/REPORT.md)

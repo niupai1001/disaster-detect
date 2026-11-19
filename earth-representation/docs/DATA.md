@@ -163,3 +163,11 @@ R3 原绑定的 1000 个成员按来源、处理基线、标定参数及独立�
 S60复用同一修正700/300清单、定标、QA及480米窗口。每个原生波段通过可逆索引拆成60米块，10米波段为6×6、20米波段为3×3，保持原像元。每个旧遮盖映射至相应2×2个位置。1000父的缓存摘要、affine和窗原点核对通过；exposure=0的原生隐藏支持逐像元等价。身份见 [S60运行数据绑定](../outputs/reports/pd_here_s60/matched_seed17_v1/identity.json)。
 
 S60整景试验复用已冻结的扩展2,000 TRAIN选择及来源DN缩放，按原生像元中心映射到60米Patch，保证全父QA覆盖和每像元唯一归属。超过512原生像元的父景沿地理Patch边界切块，统计仍按原父观测。2,000父中仅一景切为16块，最大输出510×510。[样本、几何及切片清单](../outputs/reports/pd_here_s60/native512_expanded2000_seed17/members.json)。
+
+### 整景传感器覆盖与 SpaceNet 质检
+
+整景训练与开发验证按实际卫星／仪器分层，数据集名保留作产品溯源，平台未核实的 OLI、SPOT 成员单列。历史 13,020 景全量有 12 层，Core VAL 含 Sentinel‑2 100 景、Landsat 8 88 景、Landsat 9 87 景。
+
+SpaceNet 3 多光谱 `img157` 源 TIFF 没有声明 NoData，八个波段同时为零且连通边界的像元占 92.7%。旧缓存报告 99.65% 有效，扣除背景后有效覆盖约 7.2%。该数据入口按共同边界零填充校正，校正后有效覆盖低于 50% 的候选剔除。核查标记 4 景 TRAIN、2 景 VAL_EXT、3 景 TEST_EXT。新全量候选为 13,016 景，并准备覆盖全部 12 层的 2,000 TRAIN／275 VAL 比例清单。样本继承原角色，历史结果对应原发布身份。
+
+[卫星、产品、实际入模 GSD、波段与有效数](../outputs/reports/pd_here_s60/current_results/satellite_inventory.csv) · [质检与候选清单哈希](../outputs/reports/pd_here_s60/current_results/results_snapshot.json)
